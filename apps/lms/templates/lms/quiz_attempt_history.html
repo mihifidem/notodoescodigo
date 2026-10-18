@@ -1,0 +1,31 @@
+{% load i18n %}
+{% if attempt_history %}
+<details class="content-accordion-item" id="quiz-attempt-history" data-quiz-info="history">
+  <summary>{% trans 'Registro de intentos' %}</summary>
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr>
+        {% if teacher_view %}<th>{% trans 'Alumno' %}</th>{% endif %}
+        <th>{% trans 'Inicio' %}</th><th>{% trans 'Entrega' %}</th><th>{% trans 'Estado' %}</th>
+        <th>{% trans 'Acertadas' %}</th><th>{% trans 'Falladas' %}</th><th>{% trans 'En blanco' %}</th><th>{% trans 'Nota' %}</th>
+      </tr></thead>
+      <tbody>
+        {% for row in attempt_history %}
+        <tr>
+          {% if teacher_view %}<td>{{ row.attempt.user.get_full_name|default:row.attempt.user.username }}</td>{% endif %}
+          <td>{{ row.attempt.started_at|date:'d/m/Y H:i:s'|default:'—' }}</td>
+          <td>{{ row.attempt.submitted_at|date:'d/m/Y H:i:s'|default:'—' }}</td>
+          <td>{{ row.attempt.get_status_display }}</td>
+          {% if row.show_results and row.attempt.status == 'graded' %}
+            <td>{{ row.attempt.correct_count|default_if_none:'—' }}</td>
+            <td>{{ row.attempt.wrong_count|default_if_none:'—' }}</td>
+            <td>{{ row.attempt.blank_count|default_if_none:'—' }}</td>
+            <td>{{ row.attempt.score }} / {{ row.attempt.grade_entry.max_grade }} {% if row.attempt.is_passed %}({% trans 'Aprobado' %}){% else %}({% trans 'No aprobado' %}){% endif %}</td>
+          {% else %}<td colspan="4">{% trans 'Resultados pendientes de publicación' %}</td>{% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>
+{% endif %}

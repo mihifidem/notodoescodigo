@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}EscapeArenas{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <span class="section-kicker">Ducky Arenas // Escape</span>
+                    <h1 class="mb-0">Escenario de movimiento</h1>
+                </div>
+                <div class="arena-status-pill">Teclas: ← ↑ → ↓</div>
+            </div>
+
+            <div class="arena-scene-frame">
+                <div id="arena-scene" class="arena-scene" aria-label="Escenario de juego de Ducky Arenas">
+                    <div class="scene-glow"></div>
+                    <div class="scene-ruins ruin-left"></div>
+                    <div class="scene-ruins ruin-right"></div>
+                    <div class="scene-ruins ruin-center"></div>
+                    <div class="scene-blocker" aria-label="Zona bloqueada"></div>
+                    <div id="player-sprite" class="player-sprite" aria-label="Sprite del jugador"></div>
+                </div>
+            </div>
+
+            <div class="arena-legend mt-3">
+                <span class="legend-dot"></span>
+                <span>Mueve al personaje con las flechas del cursor para explorar el escenario.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .section-kicker {
+        display: inline-block;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #7dd3fc;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .arena-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(14, 116, 144, 0.2);
+        border: 1px solid rgba(125, 211, 252, 0.35);
+        color: #dff6ff;
+        padding: 0.55rem 1rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+    }
+
+    .arena-scene-frame {
+        border-radius: 22px;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(12, 31, 50, 0.9));
+        border: 1px solid rgba(125, 211, 252, 0.28);
+        box-shadow: 0 20px 60px rgba(2, 6, 23, 0.5);
+    }
+
+    .arena-scene {
+        position: relative;
+        width: 100%;
+        height: 540px;
+        overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background-image: url('{% static "img/escenario2.png" %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        box-shadow: inset 0 0 80px rgba(15, 23, 42, 0.32);
+    }
+
+    .arena-scene::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(8, 15, 30, 0.18), rgba(15, 23, 42, 0.38));
+        pointer-events: none;
+    }
+
+    .scene-glow {
+        position: absolute;
+        inset: 8% 20% auto;
+        height: 34%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0.04) 45%, transparent 70%);
+        filter: blur(18px);
+        pointer-events: none;
+    }
+
+    .scene-ruins {
+        position: absolute;
+        bottom: 24px;
+        width: 120px;
+        height: 150px;
+        background: linear-gradient(180deg, rgba(148, 163, 184, 0.18), rgba(15, 23, 42, 0.28));
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 12px 12px 8px 8px;
+        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+        z-index: 1;
+    }
+
+    .ruin-left { left: 12%; }
+    .ruin-right { right: 12%; }
+    .ruin-center {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 120px;
+        bottom: 46px;
+    }
+
+    .scene-blocker {
+        position: absolute;
+        left: 50%;
+        top: 25%;
+        width: 240px;
+        height: 210px;
+        transform: translateX(-50%);
+        border-radius: 18px;
+        background-image: url('{% static "img/escenario2.png" %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: grayscale(1) brightness(0.15) contrast(1.55) saturate(0.2);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .player-sprite {
+        position: absolute;
+        left: 48px;
+        top: 390px;
+        width: 75px;
+        height: 75px;
+        background-image: url('{% static "img/griego.png" %}');
+        background-size: contain;
+        background-position: center center;
+        background-repeat: no-repeat;
+        image-rendering: pixelated;
+        filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.55));
+        z-index: 3;
+        will-change: left, top;
+    }
+
+    .arena-legend {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(125, 211, 252, 0.22);
+        color: #dbeafe;
+        font-size: 0.96rem;
+    }
+
+    .legend-dot {
+        display: inline-block;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #22c55e);
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    }
+
+    @media (max-width: 767px) {
+        .arena-scene {
+            height: 420px;
+        }
+
+        .player-sprite {
+            width: 62px;
+            height: 62px;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const scene = document.getElementById('arena-scene');
+        const sprite = document.getElementById('player-sprite');
+
+        if (!scene || !sprite) {
+            return;
+        }
+
+        let x = 48;
+        let y = scene.clientHeight - 120;
+        const speed = 220;
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+        };
+
+        const blocker = {
+            left: scene.clientWidth / 2 - 120,
+            top: 110,
+            width: 240,
+            height: 220,
+        };
+
+        const blockedZones = [
+            { left: scene.clientWidth / 2 - 120, top: 110, width: 240, height: 220 },
+        ];
+
+        function clampPosition() {
+            const maxX = Math.max(0, scene.clientWidth - sprite.offsetWidth);
+            const maxY = Math.max(0, scene.clientHeight - sprite.offsetHeight);
+            x = Math.min(maxX, Math.max(0, x));
+            y = Math.min(maxY, Math.max(0, y));
+            sprite.style.left = x + 'px';
+            sprite.style.top = y + 'px';
+        }
+
+        function collidesWithBlocker(candidateX, candidateY) {
+            const spriteLeft = candidateX;
+            const spriteRight = candidateX + sprite.offsetWidth;
+            const spriteTop = candidateY;
+            const spriteBottom = candidateY + sprite.offsetHeight;
+
+            return blockedZones.some(zone => !(spriteRight <= zone.left ||
+                spriteLeft >= zone.left + zone.width ||
+                spriteBottom <= zone.top ||
+                spriteTop >= zone.top + zone.height));
+        }
+
+        function handleKeyChange(event, isPressed) {
+            const key = event.key;
+            if (key in keys) {
+                event.preventDefault();
+                keys[key] = isPressed;
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            handleKeyChange(event, true);
+        });
+
+        document.addEventListener('keyup', function (event) {
+            handleKeyChange(event, false);
+        });
+
+        function updateFrame(timestamp) {
+            if (!updateFrame.lastTimestamp) {
+                updateFrame.lastTimestamp = timestamp;
+            }
+
+            const deltaSeconds = (timestamp - updateFrame.lastTimestamp) / 1000;
+            updateFrame.lastTimestamp = timestamp;
+
+            let nextX = x;
+            let nextY = y;
+
+            if (keys.ArrowUp) nextY -= speed * deltaSeconds;
+            if (keys.ArrowDown) nextY += speed * deltaSeconds;
+            if (keys.ArrowLeft) nextX -= speed * deltaSeconds;
+            if (keys.ArrowRight) nextX += speed * deltaSeconds;
+
+            if (!collidesWithBlocker(nextX, y)) {
+                x = nextX;
+            }
+            if (!collidesWithBlocker(x, nextY)) {
+                y = nextY;
+            }
+
+            clampPosition();
+            requestAnimationFrame(updateFrame);
+        }
+
+        clampPosition();
+        window.addEventListener('resize', function () {
+            blocker.left = scene.clientWidth / 2 - 120;
+            blockedZones[0].left = scene.clientWidth / 2 - 120;
+            blocker.top = 110;
+            blockedZones[0].top = 110;
+            clampPosition();
+        });
+        requestAnimationFrame(updateFrame);
+    })();
+</script>
+{% endblock %}

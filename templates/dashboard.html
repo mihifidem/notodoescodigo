@@ -1,0 +1,205 @@
+  {% if user.is_authenticated %}
+  {# --- Dashboard premium del alumno --- #}
+  <div class="container-fluid px-4 py-4">
+    <div class="row g-4 align-items-stretch">
+      <div class="col-12">
+        <div class="rounded-4 border shadow-sm p-4 position-relative overflow-hidden" style="background:linear-gradient(135deg,#e0f2fe,#f8fafc 55%,#eef2ff); border-color:#bfdbfe;">
+          <div class="position-absolute top-0 end-0 opacity-25" style="width:220px;height:220px;background:radial-gradient(circle,#60a5fa,#dbeafe 62%,transparent 70%); transform:translate(20px,-30px);"></div>
+          <div class="position-relative d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div>
+              <div class="small text-uppercase fw-bold mb-2" style="letter-spacing:.14em; color:#2563eb;">Panel del alumno</div>
+              <h2 class="mb-1 fw-bold" style="color:#0f172a;">Bienvenido, {{ user.get_full_name|default:user.username }}</h2>
+              <p class="mb-0 text-muted">Tu aprendizaje, tus logros y tus próximos pasos en un solo lugar.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <a href="{% url 'courses:list' %}" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">Continuar curso</a>
+              <a href="{% url 'curriculum:dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Ver mi CV</a>
+            </div>
+          </div>
+        </div>
+      </div>
+<section>
+
+
+
+</section>
+      <div class="col-md-4">
+        <a href="{% url 'analytics:mi_progreso' %}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body overflow-hidden" style="transition: transform .15s ease; box-shadow: 0 12px 28px rgba(37,99,235,.08);">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#64748b;">Mi progreso</span>
+              <span class="badge rounded-pill" style="background:#dbeafe; color:#1d4ed8;">68%</span>
+            </div>
+            <div class="display-6 fw-bold" style="color:#0f172a;">68%</div>
+            <div class="progress mt-3" style="height: 10px; border-radius:999px; background:#e2e8f0;">
+              <div class="progress-bar" role="progressbar" style="width: 68%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:999px;"></div>
+            </div>
+            <p class="mb-0 mt-3 small text-muted">Tu avance general está en curso.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="{% url 'certifications:list' %}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body overflow-hidden" style="transition: transform .15s ease; box-shadow: 0 12px 28px rgba(21,132,99,.08);">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#64748b;">Certificados</span>
+              <span class="badge rounded-pill" style="background:#dcfce7; color:#15803d;">4</span>
+            </div>
+            <div class="display-6 fw-bold" style="color:#0f172a;">4</div>
+            <p class="mb-0 mt-3 small text-muted">Cursos validados y acreditados.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="{% url 'gamification:insignias' %}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body overflow-hidden" style="transition: transform .15s ease; box-shadow: 0 12px 28px rgba(180,83,9,.08);">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#64748b;">Insignias</span>
+              <span class="badge rounded-pill" style="background:#fef3c7; color:#b45309;">12</span>
+            </div>
+            <div class="display-6 fw-bold" style="color:#0f172a;">12</div>
+            <p class="mb-0 mt-3 small text-muted">Logros conseguidos en la plataforma.</p>
+          </div>
+        </a>
+      </div>
+
+      {% if not user.is_staff %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4" style="background:#fff;">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="mb-0 fw-bold" style="color:#0f172a;">Student</h3>
+              <span class="small text-muted">Área del alumno</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <a href="{% url 'evaluations:list' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:linear-gradient(180deg,#f8fafc,#f1f5f9); border-color:#dfe7f2; transition:transform .15s ease;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;background:#dbeafe;color:#1d4ed8;">
+                      <i class="bi bi-clipboard-check"></i>
+                    </span>
+                    <strong style="color:#0f172a;">Evaluaciones</strong>
+                  </div>
+                  <p class="mb-0 small text-muted">Revisión de pruebas y seguimiento del rendimiento.</p>
+                </a>
+              </div>
+              <div class="col-md-4">
+                <a href="{% url 'gamification:misiones' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:linear-gradient(180deg,#f8fafc,#f0fdf4); border-color:#d8f5df; transition:transform .15s ease;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;background:#dcfce7;color:#15803d;">
+                      <i class="bi bi-lightning-charge"></i>
+                    </span>
+                    <strong style="color:#0f172a;">Misiones</strong>
+                  </div>
+                  <p class="mb-0 small text-muted">Retos activos, objetivos y recompensas diarias.</p>
+                </a>
+              </div>
+              <div class="col-md-4">
+                <a href="{% url 'bug_reports:list' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:linear-gradient(180deg,#f8fafc,#fef2f2); border-color:#f9d7d7; transition:transform .15s ease;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;background:#fee2e2;color:#b91c1c;">
+                      <i class="bi bi-bug"></i>
+                    </span>
+                    <strong style="color:#0f172a;">Reportar bug</strong>
+                  </div>
+                  <p class="mb-0 small text-muted">Enviar incidencias para mejorar la experiencia.</p>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h3 class="fw-bold mb-3" style="color:#0f172a;">Aprendizaje</h3>
+            <div class="list-group list-group-flush">
+              <a href="{% url 'courses:list' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-book me-2 text-primary"></i>Cursos</span>
+                <span class="badge rounded-pill text-bg-light">7</span>
+              </a>
+              <a href="{% url 'curriculum:dashboard' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-file-person me-2 text-primary"></i>Mi CV</span>
+                <span class="badge rounded-pill text-bg-light">Activo</span>
+              </a>
+              <a href="{% url 'blog:list' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-journal-text me-2 text-primary"></i>Blog</span>
+                <span class="badge rounded-pill text-bg-light">Novedades</span>
+              </a>
+              <a href="{% url 'prompts:list' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-robot me-2 text-primary"></i>Prompts IA</span>
+                <span class="badge rounded-pill text-bg-light">Nuevo</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h3 class="fw-bold mb-3" style="color:#0f172a;">Motivación</h3>
+            <div class="list-group list-group-flush">
+              <a href="{% url 'gamification:ranking' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-trophy me-2 text-warning"></i>Ranking</span>
+                <span class="badge rounded-pill text-bg-warning-subtle">Top 10</span>
+              </a>
+              <a href="{% url 'rewards:list' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-gift me-2 text-warning"></i>Recompensas</span>
+                <span class="badge rounded-pill text-bg-warning-subtle">3</span>
+              </a>
+              <a href="{% url 'minigames:hub' %}" class="list-group-item list-group-item-action px-0 py-3 border-0 d-flex justify-content-between align-items-center text-decoration-none text-body">
+                <span><i class="bi bi-controller me-2 text-warning"></i>Minijuegos</span>
+                <span class="badge rounded-pill text-bg-warning-subtle">Disponible</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if user.is_staff %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4" style="border:1px solid rgba(147,197,253,.5); background:linear-gradient(135deg,#eff6ff,#f8fafc);">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="mb-0 fw-bold" style="color:#0f172a;">Administración</h3>
+              <span class="small text-muted">Solo staff</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <a href="{% url 'nexus:dashboard' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:rgba(255,255,255,.65); border-color:#dbeafe;">
+                  <strong class="d-block mb-1">Nexus Admin</strong>
+                  <small class="text-muted">Panel interno</small>
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'analytics:dashboard_admin' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:rgba(255,255,255,.65); border-color:#dbeafe;">
+                  <strong class="d-block mb-1">Admin Analytics</strong>
+                  <small class="text-muted">Métricas</small>
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'gamification:crear_insignia' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:rgba(255,255,255,.65); border-color:#dbeafe;">
+                  <strong class="d-block mb-1">Crear insignia</strong>
+                  <small class="text-muted">Gestión social</small>
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'bug_reports:admin_list' %}" class="d-block rounded-4 p-3 border h-100 text-decoration-none text-body" style="background:rgba(255,255,255,.65); border-color:#dbeafe;">
+                  <strong class="d-block mb-1">Validar bugs</strong>
+                  <small class="text-muted">Revisión</small>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {# --- Fin dashboard premium --- #}
+{% endif %}

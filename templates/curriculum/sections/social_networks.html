@@ -1,0 +1,13 @@
+{% extends "curriculum/sections/_section_base.html" %}
+{% block title %}Redes profesionales — CV{% endblock %}
+{% block section_title %}<i class="bi bi-share me-2 text-primary"></i>Redes profesionales{% endblock %}
+
+{% block form_content %}
+{% for field in form %}
+<div class="mb-3">
+  <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {{ field }}
+  {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>{% endif %}
+</div>
+{% endfor %}
+{% endblock %}

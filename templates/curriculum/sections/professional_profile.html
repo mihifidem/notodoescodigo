@@ -1,0 +1,134 @@
+{% extends "curriculum/sections/_section_base.html" %}
+{% block title %}Perfil profesional — CV{% endblock %}
+{% block section_title %}<i class="bi bi-briefcase me-2 text-primary"></i>Perfil profesional{% endblock %}
+
+{% block form_content %}
+{% for field in form %}
+<div class="mb-3">
+  <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+  {% if field.html_name == 'resumen' %}
+    {{ field }}
+    {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>{% endif %}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+
+    {# ── AI suggestion button ── #}
+    <div class="mt-2 d-flex align-items-center gap-2">
+      <button type="button" id="btn-ia-resumen" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-stars me-1"></i>Sugerir con IA
+      </button>
+      <span id="ia-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status">
+        <span class="visually-hidden">Generando…</span>
+      </span>
+    </div>
+
+    {# Warning / error message #}
+    <div id="ia-warning" class="alert alert-warning alert-sm mt-2 d-none py-2" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>
+      <span id="ia-warning-text"></span>
+    </div>
+
+    {# Preview of the AI suggestion (shown before accepting) #}
+    <div id="ia-preview" class="mt-2 d-none">
+      <div class="card border-primary border-opacity-50">
+        <div class="card-header py-2 bg-primary bg-opacity-10 d-flex align-items-center justify-content-between">
+          <span class="fw-semibold text-primary small"><i class="bi bi-robot me-1"></i>Sugerencia de la IA</span>
+          <span class="text-muted small">Puedes editarla antes de guardar</span>
+        </div>
+        <div class="card-body py-2">
+          <p id="ia-suggestion-text" class="mb-0 text-dark" style="white-space:pre-wrap;"></p>
+        </div>
+        <div class="card-footer py-2 d-flex gap-2">
+          <button type="button" id="btn-ia-accept" class="btn btn-success btn-sm">
+            <i class="bi bi-check-lg me-1"></i>Usar esta sugerencia
+          </button>
+          <button type="button" id="btn-ia-discard" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-x-lg me-1"></i>Descartar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+    {{ field }}
+    {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>{% endif %}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+  {% endif %}
+</div>
+{% endfor %}
+
+<script>
+(function () {
+  const btn       = document.getElementById('btn-ia-resumen');
+  const spinner   = document.getElementById('ia-spinner');
+  const warning   = document.getElementById('ia-warning');
+  const warnText  = document.getElementById('ia-warning-text');
+  const preview   = document.getElementById('ia-preview');
+  const suggText  = document.getElementById('ia-suggestion-text');
+  const btnAccept = document.getElementById('btn-ia-accept');
+  const btnDiscard= document.getElementById('btn-ia-discard');
+  const textarea  = document.getElementById('id_resumen');
+
+  const endpoint  = '{% url "curriculum:suggest_resumen_ia" %}';
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  function showWarning(msg) {
+    warnText.textContent = msg;
+    warning.classList.remove('d-none');
+    preview.classList.add('d-none');
+  }
+
+  function hideWarning() {
+    warning.classList.add('d-none');
+  }
+
+  btn.addEventListener('click', async function () {
+    hideWarning();
+    preview.classList.add('d-none');
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+
+    try {
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!resp.ok) {
+        showWarning('Error de comunicación con el servidor (' + resp.status + '). Inténtalo de nuevo.');
+        return;
+      }
+
+      const data = await resp.json();
+
+      if (data.ok) {
+        suggText.textContent = data.suggestion;
+        preview.classList.remove('d-none');
+      } else {
+        showWarning(data.warning || 'No se pudo generar la sugerencia.');
+      }
+    } catch (err) {
+      showWarning('Error de red. Comprueba tu conexión e inténtalo de nuevo.');
+    } finally {
+      spinner.classList.add('d-none');
+      btn.disabled = false;
+    }
+  });
+
+  btnAccept.addEventListener('click', function () {
+    textarea.value = suggText.textContent;
+    preview.classList.add('d-none');
+    textarea.focus();
+    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  btnDiscard.addEventListener('click', function () {
+    preview.classList.add('d-none');
+  });
+})();
+</script>
+{% endblock %}
+

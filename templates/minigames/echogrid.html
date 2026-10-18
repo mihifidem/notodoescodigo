@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block page_title %}EchoGrid — Memoria Secuencial{% endblock %}
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+body{background:#05051A;}
+#page-content{background:#05051A!important;}
+main.flex-grow-1{background:#05051A!important;color:rgba(255,255,255,.85)!important;padding:0!important;}
+
+.mg-wrap{max-width:500px;margin:0 auto;padding:1.5rem 1rem;}
+.mg-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.mg-logo{font-family:'Poppins',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;}
+.mg-logo span{background:linear-gradient(135deg,#6366F1,#A855F7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.mg-back{color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;display:flex;align-items:center;gap:5px;}
+.mg-back:hover{color:#fff;}
+
+.eg-hud{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.hud-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:10px;text-align:center;}
+.hud-n{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700;color:#fff;line-height:1;}
+.hud-l{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+
+.eg-lives{display:flex;gap:6px;justify-content:center;margin-bottom:.6rem;font-size:1.4rem;}
+.eg-status{text-align:center;margin-bottom:.75rem;height:22px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;}
+
+.eg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+.eg-cell{
+  aspect-ratio:1;border-radius:12px;cursor:pointer;
+  transition:filter .1s,transform .1s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;border:2px solid transparent;
+}
+.eg-cell:hover:not(.disabled){filter:brightness(1.3);transform:scale(1.05);}
+.eg-cell:active:not(.disabled){transform:scale(.95);}
+.eg-cell.disabled{cursor:default;pointer-events:none;}
+.eg-cell.flash{filter:brightness(2.4)!important;transform:scale(1.12)!important;}
+@keyframes correctPop{0%,100%{transform:scale(1)}40%{transform:scale(1.18)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.eg-cell.correct-pop{animation:correctPop .22s ease;}
+.eg-cell.wrong-shake{animation:wrongShake .28s ease;}
+
+.mg-overlay{position:fixed;inset:0;background:rgba(5,5,26,.93);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(8px);}
+.mg-modal{background:linear-gradient(145deg,#0D0D2A,#05051A);border:1px solid rgba(99,102,241,.2);border-radius:20px;padding:2.5rem;text-align:center;max-width:400px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,.7);}
+.mg-modal-icon{font-size:3.5rem;margin-bottom:1rem;}
+.mg-modal-title{font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:.5rem;}
+.mg-modal-sub{color:rgba(255,255,255,.45);font-size:.85rem;margin-bottom:1.5rem;line-height:1.6;}
+.mg-modal-score{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;color:#6366F1;line-height:1;margin-bottom:.2rem;}
+.mg-modal-score-lbl{font-size:.65rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1.5rem;}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.result-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;}
+.result-n{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700;color:#fff;}
+.result-l{font-size:.58rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.mg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:12px;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .2s;}
+.mg-btn-primary{background:linear-gradient(135deg,#312E81,#6366F1);color:#fff;}
+.mg-btn-secondary{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+.mg-btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.mg-btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+  <div class="mg-nav">
+    <div class="mg-logo">🔊 Echo<span>Grid</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <div class="eg-hud">
+    <div class="hud-box"><div class="hud-n" id="egRound">1</div><div class="hud-l">Ronda</div></div>
+    <div class="hud-box"><div class="hud-n" id="egSeqLen">3</div><div class="hud-l">Secuencia</div></div>
+    <div class="hud-box"><div class="hud-n" id="egScore">0</div><div class="hud-l">Puntos</div></div>
+    <div class="hud-box"><div class="hud-n" id="egProgress">0/3</div><div class="hud-l">Progreso</div></div>
+  </div>
+
+  <div class="eg-lives" id="egLives">❤️ ❤️ ❤️</div>
+  <div class="eg-status" id="egStatus"></div>
+  <div class="eg-grid" id="egGrid"></div>
+</div>
+
+<!-- Start -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">🔊</div>
+    <div class="mg-modal-title">EchoGrid</div>
+    <div class="mg-modal-sub">El tablero iluminará una secuencia de celdas. Memorízala y repítela en el mismo orden. Comienza con 3 celdas y la secuencia crece con cada ronda. Tienes 3 vidas.</div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🔊</div>
+    <div class="mg-modal-title" id="endTitle">Fin</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos</div>
+    <div class="result-grid">
+      <div class="result-box"><div class="result-n" id="endRounds">0</div><div class="result-l">Rondas</div></div>
+      <div class="result-box"><div class="result-n" id="endMaxSeq">0</div><div class="result-l">Máx. secu.</div></div>
+      <div class="result-box"><div class="result-n" id="endErrors">0</div><div class="result-l">Errores</div></div>
+    </div>
+    <div class="mg-modal-sub" id="endMsg"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const CELL_COLORS=[
+  '#6366F1','#818CF8','#A855F7','#C084FC',
+  '#3B82F6','#60A5FA','#06B6D4','#22D3EE',
+  '#10B981','#34D399','#F59E0B','#FBBF24',
+  '#EF4444','#F87171','#EC4899','#F472B6'
+];
+const CELL_EMOJIS=['🔷','🔹','🟣','✨','💙','🔵','🩵','💎','💚','🍀','🟡','⭐','❤️','🔴','💗','🌸'];
+
+let seqLen=3,lives=3,score=0,round=0,maxSeq=3,errors=0;
+let sequence=[],userInput=[],phase='idle';
+
+function buildGrid(){
+  const g=document.getElementById('egGrid');
+  g.innerHTML='';
+  for(let i=0;i<16;i++){
+    const c=document.createElement('div');
+    c.className='eg-cell disabled';
+    c.id='egCell'+i;
+    c.style.background=CELL_COLORS[i]+'28';
+    c.style.borderColor=CELL_COLORS[i]+'40';
+    c.textContent=CELL_EMOJIS[i];
+    c.addEventListener('click',()=>cellClick(i));
+    g.appendChild(c);
+  }
+}
+
+function startGame(){
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  seqLen=3;lives=3;score=0;round=0;maxSeq=3;errors=0;phase='idle';
+  buildGrid();
+  updateLives();
+  updateHUD();
+  setTimeout(startRound,400);
+}
+
+function startRound(){
+  round++;updateHUD();
+  setStatus('Observa la secuencia...','rgba(255,255,255,.5)');
+  disableCells();
+  sequence=[];
+  for(let i=0;i<seqLen;i++){
+    let c;
+    do{ c=Math.floor(Math.random()*16); }
+    while(i>0&&c===sequence[i-1]);
+    sequence.push(c);
+  }
+  userInput=[];
+  updateProgress();
+  playSequence();
+}
+
+function playSequence(){
+  const FLASH_GAP=Math.max(400,700-seqLen*20);
+  sequence.forEach((idx,i)=>setTimeout(()=>flashCell(idx),FLASH_GAP*i+300));
+  setTimeout(()=>{
+    setStatus('¡Repite la secuencia!','#818CF8');
+    enableCells();
+    phase='input';
+  },FLASH_GAP*sequence.length+500);
+}
+
+function flashCell(idx){
+  const c=document.getElementById('egCell'+idx);
+  c.style.background=CELL_COLORS[idx];
+  c.style.borderColor=CELL_COLORS[idx];
+  c.classList.add('flash');
+  setTimeout(()=>{
+    c.classList.remove('flash');
+    c.style.background=CELL_COLORS[idx]+'28';
+    c.style.borderColor=CELL_COLORS[idx]+'40';
+  },380);
+}
+
+function cellClick(idx){
+  if(phase!=='input') return;
+  const expected=sequence[userInput.length];
+  userInput.push(idx);
+  const c=document.getElementById('egCell'+idx);
+
+  if(idx===expected){
+    c.style.background=CELL_COLORS[idx];
+    c.classList.add('correct-pop');
+    setTimeout(()=>{c.classList.remove('correct-pop');c.style.background=CELL_COLORS[idx]+'28';},220);
+    updateProgress();
+    if(userInput.length===sequence.length){
+      phase='idle';disableCells();
+      const pts=seqLen*20;score+=pts;
+      maxSeq=Math.max(maxSeq,seqLen);
+      setStatus('✓ +'+pts+' pts','#4ADE80');
+      updateHUD();
+      seqLen=Math.min(14,seqLen+1);
+      setTimeout(startRound,900);
+    }
+  } else {
+    c.classList.add('wrong-shake');
+    setTimeout(()=>c.classList.remove('wrong-shake'),280);
+    errors++;lives--;
+    updateLives();updateHUD();
+    phase='idle';disableCells();
+    if(lives<=0){
+      setStatus('💀 Sin vidas','#EF4444');
+      setTimeout(endGame,700);
+    } else {
+      setStatus('✗ Error · Secuencia reducida','#FCA5A5');
+      seqLen=Math.max(3,seqLen-1);
+      setTimeout(startRound,1100);
+    }
+  }
+}
+
+function updateProgress(){
+  document.getElementById('egProgress').textContent=userInput.length+'/'+seqLen;
+}
+function disableCells(){document.querySelectorAll('.eg-cell').forEach(c=>c.classList.add('disabled'));}
+function enableCells(){document.querySelectorAll('.eg-cell').forEach(c=>c.classList.remove('disabled'));}
+function setStatus(msg,color){const s=document.getElementById('egStatus');s.textContent=msg;s.style.color=color||'rgba(255,255,255,.5)';}
+function updateLives(){
+  const icons=['❤️','❤️','❤️'];
+  for(let i=lives;i<3;i++) icons[i]='🖤';
+  document.getElementById('egLives').textContent=icons.join(' ');
+}
+function updateHUD(){
+  document.getElementById('egRound').textContent=round;
+  document.getElementById('egSeqLen').textContent=seqLen;
+  document.getElementById('egScore').textContent=score;
+}
+
+function endGame(){
+  const msgs=['Entrena tu memoria visual secuencial','Buena capacidad de memoria de trabajo','¡Excelente memoria secuencial!','¡Memoria de trabajo excepcional!'];
+  const idx=score>=600?3:score>=300?2:score>=100?1:0;
+  document.getElementById('endIcon').textContent=score>=400?'🏆':score>=200?'⭐':'🔊';
+  document.getElementById('endTitle').textContent=score>=400?'¡Memoria de élite!':score>=200?'¡Bien hecho!':'Sigue entrenando';
+  document.getElementById('endScore').textContent=score.toLocaleString();
+  document.getElementById('endRounds').textContent=round;
+  document.getElementById('endMaxSeq').textContent=maxSeq;
+  document.getElementById('endErrors').textContent=errors;
+  document.getElementById('endMsg').textContent=msgs[idx]+' · Secuencia máxima: '+maxSeq+' celdas';
+  document.getElementById('endOverlay').style.display='flex';
+}
+</script>
+{% endblock %}

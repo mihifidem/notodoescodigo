@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Registro — MihiTraining{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5 bg-primary bg-opacity-10">
+  <div class="card border-0 shadow-lg" style="width:100%;max-width:480px;">
+    <div class="card-body p-5">
+      <div class="text-center mb-4">
+        <i class="bi bi-mortarboard-fill display-4 text-primary"></i>
+        <h2 class="fw-bold mt-2">Crear cuenta</h2>
+        <p class="text-muted small">Únete y comienza a aprender hoy</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% if field.errors %}
+              <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-primary fw-semibold">Crear cuenta</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-3 small">
+        ¿Ya tienes cuenta?
+        <a href="{% url 'account_login' %}" class="text-primary fw-semibold">Iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const codigo = document.getElementById('id_codigo_acceso');
+  const aula = document.getElementById('id_aula');
+  if (!codigo || !aula) {
+    return;
+  }
+
+  const CODIGO_ALUMNO = '010819';
+
+  function syncAulaState() {
+    const habilitado = (codigo.value || '').trim() === CODIGO_ALUMNO;
+    aula.disabled = !habilitado;
+    if (!habilitado) {
+      aula.value = '';
+    }
+  }
+
+  codigo.addEventListener('input', syncAulaState);
+  syncAulaState();
+})();
+</script>
+{% endblock %}

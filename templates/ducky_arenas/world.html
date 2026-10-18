@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Duki Arenas · {{ world_config.label }}{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'ducky_arenas/css/ducky-world.css' %}">
+{% endblock %}
+{% block content %}
+<main class="ducky-world" data-ducky-world
+      data-state-url="{% url 'ducky_arenas:exploration_state' %}"
+      data-evolution-ack-url="{{ evolution_notice_ack_url }}">
+    <header class="ducky-world__header">
+        <div>
+            <p class="ducky-world__eyebrow">DUKI ARENAS · CORE</p>
+            <h1>{{ world_config.label }}</h1>
+            <p>Explora con el teclado o los controles táctiles. Tu posición se guarda en tu perfil.</p>
+        </div>
+        <div class="ducky-world__header-actions">
+            <button class="btn btn-outline-primary" type="button" data-fullscreen>
+                Pantalla completa
+            </button>
+            <button class="btn btn-outline-secondary" type="button" data-exit-world>
+                Volver al lobby
+            </button>
+        </div>
+    </header>
+
+    {% if messages %}
+    <div class="ducky-world__messages" aria-live="polite">
+        {% for message in messages %}<p class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <dialog class="ducky-world__evolution" data-evolution-dialog
+            aria-labelledby="ducky-evolution-title">
+        <div class="ducky-world__evolution-content">
+            <p class="ducky-world__eyebrow">EVOLUCIÓN HISTÓRICA</p>
+            <img data-evolution-portrait alt="" hidden>
+            <h2 id="ducky-evolution-title" data-evolution-title></h2>
+            <p data-evolution-description>Nueva era desbloqueada</p>
+            <p class="ducky-world__error" data-evolution-error role="alert" hidden></p>
+            <button class="btn btn-primary" type="button" data-evolution-ack>
+                Continuar
+            </button>
+        </div>
+    </dialog>
+
+    <div class="ducky-world__layout">
+        <section class="ducky-world__play" aria-label="Mapa interactivo">
+            <div class="ducky-world__game-frame">
+                <div id="ducky-world-game" aria-label="Mapa de {{ world_config.label }}"></div>
+                <div class="ducky-world__loading" data-world-loading role="status">Cargando el mapa…</div>
+            </div>
+            <p class="ducky-world__error" data-world-error role="alert" hidden></p>
+            <div class="ducky-world__portal-prompt" data-portal-prompt hidden aria-live="polite">
+                <span>Portal cercano: <strong data-portal-name></strong></span>
+                <button class="btn btn-primary" type="button" data-interact-portal disabled>
+                    Interactuar
+                </button>
+            </div>
+            <p class="ducky-world__sprite-note" data-sprite-notice aria-live="polite"></p>
+            <div class="ducky-world__touch-controls" aria-label="Controles táctiles">
+                <button type="button" data-move="up" aria-label="Mover hacia arriba">▲</button>
+                <div>
+                    <button type="button" data-move="left" aria-label="Mover hacia la izquierda">◀</button>
+                    <button type="button" data-move="down" aria-label="Mover hacia abajo">▼</button>
+                    <button type="button" data-move="right" aria-label="Mover hacia la derecha">▶</button>
+                </div>
+                <button type="button" aria-label="Interactuar con el portal cercano"
+                        data-interact-touch disabled>◎</button>
+            </div>
+            <p class="ducky-world__hint">
+                Teclado: flechas o WASD para moverte, E para interactuar. En móvil, mantén pulsado un control.
+            </p>
+            {% if world_config.debug_allowed %}
+            <section class="ducky-world__panel" data-portal-editor aria-label="Editor de portales">
+                <h2>Editor de portales (solo depuración)</h2>
+                <label for="portal-editor-select">Portal</label>
+                <select id="portal-editor-select" data-portal-editor-select>
+                    {% for portal in world_config.portals %}
+                    <option value="{{ portal.portal_id }}">{{ portal.name }} ({{ portal.portal_id }})</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-outline-primary" type="button" data-portal-capture>
+                    Capturar geometría en el mapa
+                </button>
+                <p data-portal-editor-status aria-live="polite">
+                    Selecciona un portal y captura sus dos esquinas. Los cambios no se guardan.
+                </p>
+                <button class="btn btn-outline-secondary" type="button" data-portal-export>
+                    Exportar configuración JSON
+                </button>
+                <textarea data-portal-export-data rows="5" readonly
+                          aria-label="Configuración de geometría de portales"></textarea>
+            </section>
+            {% endif %}
+        </section>
+
+        <aside class="ducky-world__sidebar">
+            <section class="ducky-world__panel">
+                <h2>Tu progreso</h2>
+                <p>Época actual: <strong>{{ current_era.label }}</strong></p>
+                {% if progress_snapshot %}
+                <p>
+                    {% if progress_snapshot.simulated %}XP de prueba{% else %}XP oficial de EcoMotor{% endif %}:
+                    <strong>{{ progress_snapshot.xp_total }}</strong>
+                </p>
+                {% if next_era %}
+                <p>Siguiente época: {{ next_era.label }} · {{ next_era.minimum_xp }} XP</p>
+                {% endif %}
+                <label class="ducky-world__progress-label" for="ducky-xp-progress">
+                    Progreso hacia la siguiente época
+                </label>
+                <progress id="ducky-xp-progress" max="100" value="{{ xp_progress }}">
+                    {{ xp_progress }}%
+                </progress>
+                {% endif %}
+                {% if progress_notice %}<p class="ducky-world__note" role="status">{{ progress_notice }}</p>{% endif %}
+            </section>
+
+            {% if profession_unlocked and not profession_assignment %}
+            <section class="ducky-world__panel ducky-world__profession-notice" role="status">
+                <h2>¡Profesión disponible!</h2>
+                <p>Has desbloqueado la Actualidad. Explora las profesiones y elige una para guardar como borrador.</p>
+                <a class="btn btn-primary btn-sm" href="{% url 'ducky_arenas:profession' %}">
+                    Explorar profesiones
+                </a>
+            </section>
+            {% endif %}
+
+            <section class="ducky-world__panel" aria-labelledby="ducky-characteristics">
+                <h2 id="ducky-characteristics">Características</h2>
+                <dl class="ducky-world__stats">
+                    {% for stat in characteristics %}
+                    <div><dt>{{ stat.label }}</dt><dd>{{ stat.value }}</dd></div>
+                    {% endfor %}
+                </dl>
+                <p class="ducky-world__note">
+                    Los seis valores se leen desde el adaptador de EcoMotor. El Core no mantiene una copia de los atributos.
+                </p>
+            </section>
+
+            {% if profession_assignment %}
+            <section class="ducky-world__panel" aria-labelledby="ducky-profession">
+                <h2 id="ducky-profession">Profesión</h2>
+                <p><strong>{{ profession_assignment.profession.name }}</strong></p>
+                <p class="ducky-world__note">
+                    {{ profession_assignment.get_status_display }}.
+                    {% if profession_assignment.status != 'confirmed' %}
+                    No se han aplicado puntos; la distribución espera el contrato de EcoMotor.
+                    {% endif %}
+                </p>
+                <a href="{% url 'ducky_arenas:profession' %}">Ver selección profesional</a>
+            </section>
+            {% endif %}
+
+            <section class="ducky-world__panel" aria-labelledby="ducky-eras">
+                <h2 id="ducky-eras">Épocas</h2>
+                <nav class="ducky-world__eras" aria-label="Épocas desbloqueadas">
+                    {% for era in era_navigation %}
+                    {% if era.unlocked %}
+                        {% if era.map_available %}
+                        <a href="{{ era.url }}" data-map-transition
+                           data-transition-url="{{ era.transition_url }}"
+                           {% if era.code == world_config.era %}aria-current="page"{% endif %}>{{ era.label }}</a>
+                        {% else %}
+                        <span aria-disabled="true">{{ era.label }} · Desbloqueada, mapa próximamente</span>
+                        {% endif %}
+                    {% else %}
+                    <span aria-disabled="true">{{ era.label }} · {{ era.required_xp }} XP</span>
+                    {% endif %}
+                    {% endfor %}
+                </nav>
+            </section>
+
+            <section class="ducky-world__panel ducky-world__portal" aria-labelledby="ducky-portal">
+                <h2 id="ducky-portal">Portales de esta época</h2>
+                <p>Acércate a un portal habilitado para entrar. Tu posición se conserva al salir y regresar.</p>
+                <div data-portal-statuses aria-live="polite"></div>
+                <p class="ducky-world__error" data-portal-error role="alert" hidden></p>
+            </section>
+        </aside>
+    </div>
+
+    <input type="hidden" data-csrf-token value="{{ csrf_token }}">
+    {{ evolution_notices|json_script:"ducky-evolution-notices" }}
+    {{ world_config|json_script:"ducky-world-config" }}
+</main>
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js" defer></script>
+<script type="module" src="{% static 'ducky_arenas/js/ducky-world.js' %}"></script>
+{% endblock %}

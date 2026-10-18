@@ -1,0 +1,103 @@
+Campos utilizados en tech.html (plantilla Django)
+==================================================
+
+Campos simples:
+---------------
+- profile.cv.personal_info.nombre
+- profile.cv.personal_info.apellidos
+- profile.cv.professional_profile.profesion
+- profile.cv.personal_info.email_profesional1
+- profile.cv.personal_info.telefono1
+- profile.cv.personal_info.ciudad
+- profile.cv.personal_info.pais
+- profile.cv.professional_profile.cv
+- profile.cv.professional_profile.objetivo
+- profile.cv.professional_profile.resumen
+- profile.cv.personal_info.cv
+- profile.cv.personal_info.telefono2
+- profile.cv.personal_info.email_profesional2
+- profile.cv.personal_info.codigo_postal
+- profile.cv.personal_info.fecha_nacimiento
+- profile.cv.personal_info.nacionalidad
+- profile.cv.personal_info.carnet_conducir
+- profile.cv.personal_info.disponibilidad
+- profile.cv.personal_info.foto
+- profile.cv.social_networks.linkedin
+- profile.cv.social_networks.github
+- profile.cv.social_networks.portfolio
+- profile.cv.social_networks.twitter
+- profile.cv.social_networks.otras
+- cv.other_info.disponibilidad_viajar
+- cv.other_info.teletrabajo
+- cv.other_info.expectativa_salarial
+- cv.other_info.notas
+
+Campos iterables y subcampos:
+----------------------------
+
+1. profile.experiencias.all
+   - item.puesto
+   - item.empresa
+   - item.ubicacion
+   - item.fecha_inicio
+   - item.fecha_fin
+   - item.trabajo_actual
+   - item.descripcion
+   - item.logros
+
+2. profile.cv.educations.all
+   - item.titulo
+   - item.centro
+   - item.ubicacion
+   - item.fecha_inicio
+   - item.fecha_fin
+   - item.en_curso
+
+3. profile.cv.trainings.all
+   - item.tipo
+   - item.nombre
+   - item.entidad
+   - item.fecha
+   - item.descripcion
+
+4. profile.cv.skills.all
+   - skill.tipo
+   - skill.categoria
+   - skill.nombre
+   - skill.nivel
+
+5. profile.cv.languages.all
+   - item.idioma
+   - item.nivel
+   - item.certificacion
+
+6. profile.cv.projects.all
+   - item.nombre
+   - item.descripcion
+   - item.tecnologias
+   - item.link
+
+7. profile.cv.achievements.all
+   - item.titulo
+   - item.tipo
+   - item.descripcion
+   - item.fecha
+
+8. profile.voluntariados.all
+   - item.organizacion
+   - item.funcion
+   - item.impacto
+   - item.fecha_inicio
+   - item.fecha_fin
+   - item.en_curso
+
+9. profile.intereses.all
+   - item.nombre
+
+Notas:
+------
+- Los campos iterables corresponden a relaciones ManyToMany o ForeignKey con related_name.
+- Los subcampos son los atributos accedidos dentro de cada bucle for en la plantilla.
+- Algunos campos pueden estar condicionados por if en la plantilla.
+
+Este listado es útil para depuración, documentación o mapeo de datos en la plantilla tech.html.

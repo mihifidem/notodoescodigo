@@ -1,0 +1,8 @@
+{% load i18n %}
+<p>{% trans 'Código de referencia' %}: <strong>{{ quiz.reference_code }}</strong></p>
+<p>
+  {% trans 'Inicio / apertura' %}:
+  {% if quiz.available_from %}<time datetime="{{ quiz.available_from|date:'c' }}">{{ quiz.available_from|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}
+  · {% trans 'Fin' %}:
+  {% if quiz.effective_end %}<time datetime="{{ quiz.effective_end|date:'c' }}">{{ quiz.effective_end|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}
+</p>

@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}BattleArenas{% endblock %}
+
+{% block content %}
+<div class="battle-arenas-shell">
+    <div class="container py-4 py-lg-5">
+        <div class="battle-header">
+            <div>
+                <span class="battle-badge">DUCKY ARENAS</span>
+                <h1>BattleArenas</h1>
+            </div>
+            <a class="battle-status text-decoration-none" href="{% url 'ducky_arenas:home' %}">Volver al lobby</a>
+        </div>
+
+        {% include 'ducky_arenas/battle_challenges.html' %}
+        <a href="{% url 'duckyclash:home' %}" class="btn btn-outline-primary mb-3">DuckyClash · Retos privados con fecha y paisaje</a>
+        <h2 class="h5">Vista previa de la arena</h2>
+        <p>Escenario ilustrativo. No representa un combate ni un resultado real.</p>
+        <div class="battle-arena-panel">
+            <div class="arena-sky">
+                <div class="sun-glow"></div>
+                <div class="cloud cloud-one"></div>
+                <div class="cloud cloud-two"></div>
+                <div class="cloud cloud-three"></div>
+            </div>
+
+            <div class="arena-ground"></div>
+
+            <div class="arena-combat">
+                <div class="fighter fighter-left">
+                    <div class="fighter-card">
+                        <div class="health-bar">
+                            <span style="width: 100%"></span>
+                        </div>
+                        <div class="fighter-sprite-wrap">
+                            <img src="{% static 'img/pato.png' %}" alt="Tu Ducky" class="fighter-sprite">
+                        </div>
+                        <div class="fighter-name">{{ profile.nickname }}</div>
+                    </div>
+                </div>
+
+                <div class="arena-vs">VS</div>
+
+                <div class="fighter fighter-right">
+                    <div class="fighter-card">
+                        <div class="health-bar enemy">
+                            <span style="width: 100%"></span>
+                        </div>
+                        <div class="fighter-sprite-wrap enemy-wrap">
+                            <img src="{% static 'img/pato.png' %}" alt="Ducky ilustrativo" class="fighter-sprite">
+                        </div>
+                        <div class="fighter-name">Rival por confirmar</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arena-effects">
+                <div class="effect effect-left"></div>
+                <div class="effect effect-right"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .battle-arenas-shell {
+        min-height: calc(100vh - 120px);
+        background:
+            radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 25%),
+            radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 25%),
+            linear-gradient(180deg, #06111d 0%, #0f172a 100%);
+        color: #edf6ff;
+    }
+
+    .battle-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .battle-badge {
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(56, 189, 248, 0.12);
+        color: #7dd3fc;
+        letter-spacing: 0.12em;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .battle-header h1 {
+        margin: 0.6rem 0 0;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .battle-status {
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #dbeafe;
+        font-weight: 600;
+    }
+
+    .battle-arena-panel {
+        position: relative;
+        min-height: 620px;
+        border-radius: 28px;
+        overflow: hidden;
+        border: 1px solid rgba(125, 211, 252, 0.18);
+        background: linear-gradient(180deg, #0b1120 0%, #10213b 38%, #0d1b2d 100%);
+        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.55);
+    }
+
+    .arena-sky {
+        position: absolute;
+        inset: 0 0 180px 0;
+        background:
+            linear-gradient(180deg, rgba(13, 148, 136, 0.08), rgba(59, 130, 246, 0.18)),
+            linear-gradient(180deg, #091827 0%, #102a4e 45%, #183f70 100%);
+    }
+
+    .sun-glow {
+        position: absolute;
+        top: 70px;
+        right: 160px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.95), rgba(251, 191, 36, 0.25) 35%, transparent 70%);
+        filter: blur(8px);
+    }
+
+    .cloud {
+        position: absolute;
+        height: 26px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        filter: blur(1px);
+    }
+
+    .cloud::before,
+    .cloud::after {
+        content: '';
+        position: absolute;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+    }
+
+    .cloud-one {
+        top: 90px;
+        left: 90px;
+        width: 140px;
+    }
+
+    .cloud-one::before { left: 18px; width: 54px; height: 32px; top: -10px; }
+    .cloud-one::after { right: 18px; width: 60px; height: 34px; top: -12px; }
+
+    .cloud-two {
+        top: 130px;
+        right: 220px;
+        width: 180px;
+    }
+
+    .cloud-two::before { left: 24px; width: 58px; height: 34px; top: -12px; }
+    .cloud-two::after { right: 28px; width: 62px; height: 38px; top: -16px; }
+
+    .cloud-three {
+        top: 180px;
+        left: 35%;
+        width: 150px;
+        opacity: 0.7;
+    }
+
+    .cloud-three::before { left: 20px; width: 48px; height: 30px; top: -10px; }
+    .cloud-three::after { right: 24px; width: 52px; height: 32px; top: -8px; }
+
+    .arena-ground {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 180px;
+        background:
+            linear-gradient(180deg, rgba(34, 197, 94, 0.38), rgba(21, 128, 61, 0.8)),
+            linear-gradient(90deg, rgba(21, 94, 117, 0.25), rgba(15, 23, 42, 0.2));
+        border-top: 4px solid rgba(250, 204, 21, 0.7);
+        box-shadow: inset 0 18px 35px rgba(0, 0, 0, 0.22);
+    }
+
+    .arena-ground::before {
+        content: '';
+        position: absolute;
+        inset: 20px 0 auto 0;
+        height: 8px;
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.22) 0,
+            rgba(255, 255, 255, 0.22) 14px,
+            transparent 14px,
+            transparent 28px
+        );
+        opacity: 0.7;
+    }
+
+    .arena-combat {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        gap: 3rem;
+        padding: 5.5rem 3rem 6rem;
+        z-index: 2;
+    }
+
+    .fighter {
+        position: relative;
+        width: min(32%, 260px);
+        display: flex;
+        justify-content: center;
+        align-items: end;
+    }
+
+    .fighter-card {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+    }
+
+    .health-bar {
+        width: 100%;
+        height: 18px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .health-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #22c55e 0%, #84cc16 60%, #f59e0b 100%);
+    }
+
+    .health-bar.enemy span {
+        background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
+    }
+
+    .fighter-sprite-wrap {
+        width: 190px;
+        height: 220px;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(14, 116, 144, 0.28), rgba(15, 23, 42, 0.32));
+        border: 1px solid rgba(125, 211, 252, 0.2);
+        box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.08);
+    }
+
+    .enemy-wrap {
+        background: linear-gradient(180deg, rgba(249, 115, 22, 0.22), rgba(15, 23, 42, 0.32));
+        border-color: rgba(251, 146, 60, 0.2);
+    }
+
+    .fighter-sprite {
+        width: 160px;
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 24px 22px rgba(2, 6, 23, 0.5));
+    }
+
+    .fighter-name {
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: #e0f2fe;
+        text-shadow: 0 3px 10px rgba(2, 6, 23, 0.7);
+    }
+
+    .arena-vs {
+        position: relative;
+        align-self: center;
+        display: grid;
+        place-items: center;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(250, 204, 21, 0.18), rgba(239, 68, 68, 0.12));
+        border: 2px solid rgba(251, 191, 36, 0.38);
+        color: #fef3c7;
+        font-weight: 900;
+        font-size: 1.6rem;
+        box-shadow: 0 0 22px rgba(251, 191, 36, 0.24);
+        z-index: 3;
+    }
+
+    .arena-effects {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+    }
+
+    .effect {
+        position: absolute;
+        bottom: 210px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        opacity: 0.6;
+    }
+
+    .effect-left {
+        left: 26%;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.35), transparent 58%);
+    }
+
+    .effect-right {
+        right: 26%;
+        background: radial-gradient(circle, rgba(251, 146, 60, 0.35), transparent 58%);
+    }
+
+    @media (max-width: 767.98px) {
+        .battle-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .battle-arena-panel {
+            min-height: 560px;
+        }
+
+        .arena-combat {
+            gap: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .fighter {
+            width: 42%;
+        }
+
+        .fighter-sprite-wrap {
+            width: 150px;
+            height: 180px;
+        }
+
+        .fighter-sprite {
+            width: 120px;
+        }
+
+        .arena-vs {
+            width: 64px;
+            height: 64px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}

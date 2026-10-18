@@ -1,0 +1,29 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{{ query.title|default:forum.title }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs"><a href="{% url 'lms:course_forum_detail' course_id=course.pk forum_id=forum.pk %}">{{ forum.title }}</a><span>/</span><span>{% trans 'Consulta' %}</span></nav>
+  <section class="content-panel forum-conversation-panel">
+    <button type="button" class="button button-secondary" data-forum-refresh hidden>{% trans 'Hay novedades. Mostrar actualizaciones' %}</button>
+    <div data-forum-live-url="{% url 'lms:course_forum_query' course_id=course.pk forum_id=forum.pk post_id=query.pk %}?fragment=1">
+      {% include 'lms/forum_conversation.html' %}
+    </div>
+    {% if can_view_replies %}
+      <form method="post" class="action-row">
+        {% csrf_token %}
+        <input type="hidden" name="_action" value="mark_read">
+        <button type="submit" class="button button-secondary button-small">{% trans 'Marcar avisos de esta consulta como leídos' %}</button>
+      </form>
+    {% endif %}
+    {% if forum_writable %}
+      <fieldset data-query-reply-form {% if query.accepted_solution_id %}hidden disabled{% endif %}>
+      <h2>{% trans 'Responder a la consulta' %}</h2>
+      {% url 'lms:course_forum_detail' course_id=course.pk forum_id=forum.pk as cancel_reply_url %}
+      {% include 'lms/forum_post_fields.html' with submit_label=_('Publicar respuesta') cancel_url=cancel_reply_url %}
+      </fieldset>
+      <p class="quiet-note" data-query-closed-message {% if not query.accepted_solution_id %}hidden{% endif %}>{% trans 'Este hilo está resuelto y no admite nuevas respuestas.' %}</p>
+    {% else %}
+      <p class="quiet-note">{% if query.accepted_solution_id %}{% trans 'Este hilo está resuelto y no admite nuevas respuestas.' %}{% else %}{% trans 'Este foro no admite nuevas respuestas.' %}{% endif %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

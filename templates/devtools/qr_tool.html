@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Tool{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">QR preview</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Texto o URL</label>
+              <input type="text" name="text" value="{{ text }}" class="form-control">
+            </div>
+            <div class="col-12"><button type="submit" class="btn btn-dark rounded-pill">Generar</button></div>
+          </form>
+
+          <div class="mt-4 d-flex justify-content-center">
+            <div class="bg-white border rounded-4 p-3 shadow-sm">
+              {% for row in matrix %}
+                <div class="d-flex">
+                  {% for cell in row %}
+                    <span style="display:block;width:12px;height:12px;background:{% if cell %}#111827{% else %}#ffffff{% endif %};border:1px solid transparent;"></span>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

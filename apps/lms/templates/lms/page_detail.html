@@ -1,0 +1,102 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ page.title }} | {{ course.nombre }}{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans 'Mis aulas' %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_pages' course_id=course.pk %}">{% trans 'Páginas' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ page.title }}</span>
+  </nav>
+
+  <article class="content-panel page-article">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">{% trans 'PÁGINA DEL CURSO' %}</p>
+        <h1>{{ page.title }}</h1>
+      </div>
+      <span class="status {% if page.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ page.get_status_display }}</span>
+    </div>
+
+    <div class="meta-row">
+      <span>{{ page.get_visibility_display }}</span>
+      {% if page.module %}<span>{{ page.module.titulo }}</span>{% endif %}
+      <span>{% trans 'Actualizado' %}: {{ page.updated_at|date:'d M Y' }}</span>
+      {% if is_homepage %}<span class="tag">{% trans 'Inicio del curso' %}</span>{% endif %}
+    </div>
+
+    <div class="page-body">
+      {% include 'lms/page_body.html' %}
+    </div>
+
+    {% if page.allow_pdf_export %}
+      <div class="action-row compact">
+        <button class="button button-light" type="button" onclick="window.print();">{% trans 'Descargar PDF' %}</button>
+      </div>
+    {% endif %}
+
+    {% if teacher_view %}
+      <div class="action-row compact">
+        <a class="button button-secondary" href="{% url 'lms:course_pages' course_id=course.pk %}">{% trans 'Volver a páginas' %}</a>
+        <a class="button button-light" href="{% url 'lms:course_page_edit' course_id=course.pk page_slug=page.slug %}">{% trans 'Editar página' %}</a>
+        {% if page.is_currently_published %}
+          {% if not is_homepage %}
+            <form method="post" action="{% url 'lms:course_page_set_homepage' course_id=course.pk page_slug=page.slug %}">
+              {% csrf_token %}
+              <button class="button button-primary" type="submit">{% trans 'Establecer como inicio' %}</button>
+            </form>
+          {% else %}
+            <span class="tag">{% trans 'Esta página ya es la portada' %}</span>
+          {% endif %}
+        {% endif %}
+        <form method="post" action="{% url 'lms:course_page_publish' course_id=course.pk page_slug=page.slug %}">
+          {% csrf_token %}
+          <button class="button button-light" type="submit">{% trans 'Publicar ahora' %}</button>
+        </form>
+        <form method="post" action="{% url 'lms:course_page_delete' course_id=course.pk page_slug=page.slug %}" onsubmit="return confirm('{% trans '¿Seguro que quieres eliminar esta página?' %}');">
+          {% csrf_token %}
+          <button class="button button-danger" type="submit">{% trans 'Borrar página' %}</button>
+        </form>
+      </div>
+    {% endif %}
+  </article>
+
+  {% if teacher_view %}
+    <section class="content-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{% trans 'HISTORIAL' %}</p>
+          <h2>{% trans 'Versiones de la página' %}</h2>
+        </div>
+      </div>
+
+      {% for revision in revisions %}
+        <article class="revision-item">
+          <div class="revision-header">
+            <strong>v{{ revision.revision_number }}</strong>
+            <span>{{ revision.created_at|date:'d M Y H:i' }}</span>
+            <span>{{ revision.created_by.get_full_name|default:revision.created_by.username|default:'Sistema' }}</span>
+          </div>
+          <p>{{ revision.summary|default:'Sin resumen.' }}</p>
+          <div class="action-row compact">
+            {% if revision.pk != page.current_revision_id %}
+              <form method="post" action="{% url 'lms:course_page_restore' course_id=course.pk page_slug=page.slug revision_id=revision.pk %}">
+                {% csrf_token %}
+                <button class="button button-light" type="submit">{% trans 'Restaurar' %}</button>
+              </form>
+            {% else %}
+              <span class="tag">{% trans 'Actual' %}</span>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p>{% trans 'Todavía no hay revisiones guardadas.' %}</p>
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endblock %}

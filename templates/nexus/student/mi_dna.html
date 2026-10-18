@@ -1,0 +1,618 @@
+{% extends "base.html" %}
+{% block page_title %}Mi Nexus DNA{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .nx-heading { font-family:'Poppins',sans-serif; }
+  .nx-hero { background:linear-gradient(135deg,#1B3C59 0%,#0f2540 100%); border-radius:16px; color:#fff; padding:2rem 2.5rem; }
+  .nx-card { border:1px solid #E5E7EB; border-radius:12px; background:#fff; }
+  .nx-section-title { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:700; color:#1B3C59; display:flex; align-items:center; gap:.5rem; }
+  .nx-section-title::before { content:''; display:inline-block; width:4px; height:18px; background:#00C4FF; border-radius:2px; }
+  .nx-bar { height:10px; border-radius:5px; overflow:hidden; background:#F1F5F9; }
+  .nx-bar-fill { height:100%; border-radius:5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+
+  <!-- Header -->
+  <div class="nx-hero mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold nx-heading"
+               style="width:56px;height:56px;background:rgba(255,255,255,.15);font-size:1.3rem;flex-shrink:0;">
+            {{ user.get_full_name|default:user.username|first|upper }}
+          </div>
+          <div>
+            <h2 class="nx-heading fw-bold mb-0" style="font-size:1.5rem;">
+              {{ user.get_full_name|default:user.username }}
+            </h2>
+            <div class="opacity-75 small">{{ dna.primary_archetype|default:"—" }}</div>
+          </div>
+        </div>
+        <p class="opacity-60 small mb-0">Actualizado: {{ dna.updated_at|date:"d/m/Y H:i" }}</p>
+      </div>
+      <div class="col-md-4 text-end d-none d-md-block">
+        <div class="nx-heading fw-bold" style="font-size:3.5rem;color:#00C4FF;">
+          {{ dna.nexus_score|floatformat:0 }}
+        </div>
+        <div class="opacity-60 small">Nexus DNA Score</div>
+        <span class="badge bg-{{ dna.level_class }} mt-1">{{ dna.level }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Gauge + arquetipos -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100 text-center" style="background:linear-gradient(135deg,#1B3C59,#0f2540);color:#fff;">
+        <div style="color:#00C4FF;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">Nexus DNA Score</div>
+        <div class="mx-auto my-3" style="width:150px;height:150px;position:relative;display:flex;align-items:center;justify-content:center;">
+          <svg width="150" height="150" style="position:absolute;top:0;left:0;transform:rotate(-90deg);">
+            <circle cx="75" cy="75" r="63" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="11"/>
+            <circle cx="75" cy="75" r="63" fill="none" stroke="#00C4FF" stroke-width="11"
+                    stroke-dasharray="{{ dna.score_gauge_percent }} 396" stroke-linecap="round"/>
+          </svg>
+          <div style="z-index:1;">
+            <div class="nx-heading fw-bold" style="font-size:2.8rem;line-height:1;color:#fff;">{{ dna.nexus_score|floatformat:0 }}</div>
+            <div style="color:rgba(255,255,255,.5);font-size:.7rem;">/100</div>
+          </div>
+        </div>
+        <div class="fw-semibold mb-3" style="color:rgba(255,255,255,.9);">{{ dna.level }}</div>
+        <hr style="border-color:rgba(255,255,255,.15);">
+        <div class="text-start">
+          {% if dna.primary_archetype %}
+          <div class="d-flex justify-content-between mb-1 small">
+            <span style="color:rgba(255,255,255,.55);">Arquetipo Principal</span>
+            <span class="fw-semibold">{{ dna.primary_archetype }}</span>
+          </div>
+          {% endif %}
+          {% if dna.secondary_archetype %}
+          <div class="d-flex justify-content-between mb-1 small">
+            <span style="color:rgba(255,255,255,.55);">Arquetipo Secundario</span>
+            <span class="fw-semibold">{{ dna.secondary_archetype }}</span>
+          </div>
+          {% endif %}
+          {% if dna.tertiary_archetype %}
+          <div class="d-flex justify-content-between small">
+            <span style="color:rgba(255,255,255,.55);">Arquetipo Complementario</span>
+            <span class="fw-semibold">{{ dna.tertiary_archetype }}</span>
+          </div>
+          {% endif %}
+          {% if dna.reliability %}
+          <div class="mt-2 pt-2 border-top text-center" style="border-color:rgba(255,255,255,.15)!important;">
+            <span style="color:rgba(255,255,255,.55);font-size:.7rem;">Fiabilidad</span>
+            <div class="fw-bold" style="color:#00C4FF;">{{ dna.reliability }}%</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">Perfil de Inteligencias</div>
+        <canvas id="radarChart" height="230"></canvas>
+      </div>
+    </div>
+
+    <!-- Barras -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">Master Indices</div>
+        {% for label, valor, color in indices %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold" style="color:{{ color }};">{{ label }}</span>
+            <span class="small fw-bold">{{ valor|floatformat:0 }}</span>
+          </div>
+          <div class="nx-bar">
+            <div class="nx-bar-fill" style="width:{{ valor|floatformat:0 }}%;background:{{ color }};"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% if tests_chart %}
+  <!-- ══════════════════════════════════════════════════════════════════════
+       NEXUS DNA INTELLIGENCE MAP — Global Test Ratio Chart
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="nx-intel-map mb-4">
+
+    <!-- Header -->
+    <div class="nim-header">
+      <div class="nim-header-left">
+        <div class="nim-eyebrow">NEXUS 2026 · TALENT INTELLIGENCE</div>
+        <h3 class="nim-title">Intelligence Map <span class="nim-title-accent">Global</span></h3>
+        <p class="nim-sub">Todos los ratios de assessment — {{ tests_chart|length }} test{{ tests_chart|length|pluralize:"s" }} completado{{ tests_chart|length|pluralize:"s" }}</p>
+      </div>
+      <div class="nim-header-right">
+        <div class="nim-score-pill">
+          <span class="nim-score-n">{{ dna.nexus_score|floatformat:0 }}</span>
+          <span class="nim-score-lbl">Nexus DNA Score</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test selector tabs -->
+    <div class="nim-tabs" id="nimTabs">
+      <button class="nim-tab active" data-target="all" onclick="nimShowTab(this,'all')">
+        <span class="nim-tab-dot" style="background:linear-gradient(135deg,#00C4FF,#7C3AED)"></span>
+        Vista Global
+      </button>
+      {% for t in tests_chart %}
+      <button class="nim-tab" data-target="test-{{ forloop.counter0 }}" onclick="nimShowTab(this,'test-{{ forloop.counter0 }}')">
+        <span class="nim-tab-dot" style="background:{{ t.color }}"></span>
+        {{ t.label }}
+        <span class="nim-tab-score">{{ t.score|floatformat:0 }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <!-- Chart area -->
+    <div class="nim-chart-wrap">
+      <!-- Global overview chart -->
+      <div class="nim-panel active" id="panel-all">
+        <div class="nim-chart-title">
+          <span>Benchmark Global · Todos los Índices por Assessment</span>
+          <span class="nim-chart-badge">{{ tests_chart|length }} TESTS · RADAR MULTIDIMENSIONAL</span>
+        </div>
+        <div class="nim-radar-grid">
+          <div class="nim-radar-main">
+            <canvas id="globalRadar" height="320"></canvas>
+          </div>
+          <div class="nim-radar-legend">
+            {% for t in tests_chart %}
+            <div class="nim-legend-item">
+              <div class="nim-legend-dot" style="background:{{ t.color }}"></div>
+              <div class="nim-legend-body">
+                <div class="nim-legend-name">{{ t.label }}</div>
+                <div class="nim-legend-score" style="color:{{ t.color }}">{{ t.score|floatformat:0 }}<span>/100</span></div>
+                {% if t.primary_archetype %}<div class="nim-legend-arch">{{ t.primary_archetype }}</div>{% endif %}
+                <div class="nim-legend-date">{{ t.fecha }}</div>
+              </div>
+            </div>
+            {% endfor %}
+            <!-- Master Indices -->
+            <div class="nim-legend-divider">Master Indices DNA</div>
+            {% for label, valor, color in indices %}
+            <div class="nim-mi-row">
+              <span class="nim-mi-lbl">{{ label }}</span>
+              <div class="nim-mi-bar">
+                <div class="nim-mi-fill" style="width:{{ valor|floatformat:0 }}%;background:{{ color }}"></div>
+              </div>
+              <span class="nim-mi-val" style="color:{{ color }}">{{ valor|floatformat:0 }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-test panels -->
+      {% for t in tests_chart %}
+      <div class="nim-panel" id="panel-test-{{ forloop.counter0 }}">
+        <div class="nim-chart-title" style="gap:.75rem;">
+          <span>{{ t.label }} · Mapa de Dimensiones</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="nim-chart-badge" style="background:{{ t.color }}22;color:{{ t.color }}">{{ t.fecha }} · {{ t.dimensiones|length }} DIMENSIONES</span>
+            <a href="{% url 'nexus:student_delete_session' t.pk %}"
+               class="btn btn-sm btn-outline-danger"
+               title="Borrar este test"
+               style="font-size:.7rem;padding:3px 9px;border-radius:6px;flex-shrink:0;opacity:.7;"
+               onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Score hero strip -->
+        <div class="nim-test-hero" style="border-left:3px solid {{ t.color }}">
+          <div class="nim-th-score" style="color:{{ t.color }}">{{ t.score|floatformat:0 }}<span>/100</span></div>
+          <div class="nim-th-meta">
+            <div class="nim-th-name">{{ t.nombre }}</div>
+            {% if t.primary_archetype %}
+            <div class="nim-th-arch">
+              <span class="nim-th-arch-lbl">Arquetipo Principal:</span> {{ t.primary_archetype }}
+              {% if t.secondary_archetype %} · {{ t.secondary_archetype }}{% endif %}
+            </div>
+            {% endif %}
+          </div>
+          <!-- Gauge arc -->
+          <svg class="nim-th-gauge" width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="8"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="{{ t.color }}" stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="{{ t.score|floatformat:0 }} 100"
+                    pathLength="100"
+                    transform="rotate(-90 40 40)"/>
+          </svg>
+        </div>
+
+        <!-- Dimension bars 2-col -->
+        <div class="nim-dims-grid" id="dims-{{ forloop.counter0 }}">
+          {% for d in t.dimensiones %}
+          <div class="nim-dim-row">
+            <div class="nim-dim-label">
+              <span class="nim-dim-key">{{ d.key }}</span>
+              {{ d.label }}
+            </div>
+            <div class="nim-dim-track">
+              <div class="nim-dim-fill" style="width:{{ d.score }}%;background:{{ d.color }}"></div>
+              <div class="nim-dim-bench" style="left:65%"></div>
+            </div>
+            <span class="nim-dim-score" style="color:{{ d.color }}">{{ d.score }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Individual polar chart -->
+        <div class="nim-polar-wrap">
+          <canvas id="polarChart-{{ forloop.counter0 }}" height="260"></canvas>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  {% endif %}
+
+  <!-- Informes IA generados -->
+  {% if informes %}
+  <div class="nx-card p-4 mb-4" style="border-left:4px solid #7C3AED;">
+    <div class="nx-section-title mb-3"><i class="bi bi-file-earmark-richtext me-2"></i>Informes generados por IA</div>
+    <div class="row g-2">
+      {% for inf in informes %}
+      <div class="col-md-4">
+        <a href="{% url 'nexus:ver_informe' inf.pk %}" class="text-decoration-none">
+          <div class="p-3 rounded border bg-light d-flex align-items-center gap-3" style="transition:all .2s;" onmouseover="this.style.background='#f0f7ff';this.style.borderColor='#7C3AED'" onmouseout="this.style.background='';this.style.borderColor=''">
+            <i class="bi {{ inf.icono }} fs-4" style="color:#7C3AED;"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small" style="color:#1B3C59;">{{ inf.get_tipo_display }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ inf.sesion.test.nombre }} · {{ inf.creado_en|date:"d/m/Y H:i" }}</div>
+            </div>
+            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Botones -->
+  <div class="d-flex gap-2 mb-4">
+    <a href="{% url 'nexus:student_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-grid me-1"></i>Mis tests
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── NIM — Nexus Intelligence Map ─────────────────────────────────────── */
+.nx-intel-map {
+  background: linear-gradient(160deg, #0A1628 0%, #0E2235 55%, #0D1B2E 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,196,255,.12);
+  box-shadow: 0 24px 60px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.nx-intel-map::before {
+  content: 'NEXUS DNA';
+  position: absolute; top: 20px; right: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 3px;
+  color: rgba(0,196,255,.2);
+  pointer-events: none;
+}
+.nx-intel-map::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(55% 55% at 15% 10%, rgba(0,196,255,.07) 0%, transparent 65%),
+    radial-gradient(45% 45% at 85% 85%, rgba(124,58,237,.06) 0%, transparent 65%);
+}
+
+/* Header */
+.nim-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; position:relative; z-index:1; }
+.nim-eyebrow { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2.5px; color:#00C4FF; opacity:.7; margin-bottom:6px; }
+.nim-title { font-family:'Poppins',sans-serif; font-size:1.6rem; font-weight:800; color:#fff; margin:0 0 4px; letter-spacing:-.5px; }
+.nim-title-accent { background:linear-gradient(135deg,#00C4FF,#7C3AED); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.nim-sub { font-size:.75rem; color:rgba(255,255,255,.4); margin:0; }
+.nim-score-pill { background:rgba(0,196,255,.08); border:1px solid rgba(0,196,255,.2); border-radius:14px; padding:12px 20px; text-align:center; }
+.nim-score-n { display:block; font-family:'Poppins',sans-serif; font-size:2.2rem; font-weight:800; color:#00C4FF; line-height:1; }
+.nim-score-lbl { font-size:.65rem; color:rgba(255,255,255,.4); letter-spacing:1px; text-transform:uppercase; }
+
+/* Tabs */
+.nim-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.25rem; position:relative; z-index:1; }
+.nim-tab {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:7px 14px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.5); font-size:.78rem; font-weight:600;
+  cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif;
+}
+.nim-tab:hover { background:rgba(255,255,255,.08); color:rgba(255,255,255,.8); }
+.nim-tab.active { background:rgba(0,196,255,.1); border-color:rgba(0,196,255,.3); color:#fff; }
+.nim-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.nim-tab-score { font-family:'JetBrains Mono',monospace; font-size:.7rem; background:rgba(255,255,255,.07); padding:1px 6px; border-radius:5px; }
+
+/* Chart wrap */
+.nim-chart-wrap { position:relative; z-index:1; }
+.nim-panel { display:none; }
+.nim-panel.active { display:block; }
+.nim-chart-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.nim-chart-title > span:first-child { font-size:.85rem; font-weight:700; color:rgba(255,255,255,.8); }
+.nim-chart-badge { font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:1.2px; background:rgba(0,196,255,.08); color:#00C4FF; padding:3px 10px; border-radius:6px; }
+
+/* Global radar layout */
+.nim-radar-grid { display:grid; grid-template-columns:1fr 280px; gap:1.5rem; align-items:start; }
+@media(max-width:768px){ .nim-radar-grid { grid-template-columns:1fr; } }
+.nim-radar-main { background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:1.25rem; }
+
+/* Legend */
+.nim-legend-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.nim-legend-item:last-of-type { border-bottom:none; }
+.nim-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.nim-legend-name { font-size:.78rem; font-weight:700; color:rgba(255,255,255,.85); }
+.nim-legend-score { font-family:'JetBrains Mono',monospace; font-size:1.1rem; font-weight:700; line-height:1.1; }
+.nim-legend-score span { font-size:.65rem; opacity:.5; }
+.nim-legend-arch { font-size:.68rem; color:rgba(255,255,255,.4); margin-top:1px; }
+.nim-legend-date { font-size:.65rem; color:rgba(255,255,255,.25); font-family:'JetBrains Mono',monospace; }
+.nim-legend-divider { font-size:.65rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.25); padding:10px 0 6px; border-top:1px solid rgba(255,255,255,.07); margin-top:6px; }
+.nim-mi-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.nim-mi-lbl { font-size:.68rem; color:rgba(255,255,255,.5); width:72px; flex-shrink:0; font-weight:600; }
+.nim-mi-bar { flex:1; height:5px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; }
+.nim-mi-fill { height:100%; border-radius:99px; transition:width .8s cubic-bezier(.34,1.56,.64,1); }
+.nim-mi-val { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:700; width:24px; text-align:right; }
+
+/* Per-test hero strip */
+.nim-test-hero {
+  display:flex; align-items:center; gap:1.25rem;
+  background:rgba(255,255,255,.03); border-radius:12px;
+  padding:1rem 1.25rem; margin-bottom:1.25rem;
+}
+.nim-th-score { font-family:'Poppins',sans-serif; font-size:2.8rem; font-weight:800; line-height:1; flex-shrink:0; }
+.nim-th-score span { font-size:1rem; opacity:.4; }
+.nim-th-meta { flex:1; }
+.nim-th-name { font-size:.85rem; font-weight:700; color:rgba(255,255,255,.85); margin-bottom:3px; }
+.nim-th-arch { font-size:.72rem; color:rgba(255,255,255,.45); }
+.nim-th-arch-lbl { opacity:.6; }
+.nim-th-gauge { flex-shrink:0; opacity:.85; }
+
+/* Dimension bars 2-col */
+.nim-dims-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; margin-bottom:1.5rem; }
+@media(max-width:600px){ .nim-dims-grid { grid-template-columns:1fr; } }
+.nim-dim-row { display:flex; align-items:center; gap:8px; }
+.nim-dim-label { font-size:.7rem; font-weight:600; color:rgba(255,255,255,.6); width:140px; flex-shrink:0; display:flex; align-items:center; gap:5px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.nim-dim-key { font-family:'JetBrains Mono',monospace; font-size:.6rem; background:rgba(255,255,255,.07); padding:1px 5px; border-radius:4px; flex-shrink:0; color:rgba(255,255,255,.4); }
+.nim-dim-track { flex:1; height:7px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; position:relative; }
+.nim-dim-fill { height:100%; border-radius:99px; transition:width 1s cubic-bezier(.34,1.56,.64,1); }
+.nim-dim-bench { position:absolute; top:-3px; width:2px; height:13px; background:rgba(255,255,255,.15); border-radius:1px; }
+.nim-dim-score { font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:700; width:26px; text-align:right; flex-shrink:0; }
+
+/* Polar wrap */
+.nim-polar-wrap { background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:1.25rem; max-width:340px; margin:0 auto; }
+</style>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Data injected from Django ── */
+  var TESTS = {{ tests_chart_json|safe }};
+  var MASTER_LABELS = [{% for l, v, c in indices %}'{{ l }}',{% endfor %}];
+  var MASTER_VALUES = [{% for l, v, c in indices %}{{ v|floatformat:0 }},{% endfor %}];
+  var MASTER_COLORS = [{% for l, v, c in indices %}'{{ c }}',{% endfor %}];
+
+  /* ── Tab switcher ── */
+  window.nimShowTab = function (btn, target) {
+    document.querySelectorAll('.nim-tab').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.nim-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById('panel-' + target);
+    if (el) el.classList.add('active');
+  };
+
+  /* ── Helpers ── */
+  function hexAlpha(hex, a) {
+    var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+  function createGradient(ctx, color) {
+    var g = ctx.createLinearGradient(0, 0, 0, 300);
+    g.addColorStop(0, hexAlpha(color, .28));
+    g.addColorStop(1, hexAlpha(color, .04));
+    return g;
+  }
+
+  /* ── Chart.js defaults for dark theme ── */
+  Chart.defaults.color = 'rgba(255,255,255,.45)';
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  /* ════════════════════════════════════════════════════════════
+     GLOBAL RADAR — multi-dataset, one per test
+     ════════════════════════════════════════════════════════════ */
+  var globalCtx = document.getElementById('globalRadar');
+  if (globalCtx && TESTS.length) {
+    var datasets = [];
+
+    /* Dataset 0: Master Indices (reference layer) */
+    datasets.push({
+      label: 'Master Indices DNA',
+      data: MASTER_VALUES,
+      backgroundColor: 'rgba(0,196,255,.06)',
+      borderColor: 'rgba(0,196,255,.5)',
+      borderWidth: 2,
+      borderDash: [5,3],
+      pointBackgroundColor: '#00C4FF',
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    });
+
+    /* Datasets 1..N: one per test (using dim scores flattened to master count) */
+    TESTS.forEach(function (t) {
+      if (!t.dimensiones || !t.dimensiones.length) return;
+      /* Map test dims to radar: use score average per dim group */
+      var score = t.score;
+      /* For global radar we plot per-dim scores against a common scale.
+         Use the first 8 dims (or pad) to map onto MASTER_LABELS axis count. */
+      var mapped = [];
+      var n = MASTER_LABELS.length;
+      for (var i = 0; i < n; i++) {
+        mapped.push(t.dimensiones[i] ? t.dimensiones[i].score : Math.round(score * 0.9));
+      }
+      datasets.push({
+        label: t.label,
+        data: mapped,
+        backgroundColor: hexAlpha(t.color, .08),
+        borderColor: t.color,
+        borderWidth: 2.5,
+        pointBackgroundColor: t.color,
+        pointBorderColor: '#0A1628',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      });
+    });
+
+    new Chart(globalCtx, {
+      type: 'radar',
+      data: { labels: MASTER_LABELS, datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 1200, easing: 'easeOutQuart' },
+        scales: {
+          r: {
+            min: 0, max: 100,
+            ticks: { stepSize: 25, font: { size: 9, family: "'JetBrains Mono',monospace" }, color: 'rgba(255,255,255,.2)', backdropColor: 'transparent' },
+            grid: { color: 'rgba(255,255,255,.06)' },
+            angleLines: { color: 'rgba(255,255,255,.06)' },
+            pointLabels: { font: { size: 11, weight: '700' }, color: 'rgba(255,255,255,.7)' },
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(10,22,40,.95)',
+            borderColor: 'rgba(0,196,255,.2)',
+            borderWidth: 1,
+            titleFont: { size: 12, weight: '700' },
+            bodyFont: { size: 11 },
+            padding: 10,
+          }
+        }
+      }
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     PER-TEST POLAR AREA CHARTS
+     ════════════════════════════════════════════════════════════ */
+  TESTS.forEach(function (t, idx) {
+    var canvasId = 'polarChart-' + idx;
+    var canvas = document.getElementById(canvasId);
+    if (!canvas || !t.dimensiones || !t.dimensiones.length) return;
+
+    var labels = t.dimensiones.map(function (d) { return d.label; });
+    var values = t.dimensiones.map(function (d) { return d.score; });
+    var colors = t.dimensiones.map(function (d) { return d.color; });
+    var bgs    = colors.map(function (c) { return hexAlpha(c, .65); });
+
+    new Chart(canvas, {
+      type: 'polarArea',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: bgs,
+          borderColor: colors,
+          borderWidth: 2,
+          hoverBackgroundColor: colors.map(function(c){ return hexAlpha(c,.85); }),
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 1000, easing: 'easeOutBack' },
+        scales: {
+          r: {
+            min: 0, max: 100,
+            ticks: { display: false },
+            grid: { color: 'rgba(255,255,255,.06)' },
+            pointLabels: { display: false },
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 10, weight: '600' },
+              color: 'rgba(255,255,255,.6)',
+              padding: 10,
+              usePointStyle: true,
+              pointStyleWidth: 8,
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(10,22,40,.95)',
+            borderColor: 'rgba(255,255,255,.1)',
+            borderWidth: 1,
+            callbacks: {
+              label: function(ctx) {
+                return ' ' + ctx.label + ': ' + ctx.raw + '/100';
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+
+  /* ── Radar chart (master indices) in existing card ── */
+  var radarEl = document.getElementById('radarChart');
+  if (radarEl) {
+    new Chart(radarEl, {
+      type: 'radar',
+      data: {
+        labels: MASTER_LABELS,
+        datasets: [{
+          data: MASTER_VALUES,
+          backgroundColor: 'rgba(0,196,255,.1)',
+          borderColor: '#00C4FF',
+          borderWidth: 2,
+          pointBackgroundColor: MASTER_COLORS,
+          pointBorderColor: '#fff',
+          pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            min: 0, max: 100,
+            ticks: { stepSize: 20, font: { size: 10 } },
+            grid: { color: 'rgba(0,0,0,.06)' },
+            pointLabels: { font: { size: 10, weight: '600' } }
+          }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+})();
+</script>
+{% endblock %}

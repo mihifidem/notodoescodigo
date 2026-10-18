@@ -1,0 +1,1012 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Onboarding Ducky Arenas{% endblock %}
+
+{% block content %}
+<div class="ducky-onboarding-shell">
+  <div class="container py-4 py-lg-5">
+    <div class="row g-4 align-items-stretch">
+      <div class="col-lg-5">
+        <aside class="ducky-preview-panel h-100">
+          <div class="preview-topbar">
+            <span class="live-pill">DUCKY ARENAS</span>
+            <span class="step-counter" id="stepCounterText">1 / 6</span>
+          </div>
+
+          <div class="preview-avatar-box">
+            <img id="previewAvatarImage" src="{% static 'img/pato.png' %}" alt="Ducky preview">
+          </div>
+
+          <div class="preview-info">
+            <h2 id="previewNickname">Quack Tech</h2>
+            <p id="previewType">Especialización</p>
+            <div class="stat-row">
+              <span>Level</span>
+              <strong>1</strong>
+            </div>
+            <div class="stat-row">
+              <span>XP</span>
+              <strong>0</strong>
+            </div>
+            <div class="stat-row">
+              <span>Estado</span>
+              <strong>BASE</strong>
+            </div>
+            <div class="empty-gear-box mt-3">
+              <h4>Complementos</h4>
+              <div class="gear-grid" id="previewGearGrid" aria-label="Complementos del Ducky"></div>
+            </div>
+            <p class="preview-note">Consigue XP, desbloquea equipamiento, completa tu set y evoluciona tu Ducky.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="col-lg-7">
+        <section class="ducky-form-panel" aria-labelledby="onboardingTitle">
+          <div class="progress-wrap" aria-label="Progreso del onboarding">
+            <div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+              <div class="progress-bar" id="wizardProgressBar" style="width: 16.67%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>1 / 6</span>
+              <span id="progressText">Bienvenida</span>
+            </div>
+          </div>
+
+          <form id="duckyOnboardingForm" method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="avatarType" id="avatarTypeInput" value="">
+
+            <div class="wizard-step active" data-step="1" aria-labelledby="onboardingTitle">
+              <div class="step-header">
+                <span class="eyebrow">Paso 1</span>
+                <h1 id="onboardingTitle">Bienvenido a Ducky Arenas</h1>
+              </div>
+              <p class="step-copy">Todo Ducky empieza desde cero. Tú decides en quién se convertirá.</p>
+              <div class="duck-hero-illustration">
+                <img class="duck-step-image" src="{% static 'img/DA_04.png' %}" alt="Ducky welcome illustration">
+              </div>
+              <button type="button" class="btn btn-ducky-primary next-step" data-next="2">Crear mi Ducky</button>
+            </div>
+
+            <div class="wizard-step" data-step="2">
+              <div class="step-header">
+                <span class="eyebrow">Paso 2</span>
+                <h2>¿Cómo se llamará tu Ducky?</h2>
+              </div>
+              <div class="mb-3">
+                <label for="nicknameInput" class="form-label">Nickname</label>
+                <input type="text" id="nicknameInput" name="nickname" class="form-control" maxlength="30" autocomplete="off" aria-describedby="nicknameHelp" placeholder="Ej: DuckyNova" required>
+                <div id="nicknameHelp" class="form-text">Usa letras, números, espacios, guiones y guiones bajos.</div>
+                <div class="invalid-feedback d-block" id="nicknameError"></div>
+              </div>
+              <div class="d-flex justify-content-between gap-2 mt-4">
+                <button type="button" class="btn btn-ducky-secondary prev-step">Atrás</button>
+                <button type="button" class="btn btn-ducky-primary next-step" data-next="3">Continuar</button>
+              </div>
+            </div>
+
+            <div class="wizard-step" data-step="3">
+              <div class="step-header">
+                <span class="eyebrow">Paso 3</span>
+                <h2>Elige tu camino</h2>
+              </div>
+              <div class="ducky-type-grid" id="duckTypeGrid" role="radiogroup" aria-label="Especializaciones de Ducky">
+                {% for key, config in ducky_types.items %}
+                <button type="button" class="duck-type-card" data-avatar-type="{{ key }}" aria-pressed="false" role="radio" tabindex="0">
+                  <div class="type-swatch">
+                    <img src="{% static config.avatarFallback %}" alt="{{ config.label }} avatar" class="type-swatch-image">
+                  </div>
+                  <div class="type-body">
+                    <strong>{{ key }}</strong>
+                    <span>{{ config.label }}</span>
+                    <small>{{ config.description }}</small>
+                  </div>
+                </button>
+                {% endfor %}
+              </div>
+              <div class="invalid-feedback d-block" id="avatarError"></div>
+              <div class="d-flex justify-content-between gap-2 mt-4">
+                <button type="button" class="btn btn-ducky-secondary prev-step">Atrás</button>
+                <button type="button" class="btn btn-ducky-primary next-step" data-next="4">Ver preview</button>
+              </div>
+            </div>
+
+            <div class="wizard-step" data-step="4">
+              <div class="step-header">
+                <span class="eyebrow">Paso 4</span>
+                <h2>Preview</h2>
+              </div>
+
+              <div class="preview-video-wrap mb-3">
+                <video id="previewVideo" class="preview-video" autoplay muted loop playsinline controls="false">
+                  <source src="{% static 'img/DA_Militar_chico_rot.MP4' %}" type="video/mp4">
+                  Tu navegador no soporta vídeos HTML5.
+                </video>
+              </div>
+              
+              <div class="preview-summary">
+                <div>
+                  <span class="summary-label">Nickname</span>
+                  <strong id="summaryNickname">Tu Ducky</strong>
+                </div>
+                <div>
+                  <span class="summary-label">Avatar</span>
+                  <strong id="summaryAvatar">Selecciona una clase</strong>
+                </div>
+                <div>
+                  <span class="summary-label">Nivel</span>
+                  <strong>1</strong>
+                </div>
+                <div>
+                  <span class="summary-label">XP</span>
+                  <strong>0</strong>
+                </div>
+              </div>
+
+              <div class="floating-stats mt-3" id="summaryStats">
+                <div><span>ATK</span><strong>0</strong></div>
+                <div><span>DEF</span><strong>0</strong></div>
+                <div><span>LOG</span><strong>0</strong></div>
+                <div><span>SPE</span><strong>0</strong></div>
+                <div><span>INT</span><strong>0</strong></div>
+              </div>
+
+              <p class="final-copy mt-3">Tu aventura empieza aquí.</p>
+              <div class="d-flex justify-content-between gap-2 mt-4">
+                <button type="button" class="btn btn-ducky-secondary prev-step">Atrás</button>
+                <button type="button" class="btn btn-ducky-primary next-step" data-next="5">Confirmar</button>
+              </div>
+            </div>
+
+            <div class="wizard-step" data-step="5">
+              <div class="step-header">
+                <span class="eyebrow">Paso 5</span>
+                <h2>Confirmación</h2>
+                <video id="confirmationAvatarVideo" class="confirmation-avatar" autoplay muted loop>
+                  <source src="{% static 'img/DA_PRE_avatar.mp4' %}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <p class="step-copy">Comprobamos tu selección y preparamos tu primera aventura.</p>
+              
+              <div class="confirmation-card">
+                <h3 id="confirmNickname">Tu Ducky</h3>
+                <p id="confirmAvatar">Especialización</p>
+                <ul>
+                  <li>Nick generado en servidor.</li>
+                  <li>Stats iniciales calculadas del tipo elegido.</li>
+                  <li>Equipamiento base vacío y listo para evolucionar.</li>
+                </ul>
+              </div>
+              <div class="d-flex justify-content-between gap-2 mt-4">
+                <button type="button" class="btn btn-ducky-secondary prev-step">Atrás</button>
+                <button type="submit" class="btn btn-ducky-primary" id="submitOnboarding">Entrar en Ducky Arenas</button>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DUCKY_TYPES = {{ ducky_types|safe }};
+  const avatarFallbackGirl = '{% static "img/pato.png" %}';
+  const avatarFallbackBoy = '{% static "img/pato.png" %}';
+
+  const AVATAR_IMAGE_MAP = {
+    PREHISTORIC: { BOY: avatarFallbackBoy },
+    ROMAN: { BOY: avatarFallbackBoy },
+    MILITARY: { BOY: avatarFallbackBoy },
+    GAMER: { BOY: avatarFallbackBoy },
+    DEVELOPER: { BOY: avatarFallbackBoy },
+    CYBERSECURITY: { BOY: avatarFallbackBoy },
+    SYSTEMS: { BOY: avatarFallbackBoy },
+    DEFAULT: { BOY: avatarFallbackBoy }
+  };
+
+  const AVATAR_VIDEO_MAP = {
+    PREHISTORIC: { BOY: '{% static "img/DA_Militar_chico_rot.MP4" %}' },
+    ROMAN: { BOY: '{% static "img/DA_ROM_avatar.mp4" %}' },
+    MILITARY: { BOY: '{% static "img/DA_MIL_avatar.MP4" %}' },
+    GAMER: { BOY: '{% static "img/DA_GAM_avatar.mp4" %}' },
+    DEVELOPER: { BOY: '{% static "img/DA_DEV_avatar.MP4" %}' },
+    CYBERSECURITY: { BOY: '{% static "img/DA_Militar_chico_rot.MP4" %}' },
+    SYSTEMS: { BOY: '{% static "img/DA_Militar_chico_rot.MP4" %}' },
+    DEFAULT: { BOY: '{% static "img/DA_Militar_chico_rot.MP4" %}' }
+  };
+
+  const MILITARY_GEAR_SET = [
+    '{% static "img/DA_MIL_comp01.png" %}',
+    '{% static "img/DA_MIL_comp02.png" %}',
+    '{% static "img/DA_MIL_comp03.png" %}',
+    '{% static "img/DA_MIL_comp04.png" %}',
+    '{% static "img/DA_MIL_comp05.png" %}'
+  ];
+
+  const ROMAN_GEAR_SET = [
+    '{% static "img/DA_ROM_comp01.png" %}',
+    '{% static "img/DA_ROM_comp02.png" %}',
+    '{% static "img/DA_ROM_comp03.png" %}',
+    '{% static "img/DA_ROM_comp04.png" %}',
+    '{% static "img/DA_ROM_comp05.png" %}',
+    '{% static "img/DA_ROM_comp06.png" %}'
+  ];
+
+  const DEFAULT_GEAR_SET = MILITARY_GEAR_SET;
+
+  const AVATAR_GEAR_MAP = {
+    PREHISTORIC: DEFAULT_GEAR_SET,
+    ROMAN: ROMAN_GEAR_SET,
+    MILITARY: MILITARY_GEAR_SET,
+    GAMER: MILITARY_GEAR_SET,
+    DEVELOPER: MILITARY_GEAR_SET,
+    CYBERSECURITY: MILITARY_GEAR_SET,
+    SYSTEMS: MILITARY_GEAR_SET,
+    DEFAULT: DEFAULT_GEAR_SET
+  };
+
+  const steps = [...document.querySelectorAll('.wizard-step')];
+  const progressBar = document.getElementById('wizardProgressBar');
+  const stepCounterText = document.getElementById('stepCounterText');
+  const progressText = document.getElementById('progressText');
+  const nicknameInput = document.getElementById('nicknameInput');
+  const avatarInput = document.getElementById('avatarTypeInput');
+  const avatarError = document.getElementById('avatarError');
+  const nicknameError = document.getElementById('nicknameError');
+  const previewNickname = document.getElementById('previewNickname');
+  const previewType = document.getElementById('previewType');
+  const summaryNickname = document.getElementById('summaryNickname');
+  const summaryAvatar = document.getElementById('summaryAvatar');
+  const confirmNickname = document.getElementById('confirmNickname');
+  const confirmAvatar = document.getElementById('confirmAvatar');
+  const typeCards = document.querySelectorAll('.duck-type-card');
+  const form = document.getElementById('duckyOnboardingForm');
+  const submitBtn = document.getElementById('submitOnboarding');
+  const previewVideo = document.getElementById('previewVideo');
+  const previewVideoSource = previewVideo?.querySelector('source');
+  const previewAvatarImage = document.getElementById('previewAvatarImage');
+  const previewGearGrid = document.getElementById('previewGearGrid');
+  const confirmationAvatarVideo = document.getElementById('confirmationAvatarVideo');
+  const confirmationVideoSource = confirmationAvatarVideo?.querySelector('source');
+
+  let currentStep = 1;
+  let selectedAvatar = '';
+
+  function renderAccessoryGrid() {
+    if (!previewGearGrid) return;
+
+    if (!selectedAvatar) {
+      previewGearGrid.innerHTML = Array.from({ length: 5 }, () => `
+        <div class="gear-item-placeholder" aria-hidden="true"></div>
+      `).join('');
+      return;
+    }
+
+    const gearList = AVATAR_GEAR_MAP[selectedAvatar] || AVATAR_GEAR_MAP.DEFAULT;
+    previewGearGrid.innerHTML = gearList.map((imageUrl) => `
+      <img src="${withCacheBust(imageUrl)}" alt="Complemento del Ducky" class="gear-item-image">
+    `).join('');
+  }
+
+  function withCacheBust(url) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}v=${Date.now()}`;
+  }
+
+  function updatePreviewImage() {
+    const avatarKey = selectedAvatar || 'DEFAULT';
+    const avatarImageMap = AVATAR_IMAGE_MAP[avatarKey] || AVATAR_IMAGE_MAP.DEFAULT;
+    const imageUrl = avatarImageMap.BOY || AVATAR_IMAGE_MAP.DEFAULT.BOY;
+
+    if (previewAvatarImage) {
+      previewAvatarImage.src = withCacheBust(imageUrl);
+      previewAvatarImage.alt = `Ducky chico ${avatarKey}`;
+    }
+  }
+
+  function updatePreviewVideo() {
+    const avatarKey = selectedAvatar || 'DEFAULT';
+    const avatarVideoMap = AVATAR_VIDEO_MAP[avatarKey] || AVATAR_VIDEO_MAP.DEFAULT;
+    const sourceUrl = avatarVideoMap.BOY || AVATAR_VIDEO_MAP.DEFAULT.BOY;
+
+    if (previewVideoSource) {
+      previewVideoSource.src = withCacheBust(sourceUrl);
+      previewVideo.load();
+      previewVideo.play().catch(() => {});
+    }
+
+    if (confirmationVideoSource) {
+      confirmationVideoSource.src = withCacheBust(sourceUrl);
+      if (confirmationAvatarVideo) {
+        confirmationAvatarVideo.load();
+        confirmationAvatarVideo.play().catch(() => {});
+      }
+    }
+  }
+
+  function sanitizeNickname(value) {
+    return value.trim().replace(/\s+/g, ' ');
+  }
+
+  function updatePreview() {
+    const nickname = sanitizeNickname(nicknameInput.value || 'Tu Ducky');
+    const label = selectedAvatar && DUCKY_TYPES[selectedAvatar] ? DUCKY_TYPES[selectedAvatar].label : 'Especialización';
+    const stats = selectedAvatar && DUCKY_TYPES[selectedAvatar] ? DUCKY_TYPES[selectedAvatar].baseStats : { attack: 0, defense: 0, speed: 0, logic: 0, energy: 0 };
+
+    previewNickname.textContent = nickname || 'Tu Ducky';
+    previewType.textContent = label;
+    summaryNickname.textContent = nickname || 'Tu Ducky';
+    summaryAvatar.textContent = label;
+    confirmNickname.textContent = nickname || 'Tu Ducky';
+    confirmAvatar.textContent = label;
+    updatePreviewImage();
+    updatePreviewVideo();
+    renderAccessoryGrid();
+
+    document.querySelector('#summaryStats').innerHTML = `
+      <div><span>ATK</span><strong>${stats.attack ?? 0}</strong></div>
+      <div><span>DEF</span><strong>${stats.defense ?? 0}</strong></div>
+      <div><span>LOG</span><strong>${stats.logic ?? 0}</strong></div>
+      <div><span>SPE</span><strong>${stats.speed ?? 0}</strong></div>
+      <div><span>INT</span><strong>${stats.energy ?? 0}</strong></div>
+    `;
+  }
+
+  function setStep(step) {
+    currentStep = step;
+    steps.forEach((element) => {
+      const isActive = Number(element.dataset.step) === step;
+      element.classList.toggle('active', isActive);
+      element.hidden = !isActive;
+    });
+
+    const progressPercent = (step / 5) * 100;
+    progressBar.style.width = `${progressPercent}%`;
+    progressBar.setAttribute('aria-valuenow', String(step));
+    progressText.textContent = ['Bienvenida', 'Nombre', 'Especialización', 'Preview', 'Confirmación'][step - 1];
+    stepCounterText.textContent = `${step} / 5`;
+    updatePreview();
+  }
+
+  function selectAvatar(value) {
+    selectedAvatar = value;
+    avatarInput.value = value;
+    typeCards.forEach((card) => {
+      const active = card.dataset.avatarType === value;
+      card.classList.toggle('selected', active);
+      card.setAttribute('aria-pressed', String(active));
+      card.setAttribute('aria-checked', String(active));
+    });
+    avatarError.textContent = '';
+    updatePreview();
+  }
+
+  nicknameInput.addEventListener('input', updatePreview);
+
+  typeCards.forEach((card) => {
+    card.addEventListener('click', () => selectAvatar(card.dataset.avatarType));
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectAvatar(card.dataset.avatarType);
+      }
+    });
+  });
+
+  document.querySelectorAll('.next-step').forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextStep = Number(button.dataset.next || currentStep + 1);
+      const nicknameValue = sanitizeNickname(nicknameInput.value);
+      const avatarEmpty = !selectedAvatar;
+
+      if (currentStep === 2 && (!nicknameValue || nicknameValue.length < 2)) {
+        nicknameError.textContent = 'Introduce un nickname válido con al menos 2 caracteres.';
+        nicknameInput.focus();
+        return;
+      }
+
+      if (currentStep === 3 && avatarEmpty) {
+        avatarError.textContent = 'Debes elegir una especialización.';
+        return;
+      }
+
+      nicknameError.textContent = '';
+      avatarError.textContent = '';
+      updatePreview();
+      setStep(nextStep);
+    });
+  });
+
+  document.querySelectorAll('.prev-step').forEach((button) => {
+    button.addEventListener('click', () => setStep(Math.max(1, currentStep - 1)));
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const payload = {
+      nickname: sanitizeNickname(nicknameInput.value),
+      avatarType: selectedAvatar,
+      gender: 'BOY',
+    };
+
+    nicknameError.textContent = '';
+    avatarError.textContent = '';
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creando perfil...';
+
+    try {
+      const response = await fetch('{% url "ducky_arenas:onboarding_complete" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errors = data.errors || {};
+        if (errors.nickname) {
+          nicknameError.textContent = errors.nickname[0].message || 'Nickname inválido';
+        }
+        if (errors.avatarType) {
+          avatarError.textContent = errors.avatarType[0].message || 'Avatar inválido';
+        }
+        return;
+      }
+
+      window.location.href = data.redirectUrl || '{% url "ducky_arenas:home" %}';
+    } catch (error) {
+      avatarError.textContent = 'No se pudo completar la creación del perfil. Inténtalo otra vez.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar en Ducky Arenas';
+    }
+  });
+
+  setStep(1);
+  updatePreview();
+</script>
+
+<style>
+  .ducky-onboarding-shell {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at top left, rgba(56, 189, 248, 0.28), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.22), transparent 28%),
+      linear-gradient(135deg, rgba(10, 19, 31, 1), rgba(15, 23, 42, 0.96));
+    color: #edf6ff;
+  }
+
+  .ducky-onboarding-shell .container {
+    min-height: 90vh;
+    width: min(100%, 1440px);
+    max-width: 100%;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .ducky-onboarding-shell .row {
+    min-height: 90vh;
+    margin: 0;
+  }
+
+  .ducky-preview-panel,
+  .ducky-form-panel {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.72));
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(2, 6, 23, 0.58), inset 0 1px 0 rgba(148, 163, 184, 0.08);
+    overflow: hidden;
+  }
+
+  .ducky-preview-panel {
+    padding: 1.2rem;
+  }
+
+  .preview-topbar,
+  .progress-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .live-pill,
+  .step-counter,
+  .eyebrow {
+    display: inline-flex;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+  }
+
+  .live-pill {
+    padding: 0.4rem 0.75rem;
+    background: rgba(59, 130, 246, 0.12);
+    color: #7dd3fc;
+  }
+
+  .step-counter {
+    color: #dbeafe;
+  }
+
+  .preview-avatar-box {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    margin: 1.2rem 0 1rem;
+    border-radius: 20px;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.22), rgba(15, 23, 42, 0.2) 60%);
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    overflow: hidden;
+  }
+
+  .preview-avatar-box::before {
+    content: '';
+    position: absolute;
+    inset: 10% 15%;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(56,189,248,0.12), transparent 55%, rgba(168,85,247,0.1));
+    pointer-events: none;
+  }
+
+  .preview-avatar-box img {
+    position: relative;
+    z-index: 1;
+    max-height: 260px;
+    object-fit: contain;
+    filter: drop-shadow(0 22px 26px rgba(14, 116, 144, 0.32));
+  }
+
+  .duck-character {
+    width: 180px;
+    height: 180px;
+    position: relative;
+  }
+
+  .duck-body {
+    position: absolute;
+    inset: 24px 20px 10px 20px;
+    background: linear-gradient(135deg, #f8fbff 10%, #dbeafe 52%, #cbd5e1 100%);
+    border-radius: 50% 50% 48% 48%;
+    box-shadow: inset -18px -12px 0 rgba(96, 165, 250, 0.15);
+  }
+
+  .duck-body::before {
+    content: '';
+    position: absolute;
+    width: 88px;
+    height: 62px;
+    right: -28px;
+    top: 34px;
+    border-radius: 50% 45% 45% 50%;
+    background: linear-gradient(135deg, #fef3c7, #fbbf24);
+    transform: rotate(12deg);
+  }
+
+  .duck-body::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 35px;
+    left: 20px;
+    bottom: -10px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.12);
+  }
+
+  .duck-eye {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #0f172a;
+    border-radius: 50%;
+    top: 66px;
+  }
+
+  .duck-eye.left { left: 52px; }
+  .duck-eye.right { right: 52px; }
+
+  .duck-beak {
+    position: absolute;
+    width: 34px;
+    height: 18px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-radius: 50% 50% 58% 58%;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  .preview-info h2 {
+    margin: 0.25rem 0 0.2rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+  }
+
+  .preview-info p {
+    color: rgba(191, 219, 254, 0.82);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    color: #dbeafe;
+  }
+
+  .empty-gear-box {
+    margin-top: 1.2rem;
+    padding: 1rem;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .empty-gear-box h4 {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+  }
+
+  .gear-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(60px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .gear-grid .gear-item-image {
+    display: block;
+    width: 100%;
+    height: 90px;
+    object-fit: contain;
+    padding: 0.45rem;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .gear-item-placeholder {
+    display: block;
+    width: 100%;
+    height: 90px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.05);
+    border: 1px dashed rgba(148, 163, 184, 0.2);
+  }
+
+  .preview-note {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .ducky-form-panel {
+    padding: 1.4rem;
+  }
+
+  .progress-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  .progress {
+    width: 100%;
+    height: 10px;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #2563eb);
+    border-radius: inherit;
+    transition: width 0.25s ease;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.6rem;
+    color: #dbeafe;
+    font-size: 0.8rem;
+  }
+
+  .wizard-step {
+    display: none;
+  }
+
+  .wizard-step.active {
+    display: block;
+  }
+
+  .step-header h1,
+  .step-header h2 {
+    margin: 0.4rem 0 0.75rem;
+    font-weight: 800;
+  }
+
+  .step-copy,
+  .final-copy {
+    color: rgba(191, 219, 254, 0.82);
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+  }
+
+  .duck-hero-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: 20px;
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.25));
+  }
+
+  .duck-step-image {
+    display: block;
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius: 20px;
+  }
+
+  .duck-base {
+    width: 200px;
+    height: 140px;
+    position: relative;
+    border-radius: 50% 50% 48% 48%;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    box-shadow: inset -26px -16px 0 rgba(96, 165, 250, 0.12);
+  }
+
+  .duck-base::before,
+  .duck-base::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: #0f172a;
+    border-radius: 50%;
+    top: 46px;
+  }
+
+  .duck-base::before { left: 56px; }
+  .duck-base::after { right: 56px; }
+
+  .duck-base .beak {
+    display: none;
+  }
+
+  .ducky-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .duck-type-card {
+    position: relative;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    width: 100%;
+    min-height: 92px;
+    padding: 0.9rem 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.62));
+    color: #edf6ff;
+    text-align: left;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .duck-type-card.selected {
+    background: linear-gradient(180deg, rgba(30, 64, 175, 0.22), rgba(15, 23, 42, 0.86));
+    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35), 0 18px 30px rgba(37, 99, 235, 0.12);
+  }
+
+  .duck-type-card:hover,
+  .duck-type-card:focus-visible,
+  .duck-type-card.selected {
+    border-color: rgba(125, 211, 252, 0.5);
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .type-swatch {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.12);
+  }
+
+  .type-swatch-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    background: rgba(15, 23, 42, 0.4);
+  }
+
+  .type-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .type-body strong {
+    font-size: 1rem;
+  }
+
+  .type-body span {
+    font-size: 0.82rem;
+    color: #dbeafe;
+  }
+
+  .type-body small {
+    margin-top: 0.2rem;
+    color: rgba(191, 219, 254, 0.7);
+    line-height: 1.5;
+  }
+
+  .preview-video-wrap {
+    width: min(100%, 400px);
+    height: 500px;
+    margin: 0 auto;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(9, 18, 32, 0.9), rgba(15, 23, 42, 0.7));
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1), 0 18px 40px rgba(2, 6, 23, 0.38);
+  }
+
+  .preview-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #020817;
+  }
+
+  .preview-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+
+  .preview-summary > div,
+  .floating-stats > div,
+  .confirmation-card {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    padding: 0.8rem 1rem;
+  }
+
+  .summary-label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(191, 219, 254, 0.7);
+    margin-bottom: 0.35rem;
+  }
+
+  .floating-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .floating-stats > div {
+    text-align: center;
+  }
+
+  .floating-stats span {
+    display: block;
+    color: rgba(191, 219, 254, 0.7);
+    font-size: 0.7rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .confirmation-card {
+    margin-top: 1rem;
+  }
+
+  .confirmation-card ul {
+    margin: 0.8rem 0 0;
+    padding-left: 1.2rem;
+    color: rgba(191, 219, 254, 0.8);
+  }
+
+  .btn-ducky-primary,
+  .btn-ducky-secondary {
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 0.8rem 1.3rem;
+  }
+
+  .btn-ducky-primary {
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    border: none;
+    color: white;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
+  }
+
+  .btn-ducky-secondary {
+    background: rgba(15, 23, 42, 0.66);
+    border: 1px solid rgba(125, 211, 252, 0.2);
+    color: #dbeafe;
+  }
+
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .invalid-feedback {
+    color: #fda4af;
+  }
+
+  @media (max-width: 991.98px) {
+    .ducky-type-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .ducky-form-panel,
+    .ducky-preview-panel {
+      border-radius: 18px;
+    }
+
+    .preview-summary,
+    .floating-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .progress-labels {
+      font-size: 0.72rem;
+    }
+  }
+</style>
+{% endblock %}

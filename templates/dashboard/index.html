@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% block title %}Ducky Me — MihiTraining{% endblock %}
+{% block page_title %}Ducky Me{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-lg-4 py-4">
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="rounded-4 border shadow-sm p-4 position-relative overflow-hidden" style="background:linear-gradient(135deg,#e0f2fe 0%, #eef4ff 35%, #f8fafc 100%); border-color:rgba(96,165,250,0.35);">
+        <div class="position-absolute top-0 end-0 opacity-25" style="width:220px;height:220px;background:radial-gradient(circle,#60a5fa,#dbeafe 62%,transparent 70%); transform:translate(20px,-30px);"></div>
+        <div class="position-relative d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+          <div>
+            <div class="small text-uppercase fw-bold mb-2" style="letter-spacing:.14em; color:#2563eb;">Ducky Me</div>
+            <h2 class="mb-1 fw-bold" style="color:#0f172a;">Bienvenido, {{ user.get_full_name|default:user.username }}</h2>
+            <p class="mb-0 text-muted">Tu progreso, tus recompensas y tu próxima acción en un solo panel.</p>
+            <div class="mt-3 d-flex align-items-center flex-wrap gap-2">
+              <span class="badge rounded-pill px-3 py-2" style="background:rgba(249,115,22,0.12); color:#c2410c; border:1px solid rgba(249,115,22,0.22);">
+                <i class="bi bi-fire me-1"></i>Racha actual: {{ user.streak }} días
+              </span>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'courses:list' %}" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">Continuar aprendiendo</a>
+            <a href="{% url 'rewards:list' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Canjear puntos</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if ducky_summary_cards %}
+      {% for card in ducky_summary_cards %}
+      <div class="col-12 col-md-6 col-xl-3">
+        {% if card.title == 'Ranking' %}
+        <a href="{{ card.href }}" class="card h-100 border-0 rounded-4 text-decoration-none text-body overflow-hidden position-relative" style="transition: transform .15s ease; box-shadow: 0 16px 32px rgba(37,99,235,.12); border:1px solid rgba(59,130,246,.22); background:linear-gradient(135deg,#eff6ff,#f8fbff 60%,#ffffff 100%);">
+        {% else %}
+        <a href="{{ card.href }}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body overflow-hidden" style="transition: transform .15s ease; box-shadow: 0 12px 28px rgba(37,99,235,.08);">
+        {% endif %}
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:{% if card.title == 'Ranking' %}#1d4ed8{% else %}#64748b{% endif %};">{{ card.title }}</span>
+              <span class="badge rounded-pill bg-{{ card.tone }}-subtle text-{{ card.tone }}">
+                <i class="bi {{ card.icon }}"></i>
+              </span>
+            </div>
+            <div class="display-6 fw-bold" style="color:#0f172a;">{{ card.value }}</div>
+            <p class="mb-0 mt-3 small text-muted">{{ card.meta }}</p>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#64748b;">Próxima acción</div>
+              <h3 class="mb-0 mt-1 fw-bold" style="color:#0f172a;">{{ proxima_accion.title }}</h3>
+            </div>
+            <span class="badge rounded-pill bg-primary-subtle text-primary">{{ proxima_accion.badge }}</span>
+          </div>
+          <p class="text-muted mb-3">{{ proxima_accion.description }}</p>
+          <a href="{{ proxima_accion.href }}" class="btn btn-primary rounded-pill px-3">Ir al detalle</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="small text-uppercase fw-bold mb-3" style="letter-spacing:.08em; color:#64748b;">Mi nivel</div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-bold fs-4" style="color:#0f172a;">{{ user.nivel }}</div>
+            <span class="badge bg-warning-subtle text-warning">{{ user.progreso_nivel }}%</span>
+          </div>
+          <div class="progress" style="height:10px; border-radius:999px; background:#e2e8f0;">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ user.progreso_nivel }}%; border-radius:999px;" aria-valuenow="{{ user.progreso_nivel }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="mt-3 small text-muted">{{ user.puntos_totales }} puntos acumulados · {{ user.streak }} días de racha</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Cursos en marcha</h3>
+            <a href="{% url 'courses:list' %}" class="btn btn-sm btn-outline-primary rounded-pill">Ver todos</a>
+          </div>
+          {% if cursos_en_marcha %}
+            <div class="list-group list-group-flush">
+              {% for item in cursos_en_marcha %}
+              <div class="list-group-item px-0 py-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <a href="{% url 'courses:detail' pk=item.curso.pk %}" class="fw-semibold text-decoration-none" style="color:#0f172a;">{{ item.curso.nombre }}</a>
+                  <span class="small text-muted">{{ item.porcentaje }}%</span>
+                </div>
+                <div class="progress mb-2" style="height:8px; border-radius:999px; background:#e2e8f0;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.porcentaje }}%; border-radius:999px;"></div>
+                </div>
+                <div class="small text-muted">{{ item.temas_completados }} / {{ item.total_temas }} temas completados</div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted small">Todavía no tienes cursos activos. <a href="{% url 'courses:list' %}">Explora cursos</a> para comenzar.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Historial de Actividad</h3>
+            <i class="bi bi-activity fs-4 text-primary"></i>
+          </div>
+          {% if actividades %}
+            <div class="list-group list-group-flush">
+              {% for act in actividades %}
+              <div class="list-group-item px-0 py-2">
+                <div class="fw-semibold small">{{ act.get_tipo_display }}</div>
+                <div class="text-muted small mt-1">{{ act.descripcion }}</div>
+                <div class="small text-body-secondary mt-1">{{ act.timestamp|date:'d M Y, H:i' }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted small">Todavía no hay actividad reciente para mostrar.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Mis logros</h3>
+            <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-primary rounded-pill">Ver todo</a>
+          </div>
+          {% if insignias_recientes %}
+            <div class="row g-3">
+              {% for insignia in insignias_recientes %}
+              <div class="col-4 col-md-3 text-center">
+                {% if insignia.insignia.imagen %}
+                  <img src="{{ insignia.insignia.imagen.url }}" alt="{{ insignia.insignia.nombre }}" class="rounded-circle border mb-2" width="52" height="52" style="object-fit:cover;">
+                {% else %}
+                  <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width:52px;height:52px;">
+                    <i class="bi bi-award"></i>
+                  </div>
+                {% endif %}
+                <div class="small fw-semibold" style="color:#0f172a;">{{ insignia.insignia.nombre|truncatechars:18 }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted small">Aún no has ganado insignias. Sigue completando retos para desbloquearlas.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Explorar mis resultados</h3>
+            <a href="{{ results_url }}" class="btn btn-sm btn-outline-success rounded-pill">Ir a DNA</a>
+          </div>
+          {% if dna_profile %}
+            <div class="rounded-4 p-3 mb-3" style="background:linear-gradient(135deg,#ecfeff,#f0fdf4); border:1px solid rgba(16,185,129,0.2);">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#047857;">Perfil DNA</div>
+                  <div class="fw-bold fs-5" style="color:#0f172a;">{{ dna_profile.primary_archetype|default:'Perfil activo' }}</div>
+                </div>
+                <span class="badge bg-success-subtle text-success">{{ dna_profile.nexus_score|default:'0' }}</span>
+              </div>
+            </div>
+          {% else %}
+            <div class="rounded-4 p-3 mb-3" style="background:#f8fafc; border:1px dashed #cbd5e1;">
+              <div class="text-muted small">Todavía no tienes un perfil DNA creado. Realiza un test para ver cómo encaja tu perfil.</div>
+            </div>
+          {% endif %}
+          <a href="{{ results_url }}" class="btn btn-primary rounded-pill px-3">Explorar mis resultados</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Recompensas y evolución</h3>
+            <a href="{% url 'rewards:list' %}" class="btn btn-sm btn-outline-warning rounded-pill">Ver tienda</a>
+          </div>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              {% if canjes_recientes %}
+                <div class="list-group list-group-flush">
+                  {% for canje in canjes_recientes %}
+                  <div class="list-group-item px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                      <div>
+                        <div class="fw-semibold small">{{ canje.recompensa.nombre }}</div>
+                        <div class="text-muted small">{{ canje.fecha_canje|date:'d M Y' }}</div>
+                      </div>
+                      <span class="badge bg-warning-subtle text-warning">{{ canje.estado }}</span>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="text-muted small">No has solicitado recompensas todavía. Guarda puntos y descubre qué puedes reclamar.</div>
+              {% endif %}
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="rounded-4 p-3" style="background:linear-gradient(135deg,#fef3c7,#fff7ed); border:1px solid rgba(251,191,36,0.2);">
+                <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#b45309;">Objetivo de la semana</div>
+                <div class="fw-bold mt-2 fs-5" style="color:#0f172a;">{{ user.nivel }}</div>
+                <p class="mb-0 mt-2 small text-muted">Sigue avanzando para completar más retos y convertir tus puntos en recompensas reales.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

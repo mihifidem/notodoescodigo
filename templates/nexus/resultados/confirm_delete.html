@@ -1,0 +1,32 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Eliminar Perfil DNA – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="nx-card p-4 text-center">
+      <div class="mb-3" style="font-size:3rem;color:#EF4444;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <h4 class="nexus-heading fw-bold mb-1">¿Eliminar perfil DNA?</h4>
+      <p class="text-muted mb-4">
+        Se eliminará el perfil Nexus DNA de
+        <strong>{{ profile.user.get_full_name|default:profile.user.username }}</strong>
+        (Nexus Score: {{ profile.nexus_score }}).
+        Esta acción no se puede deshacer.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="{% url 'nexus:profile_detail' profile.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Cancelar
+          </a>
+          <button type="submit" class="btn btn-danger fw-semibold">
+            <i class="bi bi-trash me-1"></i>Sí, eliminar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

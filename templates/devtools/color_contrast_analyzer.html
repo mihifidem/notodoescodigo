@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Analizador de contraste WCAG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-success text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Analizador de contraste WCAG</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-success fw-bold mb-2">WCAG</div>
+              <p class="mb-0 text-secondary">
+                Compara dos tonos para verificar si el texto y el fondo cumplen criterios de legibilidad accesible. Funciona como un analizador visual parecido a Adobe.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#toolInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Fondo</label>
+              <input type="color" name="bg" value="{{ bg|default:'#FFFFFF' }}" class="form-control form-control-color form-control-lg w-100" title="Color de fondo">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Texto</label>
+              <input type="color" name="fg" value="{{ fg|default:'#111827' }}" class="form-control form-control-color form-control-lg w-100" title="Color de texto">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Tamaño</label>
+              <select name="size" class="form-select form-select-lg">
+                <option value="normal" {% if size == 'normal' %}selected{% endif %}>Normal</option>
+                <option value="large" {% if size == 'large' %}selected{% endif %}>Grande</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill">Analizar</button>
+            </div>
+          </form>
+
+          <div class="row g-4 mt-2">
+            <div class="col-lg-5">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary fw-bold mb-3">Previsualización</div>
+                <div class="rounded-4 p-4 shadow-sm" style="background: {{ bg }}; color: {{ fg }}; min-height: 220px; display: flex; align-items: center; justify-content: center; text-align: center;">
+                  <div>
+                    <div class="fw-bold" style="font-size: clamp(1.5rem, 3vw, 2.4rem);">Lorem ipsum</div>
+                    <div class="mt-2 opacity-75">Contraste de interfaz y legibilidad</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7">
+              <div class="border rounded-4 p-3 h-100 bg-white">
+                <div class="small text-uppercase text-secondary fw-bold mb-3">Resultado</div>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="border rounded-4 p-3 bg-light h-100">
+                      <div class="small text-uppercase text-secondary">Ratio</div>
+                      <div class="fw-bold fs-2 mt-2">{{ ratio }}</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="border rounded-4 p-3 bg-light h-100">
+                      <div class="small text-uppercase text-secondary">Estado</div>
+                      <div class="fw-bold fs-4 mt-2 {% if ratio >= 4.5 %}text-success{% else %}text-warning{% endif %}">{{ status }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4">
+                  <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                    <div class="small text-uppercase text-secondary fw-bold">WCAG</div>
+                    <span class="badge text-bg-success-subtle text-success rounded-pill px-3">WCAG 2.1</span>
+                  </div>
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2 bg-light">
+                      <span>AA para texto normal</span>
+                      <span class="badge rounded-pill {% if normal_aa %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">{% if normal_aa %}Cumple{% else %}No cumple{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2 bg-light">
+                      <span>AAA para texto normal</span>
+                      <span class="badge rounded-pill {% if normal_aaa %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">{% if normal_aaa %}Cumple{% else %}No cumple{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2 bg-light">
+                      <span>AA para texto grande</span>
+                      <span class="badge rounded-pill {% if large_aa %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">{% if large_aa %}Cumple{% else %}No cumple{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2 bg-light">
+                      <span>AAA para texto grande</span>
+                      <span class="badge rounded-pill {% if large_aaa %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">{% if large_aaa %}Cumple{% else %}No cumple{% endif %}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="small text-uppercase text-secondary fw-bold mb-3">Propuestas rápidas</div>
+            <div class="row g-3">
+              {% for item in suggestions %}
+              <div class="col-md-6 col-xl-3">
+                <button type="button" class="btn btn-light border w-100 rounded-4 p-3 text-start suggestion-btn" data-bg="{{ item.bg }}" data-fg="{{ item.fg }}">
+                  <div class="rounded-3 mb-2" style="height: 68px; background: {{ item.bg }}; color: {{ item.fg }}; display: flex; align-items: center; justify-content: center; font-weight: 700;">Aa</div>
+                  <div class="small text-secondary">{{ item.label }}</div>
+                </button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="toolInstructionsModal" tabindex="-1" aria-labelledby="toolInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="toolInstructionsModalLabel">Instrucciones del analizador</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Elige un tono para el fondo y otro para el texto con el selector nativo del navegador.</li>
+          <li>Usa la opción de tamaño para evaluar texto normal o grande según el caso de uso.</li>
+          <li>Revisa el ratio de contraste y el estado WCAG para saber si cumple AA/AAA.</li>
+          <li>Prueba una propuesta rápida para comparar combinaciones comunes de interfaz.</li>
+        </ol>
+        <div class="alert alert-success mb-0 rounded-4">
+          Regla rápida: texto normal necesita al menos 4.5:1; texto grande requiere 3:1 para AA, y 7:1 o 4.5:1 para AAA según el tamaño.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.suggestion-btn').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const bg = this.dataset.bg;
+        const fg = this.dataset.fg;
+        const form = this.closest('form');
+        if (!form) {
+          window.location.href = '?bg=' + encodeURIComponent(bg) + '&fg=' + encodeURIComponent(fg);
+          return;
+        }
+        form.elements.bg.value = bg;
+        form.elements.fg.value = fg;
+        form.submit();
+      });
+    });
+  });
+</script>
+{% endblock %}

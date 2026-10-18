@@ -1,0 +1,34 @@
+.lms-theme .course-settings-layout { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 40px; }
+.lms-theme .course-settings-main { max-width: 760px; min-width: 0; }
+.lms-theme .settings-tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--lms-border); gap: 6px; margin-bottom: 22px; }
+.lms-theme .settings-tabs a { padding: 10px 12px; text-decoration: none; font-size: 13px; }
+.lms-theme .settings-tabs a[aria-current] { border-bottom: 3px solid var(--lms-blue); }
+.lms-theme .settings-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.lms-theme .course-settings-main h1 { font-size: 23px; font-weight: 500; margin: 0 0 16px; }
+.lms-theme .settings-heading h1 { margin: 0; }
+.lms-theme .settings-form h2 { font-size: 18px; border-bottom: 1px solid var(--lms-border); padding: 12px 0; scroll-margin-top: 90px; }
+.lms-theme .settings-field { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; margin: 0 0 18px; align-items: start; }
+.lms-theme .settings-field > label { font-size: 12px; font-weight: 600; padding-top: 8px; }
+.lms-theme .settings-field .lms-input { width: 100%; min-height: 34px; padding: 6px 9px; font-size: 13px; border: 1px solid var(--lms-border); border-radius: 3px; background: var(--lms-surface); color: var(--lms-text); }
+.lms-theme .settings-field .field-help { font-size: 12px; margin: 6px 0 0; }
+.lms-theme .settings-course-image { display: block; width: 190px; height: 110px; object-fit: contain; border: 1px solid var(--lms-border); margin-bottom: 10px; }
+.lms-theme .settings-save { position: sticky; bottom: 0; display: flex; justify-content: flex-end; padding: 12px; background: var(--lms-bg); border-top: 1px solid var(--lms-border); }
+.lms-theme .settings-save .button { font-size: 13px; }
+.lms-theme .settings-actions { display: grid; margin: 10px 0 26px; }
+.lms-theme .settings-actions a { padding: 12px 0; border-bottom: 1px solid var(--lms-border); font-size: 13px; text-decoration: none; }
+.lms-theme .settings-actions i { margin-right: 6px; }
+.lms-theme .settings-sidebar h2 { font-size: 13px; margin-bottom: 6px; }
+.lms-theme .settings-users { font-size: 13px; border-top: 1px solid var(--lms-border); }
+.lms-theme .settings-users > div { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--lms-border); }
+.lms-theme .settings-users dd { margin: 0; }
+.lms-theme .settings-sections { list-style: none; padding: 0; }
+.lms-theme .settings-sections li { padding: 14px 0; border-bottom: 1px solid var(--lms-border); }
+.lms-theme .settings-sections span { float: right; font-size: 12px; }
+@media (max-width: 1000px) {
+  .lms-theme .course-settings-layout { grid-template-columns: 1fr; gap: 24px; }
+  .lms-theme .course-settings-main { max-width: none; }
+}
+@media (max-width: 600px) {
+  .lms-theme .settings-field { grid-template-columns: 1fr; gap: 5px; }
+  .lms-theme .settings-heading { align-items: start; flex-direction: column; }
+}

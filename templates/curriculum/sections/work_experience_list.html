@@ -1,0 +1,42 @@
+{% extends "curriculum/sections/_list_base.html" %}
+{% block list_title %}<i class="bi bi-building me-2 text-primary"></i>Experiencia laboral{% endblock %}
+{% block create_url %}{% url 'curriculum:work_experience_create' %}{% endblock %}
+
+{% block list_content %}
+{% if items %}
+<div class="d-flex flex-column gap-3">
+  {% for exp in items %}
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+          <h6 class="fw-bold mb-0">{{ exp.puesto }}</h6>
+          <p class="text-muted small mb-1">{{ exp.empresa }}{% if exp.ubicacion %} · {{ exp.ubicacion }}{% endif %}</p>
+          <span class="badge bg-primary-subtle text-primary">{{ exp.periodo }}</span>
+          {% if exp.trabajo_actual %}<span class="badge bg-success ms-1">Actual</span>{% endif %}
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{% url 'curriculum:work_experience_edit' pk=exp.pk %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <form method="post" action="{% url 'curriculum:work_experience_delete' pk=exp.pk %}"
+                onsubmit="return confirm('¿Eliminar esta experiencia?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+      {% if exp.descripcion %}
+      <p class="mt-2 small text-muted mb-0">{{ exp.descripcion|truncatechars:200 }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-building" style="font-size:3rem;"></i>
+  <p class="mt-2">No hay experiencias. <a href="{% url 'curriculum:work_experience_create' %}">Añade la primera</a></p>
+</div>
+{% endif %}
+{% endblock %}

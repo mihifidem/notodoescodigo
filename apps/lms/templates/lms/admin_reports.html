@@ -1,0 +1,39 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Informes LMS" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:admin_dashboard' %}">{% trans "Administración" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Informes" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "INFORMES Y MÉTRICAS" %}</p>
+      <h1>{% trans "Estado de uso y privacidad" %}</h1>
+    </div>
+  </section>
+
+  <nav class="section-tabs" aria-label="{% trans 'Secciones de administración' %}">
+    {% for item in admin_nav %}
+      <a class="tab-link {% if request.path == item.url %}is-active{% endif %}" href="{{ item.url }}">{{ item.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="metrics-grid" aria-label="{% trans 'Métricas de plataforma' %}">
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos totales" %}</span><strong>{{ metrics.total_courses }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos publicados" %}</span><strong>{{ metrics.published_courses }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos en borrador" %}</span><strong>{{ metrics.draft_courses }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Matrículas activas" %}</span><strong>{{ metrics.active_memberships }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Notificaciones pendientes" %}</span><strong>{{ metrics.notifications_pending }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Almacenamiento" %}</span><strong>{{ storage_total_mb }} MB</strong></article>
+  </section>
+
+  <section class="content-panel">
+    <h2>{% trans "Principios de minimización" %}</h2>
+    <p>{% trans "Las exportaciones y las consultas de datos solo deben incluir campos necesarios para gestión docente y analítica operativa. El acceso a información sensible queda limitado a administradores autorizados." %}</p>
+  </section>
+{% endblock %}

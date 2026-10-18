@@ -1,0 +1,130 @@
+{% extends 'duckyclash/base.html' %}
+{% load static %}
+{% block body_class %}{{ block.super }} duckyclash-ring-page{% endblock %}
+{% block title %}Ring DuckyClash{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'duckyclash/ring.css' %}">{% endblock %}
+{% block clash_content %}
+<div class="container-fluid py-2 clash-ring-page" id="clash-ring" data-canvas-ring="true" data-state-url="{% url 'duckyclash:ring_state' duel.pk %}" data-socket-path="/ws/clash/duels/{{ duel.pk }}/" data-question-id="{{ current_question.id|default:'' }}" data-engine-phase="{{ engine_state.phase|default:'' }}" data-player-id="{{ request.user.pk }}" data-answer-template="{% url 'duckyclash:question_answer' 0 %}" data-item-template="{% url 'duckyclash:question_item' 0 %}">
+    <h1 class="visually-hidden">Ring #{{ duel.pk }}</h1>
+    <form id="clash-presence" action="{% url 'duckyclash:duel_presence' duel.pk %}" method="post" hidden>{% csrf_token %}</form>
+    <div class="clash-play-layout">
+        <section class="clash-game-hud" aria-label="Datos y controles del combate">
+            <div class="clash-fighter-summaries">
+                {% for participant in participants %}
+                <div>
+                    <h2 class="h6 text-break">{{ participant.ducky_name }}</h2>
+                    <p class="small mb-1">ATK {{ participant.character_stats.ATK }} · DEF {{ participant.character_stats.DEF }} ·
+                        LOG {{ participant.character_stats.LOG }} · SPE {{ participant.character_stats.SPE }} ·
+                        QUA {{ participant.character_stats.QUA }}</p>
+                    <label class="small" for="hp-{{ participant.player_id }}" data-health-player="{{ participant.player_id }}">HP: {{ participant.hp }} / {{ participant.max_hp }}</label>
+                    <progress id="hp-{{ participant.player_id }}" data-hp-bar="{{ participant.player_id }}" class="clash-hp" value="{{ participant.hp }}" max="{{ participant.max_hp }}">{{ participant.hp }} / {{ participant.max_hp }}</progress>
+                    <p class="small mb-0" data-presence-player="{{ participant.player_id }}">{% if participant.ready_at %}Listo{% else %}No preparado{% endif %}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="clash-hud-messages">
+                <p id="clash-sync-status" class="small mb-1" role="status" aria-live="polite"></p>
+                {% if demo_ecomotor %}
+                <div class="alert alert-warning py-1 px-2 mb-1" role="status">EcoMotor DEMO de desarrollo: cada acierto causa 25 HP al rival. No usa rapidez ni dificultad. No es el EcoMotor real. Las apuestas usan puntos del sitio y se liquidan según el resultado demo.</div>
+                {% endif %}
+                <p class="small clash-scheduled-note mb-1">Paisaje del retador: <strong>{{ duel.agreement.offer.landscape.name }}</strong> · Inicio: {% include 'duckyclash/time.html' with value=duel.agreement.offer.scheduled_at %}</p>
+                <p id="clash-assets-status" class="small clash-assets-status mb-1" role="status">Retrato PRE2. {% if not duel.agreement.offer.landscape.image %}Paisaje sin imagen: fondo gráfico provisional.{% endif %}</p>
+                <div class="clash-phase-strip clash-top-messages px-2 py-1">
+                    <strong id="clash-engine-clock">{% if engine_state %}{{ engine_state.status }}{% else %}{{ duel.get_status_display }}{% endif %}</strong>
+                    <span id="clash-effect-status" class="small" role="status" aria-live="polite"></span>
+                </div>
+                <form class="mt-2" method="post" action="{% url 'duckyclash:duel_ready' duel.pk %}">
+                    {% csrf_token %}
+                    <button id="clash-ready" class="btn btn-primary btn-sm" type="submit"{% if not engine_state.unlocked or engine_ready or engine_state.phase != 'waiting_players' %} disabled{% endif %}>
+                        {% if engine_ready %}Preparación registrada{% else %}Estoy listo{% endif %}
+                    </button>
+                </form>
+            </div>
+            <div class="clash-question-controls">
+                <section class="card card-body clash-question-panel" id="clash-question" aria-labelledby="clash-question-title">
+                    <div class="clash-question-heading">
+                        <h2 id="clash-question-title" class="h5">{% if current_question %}Ronda {{ current_question.round }} · Dificultad {{ current_question.difficulty }}{% else %}Pregunta central{% endif %}</h2>
+                        <button type="button" id="clash-question-close" class="btn-close" aria-label="Cerrar pregunta" aria-controls="clash-question" aria-expanded="true"></button>
+                    </div>
+                    <p id="clash-prompt" class="text-break">{% if current_question %}{{ current_question.prompt }}{% else %}Esperando una pregunta autorizada del servidor.{% endif %}</p>
+                    <p id="clash-clock" class="fw-semibold">{% if current_question %}Cierre del servidor: {{ current_question.closes_at }}{% endif %}</p>
+                    <p id="clash-cloud" class="alert alert-warning"{% if not current_question.hidden_until %} hidden{% endif %}>Una nube oculta tus opciones temporalmente. No se han entregado al navegador.</p>
+                    <form method="post" id="clash-answer-form" action="{% url 'duckyclash:question_answer' current_question.id|default:0 %}">
+                        {% csrf_token %}
+                        <fieldset>
+                            <legend class="visually-hidden">Elige una respuesta</legend>
+                            <div id="clash-options" class="clash-options">
+                            {% for option in current_question.options %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="option_id" id="option-{{ option.id }}" value="{{ option.id }}" required{% if engine_state.answered %} disabled{% endif %}>
+                                <label class="form-check-label text-break" for="option-{{ option.id }}">{{ option.text }}</label>
+                            </div>
+                            {% endfor %}
+                            </div>
+                        </fieldset>
+                        <button class="btn btn-primary" id="clash-answer" type="submit"{% if not current_question or current_question.hidden_until or engine_state.answered %} disabled{% endif %}>Enviar respuesta</button>
+                    </form>
+                    <p id="clash-answer-feedback" class="small mt-2 mb-0" role="status" aria-live="polite"></p>
+                    <p id="clash-engine-error" class="text-warning small" role="status">{% if engine_state.error %}El motor está pendiente de conciliación o de un proveedor disponible.{% endif %}</p>
+                    <p id="clash-ready-help" class="small mb-0">Ambos deben confirmar preparación. Ataques en la cuenta atrás; defensa y recuperación antes de responder.</p>
+                </section>
+                <button type="button" id="clash-question-open" class="btn btn-primary btn-sm clash-question-open" aria-controls="clash-question" aria-expanded="true" hidden>
+                    Mostrar pregunta
+                </button>
+            </div>
+            <section class="clash-hud-inventory" aria-labelledby="clash-inventory-title">
+                <details>
+                    <summary id="clash-inventory-title">Objetos</summary>
+                    <div class="clash-inventory">
+                        {% for item in ring_inventory %}
+                        <form method="post" action="{% url 'duckyclash:question_item' item_question_id|default:0 %}" data-item-form>
+                            {% csrf_token %}
+                            <input type="hidden" name="code" value="{{ item.code }}">
+                            <input type="hidden" name="action_id" value="{{ item.action_id }}">
+                            <button class="btn btn-outline-primary w-100" data-clash-item data-code="{{ item.code }}" data-name="{{ item.name }}" type="submit"{% if not item.enabled or item.quantity == 0 %} disabled{% endif %}>{{ item.name }} ({{ item.quantity }})</button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                    <p id="clash-item-feedback" class="small mt-2 mb-0" role="status" aria-live="polite"></p>
+                    <p class="small mt-2 mb-0">Nube oculta opciones; Acelerador reduce tiempo; Multiplicador añade distractores certificados. Escudo elimina opciones falsas; Pócima añade tiempo; Botiquín recupera HP. El servidor comprueba stock, ventanas, límites y cooldown. Multiplicador no consume stock si falta el proveedor certificado.</p>
+                </details>
+            </section>
+            <section id="clash-result" class="alert alert-info mb-0" hidden aria-labelledby="clash-result-title">
+                <h2 id="clash-result-title" class="h5">Resultado del servidor</h2>
+                <p id="clash-result-text"></p>
+                <a class="btn btn-primary" href="{% url 'duckyclash:results' duel.pk %}">Ver resultado y liquidación</a>
+            </section>
+        </section>
+        <section class="clash-arena card" aria-label="Escena del combate">
+            <canvas id="clash-canvas" width="1000" height="420" data-player-id="{{ request.user.pk }}" role="button" tabindex="0" aria-label="Abrir el vídeo del personaje al hacer clic sobre un pato"></canvas>
+            <dialog id="clash-fighter-video-dialog" class="clash-fighter-video-dialog" aria-labelledby="clash-fighter-video-title">
+                <div class="clash-fighter-video-heading">
+                    <h2 id="clash-fighter-video-title" class="h5 mb-0">Personaje PRE2</h2>
+                    <button type="button" class="btn-close" data-close-fighter-video aria-label="Cerrar vídeo"></button>
+                </div>
+                <video id="clash-fighter-video" autoplay muted loop playsinline controls preload="metadata">
+                    <source src="{% static 'duckyarenas/DAR_personajes/DAR_PRE2_V.MP4' %}" type="video/mp4">
+                    Tu navegador no puede reproducir este vídeo.
+                </video>
+                <p class="small mb-0" data-fighter-video-status role="status" aria-live="polite"></p>
+            </dialog>
+            <noscript><p class="px-3">La escena animada necesita JavaScript. Los controles y el estado del servidor siguen disponibles recargando.</p></noscript>
+        </section>
+    </div>
+    <p class="small mt-2 mb-3">La respuesta queda bloqueada. Solo Django valida el plazo, la corrección y el resultado.</p>
+    <a class="btn btn-outline-primary" href="{% url 'duckyclash:duel_detail' duel.pk %}">Detalle del duelo</a>
+    <details class="card card-body mb-3">
+        <summary>Reservas y proceso económico · {{ duel.get_status_display }}</summary>
+        <p class="mt-2">{{ duel.get_bank_mode_display }}{% if duel.bank_reason %}. {{ duel.bank_reason }}{% endif %}. No se inicia el combate sin las dos reservas verificadas.</p>
+        <ul>{% for operation in operations %}<li>{{ operation.get_kind_display }}{% if operation.player_id %} · {{ operation.player.get_username }}{% endif %}: {{ operation.get_status_display }} · {{ operation.amount }} DuckyCoins</li>{% empty %}<li>Reservas pendientes.</li>{% endfor %}</ul>
+        {% if can_cancel %}<form method="post" action="{% url 'duckyclash:duel_cancel' duel.pk %}" data-clash-confirm="¿Cancelar y solicitar la devolución? El servidor conciliará las reservas.">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Cancelar y solicitar devolución</button></form>{% endif %}
+    </details>
+    <p class="small">Canvas solo dibuja. Al desconectarte los relojes del servidor no se detienen. Sin JavaScript, recarga entre fases.</p>
+    <a class="btn btn-outline-primary" href="{% url 'duckyclash:waiting' duel.pk %}">Sala de espera</a>
+    <a class="btn btn-outline-primary" href="{% url 'duckyclash:home' %}">Volver a DuckyClash</a>
+</div>
+{{ ring_assets|json_script:'clash-assets' }}
+{% if engine_state %}{{ engine_state|json_script:'clash-initial-state' }}{% endif %}
+<script src="{% static 'duckyclash/ring-scene.js' %}" defer></script>
+<script src="{% static 'duckyclash/ring.js' %}" defer></script>
+{% endblock %}

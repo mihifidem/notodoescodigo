@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Border radius{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-warning text-dark py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Border Radius</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-dark btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Esta miniapp te ayuda a calcular y ajustar radios de borde para componentes visuales en segundos.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#toolInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Radius</label>
+              <input type="number" name="radius" value="{{ radius|default:'16' }}" class="form-control">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-warning w-100 rounded-pill">Generar</button>
+            </div>
+          </form>
+
+          <div class="mt-4 rounded-4 bg-light border p-5 mx-auto" style="border-radius: {{ radius }}px; width: 220px; height: 140px; display:flex; align-items:center; justify-content:center; font-weight:700; border-width: 2px;">
+            Card
+          </div>
+
+          <pre class="mt-4 mb-0 p-3 bg-dark text-light rounded-4"><code>{{ snippet }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% include 'lms/navbar.html' %}
+{% if can_receive_notifications %}
+  <form hidden data-course-notification-control data-course-id="{{ course.pk }}" {% if preview_mode %}data-student-preview="true"{% endif %} action="{% url 'lms:course_notification_read' course_id=course.pk %}" method="post">{% csrf_token %}</form>
+  <form hidden data-quiz-lifecycle-control data-course-id="{{ course.pk }}" action="{% url 'lms:course_lifecycle_update' course_id=course.pk %}" method="post">{% csrf_token %}</form>
+{% endif %}

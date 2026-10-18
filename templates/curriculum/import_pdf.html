@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Importar CV desde PDF{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 760px;">
+  <div class="mb-4">
+    <a href="{% url 'curriculum:dashboard' %}" class="text-decoration-none">
+      <i class="bi bi-arrow-left me-1"></i>Volver al CV
+    </a>
+    <h1 class="h3 fw-bold mt-3">Importar CV desde PDF</h1>
+    <p class="text-muted mb-0">
+      Detectaremos datos de contacto, perfil, redes, habilidades, experiencia y formación cuando el PDF los presente
+      con suficiente claridad.
+      El archivo se procesa en esta aplicación y no se envía a servicios externos.
+    </p>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-3">
+          <label for="{{ form.pdf.id_for_label }}" class="form-label fw-semibold">{{ form.pdf.label }}</label>
+          {{ form.pdf }}
+          {% for error in form.pdf.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
+          <div class="form-text">PDF con texto seleccionable, máximo 5 MB. Los documentos escaneados no admiten OCR.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search me-1"></i>Analizar PDF
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

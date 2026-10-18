@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Slug generator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden slug-tool-wrap">
+        <div class="card-header bg-secondary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Slugify</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-secondary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Convierte títulos o textos largos en URLs limpias y SEO-friendly. Elimina acentos, espacios y caracteres especiales para dejar un slug listo para usar en rutas, enlaces y contenido.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-toggle="modal" data-bs-target="#slugInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3" id="slugForm">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Texto</label>
+              <textarea name="text" id="slugText" class="form-control form-control-lg" rows="4" placeholder="Escribe un título o texto largo...">{{ text }}</textarea>
+            </div>
+            <div class="col-md-6">
+              <button type="submit" class="btn btn-secondary btn-lg w-100 rounded-pill">Generar</button>
+            </div>
+            <div class="col-md-6">
+              <button type="button" id="resetSlugBtn" class="btn btn-outline-secondary btn-lg w-100 rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div class="mt-4 p-4 rounded-4 bg-light border">
+            <div class="small text-uppercase text-secondary">Resultado</div>
+            <div class="fw-bold fs-4 mt-2" id="slugOutput">{{ slug }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="slugInstructionsModal" tabindex="-1" aria-labelledby="slugInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="slugInstructionsModalLabel">Instrucciones del Slugify</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Escribe un título, nombre de artículo o una frase larga.</li>
+          <li>La herramienta convierte letras con acento, espacios y caracteres especiales en una URL limpia.</li>
+          <li>Usa el slug resultante en rutas, enlaces, SEO o compartir contenido.</li>
+          <li>Pulsa <strong>Reset</strong> para borrar el texto y empezar de nuevo.</li>
+        </ol>
+        <div class="alert alert-secondary mb-0 rounded-4">
+          Ejemplo: “Cómo crear una landing page bonita” → “como-crear-una-landing-page-bonita”
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .slug-tool-wrap,
+  [data-bs-theme="dark"] .slug-tool-wrap .form-label,
+  [data-bs-theme="dark"] .slug-tool-wrap .form-control,
+  [data-bs-theme="dark"] .slug-tool-wrap .card-body,
+  [data-bs-theme="dark"] .slug-tool-wrap .border,
+  [data-bs-theme="dark"] .slug-tool-wrap .small,
+  [data-bs-theme="dark"] .slug-tool-wrap .fw-bold,
+  [data-bs-theme="dark"] .slug-tool-wrap .alert {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .slug-tool-wrap .form-control,
+  [data-bs-theme="dark"] .slug-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .slug-tool-wrap .border,
+  [data-bs-theme="dark"] .slug-tool-wrap .alert {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('slugForm');
+    const textInput = document.getElementById('slugText');
+    const resetBtn = document.getElementById('resetSlugBtn');
+    const output = document.getElementById('slugOutput');
+
+    if (resetBtn && textInput) {
+      resetBtn.addEventListener('click', function () {
+        textInput.value = '';
+        output.textContent = '';
+      });
+    }
+
+    if (form && textInput) {
+      form.addEventListener('submit', function () {
+        const value = textInput.value.trim();
+        if (!value) {
+          output.textContent = '';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

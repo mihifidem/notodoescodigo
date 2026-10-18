@@ -1,0 +1,161 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ page_title }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'nexus:test_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ page_title }}</h2>
+</div>
+
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-7">
+    <div class="nx-card p-4">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Nombre del test <span class="text-danger">*</span></label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors }}</div>{% endif %}
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Descripción</label>
+            {{ form.descripcion }}
+            <div class="form-text">Visible para el alumno en la lista de tests.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">
+              Archivo HTML del test <span class="text-danger">*</span>
+            </label>
+            {{ form.archivo_html }}
+            {% if form.archivo_html.errors %}
+              <div class="text-danger small mt-1">{{ form.archivo_html.errors }}</div>
+            {% endif %}
+            {% if form.instance.archivo_html %}
+              <div class="mt-2 p-2 rounded bg-light small">
+                <i class="bi bi-file-earmark-code me-1 text-primary"></i>
+                Archivo actual: <code>{{ form.instance.archivo_html.name }}</code>
+                <span class="text-muted">(sube otro para reemplazar)</span>
+              </div>
+            {% endif %}
+            <div class="form-text">Solo archivos <code>.html</code> / <code>.htm</code>.</div>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              {{ form.activo }}
+              <label class="form-check-label fw-semibold small" for="{{ form.activo.id_for_label }}">
+                Activo — visible para los alumnos
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{% url 'nexus:test_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="nx-btn-primary btn">
+            <i class="bi bi-check-lg me-1"></i>{{ accion }} Test
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Panel de referencia para el HTML -->
+  <div class="col-lg-5">
+    <div class="nx-card p-4">
+      <div class="nx-section-title mb-3">Variables disponibles en el HTML</div>
+      <p class="small text-muted mb-3">
+        El archivo HTML es un <strong>template Django</strong>. Puedes usar toda la sintaxis de Django templates.
+        Django lo renderizará pasando estas variables en el contexto:
+      </p>
+
+      <div class="mb-3">
+        <span class="badge bg-primary mb-2">Contexto</span>
+        <table class="table table-sm table-bordered small mb-0">
+          <thead class="table-light">
+            <tr><th>Variable</th><th>Tipo</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            {% verbatim %}
+            <tr><td><code>{{ user }}</code></td><td>User</td><td>Alumno autenticado (username, email, first_name…)</td></tr>
+            <tr><td><code>{{ test }}</code></td><td>TestPlantilla</td><td>Nombre, descripción del test</td></tr>
+            <tr><td><code>{{ sesion }}</code></td><td>SesionTest</td><td>PK, estado, iniciado_en…</td></tr>
+            <tr><td><code>{{ url_enviar }}</code></td><td>str</td><td>URL POST para enviar resultados</td></tr>
+            {% endverbatim %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mb-3">
+        <span class="badge bg-success mb-2">Estructura mínima del HTML</span>
+        <pre class="bg-light p-3 rounded small overflow-auto" style="font-size:.75rem;">{% verbatim %}<code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;{{ test.nombre }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hola, {{ user.first_name }}&lt;/h1&gt;
+
+  &lt;form method="POST" action="{{ url_enviar }}"&gt;
+    {% csrf_token %}
+
+    &lt;!-- Preguntas del test aquí --&gt;
+
+    &lt;!-- Resultado calculado por JS --&gt;
+    &lt;input type="hidden"
+           name="resultados_json"
+           id="resultados-json"&gt;
+
+    &lt;button type="submit" onclick="enviar()"&gt;
+      Enviar Test
+    &lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;script&gt;
+  function enviar() {
+    const datos = {
+      nexus_score: 87.4,
+      primary_archetype: "Adaptive Innovator",
+      leadership_score: 89,
+      innovation_score: 91,
+      // ... más índices
+    };
+    document.getElementById('resultados-json')
+      .value = JSON.stringify(datos);
+  }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;{% endverbatim %}</code></pre>
+      </div>
+
+      <div>
+        <span class="badge bg-warning text-dark mb-2">JSON esperado (resultados_json)</span>
+        <pre class="bg-light p-3 rounded small" style="font-size:.75rem;"><code>{
+  "nexus_score": 87.4,
+  "primary_archetype": "Adaptive Innovator",
+  "secondary_archetype": "Future Navigator",
+  "tertiary_archetype": "Digital Transformer",
+  "leadership_score": 89,
+  "innovation_score": 91,
+  "technology_score": 92,
+  "future_score": 90,
+  "career_score": 88,
+  "executive_score": 86,
+  "motivation_score": 85,
+  "cognitive_score": 87,
+  "emotional_score": 83,
+  "reliability": 92
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

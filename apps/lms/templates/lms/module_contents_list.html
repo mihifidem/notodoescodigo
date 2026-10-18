@@ -1,0 +1,67 @@
+{% load i18n %}
+<div class="learning-module-list">
+{% for row in learning_module_rows %}
+  <section class="learning-module">
+    <div class="learning-module-heading">
+      <h2><button type="button" data-module-toggle aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="module-body-{{ row.module.pk }}"><i class="bi bi-chevron-right" aria-hidden="true"></i>{{ row.module.titulo }}</button></h2>
+      <div class="learning-module-tools">
+        {% if not teacher_view %}<span class="module-state">{% if row.reason %}<i class="bi bi-lock" aria-hidden="true"></i> {% trans 'Bloqueado' %}{% elif row.complete %}<i class="bi bi-check-circle-fill" aria-hidden="true"></i> {% trans 'Completado' %}{% else %}{% trans 'Disponible' %}{% endif %}</span>{% endif %}
+        {% if teacher_view %}
+          <a class="button button-secondary" href="{% url 'lms:formative_unit_create' course_id=course.pk module_id=row.module.pk %}" data-content-panel data-panel-title="{% trans 'Crear unidad formativa' %}">{% trans 'Añadir unidad formativa' %}</a>
+          <a class="module-icon-action" href="{% url 'lms:module_contents' course_id=course.pk module_id=row.module.pk %}?panel=content" data-content-panel data-panel-title="{% trans 'Añadir contenido' %}" aria-label="{% blocktrans with name=row.module.titulo %}Añadir contenido a {{ name }}{% endblocktrans %}" title="{% trans 'Añadir contenido' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+          <details class="module-action-menu">
+            <summary aria-label="{% blocktrans with name=row.module.titulo %}Acciones de {{ name }}{% endblocktrans %}"><i class="bi bi-three-dots-vertical" aria-hidden="true"></i></summary>
+            <div>
+              <a href="{% url 'lms:course_module_edit' course_id=course.pk module_id=row.module.pk %}">{% trans 'Editar módulo' %}</a>
+              <a href="{% url 'lms:module_contents' course_id=course.pk module_id=row.module.pk %}?panel=schedule" data-content-panel data-panel-title="{% trans 'Fechas y duración' %}">{% trans 'Fechas y duración' %}</a>
+              <a href="{% url 'lms:module_contents' course_id=course.pk module_id=row.module.pk %}">{% trans 'Gestionar contenidos y requisitos' %}</a>
+              <form method="post" action="{% url 'lms:course_topic_delete' course_id=course.pk topic_id=row.module.pk %}" onsubmit="return confirm('{% trans '¿Eliminar este tema y sus recursos y progreso asociados? Las páginas se conservarán.' %}');">{% csrf_token %}<button type="submit">{% trans 'Borrar módulo' %}</button></form>
+            </div>
+          </details>
+        {% endif %}
+      </div>
+    </div>
+    <div id="module-body-{{ row.module.pk }}" class="learning-module-body">
+      {% if row.schedule %}<p class="module-schedule">{% if row.schedule.starts_at %}{% trans 'Apertura' %}: {{ row.schedule.starts_at|date:'j M Y, H:i' }} · {% endif %}{% if row.schedule.ends_at %}{% trans 'Cierre' %}: {{ row.schedule.ends_at|date:'j M Y, H:i' }} · {% endif %}{% trans 'Duración estimada' %}: {{ row.schedule.estimated_minutes }} {% trans 'minutos' %}</p>{% endif %}
+      {% if row.reason %}<p class="module-lock-message" role="status">{{ row.reason }}</p>
+      {% else %}
+        {% for unit_row in row.units %}
+        <section class="formative-unit" aria-labelledby="unit-title-{{ unit_row.unit.pk }}">
+          <div class="formative-unit-heading">
+            <h3 id="unit-title-{{ unit_row.unit.pk }}">{{ unit_row.unit.title }}</h3>
+            {% if teacher_view %}
+            <div class="learning-module-tools">
+              <a href="{% url 'lms:formative_unit_contents' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}?panel=content" data-content-panel data-panel-title="{% trans 'Añadir recursos a la unidad' %}">{% trans 'Añadir recursos' %}</a>
+              <a href="{% url 'lms:formative_unit_edit' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}" data-content-panel data-panel-title="{% trans 'Editar unidad formativa' %}">{% trans 'Editar unidad' %}</a>
+              <a href="{% url 'lms:formative_unit_contents' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}">{% trans 'Gestionar recursos' %}</a>
+            </div>
+            {% endif %}
+          </div>
+          {% if unit_row.unit.description %}<p class="formative-unit-description">{{ unit_row.unit.description|linebreaksbr }}</p>{% endif %}
+        {% for item in unit_row.items %}
+          <div class="learning-content-row{% if item.published %} is-published{% endif %}{% if item.reason %} is-locked{% endif %}">
+            <i class="content-kind bi {% if item.content.kind == 'page' %}bi-file-earmark-text{% elif item.content.kind == 'file' %}bi-paperclip{% elif item.content.kind == 'quiz' %}bi-ui-checks{% else %}bi-pencil-square{% endif %}" aria-hidden="true"></i>
+            <div class="learning-content-title">
+              {% if item.reason %}<strong>{{ item.content.title }}</strong>{% else %}<a href="{{ item.url }}">{{ item.content.title }}</a>{% endif %}
+              <small>{% if item.content.kind == 'quiz' %}{% trans 'Prueba' %}{% elif item.content.kind == 'activity' %}{% trans 'Actividad' %}{% elif item.content.kind == 'file' %}{% trans 'Fichero' %}{% else %}{% trans 'Página' %}{% endif %} · {{ item.content.get_criterion_display }}{% if not item.content.required %} · {% trans 'Opcional' %}{% endif %}{% if item.content.activity_id %} · {{ item.content.activity.points }} {% trans 'puntos' %}{% endif %}</small>
+              {% if item.reason %}<small class="module-lock-message">{{ item.reason }}</small>{% elif item.content.prerequisite %}<small>{% trans 'Prerrequisito' %}: {{ item.content.prerequisite.title }}</small>{% endif %}
+            </div>
+            <span class="content-status" title="{% if teacher_view %}{% if item.published %}{% trans 'Publicado' %}{% else %}{% trans 'Sin publicar' %}{% endif %}{% elif item.reason %}{% trans 'Bloqueado' %}{% elif item.complete %}{% trans 'Completado' %}{% else %}{% trans 'Pendiente' %}{% endif %}">
+              <i class="bi {% if teacher_view and item.published or not teacher_view and item.complete %}bi-check-circle-fill{% elif item.reason %}bi-lock{% else %}bi-circle{% endif %}" aria-hidden="true"></i>
+              <span class="visually-hidden">{% if teacher_view %}{% if item.published %}{% trans 'Publicado' %}{% else %}{% trans 'Sin publicar' %}{% endif %}{% elif item.reason %}{% trans 'Bloqueado' %}{% elif item.complete %}{% trans 'Completado' %}{% else %}{% trans 'Pendiente' %}{% endif %}</span>
+            </span>
+            {% if teacher_view %}
+              <a class="module-icon-action" href="{% url 'lms:module_contents' course_id=course.pk module_id=row.module.pk %}?panel=content&amp;edit={{ item.content.pk }}" data-content-panel data-panel-title="{% trans 'Editar contenido' %}" aria-label="{% blocktrans with name=item.content.title %}Editar condiciones de {{ name }}{% endblocktrans %}"><i class="bi bi-three-dots-vertical" aria-hidden="true"></i></a>
+            {% elif not item.reason and not item.complete and item.content.criterion == 'manual' %}
+              <form method="post" action="{% url 'lms:module_content_complete' course_id=course.pk content_id=item.content.pk %}">{% csrf_token %}<button class="content-complete-button" type="submit">{% trans 'Completar' %}</button></form>
+            {% endif %}
+          </div>
+        {% empty %}<p class="module-empty">{% trans 'No hay recursos en esta unidad formativa.' %}</p>{% endfor %}
+        </section>
+        {% empty %}<p class="module-empty">{% trans 'Todavía no hay unidades formativas con recursos disponibles.' %}</p>{% endfor %}
+        <div class="module-open-link"><a href="{% url 'courses:tema_detail' row.module.pk %}">{% trans 'Abrir módulo' %}</a></div>
+      {% endif %}
+    </div>
+  </section>
+{% empty %}<p class="empty-state">{% trans 'Todavía no hay módulos en este curso.' %}</p>{% endfor %}
+</div>

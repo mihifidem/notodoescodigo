@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Contador de texto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-success text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Contador de texto</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <form method="get" class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Texto</label>
+              <textarea name="text" rows="8" class="form-control form-control-lg" placeholder="Escribe o pega aquí tu texto...">{{ text }}</textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-success rounded-pill px-4">Contar</button>
+            </div>
+          </form>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-3">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">Caracteres</div>
+                <div class="fw-bold fs-4 mt-2">{{ chars }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">Palabras</div>
+                <div class="fw-bold fs-4 mt-2">{{ words }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">Líneas</div>
+                <div class="fw-bold fs-4 mt-2">{{ lines }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">Leer en</div>
+                <div class="fw-bold fs-4 mt-2">{{ read_time }} min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

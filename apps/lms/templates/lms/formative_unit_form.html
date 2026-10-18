@@ -1,0 +1,10 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block content %}
+<nav class="breadcrumbs"><a href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans 'Contenido' %}</a><span>/</span><span>{{ module.titulo }}</span></nav>
+<section class="form-panel">
+  <h1>{% if unit %}{% trans 'Editar unidad formativa' %}{% else %}{% trans 'Crear unidad formativa' %}{% endif %}</h1>
+  {% include 'lms/formative_unit_panel.html' %}
+  <a href="{% url 'lms:module_contents' course_id=course.pk module_id=module.pk %}">{% trans 'Volver al módulo' %}</a>
+</section>
+{% endblock %}

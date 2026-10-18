@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 340">
+  <title>Ducky frontal de cuerpo entero: sprite provisional</title>
+  <g stroke="#713f12" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="88" cy="319" rx="40" ry="15" fill="#fb923c"/>
+    <ellipse cx="152" cy="319" rx="40" ry="15" fill="#fb923c"/>
+    <path d="M85 280v34m70-34v34" stroke="#fb923c" stroke-width="18"/>
+    <ellipse cx="120" cy="212" rx="69" ry="85" fill="#facc15"/>
+    <ellipse cx="49" cy="213" rx="19" ry="51" fill="#facc15" transform="rotate(22 49 213)"/>
+    <ellipse cx="191" cy="213" rx="19" ry="51" fill="#facc15" transform="rotate(-22 191 213)"/>
+    <path d="M61 244q59 19 118 0v40q-26 14-57 4-32 10-61-4z" fill="#2563eb"/>
+  </g>
+  <circle cx="120" cy="91" r="70" fill="#fde047" stroke="#713f12" stroke-width="4"/>
+  <path d="M103 23q-9-17 4-19l13 19q0-22 12-21l-2 23" fill="#fde047" stroke="#713f12" stroke-width="4"/>
+  <ellipse cx="91" cy="82" rx="18" ry="24" fill="white"/>
+  <ellipse cx="149" cy="82" rx="18" ry="24" fill="white"/>
+  <ellipse cx="94" cy="86" rx="10" ry="16" fill="#1e293b"/>
+  <ellipse cx="146" cy="86" rx="10" ry="16" fill="#1e293b"/>
+  <circle cx="97" cy="80" r="4" fill="white"/>
+  <circle cx="143" cy="80" r="4" fill="white"/>
+  <ellipse cx="120" cy="117" rx="36" ry="17" fill="#fb923c" stroke="#713f12" stroke-width="4"/>
+  <path d="M91 119q29 14 58 0" fill="none" stroke="#713f12" stroke-width="3"/>
+</svg>

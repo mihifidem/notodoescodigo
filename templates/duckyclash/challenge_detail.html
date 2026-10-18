@@ -1,0 +1,84 @@
+{% extends 'duckyclash/base.html' %}
+{% load tz %}
+{% block title %}Reto DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1>Reto #{{ challenge.pk }}</h1>
+    <div class="card"><div class="card-body">
+        <p>{{ challenge.creator.get_username }} contra {{ challenge.opponent.get_username|default:"Rival pendiente" }}</p>
+        <p>{% if challenge.is_expired %}Caducado{% else %}{{ challenge.get_status_display }}{% endif %}</p>
+        <dl class="row">
+            <dt class="col-sm-4">Versión</dt><dd class="col-sm-8">{{ offer.version }}</dd>
+            <dt class="col-sm-4">Categoría</dt><dd class="col-sm-8">{{ offer.category }}{% if offer.subcategory %} / {{ offer.subcategory }}{% endif %}</dd>
+            <dt class="col-sm-4">Inicio</dt><dd class="col-sm-8">{% include 'duckyclash/time.html' with value=offer.scheduled_at %} · Zona de la oferta: {{ offer.time_zone }}</dd>
+            <dt class="col-sm-4">Vencimiento</dt><dd class="col-sm-8">{% include 'duckyclash/time.html' with value=offer.expires_at %}</dd>
+            <dt class="col-sm-4">Apuesta por jugador</dt><dd class="col-sm-8">{{ offer.stake }} DuckyCoins</dd>
+            <dt class="col-sm-4">Paisaje</dt><dd class="col-sm-8">{{ offer.landscape }}</dd>
+        </dl>
+    </div></div>
+    <div class="alert alert-info mt-3">Consultar saldo no reserva monedas. Al aceptar se reservan las apuestas de ambos jugadores; el duelo solo se confirma si ambas reservas están verificadas. El Ring no se desbloquea antes de la hora pactada.</div>
+    {% if action_form.errors %}<div class="alert alert-danger" role="alert">{{ action_form.errors }}</div>{% endif %}
+    {% if can_manage or can_delete %}
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        {% if can_manage %}
+        <a class="btn btn-outline-primary" href="{% url 'duckyclash:challenge_edit' challenge.pk %}">Editar reto</a>
+        {% endif %}
+        {% if can_delete %}
+        <form method="post" action="{% url 'duckyclash:challenge_delete' challenge.pk %}" data-clash-confirm="¿Eliminar definitivamente este reto pendiente y sus ofertas?">
+            {% csrf_token %}{{ action_form.version }}{{ action_form.revision }}
+            <button class="btn btn-outline-danger" type="submit">Borrar reto</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% if can_accept_open %}
+    <form method="post" action="{% url 'duckyclash:open_accept' challenge.pk %}" class="mb-3" data-clash-confirm="¿Aceptar la versión {{ offer.version }} con {{ offer.stake }} DuckyCoins por jugador? El servidor solicitará ambas reservas.">
+        {% csrf_token %}{{ action_form.version }}{{ action_form.revision }}
+        <button class="btn btn-primary" type="submit">Aceptar condiciones sin negociación</button>
+    </form>
+    {% endif %}
+    {% if counter_form.errors and not can_respond %}<div class="alert alert-danger" role="alert">{{ counter_form.errors }}</div>{% endif %}
+    {% if can_respond %}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-5"><div class="card"><div class="card-body">
+            <h2 class="h5">Responder a la versión {{ offer.version }}</h2>
+            <p>Propuesta de {{ offer.proposed_by.get_username }}. Al aceptar se comprobará el saldo de ambos jugadores.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" action="{% url 'duckyclash:challenge_accept' challenge.pk %}" data-clash-confirm="¿Aceptar la versión {{ offer.version }} con {{ offer.stake }} DuckyCoins por jugador? El servidor solicitará ambas reservas.">
+                    {% csrf_token %}{{ action_form.version }}{{ action_form.revision }}
+                    <button class="btn btn-primary" type="submit">Aceptar</button>
+                </form>
+                <form method="post" action="{% url 'duckyclash:challenge_decline' challenge.pk %}" data-clash-confirm="¿Rechazar esta propuesta?">
+                    {% csrf_token %}{{ action_form.version }}{{ action_form.revision }}
+                    <button class="btn btn-outline-danger" type="submit">Rechazar</button>
+                </form>
+            </div>
+        </div></div></div>
+        <div class="col-lg-7"><div class="card"><div class="card-body">
+            <h2 class="h5">Contraofertar</h2>
+            <p class="text-body-secondary">Solo fecha, hora y apuesta. Zona: {{ offer.time_zone }}. Categoría y paisaje no cambian.</p>
+            <form method="post" action="{% url 'duckyclash:challenge_counter' challenge.pk %}" data-clash-confirm="¿Enviar la nueva fecha, hora y apuesta como contrapropuesta?">
+                {% include 'duckyclash/form_errors.html' with form=counter_form %}
+                {% csrf_token %}{{ counter_form.as_p }}
+                <button type="submit" class="btn btn-outline-primary">Enviar contrapropuesta</button>
+            </form>
+        </div></div></div>
+    </div>
+    {% elif challenge.status == 'pending' and not challenge.is_expired %}
+    <p>Esperando la respuesta del otro jugador.</p>
+    {% endif %}
+    {% if duel %}<a class="btn btn-outline-primary mb-3" href="{% url 'duckyclash:duel_detail' duel.pk %}">Ver duelo · {{ duel.get_status_display }}</a>{% endif %}
+    <h2 class="h5">Historial de ofertas</h2>
+    <div class="table-responsive mb-3">
+        <table class="table">
+            <caption>Historial de condiciones; aceptar siempre corresponde a una versión concreta.</caption>
+            <thead><tr><th scope="col">Versión</th><th scope="col">Proponente</th><th scope="col">Inicio</th><th scope="col">DuckyCoins por jugador</th></tr></thead>
+            <tbody>{% for historical in offers %}<tr>
+                <td>{{ historical.version }}</td><td>{{ historical.proposed_by.get_username }}</td>
+                <td>{% include 'duckyclash/time.html' with value=historical.scheduled_at %}</td><td>{{ historical.stake }}</td>
+            </tr>{% endfor %}</tbody>
+        </table>
+    </div>
+    <a href="{% url 'duckyclash:home' %}">Volver a DuckyClash</a>
+</div>
+{% endblock %}

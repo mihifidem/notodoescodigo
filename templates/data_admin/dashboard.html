@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Gestión global de datos{% endblock %}
+{% block page_title %}Gestión global de datos{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <strong>Panel de administración de datos</strong>
+      </div>
+      <div class="card-body">
+        <p class="mb-0 text-muted">Desde aquí puedes hacer backup CSV, restaurar datos, exportar tablas y limpiar contenido por modelo.</p>
+      </div>
+    </div>
+  </div>
+
+  {% for model in models_info %}
+  <div class="col-12 col-xl-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+          <div>
+            <h6 class="fw-bold mb-1">{{ model.verbose_name }}</h6>
+            <small class="text-muted">{{ model.label }}</small>
+          </div>
+          <span class="badge bg-secondary">{{ model.count }} registros</span>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+          <form method="post" action="{% url 'data_admin:backup_csv' %}">
+            {% csrf_token %}
+            <input type="hidden" name="model_name" value="{{ model.label }}">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Backup CSV</button>
+          </form>
+
+          <a href="{% url 'data_admin:download_csv' model_name=model.label %}" class="btn btn-primary btn-sm">Descargar CSV</a>
+
+          <form method="post" action="{% url 'data_admin:clear_table' model_name=model.label %}" onsubmit="return confirm('¿Seguro que quieres limpiar esta tabla?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">Limpiar tabla</button>
+          </form>
+        </div>
+
+        <hr>
+
+        <form method="post" enctype="multipart/form-data" action="{% url 'data_admin:restore_csv' %}">
+          {% csrf_token %}
+          <input type="hidden" name="model_name" value="{{ model.label }}">
+          <div class="input-group input-group-sm">
+            <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+            <button type="submit" class="btn btn-outline-success">Restaurar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

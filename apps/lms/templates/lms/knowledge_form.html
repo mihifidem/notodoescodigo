@@ -1,0 +1,21 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{{ heading }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{{ heading }}</h1>
+    <p class="quiet-note">{% trans 'Las preguntas y opciones se guardan como texto, incluido el código HTML.' %}</p>
+    {% if csv_review %}<div class="form-error" role="alert"><strong>{% trans 'Revisar' %} · {% trans 'Fila' %} {{ csv_review.row }}</strong><ul>{% for error in csv_review.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% if csv_review.extra_columns %}<p>{% trans 'Columnas adicionales' %}: {{ csv_review.extra_columns|join:'; ' }}</p>{% endif %}<p>{% trans 'Al guardar una pregunta válida se retirará la marca Revisar.' %}</p></div>{% endif %}
+    <form method="post" enctype="multipart/form-data" class="stacked-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block">{{ field.label_tag }}{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}</div>
+      {% endfor %}
+      <div class="action-row">
+        <button class="button button-primary" type="submit">{% trans 'Guardar' %}</button>
+        <a class="button button-secondary" href="{% if bank %}{% url 'lms:knowledge_bank' course_id=course.pk bank_id=bank.pk %}{% else %}{% url 'lms:course_area' course_id=course.pk area='item-bank' %}{% endif %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

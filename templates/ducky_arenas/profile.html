@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Perfil Ducky Arenas{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            {% include 'ducky_arenas/ducky_avatar_preview.html' with profile=profile power=power %}
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="mb-0">Perfil del jugador</h2>
+                        <span class="badge bg-primary">{{ profile.rank }}</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6"><div class="bg-light rounded p-3"><strong>Nickname:</strong> {{ profile.nickname }}</div></div>
+                        <div class="col-md-6"><div class="bg-light rounded p-3"><strong>Avatar:</strong> {{ profile.get_avatarType_display }}</div></div>
+                        <div class="col-md-6"><div class="bg-light rounded p-3"><strong>Nivel:</strong> {{ profile.level }}</div></div>
+                        <div class="col-md-6"><div class="bg-light rounded p-3"><strong>Rating:</strong> {{ profile.rating }}</div></div>
+                    </div>
+                    <div class="mt-4">
+                        <h4>Estadísticas de Arena</h4>
+                        <p class="small text-muted">No son los atributos oficiales de EcoMotor.</p>
+                        <div class="row g-2">
+                            {% for stat in characteristics %}
+                            <div class="col-md-4">
+                                <div class="bg-light rounded p-2 text-center">
+                                    <div class="text-uppercase small text-muted"><abbr title="{{ stat.label }}">{{ stat.code }}</abbr></div>
+                                    <strong>{{ stat.value }}</strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mt-4" aria-labelledby="professional-profile-title">
+                        <h4 id="professional-profile-title">Perfil profesional</h4>
+                        {% if profession_assignment %}
+                        <p class="mb-1">
+                            <strong>{{ profession_assignment.profession.name }}</strong>
+                            <span class="badge bg-secondary">{{ profession_assignment.get_status_display }}</span>
+                        </p>
+                        <p>{{ profession_assignment.profession.description }}</p>
+                        <p>Selección iniciada: {{ profession_assignment.created_at }}</p>
+                        {% if profession_assignment.status == 'confirmed' and profession_assignment.confirmed_at %}
+                        <p>Especialización confirmada: {{ profession_assignment.confirmed_at }}</p>
+                        {% else %}
+                        <p class="small text-muted">
+                            La profesión está en borrador. No se ha confirmado ni se han aplicado atributos.
+                        </p>
+                        <a href="{% url 'ducky_arenas:profession' %}">Revisar profesión</a>
+                        {% endif %}
+                        {% else %}
+                        <p class="text-muted">Aún no has seleccionado una profesión.</p>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4" aria-labelledby="official-attributes-title">
+                        <h4 id="official-attributes-title">
+                            {% if official_progress_snapshot and official_progress_snapshot.simulated %}
+                            Atributos simulados de EcoMotor
+                            {% else %}
+                            Atributos oficiales de EcoMotor
+                            {% endif %}
+                        </h4>
+                        {% if official_progress_available %}
+                        <p>
+                            {% if official_progress_snapshot.simulated %}XP simulado{% else %}XP oficial{% endif %}:
+                            <strong>{{ official_xp }}</strong>
+                        </p>
+                        {% else %}
+                        <p class="small text-muted">EcoMotor no está disponible; los valores se muestran como no disponibles.</p>
+                        {% endif %}
+                        <div class="row g-2">
+                            {% for stat in official_characteristics %}
+                            <div class="col-md-4">
+                                <div class="bg-light rounded p-2 text-center">
+                                    <div class="text-uppercase small text-muted"><abbr title="{{ stat.label }}">{{ stat.code }}</abbr></div>
+                                    <strong>{{ stat.value }}</strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 card shadow-sm border-0">
+        <div class="card-body">
+            <h3>Inventario</h3>
+            <div class="row g-3">
+                {% for entry in inventory_items %}
+                <div class="col-md-4">
+                    <div class="border rounded p-3 h-100">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ entry.item.name }}</strong>
+                            <span class="badge bg-warning text-dark">{{ entry.item.rarity }}</span>
+                        </div>
+                        <small class="text-muted d-block">{{ entry.item.slot }}</small>
+                        <p class="mb-2 mt-2 small text-muted">{{ entry.item.description }}</p>
+                        <form method="post" action="{% url 'ducky_arenas:inventory_equip' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_code" value="{{ entry.item.code }}">
+                            <button type="submit" class="btn btn-sm btn-primary">Equipar</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12"><p class="text-muted mb-0">Todavía no tienes objetos en tu inventario.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

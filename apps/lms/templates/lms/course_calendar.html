@@ -1,0 +1,14 @@
+{% load i18n %}
+<section class="course-mini-calendar" aria-label="{% trans 'Calendario del mes actual' %}">
+  <h3>{{ calendar_today|date:"F Y" }}</h3>
+  <table>
+    <thead><tr><th scope="col">{% trans "Lu" %}</th><th scope="col">{% trans "Ma" %}</th><th scope="col">{% trans "Mi" %}</th><th scope="col">{% trans "Ju" %}</th><th scope="col">{% trans "Vi" %}</th><th scope="col">{% trans "Sá" %}</th><th scope="col">{% trans "Do" %}</th></tr></thead>
+    <tbody>
+      {% for week in calendar_days %}
+      <tr>{% for day in week %}<td{% if day.date.month != calendar_today.month %} class="outside-month"{% endif %}>{% if day.events %}<a class="calendar-event-day" href="{{ day.url }}" title="{{ day.description }}" aria-label="{{ day.date|date:'j F Y' }}: {{ day.description }}">{% endif %}<time datetime="{{ day.date|date:'Y-m-d' }}"{% if day.date == calendar_today %} aria-current="date"{% endif %}>{{ day.date.day }}</time>{% if day.events %}</a>{% endif %}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="calendar-legend"><span aria-hidden="true">◯</span> {% trans 'Días con fechas o actividades' %}</p>
+  <a href="{% url 'lms:global_area' area='calendar' %}">{% trans "Abrir calendario" %}</a>
+</section>

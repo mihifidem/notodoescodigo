@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV - Estilo GitHub</title>
+  <style>
+    /* ============================================
+       TEMAS: variables de color
+       ============================================ */
+
+    /* TEMA OSCURO (por defecto) */
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #010409;
+      --bg-card: #161b22;
+      --bg-hover: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #7d8590;
+      --accent: #2f81f7;
+      --accent-soft: #58a6ff;
+    }
+
+    /* TEMA CLARO */
+    body.light {
+      --bg: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-card: #f6f8fa;
+      --bg-hover: #eaeef2;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --text-muted: #59636e;
+      --accent: #0969da;
+      --accent-soft: #0969da;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* BOTONES */
+    .btn-download {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: #238636;
+      border: 1px solid #2ea043;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 16px;
+      text-decoration: none;
+      transition: background 0.2s;
+      box-sizing: border-box;
+    }
+
+    .btn-download:hover {
+      background: #2ea043;
+    }
+
+    .btn-follow {
+      width: 100%;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: background 0.2s;
+    }
+
+    .btn-follow:hover {
+      background: var(--border);
+    }
+
+    .theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-hover);
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-logo {
+      color: var(--text);
+      font-size: 32px;
+    }
+
+    .search {
+      flex: 1;
+      max-width: 400px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    /* LAYOUT */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 296px 1fr;
+      gap: 32px;
+    }
+
+    .sidebar {
+      padding-right: 16px;
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+
+      /* Ocultar scrollbar manteniendo funcionalidad */
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+      /* IE/Edge antiguo */
+    }
+
+    /* Ocultar scrollbar en Chrome/Safari/Edge moderno */
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Scrollbar en Chrome/Edge */
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    /* SIDEBAR */
+    .avatar {
+      width: 100%;
+      max-width: 240px;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #58a6ff 0%, #7ee787 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(50px, 12vw, 90px);
+      font-weight: 700;
+      color: #0d1117;
+      margin: 0 auto 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      /* preserva la cara cuando hay recorte */
+    }
+
+    .name {
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .username {
+      font-size: 20px;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    .bio {
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .stats-list {
+      font-size: 14px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      color: var(--text-muted);
+    }
+
+    .stat-item strong {
+      color: var(--text);
+    }
+
+    .stat-item:hover {
+      color: var(--accent-soft);
+      cursor: pointer;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+
+      /* Ocultar la scrollbar horizontal */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      color: var(--text);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab.active {
+      border-bottom-color: #fd8c73;
+      font-weight: 600;
+    }
+
+    .tab .count {
+      background: var(--border);
+      padding: 0 6px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    /* README */
+    .readme {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .readme-header {
+      background: var(--bg-card);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .readme-body {
+      padding: 24px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--text);
+    }
+
+    .readme h1 {
+      font-size: 32px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .readme h2 {
+      font-size: 24px;
+      margin-top: 24px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .readme h3 {
+      font-size: 20px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    .readme p {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .readme ul {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    .readme li {
+      margin-bottom: 4px;
+    }
+
+    /* BADGES */
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      background: #1f6feb;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.green {
+      background: #238636;
+    }
+
+    .badge.purple {
+      background: #8957e5;
+    }
+
+    .badge.orange {
+      background: #db6d28;
+    }
+
+    .badge.red {
+      background: #da3633;
+    }
+
+    /* SKILL BARS */
+    .skill-bar-item {
+      margin-bottom: 12px;
+    }
+
+    .skill-bar-item__name {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .skill-bar-item__pct {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .skill-bar {
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .skill-bar__fill {
+      background: linear-gradient(90deg, #2f81f7 0%, #7ee787 100%);
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.6s ease;
+    }
+
+    /* CODE */
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+      background: var(--bg-card);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    /* REPOS / TARJETAS */
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .repo {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .repo-name {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .repo-name:hover {
+      text-decoration: underline;
+    }
+
+    .repo-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .repo-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .lang-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    /* EXTRAS */
+    .extras-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .extras-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .extras-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .extras-item__label {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .extras-item__value {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .extras-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .extras-link:hover {
+      text-decoration: underline;
+    }
+
+    .readme h3.subsection {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* CONTRIBUTION GRAPH */
+    .contribution-graph {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .contribution-grid {
+      display: grid;
+      grid-template-columns: repeat(53, 11px);
+      grid-auto-rows: 11px;
+      gap: 3px;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(7, 11px);
+    }
+
+    .day {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      background: var(--bg-card);
+    }
+
+    .day.l1 {
+      background: #0e4429;
+    }
+
+    .day.l2 {
+      background: #006d32;
+    }
+
+    .day.l3 {
+      background: #26a641;
+    }
+
+    .day.l4 {
+      background: #39d353;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .extras-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .avatar {
+        max-width: 180px;
+      }
+
+      .repo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        justify-content: center;
+      }
+
+      .badge {
+        font-size: 11px;
+      }
+
+      .skill-bar {
+        height: 6px;
+      }
+
+      .skill-bar-item__name {
+        font-size: 12px;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+      }
+    }
+
+    /* === Estilos para impresión / PDF === */
+@media print {
+  /* Forzar colores oscuros en impresión */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
+
+  /* Asegurar que los colores de fondo se imprimen */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    background: #0d1117 !important;
+  }
+
+  /* Ocultar elementos que no aportan en el PDF */
+  .header,
+  .tabs,
+  .btn-follow,
+  .btn-download,
+  .theme-toggle,
+  .contribution-graph {
+    display: none !important;
+  }
+
+  /* Desactivar sticky para imprimir todo el sidebar */
+  .sidebar {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Reorganizar a una columna para mejor impresión */
+  .container {
+    display: block !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    padding-right: 0 !important;
+    margin-bottom: 16px !important;
+    border-bottom: 1px solid #30363d !important;
+    padding-bottom: 16px !important;
+    display: flex !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+
+  .avatar {
+    max-width: 120px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+  }
+
+  .name, .username, .bio {
+    flex-basis: 100% !important;
+  }
+
+  .stats-list {
+    flex-basis: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 2px 20px !important;
+  }
+
+  /* === Estilos para impresión / PDF === */
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <span class="header-logo">⚙</span>
+    <input class="search" placeholder="Type / to search">
+    <div class="header-actions">
+      <span>Pull requests</span>
+      <span>Issues</span>
+      <span>🔔</span>
+      <span>+</span>
+      <button id="themeToggle" class="theme-toggle">🌙</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    {# =================== SIDEBAR =================== #}
+    <aside class="sidebar">
+      <div class="avatar" data-iniciales="{{cv.personal_info.nombre|first }}{{cv.personal_info.apellidos|first}}">
+        {% if cv.personal_info.foto %}
+        <img src="{{cv.personal_info.foto}}" alt="{{cv.personal_info.nombre_completo}}">
+        {% else %}
+        {{ cv.personal_info.nombre|first }}{{ cv.personal_info.apellidos|first }}
+        {% endif %}
+      </div>
+
+      <div class="name">{{ cv.personal_info.nombre }} {{ cv.personal_info.apellidos }}</div>
+      <div class="username">{{ cv.personal_info.nombre|lower }}dev</div>
+
+      {% if cv.professional_profile.profesion %}
+      <p class="bio">{{ cv.professional_profile.profesion }}</p>
+      {% endif %}
+
+      <button class="btn-follow">Follow</button>
+      <button class="btn-download" id="btnPdf">⬇ Descargar CV en PDF</button>
+
+      <div class="stats-list">
+        <div class="stat-item">👥 <strong>1.2k</strong> fllwrs <strong>284</strong> following</div>
+        <div class="stat-item">⭐ <strong>523</strong> stars</div>
+
+        {% if cv.personal_info.nacionalidad %}
+        <div class="stat-item">🌍 {{ cv.personal_info.nacionalidad }}</div>
+        {% endif %}
+
+        <div class="stat-item">
+          📍 {{ cv.personal_info.ciudad }}, {{ cv.personal_info.pais }}
+          {% if cv.personal_info.codigo_postal %} · {{ cv.personal_info.codigo_postal }}{% endif %}
+        </div>
+
+        <div class="stat-item">📧 {{ cv.personal_info.email_profesional1 }}</div>
+        {% if cv.personal_info.email_profesional2 %}
+        <div class="stat-item">📧 {{ cv.personal_info.email_profesional2 }}</div>
+        {% endif %}
+
+        <div class="stat-item">📞 {{ cv.personal_info.telefono1 }}</div>
+        {% if cv.personal_info.telefono2 %}
+        <div class="stat-item">📱 {{ cv.personal_info.telefono2 }}</div>
+        {% endif %}
+
+        <div class="stat-item">🟢 <strong>{{ cv.personal_info.disponibilidad }}</strong></div>
+        <div class="stat-item">🚗 <strong>{{ cv.personal_info.carnet_conducir|yesno:"Sí,No" }}</strong></div>
+      </div>
+    </aside>
+
+    {# =================== MAIN =================== #}
+    <main class="main">
+
+      <div class="tabs">
+        <button class="tab active">📖 Overview</button>
+        <button class="tab">📚 Repositories <span class="count">{{ proyectos|length }}</span></button>
+        <button class="tab">📦 Projects <span class="count">{{ experiencias|length }}</span></button>
+        <button class="tab">📦 Packages</button>
+        <button class="tab">⭐ Stars <span class="count">523</span></button>
+      </div>
+
+      <div class="readme">
+        <div class="readme-header">📄 {{ profile.cv.personal_info.nombre|lower }}dev / README.md</div>
+        <div class="readme-body">
+
+          <h1>👋 Hola, soy {{ profile.cv.personal_info.nombre }}</h1>
+
+          {# Badges con las primeras 5 habilidades técnicas #}
+          <div class="badges">
+            {% for s in habilidades|slice:":5" %}
+            {% if s.tipo == 'Tecnica' %}
+            <span class="badge {% cycle '' 'purple' 'green' 'orange' 'red' %}">{{ s.nombre }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+
+          {# Resumen #}
+          {% if profile.cv.professional_profile.resumen %}
+          <p>{{ profile.cv.professional_profile.resumen|linebreaksbr }}</p>
+          {% endif %}
+
+          {# Objetivo #}
+          {% if profile.cv.professional_profile.objetivo %}
+          <h2>🎯 Objetivo profesional</h2>
+          <p>{{ cv.professional_profile.objetivo }}</p>
+          {% endif %}
+
+          {# Habilidades #}
+          {% if habilidades %}
+          <h2>⚡ Habilidades</h2>
+
+          <h3>Habilidades técnicas</h3>
+          {% for s in habilidades %}
+          {% if s.tipo == 'Tecnica' %}
+          <div class="skill-bar-item">
+            <div class="skill-bar-item__name">
+              <span>{{ s.nombre }}{% if s.categoria %} <small style="color:var(--text-muted);">·
+                  {{s.categoria}}</small>{% endif %}</span>
+              {% if s.nivel %}<span class="skill-bar-item__pct">{% widthratio s.nivel 5 100 %}%</span>{% endif %}
+            </div>
+            {% if s.nivel %}
+            <div class="skill-bar">
+              <div class="skill-bar__fill" style="width:{% widthratio s.nivel 5 100 %}%"></div>
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+          {% endfor %}
+
+          <h3>Soft skills</h3>
+          <div class="badges">
+            {% for s in habilidades %}
+            {% if s.tipo == 'SoftSkill' %}
+            <span class="badge {% cycle '' 'purple' 'green' 'orange' 'red' %}">{{ s.nombre }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {# Experiencia laboral #}
+          {% if experiencias %}
+          <h2>💼 Experiencia laboral</h2>
+          {% for exp in experiencias %}
+          <h3>{{ exp.puesto }} @ {{ exp.empresa }}{% if exp.ubicacion %} · {{ exp.ubicacion }}{% endif %}</h3>
+          <p>
+            <code>
+                  {{ exp.fecha_inicio|slice:":4" }} —
+                  {% if exp.trabajo_actual %}Presente{% else %}{{ exp.fecha_fin|slice:":4" }}{% endif %}
+                </code>
+          </p>
+          {% if exp.descripcion %}
+          <p>{{ exp.descripcion|linebreaksbr }}</p>
+          {% endif %}
+          {% if exp.logros %}
+          <ul>
+            {% for logro in exp.logros.splitlines %}
+            {% if logro %}<li>{{ logro }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+
+          {# Educación + Formación complementaria #}
+          {% if educaciones or formaciones %}
+          <h2>🎓 Educación</h2>
+
+          {% for edu in educaciones %}
+          <h3>{{ edu.titulo }}</h3>
+          <p>
+            {{ edu.centro }}{% if edu.ubicacion %} · {{ edu.ubicacion }}{% endif %} —
+            <code>
+                  {{ edu.fecha_inicio|slice:":4" }} —
+                  {% if edu.en_curso %}En curso{% else %}{{ edu.fecha_fin|slice:":4" }}{% endif %}
+                </code>
+          </p>
+          {% endfor %}
+
+          {% if formaciones %}
+          <h3 class="subsection">📚 Formación complementaria</h3>
+          <ul>
+            {% for f in formaciones %}
+            <li>
+              <strong>{{ f.tipo }}:</strong> {{ f.nombre }}
+              {% if f.entidad %} — {{ f.entidad }}{% endif %}
+              {% if f.fecha %} ({{ f.fecha|slice:":4" }}){% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% endif %}
+
+          {# Proyectos (Pinned) #}
+          {% if proyectos %}
+          <h2 style="font-size:16px; margin-bottom:8px;">📌 Pinned</h2>
+          <div class="repo-grid">
+            {% for proj in proyectos %}
+            <div class="repo">
+              {% if proj.link %}
+              <a href="{{ proj.link }}" target="_blank" rel="noopener" class="repo-name">📚 {{ proj.nombre }}</a>
+              {% else %}
+              <div class="repo-name">📚 {{ proj.nombre }}</div>
+              {% endif %}
+
+              {% if proj.descripcion %}
+              <div class="repo-desc">{{ proj.descripcion|truncatechars:120 }}</div>
+              {% endif %}
+
+              {% if proj.tecnologias %}
+              <div class="repo-meta">
+                <span><span class="lang-dot" style="background:#58a6ff;"></span>{{ proj.tecnologias }}</span>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {# Logros #}
+          {% if logros %}
+          <h2 style="font-size:16px; margin-bottom:8px;">🏆 Logros y reconocimientos</h2>
+          <div class="repo-grid">
+            {% for logro in logros %}
+            <div class="repo">
+              <div class="repo-name">
+                {% if logro.tipo == 'Premio' %}🏆
+                {% elif logro.tipo == 'Reconocimiento' %}🎖
+                {% elif logro.tipo == 'Conferencia' %}🎤
+                {% elif logro.tipo == 'Impacto' %}⚡
+                {% else %}⭐{% endif %}
+                {{ logro.titulo }}
+              </div>
+              {% if logro.descripcion %}
+              <div class="repo-desc">{{ logro.descripcion }}</div>
+              {% endif %}
+              <div class="repo-meta">
+                <span>{{ logro.tipo }}{% if logro.fecha %} · {{ logro.fecha|slice:":4" }}{% endif %}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {# Voluntariados #}
+          {% if voluntariados %}
+          <h2>🤝 Voluntariado</h2>
+          {% for v in voluntariados %}
+          <h3>{{ v.funcion }} @ {{ v.organizacion }}</h3>
+          <p>
+            <code>
+                  {{ v.fecha_inicio|slice:":4" }} —
+                  {% if v.en_curso %}Presente{% else %}{{ v.fecha_fin|slice:":4" }}{% endif %}
+                </code>
+          </p>
+          {% if v.impacto %}<p>{{ v.impacto }}</p>{% endif %}
+          {% endfor %}
+          {% endif %}
+
+          {# Bloque final: idiomas + redes + intereses #}
+          {% if idiomas or cv.social_network or intereses %}
+          <h2>📎 Más información</h2>
+          <div class="repo-grid extras-grid">
+
+            {# Idiomas #}
+            {% if idiomas %}
+            <div class="repo">
+              <div class="repo-name">🌍 Idiomas</div>
+              <div class="extras-list">
+                {% for lang in idiomas %}
+                <div class="extras-item">
+                  <span class="extras-item__label">{{ lang.idioma }}</span>
+                  <span class="extras-item__value">
+                    {{ lang.nivel }}{% if lang.certificacion and lang.certificacion != 'N/A' %} ·
+                    {{lang.certificacion}}{% endif %}
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {# Redes sociales #}
+            {% if cv.social_network %}
+            <div class="repo">
+              <div class="repo-name">🔗 Encuéntrame</div>
+              <div class="extras-list">
+                {% if cv.social_network.linkedin %}
+                <div class="extras-item">
+                  <span class="extras-item__label">in LinkedIn</span>
+                  <a href="{{ cv.social_network.linkedin }}" target="_blank" rel="noopener" class="extras-link">Ver
+                    perfil ↗</a>
+                </div>
+                {% endif %}
+                {% if cv.social_network.github %}
+                <div class="extras-item">
+                  <span class="extras-item__label">🐙 GitHub</span>
+                  <a href="{{ cv.social_network.github }}" target="_blank" rel="noopener" class="extras-link">Ver perfil
+                    ↗</a>
+                </div>
+                {% endif %}
+                {% if cv.social_network.portfolio %}
+                <div class="extras-item">
+                  <span class="extras-item__label">🌐 Portfolio</span>
+                  <a href="{{ cv.social_network.portfolio }}" target="_blank" rel="noopener" class="extras-link">Visitar
+                    ↗</a>
+                </div>
+                {% endif %}
+                {% if cv.social_network.twitter %}
+                <div class="extras-item">
+                  <span class="extras-item__label">🐦 Twitter/X</span>
+                  <a href="{{ cv.social_network.twitter }}" target="_blank" rel="noopener" class="extras-link">Ver
+                    perfil ↗</a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+
+            {# Intereses #}
+            {% if intereses %}
+            <div class="repo">
+              <div class="repo-name">🎯 Intereses</div>
+              <div class="badges" style="margin-top:8px;">
+                {% for interes in intereses %}
+                <span class="badge {% cycle '' 'purple' 'green' 'orange' 'red' %}">{{ interes.nombre }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+          </div>
+          {% endif %}
+
+          {# Stats dinámico #}
+          <h2>📊 Stats</h2>
+          <pre>const {{ cv.personal_info.nombre|lower|default:"dev" }} = {
+  proyectos:    {{ proyectos|length }},
+  experiencias: {{ experiencias|length }},
+  estudios:     {{ educaciones|length }},
+  habilidades:  {{ habilidades|length }},
+  idiomas:      {{ idiomas|length }},
+  perfil:       "{{ cv.professional_profile.profesion|default:'developer' }}"
+};</pre>
+
+        </div>
+      </div>
+
+      {# Other Info #}
+      {% if other_info %}
+      <div class="repo" style="margin-top:16px;">
+        <div class="repo-name" style="margin-bottom:12px;">📋 Datos adicionales</div>
+        <div class="repo-meta" style="flex-wrap:wrap; gap:24px;">
+          <span>🏠 Teletrabajo: <strong style="color:var(--text);">{{ other_info.teletrabajo }}</strong></span>
+          <span>✈ Viajes: <strong
+              style="color:var(--text);">{{other_info.disponibilidad_viajar|yesno:"Sí,No"}}</strong></span>
+          {% if other_info.expectativa_salarial %}
+          <span>💰 Salario: <strong style="color:var(--text);">{{ other_info.expectativa_salarial }}</strong></span>
+          {% endif %}
+          {% if other_info.notas %}
+          <span>📝 {{ other_info.notas }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Contribution graph #}
+      <div class="contribution-graph">
+        <h3 style="font-size:14px; margin-bottom:12px; font-weight:400; color:var(--text-muted);">2,847 contributions in
+          the last year</h3>
+        <div class="contribution-grid" id="contribGrid"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Toggle de tema
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const esClaro = document.body.classList.contains('light');
+      themeToggle.textContent = esClaro ? '☀' : '🌙';
+    });
+
+    // Fallback de imagen rota: mostrar iniciales si falla la URL
+    document.querySelectorAll('.avatar img').forEach(img => {
+      img.addEventListener('error', () => {
+        const avatar = img.parentElement;
+        // Saca iniciales del alt: "Maria Perez Lopez" → "MP"
+        const iniciales = img.alt.split(' ').slice(0, 2).map(w => w[0]).join('');
+        avatar.innerHTML = iniciales;
+      });
+    });
+
+    
+
+    const btnPdf = document.getElementById('btnPdf');
+    if (btnPdf) {
+      btnPdf.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    // Contribution graph
+    const grid = document.getElementById('contribGrid');
+    for (let i = 0; i < 371; i++) {
+      const day = document.createElement('div');
+      day.className = 'day';
+
+      const dayOfWeek = i % 7;
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      let r = Math.random();
+      if (isWeekend) r *= 0.4;
+
+      if (r < 0.1) day.classList.add('');
+      else if (r < 0.3) day.classList.add('l1');
+      else if (r < 0.55) day.classList.add('l2');
+      else if (r < 0.8) day.classList.add('l3');
+      else day.classList.add('l4');
+
+      grid.appendChild(day);
+    }
+
+    const filled = grid.querySelectorAll('.day.l1, .day.l2, .day.l3, .day.l4').length;
+    const total = Math.round(filled * (3 + Math.random() * 4));
+    document.querySelector('.contribution-graph h3').textContent = `${total.toLocaleString()} contributions in the last year`;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Follow button
+    const followBtn = document.querySelector('.btn-follow');
+    let following = false;
+    followBtn.addEventListener('click', () => {
+      following = !following;
+      followBtn.textContent = following ? '✓ Following' : 'Follow';
+      followBtn.style.background = following ? '#238636' : '';
+    });
+  </script>
+</body>
+
+</html>

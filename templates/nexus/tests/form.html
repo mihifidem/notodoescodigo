@@ -1,0 +1,138 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ page_title }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'nexus:assessment_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ page_title }}</h2>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- Basic info -->
+      <div class="nx-card p-4 mb-4">
+        <div class="nx-section-title mb-3">Información del Assessment</div>
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label fw-semibold small">Título <span class="text-danger">*</span></label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Estado</label>
+            {{ form.status }}
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Descripción</label>
+            {{ form.description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Module selection by layer -->
+      <div class="nx-card p-4 mb-4">
+        <div class="nx-section-title mb-3">Seleccionar Módulos</div>
+        <p class="text-muted small mb-3">
+          Selecciona los módulos que formarán parte de este assessment. El Nexus DNA Score se calculará
+          con los pesos oficiales de los módulos seleccionados.
+        </p>
+
+        {% if form.modules.errors %}
+          <div class="alert alert-warning small">{{ form.modules.errors }}</div>
+        {% endif %}
+
+        <!-- Foundation -->
+        {% if foundation_modules %}
+        <div class="mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="nx-layer-badge" style="background:#EFF6FF;color:#2563EB;">Foundation — 22%</span>
+          </div>
+          <div class="row g-2">
+            {% for mod in foundation_modules %}
+            <div class="col-md-4">
+              <label class="d-flex align-items-center gap-2 p-2 rounded border cursor-pointer" style="border-color:{{ mod.layer_color }}40;">
+                <input type="checkbox" name="modules" value="{{ mod.pk }}" class="form-check-input"
+                  {% if mod in form.instance.modules.all %}checked{% endif %}>
+                <div>
+                  <div class="fw-semibold small" style="color:{{ mod.layer_color }};">{{ mod.name }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">{{ mod.weight_percent }} · {{ mod.question_count }} Q</div>
+                </div>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Talent Intelligence -->
+        {% if talent_modules %}
+        <div class="mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="nx-layer-badge" style="background:#F5F3FF;color:#7C3AED;">Talent Intelligence — 25%</span>
+          </div>
+          <div class="row g-2">
+            {% for mod in talent_modules %}
+            <div class="col-md-4">
+              <label class="d-flex align-items-center gap-2 p-2 rounded border cursor-pointer" style="border-color:{{ mod.layer_color }}40;">
+                <input type="checkbox" name="modules" value="{{ mod.pk }}" class="form-check-input"
+                  {% if mod in form.instance.modules.all %}checked{% endif %}>
+                <div>
+                  <div class="fw-semibold small" style="color:{{ mod.layer_color }};">{{ mod.name }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">{{ mod.weight_percent }} · {{ mod.question_count }} Q</div>
+                </div>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Human Intelligence -->
+        {% if human_modules %}
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="nx-layer-badge" style="background:#FFF5F5;color:#DC2626;">Human Intelligence — 53%</span>
+          </div>
+          <div class="row g-2">
+            {% for mod in human_modules %}
+            <div class="col-md-4">
+              <label class="d-flex align-items-center gap-2 p-2 rounded border cursor-pointer" style="border-color:{{ mod.color }}40;">
+                <input type="checkbox" name="modules" value="{{ mod.pk }}" class="form-check-input"
+                  {% if mod in form.instance.modules.all %}checked{% endif %}>
+                <div>
+                  <div class="fw-semibold small" style="color:{{ mod.color }};">{{ mod.name }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">{{ mod.weight_percent }} · {{ mod.question_count }} Q</div>
+                </div>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if not foundation_modules and not talent_modules and not human_modules %}
+        <div class="alert alert-warning small">
+          No hay módulos activos. <a href="{% url 'nexus:module_create' %}">Crea módulos primero</a>
+          o ejecuta <code>python manage.py seed_nexus_modules</code>.
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="{% url 'nexus:assessment_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="nx-btn-primary btn">
+          <i class="bi bi-check-lg me-1"></i>{{ action }} Assessment
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

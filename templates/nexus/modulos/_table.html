@@ -1,0 +1,82 @@
+{% if modules %}
+<div class="nx-card overflow-hidden">
+  <table class="table nx-table mb-0 align-middle">
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>Módulo</th>
+        <th>Layer</th>
+        <th>Peso</th>
+        <th>Preguntas</th>
+        <th>Estado</th>
+        <th style="width:140px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mod in modules %}
+      <tr>
+        <td class="text-muted small">{{ mod.order }}</td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded" style="width:10px;height:36px;background:{{ mod.layer_color }};flex-shrink:0;"></div>
+            <div>
+              <a href="{% url 'nexus:module_detail' mod.pk %}" class="fw-semibold text-decoration-none" style="color:#1B3C59;">
+                {{ mod.name }}
+              </a>
+              <div class="text-muted" style="font-size:.72rem;">{{ mod.code }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="nx-layer-badge"
+            style="{% if mod.layer == 'FOUNDATION' %}background:#EFF6FF;color:#2563EB;
+                   {% elif mod.layer == 'TALENT' %}background:#F5F3FF;color:#7C3AED;
+                   {% else %}background:#FFF5F5;color:#DC2626;{% endif %}">
+            {{ mod.get_layer_display }}
+          </span>
+        </td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="flex-grow-1 nx-progress-bar bg-light" style="width:60px;">
+              <div class="h-100 rounded" style="width:{{ mod.weight_percent }};background:{{ mod.layer_color }};"></div>
+            </div>
+            <span class="small fw-semibold">{{ mod.weight_percent }}</span>
+          </div>
+        </td>
+        <td>
+          <span class="badge" style="background:rgba(27,60,89,.1);color:#1B3C59;font-weight:600;">
+            {{ mod.question_count }}
+          </span>
+        </td>
+        <td>
+          {% if mod.active %}
+            <span class="badge bg-success-subtle text-success">Activo</span>
+          {% else %}
+            <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'nexus:module_detail' mod.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'nexus:module_edit' mod.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'nexus:module_delete' mod.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="nx-card p-5 text-center text-muted">
+  <i class="bi bi-boxes fs-1 mb-3 d-block opacity-25"></i>
+  <p>No hay módulos en esta categoría.</p>
+  <a href="{% url 'nexus:module_create' %}" class="nx-btn-primary btn btn-sm">Crear módulo</a>
+</div>
+{% endif %}

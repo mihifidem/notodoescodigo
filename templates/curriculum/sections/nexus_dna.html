@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block title %}Nexus DNA — Mi CV{% endblock %}
+{% block page_title %}Nexus DNA{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dna-card { border:1px solid #E5E7EB; border-radius:14px; background:#fff; transition:box-shadow .15s; }
+  .dna-card:hover { box-shadow:0 4px 20px rgba(0,0,0,.08); }
+  .dna-score { background:linear-gradient(135deg,#1B3C59,#234d72); color:#fff; border-radius:10px; }
+  .index-bar { height:7px; border-radius:4px; background:#F1F5F9; overflow:hidden; }
+  .index-bar-fill { height:100%; border-radius:4px; }
+  .visible-badge { background:#d1fae5; color:#065f46; }
+  .hidden-badge  { background:#fef3c7; color:#92400e; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+  <a href="{% url 'curriculum:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> CV
+  </a>
+  <div>
+    <h4 class="fw-bold mb-0" style="color:#1B3C59;">
+      <i class="bi bi-diagram-3 me-2" style="color:#7C3AED;"></i>Nexus DNA — Historial de tests
+    </h4>
+    <p class="text-muted small mb-0">
+      Elige qué tests aparecen en tu CV web. Activa o desactiva cada uno con el botón de visibilidad.
+    </p>
+  </div>
+  <a href="{% url 'nexus:student_list' %}" class="btn btn-sm ms-auto"
+     style="background:#1B3C59;color:#fff;border-radius:8px;font-weight:600;">
+    <i class="bi bi-play me-1"></i>Realizar nuevo test
+  </a>
+</div>
+
+{% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+{% endif %}
+
+{% if entries %}
+
+{# ── Summary bar ───────────────────────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="fs-3 fw-bold text-primary">{{ entries|length }}</div>
+      <div class="small text-muted">Tests guardados</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="fs-3 fw-bold text-success">{{ entries|length }}</div>
+      <div class="small text-muted">Visibles en CV</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="fs-3 fw-bold" style="color:#7C3AED;">
+        {% with best=entries.0 %}{{ best.nexus_score|floatformat:0 }}{% endwith %}
+      </div>
+      <div class="small text-muted">Mejor score</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="fs-3 fw-bold text-info">{{ entries.0.completado_en|date:"d/m/Y" }}</div>
+      <div class="small text-muted">Último test</div>
+    </div>
+  </div>
+</div>
+
+{# ── Entry cards ───────────────────────────────────────────────────────────── #}
+<div class="d-flex flex-column gap-4">
+  {% for entry in entries %}
+  <div class="dna-card p-4">
+
+    {# Header row #}
+    <div class="d-flex align-items-start gap-3 flex-wrap mb-3">
+
+      {# Score badge #}
+      <div class="dna-score px-3 py-2 text-center flex-shrink-0" style="min-width:80px;">
+        <div class="fw-bold" style="font-size:1.6rem;line-height:1;">{{ entry.nexus_score|floatformat:0 }}</div>
+        <div style="font-size:.65rem;opacity:.7;text-transform:uppercase;letter-spacing:.06em;">Score</div>
+      </div>
+
+      {# Name + meta #}
+      <div class="flex-grow-1">
+        <div class="fw-bold mb-1" style="color:#1B3C59;font-size:1.05rem;">{{ entry.test_nombre }}</div>
+        <div class="d-flex flex-wrap gap-2 align-items-center small">
+          <span class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ entry.completado_en|date:"d \d\e F \d\e Y" }}</span>
+
+          {% if entry.version_test %}
+            {% if entry.version_test == 'essential' %}
+            <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.65rem;font-weight:700;">
+              <i class="bi bi-unlock me-1"></i>Essential
+            </span>
+            {% elif entry.version_test == 'advanced' %}
+            <span class="badge" style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:700;">
+              <i class="bi bi-person me-1"></i>Advanced
+            </span>
+            {% elif entry.version_test == 'premium' %}
+            <span class="badge" style="background:#fef3c7;color:#b45309;font-size:.65rem;font-weight:700;">
+              <i class="bi bi-star-fill me-1"></i>Premium
+            </span>
+            {% endif %}
+          {% endif %}
+
+          {% if entry.total_preguntas %}
+          <span class="text-muted">
+            <i class="bi bi-list-check me-1"></i>{{ entry.total_preguntas }} preguntas
+            {% if entry.num_likert %}<span class="opacity-75">({{ entry.num_likert }} valoración{% if entry.num_abcd %} · {{ entry.num_abcd }} escenarios{% endif %})</span>{% endif %}
+          </span>
+          {% endif %}
+
+          {% if entry.primary_archetype %}
+          <span class="badge" style="background:#1B3C59;">{{ entry.primary_archetype }}</span>
+          {% endif %}
+          {% if entry.secondary_archetype %}
+          <span class="badge bg-secondary">{{ entry.secondary_archetype }}</span>
+          {% endif %}
+        </div>
+        <div class="mt-1">
+          {% if entry.visible_en_cv %}
+          <span class="badge visible-badge"><i class="bi bi-eye me-1"></i>Visible en CV</span>
+          {% else %}
+          <span class="badge hidden-badge"><i class="bi bi-eye-slash me-1"></i>Oculto en CV</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Actions #}
+      <div class="d-flex gap-2 flex-shrink-0">
+        <form method="post" action="{% url 'curriculum:nexus_dna_toggle' entry.pk %}">
+          {% csrf_token %}
+          <button type="submit"
+                  class="btn btn-sm {% if entry.visible_en_cv %}btn-success{% else %}btn-outline-secondary{% endif %}"
+                  title="{% if entry.visible_en_cv %}Ocultar en CV{% else %}Mostrar en CV{% endif %}">
+            <i class="bi {% if entry.visible_en_cv %}bi-eye{% else %}bi-eye-slash{% endif %}"></i>
+            {% if entry.visible_en_cv %}Visible{% else %}Oculto{% endif %}
+          </button>
+        </form>
+        <a href="{% url 'nexus:student_results' entry.sesion_id %}"
+           class="btn btn-sm btn-outline-primary" title="Ver informe completo">
+          <i class="bi bi-bar-chart-line"></i>
+        </a>
+        <form method="post" action="{% url 'curriculum:nexus_dna_delete' entry.pk %}"
+              onsubmit="return confirm('¿Eliminar este test del CV? No se borra tu historial Nexus.')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger" title="Quitar del CV">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    {# Index bars con hover popover #}
+    <div class="row g-2">
+      {% for label, val, color in entry.indices %}
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="dim-cv-bar" role="button" style="cursor:default;"
+             data-label="{{ label }}" data-score="{{ val|floatformat:0 }}" data-color="{{ color }}">
+          <div class="d-flex justify-content-between small mb-1">
+            <span class="text-muted fw-semibold d-flex align-items-center gap-1">
+              {{ label }}
+              <i class="bi bi-info-circle" style="font-size:.6rem;opacity:.5;"></i>
+            </span>
+            <span class="fw-bold">{{ val|floatformat:0 }}</span>
+          </div>
+          <div class="index-bar">
+            <div class="index-bar-fill" style="width:{{ val|floatformat:0 }}%;background:{{ color }};"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card border-0 shadow-sm p-5 text-center text-muted" style="border-radius:14px;">
+  <i class="bi bi-inbox fs-1 mb-3 d-block opacity-25"></i>
+  <p class="fw-semibold mb-1">Todavía no has guardado ningún test Nexus en tu CV.</p>
+  <p class="small mb-3">Completa un test y elige «Guardar en perfil CV» para que aparezca aquí.</p>
+  <a href="{% url 'nexus:student_list' %}" class="btn btn-sm"
+     style="background:#1B3C59;color:#fff;border-radius:8px;font-weight:600;">
+    <i class="bi bi-play-fill me-1"></i>Ir a mis tests
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.dim-cv-bar:hover .bi-info-circle { opacity: 1 !important; }
+.dim-cv-popover { max-width: 300px; }
+.dim-cv-popover .popover-header { background:#F8FAFC; border-bottom:1px solid #E5E7EB; padding:.55rem .75rem; }
+.dim-cv-popover .popover-body   { padding:.55rem .75rem; }
+</style>
+<script>
+(function () {
+  const DIM_DB = {{ dim_info_db_json|safe }};
+
+  function getRango(rangos, score) {
+    for (let i = 0; i < rangos.length; i++) {
+      if (score >= rangos[i].min && score <= rangos[i].max) return rangos[i];
+    }
+    return null;
+  }
+
+  function getNivel(score) {
+    if (score >= 85) return { titulo: 'Muy Alto', color: '#22C55E' };
+    if (score >= 70) return { titulo: 'Alto',     color: '#84CC16' };
+    if (score >= 55) return { titulo: 'Medio',    color: '#F59E0B' };
+    return                  { titulo: 'En desarrollo', color: '#EF4444' };
+  }
+
+  const cap = (s, n) => s && s.length > n ? s.slice(0, n) + '…' : (s || '');
+
+  document.querySelectorAll('.dim-cv-bar').forEach(el => {
+    const label = el.dataset.label;
+    const score = parseInt(el.dataset.score);
+    const color = el.dataset.color;
+
+    const dbEntry = DIM_DB[label];
+    const rango   = dbEntry ? getRango(dbEntry.rangos || [], score) : null;
+    const nivel   = getNivel(score);
+
+    const rangoTitulo = rango ? rango.titulo : nivel.titulo;
+    const rangoColor  = rango ? rango.color  : nivel.color;
+    const desc        = dbEntry ? dbEntry.descripcion : '';
+    const brief       = rango   ? rango.explicacion   : '';
+
+    if (!desc && !brief) return;
+
+    const popTitle =
+      `<span style="color:${color};font-weight:700;">${label}</span>` +
+      ` <span style="background:${rangoColor};color:#fff;font-size:.6rem;font-weight:700;` +
+      `padding:2px 7px;border-radius:99px;vertical-align:middle;">${rangoTitulo} · ${score}</span>`;
+
+    const popContent =
+      (cap(desc, 130)  ? `<p style="font-size:.77rem;color:#4B5563;line-height:1.5;margin:0 0 6px;">${cap(desc, 130)}</p>` : '') +
+      (cap(brief, 160) ? `<p style="font-size:.75rem;color:#374151;border-left:2px solid ${rangoColor};` +
+                         `padding-left:8px;margin:0;line-height:1.5;">${cap(brief, 160)}</p>` : '');
+
+    new bootstrap.Popover(el, {
+      trigger:     'hover',
+      placement:   'top',
+      html:        true,
+      title:       popTitle,
+      content:     popContent,
+      container:   'body',
+      delay:       { show: 180, hide: 80 },
+      customClass: 'dim-cv-popover',
+    });
+  });
+})();
+</script>
+{% endblock %}

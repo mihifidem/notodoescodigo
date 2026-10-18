@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Tech Moderno - {{ cv.personal_info.nombre }} {{ cv.personal_info.apellidos }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            color: #eaf6fb;
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .cv-container {
+            max-width: 1100px;
+            margin: 48px auto;
+            background: rgba(18, 32, 47, 0.98);
+            border-radius: 22px;
+            box-shadow: 0 8px 40px 0 rgba(0,255,255,0.10), 0 1.5px 0 0 #00ffe7 inset;
+            padding: 0;
+            display: flex;
+            overflow: hidden;
+        }
+        .cv-sidebar {
+            flex: 0 0 320px;
+            background: linear-gradient(160deg, #1a2a3a 60%, #0f2027 100%);
+            border-right: 2px solid #00ffe7;
+            padding: 38px 24px 38px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100%;
+        }
+        .cv-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3.5px solid #00ffe7;
+            margin-bottom: 22px;
+            box-shadow: 0 0 18px #00ffe7a0;
+        }
+        .cv-name {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-align: center;
+            letter-spacing: 0.01em;
+            color: #00ffe7;
+            text-shadow: 0 0 8px #00ffe7a0;
+        }
+        .cv-profession {
+            color: #7fffd4;
+            font-size: 1.08rem;
+            font-weight: 500;
+            margin-bottom: 22px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+        .cv-contact {
+            font-size: 1.01rem;
+            margin-bottom: 22px;
+            width: 100%;
+        }
+        .cv-contact li {
+            margin-bottom: 7px;
+            list-style: none;
+            color: #eaf6fb;
+        }
+        .cv-section-title {
+            font-size: 1.09rem;
+            font-weight: 700;
+            color: #00ffe7;
+            margin: 26px 0 10px 0;
+            letter-spacing: 0.01em;
+            text-shadow: 0 0 6px #00ffe7a0;
+        }
+        .cv-list {
+            padding-left: 0;
+            margin: 0;
+        }
+        .cv-list li {
+            list-style: none;
+            margin-bottom: 7px;
+            color: #b2fff4;
+        }
+        .cv-main {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            padding: 38px 44px 38px 44px;
+        }
+        .cv-block {
+            margin-bottom: 34px;
+            background: rgba(0,255,255,0.04);
+            border-radius: 12px;
+            box-shadow: 0 2px 12px 0 #00ffe71a;
+            padding: 22px 24px 18px 24px;
+            border-left: 3.5px solid #00ffe7;
+            border-bottom: 1.5px solid #1a2a3a;
+        }
+        .cv-block h2 {
+            font-size: 1.22rem;
+            color: #00ffe7;
+            margin-bottom: 12px;
+            border-bottom: 1.5px solid #00ffe7;
+            padding-bottom: 3px;
+            letter-spacing: 0.01em;
+            text-shadow: 0 0 6px #00ffe7a0;
+        }
+        .cv-block ul {
+            padding-left: 0;
+        }
+        .cv-block li, .cv-block p {
+            font-size: 1.07rem;
+            margin-bottom: 8px;
+        }
+        .cv-experience, .cv-education, .cv-projects, .cv-volunteering {
+            margin-bottom: 18px;
+        }
+        .cv-experience-title {
+            font-weight: 600;
+            color: #7fffd4;
+            font-size: 1.08rem;
+            letter-spacing: 0.01em;
+        }
+        .cv-date {
+            font-size: 0.99rem;
+            color: #00ffe7;
+            margin-left: 8px;
+            font-family: 'Fira Mono', monospace;
+        }
+        .cv-skill-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #00ffe7 0%, #7fffd4 100%);
+            color: #0f2027;
+            border-radius: 8px;
+            padding: 4px 13px;
+            font-size: 1.01rem;
+            margin: 3px 8px 3px 0;
+            font-family: 'Fira Mono', monospace;
+            font-weight: 600;
+            box-shadow: 0 1px 6px #00ffe74a;
+        }
+        .cv-lang {
+            font-family: 'Fira Mono', monospace;
+            font-size: 1.01rem;
+            color: #7fffd4;
+        }
+        .cv-social {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 12px;
+        }
+        .cv-social a {
+            color: #00ffe7;
+            text-decoration: none;
+            font-size: 1.01rem;
+            font-family: 'Fira Mono', monospace;
+            transition: color 0.18s;
+        }
+        .cv-social a:hover {
+            color: #7fffd4;
+            text-decoration: underline;
+        }
+        @media (max-width: 1000px) {
+            .cv-container { flex-direction: column; padding: 0; }
+            .cv-sidebar { flex-direction: row; justify-content: flex-start; align-items: flex-start; gap: 18px; width: 100%; border-right: none; border-bottom: 2px solid #00ffe7; }
+            .cv-photo { margin-bottom: 0; }
+            .cv-main { padding: 28px 4vw; }
+        }
+        @media (max-width: 600px) {
+            .cv-container { padding: 0; }
+            .cv-sidebar { flex-direction: column; align-items: center; padding: 18px 4px; }
+            .cv-main { padding: 12px 2vw; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="cv-container">
+    <aside class="cv-sidebar">
+        {% if profile.cv.personal_info.foto %}
+            <img src="{{ profile.cv.personal_info.foto }}" alt="Foto de perfil" class="cv-photo">
+        {% endif %}
+        <div class="cv-name">{{ profile.cv.personal_info.nombre }} {{ profile.cv.personal_info.apellidos }}</div>
+        <div class="cv-profession">{{ profile.cv.professional_profile.profesion }}</div>
+        <ul class="cv-contact">
+            <li><strong>Email:</strong> {{ profile.cv.personal_info.email_profesional1 }}</li>
+            {% if profile.cv.personal_info.email_profesional2 %}<li><strong>Email 2:</strong> {{ profile.cv.personal_info.email_profesional2 }}</li>{% endif %}
+            <li><strong>Tel:</strong> {{ profile.cv.personal_info.telefono1 }}</li>
+            {% if profile.cv.personal_info.telefono2 %}<li><strong>Tel 2:</strong> {{ profile.cv.personal_info.telefono2 }}</li>{% endif %}
+            <li><strong>Ciudad:</strong> {{ profile.cv.personal_info.ciudad }}</li>
+            <li><strong>Pais:</strong> {{ profile.cv.personal_info.pais }}</li>
+            <li><strong>Nacionalidad:</strong> {{ profile.cv.personal_info.nacionalidad }}</li>
+        </ul>
+        <div class="cv-section-title">Redes</div>
+        <div class="cv-social">
+            {% if profile.cv.social_network.linkedin %}<a href="{{ profile.cv.social_network.linkedin }}" target="_blank">LinkedIn</a>{% endif %}
+            {% if profile.cv.social_network.github %}<a href="{{ profile.cv.social_network.github }}" target="_blank">GitHub</a>{% endif %}
+            {% if profile.cv.social_network.portfolio %}<a href="{{ profile.cv.social_network.portfolio }}" target="_blank">Portfolio</a>{% endif %}
+            {% if profile.cv.social_network.twitter %}<a href="{{ profile.cv.social_network.twitter }}" target="_blank">Twitter/X</a>{% endif %}
+            {% if profile.cv.social_network.otras %}<a href="{{ profile.cv.social_network.otras }}" target="_blank">Otras</a>{% endif %}
+        </div>
+        <div class="cv-section-title">Idiomas</div>
+        <ul class="cv-list">
+            {% for lang in profile.idiomas.all %}
+                <li class="cv-lang">{{ lang.idioma }} - {{ lang.nivel }}{% if lang.certificacion %} ({{ lang.certificacion }}){% endif %}</li>
+            {% endfor %}
+        </ul>
+        <div class="cv-section-title">Intereses</div>
+        <ul class="cv-list">
+            {% for item in profile.intereses.all %}
+                <li>{{ item.nombre }}</li>
+            {% endfor %}
+        </ul>
+    </aside>
+    <section class="cv-main">
+        <div class="cv-block">
+            <h2>Perfil Profesional</h2>
+            <p><strong>Objetivo:</strong> {{ profile.cv.professional_profile.objetivo }}</p>
+            <p>{{ profile.cv.professional_profile.resumen }}</p>
+        </div>
+        <div class="cv-block">
+            <h2>Experiencia</h2>
+            {% for exp in profile.experiencias.all %}
+                <div class="cv-experience">
+                    <div class="cv-experience-title">{{ exp.puesto }} - {{ exp.empresa }}<span class="cv-date">{{ exp.fecha_inicio }}{% if exp.fecha_fin %} - {{ exp.fecha_fin }}{% else %} - Actual{% endif %}</span></div>
+                    <div>{{ exp.ubicacion }}</div>
+                    <div>{{ exp.descripcion }}</div>
+                    {% if exp.logros %}<div><em>Logros:</em> {{ exp.logros }}</div>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Educación</h2>
+            {% for edu in profile.educaciones.all %}
+                <div class="cv-education">
+                    <div class="cv-experience-title">{{ edu.titulo }} - {{ edu.centro }}</div>
+                    <div class="cv-date">{{ edu.fecha_inicio }}{% if edu.fecha_fin %} - {{ edu.fecha_fin }}{% endif %}</div>
+                    <div>{{ edu.ubicacion }}</div>
+                    <div>{% if edu.en_curso %}En curso{% else %}Finalizado{% endif %}</div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Formación Complementaria</h2>
+            {% for form in profile.formaciones.all %}
+                <div class="cv-education">
+                    <div class="cv-experience-title">{{ form.tipo }} - {{ form.nombre }}</div>
+                    <div class="cv-date">{{ form.fecha }}</div>
+                    <div>{{ form.entidad }}</div>
+                    <div>{{ form.descripcion }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Habilidades</h2>
+            {% for skill in profile.habilidades.all %}
+                <span class="cv-skill-badge">{{ skill.nombre }}{% if skill.categoria %} ({{ skill.categoria }}){% endif %} - Nivel {{ skill.nivel }}</span>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Proyectos</h2>
+            {% for proj in profile.proyectos.all %}
+                <div class="cv-projects">
+                    <div class="cv-experience-title">{{ proj.nombre }}</div>
+                    <div>{{ proj.descripcion }}</div>
+                    <div><strong>Tecnologías:</strong> {{ proj.tecnologias }}</div>
+                    {% if proj.link %}<div><a href="{{ proj.link }}" target="_blank">Ver proyecto</a></div>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Logros</h2>
+            {% for ach in profile.logros.all %}
+                <div class="cv-education">
+                    <div class="cv-experience-title">{{ ach.titulo }} ({{ ach.tipo }})</div>
+                    <div class="cv-date">{{ ach.fecha }}</div>
+                    <div>{{ ach.descripcion }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Voluntariado</h2>
+            {% for vol in profile.voluntariados.all %}
+                <div class="cv-volunteering">
+                    <div class="cv-experience-title">{{ vol.organizacion }} - {{ vol.funcion }}</div>
+                    <div class="cv-date">{{ vol.fecha_inicio }}{% if vol.fecha_fin %} - {{ vol.fecha_fin }}{% endif %}</div>
+                    <div>{{ vol.impacto }}</div>
+                    <div>{% if vol.en_curso %}En curso{% else %}Finalizado{% endif %}</div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cv-block">
+            <h2>Otros Datos</h2>
+            <ul class="cv-list">
+                <li>Disponibilidad para viajar: {{ profile.cv.other_info.disponibilidad_viajar|yesno:"Si,No" }}</li>
+                <li>Teletrabajo: {{ cv.other_info.teletrabajo }}</li>
+                {% if cv.other_info.expectativa_salarial %}<li>Expectativa salarial: {{ cv.other_info.expectativa_salarial }}</li>{% endif %}
+                {% if cv.other_info.notas %}<li>Notas: {{ cv.other_info.notas }}</li>{% endif %}
+            </ul>
+        </div>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Contenido del perfil — {{ profile.nombre }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .item-check-card { transition: background .12s; }
+  .item-check-card:has(input:checked) { background: #eff6ff; border-color: #93c5fd !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:900px;">
+  <div class="d-flex align-items-center gap-3 mb-2">
+    <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="h4 mb-0 fw-bold"><i class="bi bi-list-check me-2 text-primary"></i>Contenido del perfil</h1>
+  </div>
+  <p class="text-muted mb-4">Perfil: <strong>{{ profile.nombre }}</strong> — selecciona qué elementos incluir.</p>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Work experience -->
+    {% if all_experiencias %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-building me-2 text-primary"></i>Experiencia laboral</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="experiencias">Seleccionar todo</button>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          {% for exp in all_experiencias %}
+          <div class="col-md-6">
+            <label class="d-flex align-items-start gap-2 border rounded p-2 cursor-pointer item-check-card">
+              <input type="checkbox" name="experiencias" value="{{ exp.pk }}"
+                     {% if exp in profile.experiencias.all %}checked{% endif %} class="form-check-input mt-0 flex-shrink-0">
+              <div>
+                <div class="fw-semibold small">{{ exp.puesto }}</div>
+                <div class="text-muted" style="font-size:.78rem;">{{ exp.empresa }} · {{ exp.periodo }}</div>
+              </div>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Education -->
+    {% if all_educaciones %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-mortarboard me-2 text-primary"></i>Formación académica</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="educaciones">Seleccionar todo</button>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          {% for edu in all_educaciones %}
+          <div class="col-md-6">
+            <label class="d-flex align-items-start gap-2 border rounded p-2 cursor-pointer item-check-card">
+              <input type="checkbox" name="educaciones" value="{{ edu.pk }}"
+                     {% if edu in profile.educaciones.all %}checked{% endif %} class="form-check-input mt-0 flex-shrink-0">
+              <div>
+                <div class="fw-semibold small">{{ edu.titulo }}</div>
+                <div class="text-muted" style="font-size:.78rem;">{{ edu.centro }} · {{ edu.periodo }}</div>
+              </div>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Formaciones -->
+    {% if all_formaciones %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-patch-check me-2 text-primary"></i>Formación complementaria</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="formaciones">Seleccionar todo</button>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          {% for f in all_formaciones %}
+          <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+            <input type="checkbox" name="formaciones" value="{{ f.pk }}"
+                   {% if f in profile.formaciones.all %}checked{% endif %} class="form-check-input m-0">
+            <span class="small">{{ f.nombre }} <span class="text-muted">({{ f.get_tipo_display }})</span></span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Skills -->
+    {% if all_habilidades %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-lightning-charge me-2 text-primary"></i>Habilidades</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="habilidades">Seleccionar todo</button>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          {% for s in all_habilidades %}
+          <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+            <input type="checkbox" name="habilidades" value="{{ s.pk }}"
+                   {% if s in profile.habilidades.all %}checked{% endif %} class="form-check-input m-0">
+            <span class="small">{{ s.nombre }} <span class="badge {% if s.tipo == 'hard' %}bg-primary-subtle text-primary{% else %}bg-info-subtle text-info{% endif %}" style="font-size:.65rem;">{{ s.get_tipo_display }}</span></span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Languages -->
+    {% if all_idiomas %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-translate me-2 text-primary"></i>Idiomas</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="idiomas">Seleccionar todo</button>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% for lang in all_idiomas %}
+        <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+          <input type="checkbox" name="idiomas" value="{{ lang.pk }}"
+                 {% if lang in profile.idiomas.all %}checked{% endif %} class="form-check-input m-0">
+          <span class="small">{{ lang.idioma }} · {{ lang.get_nivel_display }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Projects -->
+    {% if all_proyectos %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-code-slash me-2 text-primary"></i>Proyectos</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="proyectos">Seleccionar todo</button>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          {% for proj in all_proyectos %}
+          <div class="col-md-6">
+            <label class="d-flex align-items-start gap-2 border rounded p-2 cursor-pointer item-check-card">
+              <input type="checkbox" name="proyectos" value="{{ proj.pk }}"
+                     {% if proj in profile.proyectos.all %}checked{% endif %} class="form-check-input m-0 flex-shrink-0">
+              <div>
+                <div class="fw-semibold small">{{ proj.nombre }}</div>
+                {% if proj.tecnologias %}<div class="text-muted" style="font-size:.75rem;">{{ proj.tecnologias }}</div>{% endif %}
+              </div>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Achievements -->
+    {% if all_logros %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-trophy me-2 text-primary"></i>Logros</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="logros">Seleccionar todo</button>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% for logro in all_logros %}
+        <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+          <input type="checkbox" name="logros" value="{{ logro.pk }}"
+                 {% if logro in profile.logros.all %}checked{% endif %} class="form-check-input m-0">
+          <span class="small">{{ logro.titulo }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Volunteering -->
+    {% if all_voluntariados %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-heart me-2 text-primary"></i>Voluntariado</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="voluntariados">Seleccionar todo</button>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% for vol in all_voluntariados %}
+        <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+          <input type="checkbox" name="voluntariados" value="{{ vol.pk }}"
+                 {% if vol in profile.voluntariados.all %}checked{% endif %} class="form-check-input m-0">
+          <span class="small">{{ vol.funcion }} · {{ vol.organizacion }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Interests -->
+    {% if all_intereses %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-semibold border-bottom d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-stars me-2 text-primary"></i>Intereses</span>
+        <button type="button" class="btn btn-link btn-sm p-0 text-muted select-all" data-name="intereses">Seleccionar todo</button>
+      </div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% for interes in all_intereses %}
+        <label class="d-flex align-items-center gap-2 border rounded px-2 py-1 cursor-pointer item-check-card">
+          <input type="checkbox" name="intereses" value="{{ interes.pk }}"
+                 {% if interes in profile.intereses.all %}checked{% endif %} class="form-check-input m-0">
+          <span class="small">{{ interes.nombre }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not all_experiencias and not all_educaciones and not all_habilidades %}
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      Primero <a href="{% url 'curriculum:dashboard' %}">completa las secciones del CV</a> para poder seleccionar contenido para este perfil.
+    </div>
+    {% endif %}
+
+    <div class="d-flex gap-2 mt-2">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar selección</button>
+      <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll('.select-all').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.dataset.name;
+      const checkboxes = btn.closest('.card').querySelectorAll(`input[name="${name}"]`);
+      const allChecked = [...checkboxes].every(c => c.checked);
+      checkboxes.forEach(c => { c.checked = !allChecked; });
+      btn.textContent = allChecked ? 'Seleccionar todo' : 'Deseleccionar todo';
+    });
+  });
+</script>
+{% endblock %}

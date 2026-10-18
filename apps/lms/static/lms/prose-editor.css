@@ -1,0 +1,40 @@
+.rich-editor-shell {
+  --prose-editor-background: var(--paper, #fff);
+  --prose-editor-foreground: var(--ink, #152039);
+  --prose-editor-border-color: var(--line, #e4e9f2);
+  --prose-editor-active-color: var(--blue, #365df5);
+  --prose-editor-disabled-color: #68738a;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.rich-editor-shell .prose-editor {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.rich-editor-shell .tiptap.ProseMirror,
+.content-editor-block .rich-editor-shell > textarea {
+  min-height: 600px;
+  box-sizing: border-box;
+  padding: 1rem;
+  line-height: 1.8;
+}
+
+.rich-editor-shell .prose-editor [role="menubar"] {
+  flex-wrap: wrap;
+}
+
+.editor-error {
+  color: #b91c1c;
+  padding: .75rem;
+}
+
+@media (max-width: 760px) {
+  .rich-editor-shell .tiptap.ProseMirror,
+  .content-editor-block .rich-editor-shell > textarea {
+    min-height: 400px;
+  }
+}

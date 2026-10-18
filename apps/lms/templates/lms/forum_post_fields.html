@@ -1,0 +1,18 @@
+{% load i18n %}
+<form method="post" class="stacked-form">
+  {% csrf_token %}
+  {% if reply_parent_id %}<input type="hidden" name="parent_id" value="{{ reply_parent_id }}">{% endif %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    <div class="field-block">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+    </div>
+  {% endfor %}
+  <p class="field-help">{% trans 'Puedes escribir texto o fragmentos de código con etiquetas &lt;pre&gt;&lt;code&gt;. El HTML se sanea al publicar.' %}</p>
+  <div class="action-row">
+    <button type="submit" class="button button-primary">{{ submit_label }}</button>
+    {% if cancel_url %}<a class="button button-secondary" href="{{ cancel_url }}">{% trans 'Cancelar' %}</a>{% endif %}
+  </div>
+</form>

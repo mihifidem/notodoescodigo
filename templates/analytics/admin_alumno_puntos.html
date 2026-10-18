@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Puntos de Alumno{% endblock %}
+{% block page_title %}Puntos del Alumno{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <div>
+    <a href="{% url 'analytics:dashboard_admin' %}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i>Volver al dashboard admin
+    </a>
+    <h2 class="h4 fw-bold mb-0">{{ alumno.get_full_name|default:alumno.username }}</h2>
+    <p class="text-muted mb-0 small">
+      Usuario: {{ alumno.username }}
+      {% if alumno.aula %}· Aula: {{ alumno.aula.nombre }}{% endif %}
+    </p>
+    <form method="post" class="mt-2" onsubmit="return confirm('¿Actualizar el contador acumulado del usuario con el historial de puntos?');">
+      {% csrf_token %}
+      <input type="hidden" name="accion" value="recalcular_acumulado">
+      <button type="submit" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-arrow-repeat me-1"></i>Actualizar contador acumulado
+      </button>
+      <span class="small text-muted">No modifica el saldo canjeable ni las apuestas reservadas.</span>
+    </form>
+  </div>
+  <div class="text-end">
+    <div class="small text-muted">Saldo actual</div>
+    <div class="h5 mb-0 text-warning fw-bold">{{ alumno.puntos }} pts</div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <div class="display-6 fw-bold">{{ total_registros_puntos }}</div>
+        <small class="text-muted">Registros con puntos</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <div class="display-6 fw-bold text-success">{{ total_puntos_registrados }}</div>
+        <small class="text-muted">Puntos obtenidos (historial)</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <div class="display-6 fw-bold text-info">{{ alumno.puntos_totales }}</div>
+        <small class="text-muted">Puntos totales actuales</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-list-ul me-2 text-primary"></i>Registros de puntos</span>
+    <small class="text-muted">Puedes eliminar registros incorrectos</small>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Descripcion</th>
+          <th class="text-end">Puntos</th>
+          <th class="text-end">Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for act in actividades_page.object_list %}
+        <tr>
+          <td class="small text-nowrap">{{ act.timestamp|date:'d/m/Y H:i' }}</td>
+          <td><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ act.get_tipo_display }}</span></td>
+          <td class="small">{{ act.descripcion|default:'-' }}</td>
+          <td class="text-end fw-semibold text-success">+{{ act.puntos_ganados }}</td>
+          <td class="text-end">
+            <form method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este registro de puntos?');">
+              {% csrf_token %}
+              <input type="hidden" name="registro_id" value="{{ act.id }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>Eliminar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted py-4">No hay registros de puntos para este alumno.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if actividades_page.paginator.num_pages > 1 %}
+  <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+    <small class="text-muted">Pagina {{ actividades_page.number }} de {{ actividades_page.paginator.num_pages }}</small>
+    <nav aria-label="Paginacion registros de puntos">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if not actividades_page.has_previous %}disabled{% endif %}">
+          {% if actividades_page.has_previous %}
+          <a class="page-link" href="?page={{ actividades_page.previous_page_number }}">Anterior</a>
+          {% else %}
+          <span class="page-link">Anterior</span>
+          {% endif %}
+        </li>
+        <li class="page-item {% if not actividades_page.has_next %}disabled{% endif %}">
+          {% if actividades_page.has_next %}
+          <a class="page-link" href="?page={{ actividades_page.next_page_number }}">Siguiente</a>
+          {% else %}
+          <span class="page-link">Siguiente</span>
+          {% endif %}
+        </li>
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

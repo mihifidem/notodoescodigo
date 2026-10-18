@@ -1,0 +1,664 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ profile.nombre }}</title>
+
+<style>
+
+/* 🎨 VARIABLES */
+:root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --primary: #58a6ff;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+}
+
+/* BASE */
+body {
+    margin: 0;
+    font-family: "Fira Code", monospace;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* LAYOUT */
+.container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    background: var(--card);
+    padding: 20px;
+    border-right: 1px solid #30363d;
+}
+
+.sidebar h1 {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.sidebar p {
+    color: var(--muted);
+}
+
+/* MAIN */
+.main {
+    padding: 30px;
+}
+
+/* SECCIONES */
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    color: var(--primary);
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 5px;
+}
+
+/* ITEM */
+.item {
+    margin-bottom: 15px;
+}
+
+.item small {
+    color: var(--muted);
+}
+
+/* BADGE */
+.badge {
+    background: #21262d;
+    border: 1px solid #30363d;
+    padding: 5px 10px;
+    margin: 3px;
+    display: inline-block;
+    border-radius: 6px;
+}
+
+/* LINKS */
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+/* TOP CONTROLS */
+.controls {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
+select {
+    padding: 5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="controls">
+    <select id="theme">
+        <option value="#58a6ff">Azul</option>
+        <option value="#ff7b72">Rojo</option>
+        <option value="#ffa657">Naranja</option>
+        <option value="#3fb950">Verde</option>
+    </select>
+</div>
+
+<div class="container">
+{% with cv=profile.cv %}
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+{% if cv.personal_info %}
+    <h1>{{ cv.personal_info.nombre }} {{ cv.personal_info.apellidos }}</h1>
+    <p>{{ cv.professional_profile.profesion }}</p>
+
+    <div class="section">
+        <h2>Contacto</h2>
+        {% if cv.personal_info.email_profesional1 %}
+            <p>{{ cv.personal_info.email_profesional1 }}</p>
+        {% endif %}
+        {% if cv.personal_info.telefono1 %}
+            <p>{{ cv.personal_info.telefono1 }}</p>
+        {% endif %}
+        {% if cv.personal_info.ciudad %}
+            <p>{{ cv.personal_info.ciudad }}</p>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if profile.mostrar_redes and cv.social_networks %}
+<div class="section">
+    <h2>Redes</h2>
+
+    {% if cv.social_networks.linkedin %}
+        <p><a href="{{ cv.social_networks.linkedin }}">LinkedIn</a></p>
+    {% endif %}
+
+    {% if cv.social_networks.github %}
+        <p><a href="{{ cv.social_networks.github }}">GitHub</a></p>
+    {% endif %}
+
+    {% if cv.social_networks.portfolio %}
+        <p><a href="{{ cv.social_networks.portfolio }}">Portfolio</a></p>
+    {% endif %}
+</div>
+{% endif %}
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+{% if profile.mostrar_perfil_profesional and cv.professional_profile %}
+<div class="section">
+    <h2>Perfil</h2>
+    <p>{{ cv.professional_profile.resumen }}</p>
+</div>
+{% endif %}
+
+{% if profile.experiencias.all %}
+<div class="section">
+    <h2>Experiencia</h2>
+
+    {% for exp in profile.experiencias.all %}
+    <div class="item">
+        <strong>{{ exp.puesto }}</strong> — {{ exp.empresa }}<br>
+        <small>{{ exp.periodo }}</small>
+        {% if exp.descripcion %}
+            <p>{{ exp.descripcion }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.educaciones.all %}
+<div class="section">
+    <h2>Educación</h2>
+
+    {% for edu in profile.educaciones.all %}
+    <div class="item">
+        <strong>{{ edu.titulo }}</strong> — {{ edu.centro }}<br>
+        <small>{{ edu.periodo }}</small>
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.habilidades.all %}
+<div class="section">
+    <h2>Skills</h2>
+
+    {% for skill in profile.habilidades.all %}
+        <span class="badge">{{ skill.nombre }}</span>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.idiomas.all %}
+<div class="section">
+    <h2>Idiomas</h2>
+
+    {% for lang in profile.idiomas.all %}
+        <p>{{ lang.idioma }} — {{ lang.get_nivel_display }}</p>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.proyectos.all %}
+<div class="section">
+    <h2>Proyectos</h2>
+
+    {% for p in profile.proyectos.all %}
+    <div class="item">
+        <strong>{{ p.nombre }}</strong>
+        {% if p.descripcion %}
+            <p>{{ p.descripcion }}</p>
+        {% endif %}
+        {% if p.link %}
+            <a href="{{ p.link }}" target="_blank">Ver proyecto</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.mostrar_logros and profile.logros.all %}
+<div class="section">
+    <h2>Logros</h2>
+
+    {% for l in profile.logros.all %}
+        <p>{{ l.titulo }}</p>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.mostrar_voluntariado and profile.voluntariados.all %}
+<div class="section">
+    <h2>Voluntariado</h2>
+
+    {% for v in profile.voluntariados.all %}
+        <p>{{ v.funcion }} — {{ v.organizacion }}</p>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.mostrar_intereses and profile.intereses.all %}
+<div class="section">
+    <h2>Intereses</h2>
+
+    {% for i in profile.intereses.all %}
+        <span class="badge">{{ i.nombre }}</span>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% if profile.mostrar_otros and cv.other_info %}
+<div class="section">
+    <h2>Otros</h2>
+
+    {% if cv.other_info.expectativa_salarial %}
+        <p>💰 {{ cv.other_info.expectativa_salarial }}</p>
+    {% endif %}
+
+    {% if cv.other_info.notas %}
+        <p>{{ cv.other_info.notas }}</p>
+    {% endif %}
+
+</div>
+{% endif %}
+
+</div>
+
+</div>
+
+{% endwith %}
+
+<script id="cv-json-ejemplo" type="application/json">
+{
+    "curriculum_vitae": {
+        "id": 1,
+        "user": 42,
+        "created_at": "2026-04-12T09:00:00Z",
+        "updated_at": "2026-04-12T10:30:00Z",
+        "personal_info": {
+            "id": 11,
+            "cv": 1,
+            "nombre": "Oscar",
+            "apellidos": "Burgos",
+            "telefono1": "+34 600000000",
+            "telefono2": "+34 611111111",
+            "email_profesional1": "oscar@email.com",
+            "email_profesional2": "oscar.dev@email.com",
+            "ciudad": "Barcelona",
+            "pais": "España",
+            "codigo_postal": "08001",
+            "fecha_nacimiento": "1995-08-10",
+            "nacionalidad": "Española",
+            "carnet_conducir": true,
+            "disponibilidad": "inmediata",
+            "foto": "/media/curriculum/fotos/oscar.jpg"
+        },
+        "professional_profile": {
+            "id": 12,
+            "cv": 1,
+            "profesion": "Full Stack Developer",
+            "objetivo": "Construir productos web escalables",
+            "resumen": "Experiencia en Django, APIs REST y frontend moderno."
+        },
+        "work_experiences": [
+            {
+                "id": 101,
+                "cv": 1,
+                "puesto": "Frontend Developer",
+                "empresa": "TechNova",
+                "ubicacion": "Barcelona",
+                "fecha_inicio": "2022-01-10",
+                "fecha_fin": null,
+                "trabajo_actual": true,
+                "descripcion": "Desarrollo de SPA y mejoras de rendimiento.",
+                "logros": "Mejora de Core Web Vitals en 35%.",
+                "orden": 1
+            },
+            {
+                "id": 102,
+                "cv": 1,
+                "puesto": "Backend Developer",
+                "empresa": "DataFlow",
+                "ubicacion": "Madrid",
+                "fecha_inicio": "2019-03-01",
+                "fecha_fin": "2021-12-20",
+                "trabajo_actual": false,
+                "descripcion": "Diseño y mantenimiento de APIs REST.",
+                "logros": "Reducción de latencia media en 40%.",
+                "orden": 2
+            }
+        ],
+        "educations": [
+            {
+                "id": 201,
+                "cv": 1,
+                "titulo": "Ingeniería Informática",
+                "centro": "Universidad de Barcelona",
+                "ubicacion": "Barcelona",
+                "fecha_inicio": "2014-09-01",
+                "fecha_fin": "2018-06-30",
+                "en_curso": false,
+                "orden": 1
+            },
+            {
+                "id": 202,
+                "cv": 1,
+                "titulo": "Máster en Ciencia de Datos",
+                "centro": "UPC",
+                "ubicacion": "Barcelona",
+                "fecha_inicio": "2018-09-01",
+                "fecha_fin": "2019-07-15",
+                "en_curso": false,
+                "orden": 2
+            }
+        ],
+        "trainings": [
+            {
+                "id": 301,
+                "cv": 1,
+                "tipo": "certificacion",
+                "nombre": "AWS Cloud Practitioner",
+                "entidad": "Amazon Web Services",
+                "fecha": "2023-05-10",
+                "descripcion": "Fundamentos de cloud.",
+                "orden": 1
+            },
+            {
+                "id": 302,
+                "cv": 1,
+                "tipo": "curso",
+                "nombre": "Advanced React Patterns",
+                "entidad": "Frontend Masters",
+                "fecha": "2022-11-01",
+                "descripcion": "Patrones avanzados de React.",
+                "orden": 2
+            },
+            {
+                "id": 303,
+                "cv": 1,
+                "tipo": "bootcamp",
+                "nombre": "Backend Bootcamp",
+                "entidad": "OpenBootcamp",
+                "fecha": "2021-06-15",
+                "descripcion": "Backend con Python y buenas prácticas.",
+                "orden": 3
+            },
+            {
+                "id": 304,
+                "cv": 1,
+                "tipo": "taller",
+                "nombre": "Taller de Docker",
+                "entidad": "Dev Community",
+                "fecha": "2024-02-01",
+                "descripcion": "Contenedores y despliegue local.",
+                "orden": 4
+            },
+            {
+                "id": 305,
+                "cv": 1,
+                "tipo": "otro",
+                "nombre": "Seminario de liderazgo técnico",
+                "entidad": "Escuela de Negocio",
+                "fecha": "2025-01-20",
+                "descripcion": "Gestión de equipos técnicos.",
+                "orden": 5
+            }
+        ],
+        "skills": [
+            {
+                "id": 401,
+                "cv": 1,
+                "tipo": "hard",
+                "categoria": "lenguaje",
+                "nombre": "JavaScript",
+                "nivel": 5,
+                "orden": 1
+            },
+            {
+                "id": 402,
+                "cv": 1,
+                "tipo": "hard",
+                "categoria": "framework",
+                "nombre": "Django",
+                "nivel": 4,
+                "orden": 2
+            },
+            {
+                "id": 403,
+                "cv": 1,
+                "tipo": "hard",
+                "categoria": "herramienta",
+                "nombre": "Docker",
+                "nivel": 4,
+                "orden": 3
+            },
+            {
+                "id": 404,
+                "cv": 1,
+                "tipo": "hard",
+                "categoria": "otro",
+                "nombre": "Arquitectura de software",
+                "nivel": 4,
+                "orden": 4
+            },
+            {
+                "id": 405,
+                "cv": 1,
+                "tipo": "soft",
+                "categoria": "",
+                "nombre": "Comunicación",
+                "nivel": 5,
+                "orden": 5
+            }
+        ],
+        "languages": [
+            {
+                "id": 501,
+                "cv": 1,
+                "idioma": "Español",
+                "nivel": "nativo",
+                "certificacion": "",
+                "orden": 1
+            },
+            {
+                "id": 502,
+                "cv": 1,
+                "idioma": "Inglés",
+                "nivel": "C1",
+                "certificacion": "Cambridge Advanced",
+                "orden": 2
+            },
+            {
+                "id": 503,
+                "cv": 1,
+                "idioma": "Francés",
+                "nivel": "B2",
+                "certificacion": "DELF B2",
+                "orden": 3
+            }
+        ],
+        "projects": [
+            {
+                "id": 601,
+                "cv": 1,
+                "nombre": "Ecommerce Platform",
+                "descripcion": "Plataforma de ecommerce con panel de analítica.",
+                "tecnologias": "React, Django, PostgreSQL, Redis",
+                "link": "https://github.com/oscar/ecommerce-platform",
+                "orden": 1
+            },
+            {
+                "id": 602,
+                "cv": 1,
+                "nombre": "Learning Tracker",
+                "descripcion": "Seguimiento de aprendizaje gamificado.",
+                "tecnologias": "Django, DRF, Celery",
+                "link": "https://github.com/oscar/learning-tracker",
+                "orden": 2
+            }
+        ],
+        "achievements": [
+            {
+                "id": 701,
+                "cv": 1,
+                "titulo": "Mejor Proyecto de Máster",
+                "tipo": "premio",
+                "descripcion": "Reconocimiento institucional.",
+                "fecha": "2019-07-20",
+                "orden": 1
+            },
+            {
+                "id": 702,
+                "cv": 1,
+                "titulo": "Mención de mérito académico",
+                "tipo": "merito",
+                "descripcion": "Mejor expediente del semestre.",
+                "fecha": "2018-06-30",
+                "orden": 2
+            },
+            {
+                "id": 703,
+                "cv": 1,
+                "titulo": "Speaker en TechConf",
+                "tipo": "evento",
+                "descripcion": "Ponencia sobre arquitectura Django.",
+                "fecha": "2024-03-15",
+                "orden": 3
+            },
+            {
+                "id": 704,
+                "cv": 1,
+                "titulo": "Reconocimiento interno por mentoring",
+                "tipo": "otro",
+                "descripcion": "Premio interno del equipo técnico.",
+                "fecha": "2025-01-10",
+                "orden": 4
+            }
+        ],
+        "volunteerings": [
+            {
+                "id": 801,
+                "cv": 1,
+                "organizacion": "Code for Good",
+                "funcion": "Mentor",
+                "impacto": "Mentoría a perfiles junior.",
+                "fecha_inicio": "2021-01-01",
+                "fecha_fin": null,
+                "en_curso": true,
+                "orden": 1
+            },
+            {
+                "id": 802,
+                "cv": 1,
+                "organizacion": "ONG Educación Digital",
+                "funcion": "Formador",
+                "impacto": "Talleres de alfabetización digital.",
+                "fecha_inicio": "2020-02-01",
+                "fecha_fin": "2020-12-30",
+                "en_curso": false,
+                "orden": 2
+            }
+        ],
+        "social_networks": {
+            "id": 13,
+            "cv": 1,
+            "linkedin": "https://linkedin.com/in/oscarburgos",
+            "github": "https://github.com/oscarburgos",
+            "portfolio": "https://oscarburgos.dev",
+            "twitter": "https://x.com/oscarburgos",
+            "otras": "https://dev.to/oscarburgos"
+        },
+        "interests": [
+            {
+                "id": 901,
+                "cv": 1,
+                "nombre": "Inteligencia Artificial",
+                "orden": 1
+            },
+            {
+                "id": 902,
+                "cv": 1,
+                "nombre": "Running",
+                "orden": 2
+            },
+            {
+                "id": 903,
+                "cv": 1,
+                "nombre": "Fotografía",
+                "orden": 3
+            }
+        ],
+        "other_info": {
+            "id": 14,
+            "cv": 1,
+            "disponibilidad_viajar": true,
+            "teletrabajo": "si",
+            "expectativa_salarial": "45000-55000 EUR bruto/anual",
+            "notas": "Disponible para incorporación inmediata."
+        }
+    },
+    "cv_profile": {
+        "id": 1001,
+        "user": 42,
+        "cv": 1,
+        "nombre": "Perfil Full Stack",
+        "slug": "oscar-full-stack",
+        "template": "test01",
+        "is_public": true,
+        "created_at": "2026-04-12T10:00:00Z",
+        "mostrar_perfil_profesional": true,
+        "mostrar_redes": true,
+        "mostrar_intereses": true,
+        "mostrar_otros": true,
+        "mostrar_voluntariado": true,
+        "mostrar_logros": true,
+        "experiencias": [101, 102],
+        "educaciones": [201, 202],
+        "formaciones": [301, 302, 303, 304, 305],
+        "habilidades": [401, 402, 403, 404, 405],
+        "idiomas": [501, 502, 503],
+        "proyectos": [601, 602],
+        "logros": [701, 702, 703, 704],
+        "voluntariados": [801, 802],
+        "intereses": [901, 902, 903]
+    }
+}
+</script>
+
+<script>
+
+// 🎨 CAMBIO DE COLOR
+document.getElementById("theme").addEventListener("change", function() {
+    document.documentElement.style.setProperty('--primary', this.value);
+});
+
+</script>
+
+</body>
+</html>

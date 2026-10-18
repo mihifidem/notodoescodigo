@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Crear insignia — MihiTraining{% endblock %}
+{% block page_title %}Crear insignia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-patch-plus me-2 text-primary"></i>Nueva insignia</span>
+        <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-secondary">Volver</a>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nombre</label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Descripción</label>
+            {{ form.descripcion }}
+            {% if form.descripcion.errors %}<div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>{% endif %}
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold">Tipo</label>
+              {{ form.tipo }}
+              {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors }}</div>{% endif %}
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold">Requisito valor</label>
+              {{ form.requisito_valor }}
+              {% if form.requisito_valor.errors %}<div class="text-danger small mt-1">{{ form.requisito_valor.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold">Curso objetivo (opcional)</label>
+              {{ form.curso_objetivo }}
+              <div class="form-text">Si eliges tipo curso, puedes vincular un curso específico para activación automática.</div>
+              {% if form.curso_objetivo.errors %}<div class="text-danger small mt-1">{{ form.curso_objetivo.errors }}</div>{% endif %}
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold">Tema objetivo (opcional)</label>
+              {{ form.tema_objetivo }}
+              <div class="form-text">Si eliges tipo tema, puedes vincular un tema específico para activación automática.</div>
+              {% if form.tema_objetivo.errors %}<div class="text-danger small mt-1">{{ form.tema_objetivo.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label fw-semibold">Imagen (opcional)</label>
+            {{ form.imagen }}
+            {% if form.imagen.errors %}<div class="text-danger small mt-1">{{ form.imagen.errors }}</div>{% endif %}
+          </div>
+
+          <div class="form-check mt-3">
+            {{ form.visible }}
+            <label class="form-check-label" for="{{ form.visible.id_for_label }}">Visible para estudiantes</label>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check2-circle me-2"></i>Guardar insignia
+            </button>
+            <a href="{% url 'gamification:insignias' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load i18n %}
+<div class="forum-thread-list">
+{% for post in queries %}
+  <article class="forum-post content-panel forum-thread-card">
+    <span class="forum-thread-icon" aria-hidden="true"><i class="bi bi-chat-left-text"></i></span>
+    <div class="forum-thread-main">
+    <h2><a href="{% url 'lms:course_forum_query' course_id=course.pk forum_id=forum.pk post_id=post.pk %}">{{ post.title|default:forum.title }}</a></h2>
+    <p class="quiet-note">{{ post.author.get_full_name|default:post.author.username }} · <time datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:'j M Y, H:i' }}</time></p>
+    <span class="status {% if post.accepted_solution_id %}status-published{% else %}status-draft{% endif %}">{% if post.accepted_solution_id %}{% trans 'Resuelta' %}{% else %}{% trans 'Sin resolver' %}{% endif %}</span>
+    <p>{{ post.content|striptags|truncatewords:30 }}</p>
+    <span class="count-pill forum-reply-count" data-reply-count="{{ post.reply_count }}"><i class="bi bi-chat-dots" aria-hidden="true"></i> {% blocktrans count total=post.reply_count %}{{ total }} respuesta{% plural %}{{ total }} respuestas{% endblocktrans %}</span>
+    </div>
+  </article>
+{% empty %}
+  <p class="empty-state">{% trans 'Todavía no hay consultas. Publica la primera.' %}</p>
+{% endfor %}
+</div>

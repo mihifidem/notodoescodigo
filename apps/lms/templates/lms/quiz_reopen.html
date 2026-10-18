@@ -1,0 +1,22 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Reabrir prueba' %} | {{ quiz.title }}{% endblock %}
+{% block content %}
+<section class="form-panel">
+  <h1>{% trans 'Reabrir prueba' %}</h1>
+  <h2>{{ quiz.title }}</h2>
+  <p>{% trans 'Elige cuándo terminará el periodo de gracia. Solo podrán comenzar un nuevo intento los alumnos que no hayan agotado el máximo configurado. Las entregas y notas anteriores se conservan; los intentos pendientes se finalizan antes de reabrir.' %}</p>
+  <p role="note">{% trans 'Las soluciones y notas ya publicadas seguirán visibles. Sus fechas de publicación no cambian: tenlo en cuenta antes de conceder nuevos intentos.' %}</p>
+  <form method="post" class="stacked-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="field-block">{{ field.label_tag }}{{ field }}<small>{{ field.help_text }}</small>{{ field.errors }}</div>
+    {% endfor %}
+    <div class="action-row">
+      <button class="button button-primary">{% trans 'Abrir periodo de gracia' %}</button>
+      <a class="button button-secondary" href="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Cancelar' %}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

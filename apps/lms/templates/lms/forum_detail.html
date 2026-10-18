@@ -1,0 +1,50 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{{ forum.title }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs"><a href="{% url 'lms:course_area' course_id=course.pk area='discussion' %}">{% trans 'Foros del aula' %}</a><span>/</span><span>{{ forum.title }}</span></nav>
+  <div class="forum-workspace">
+  <div class="forum-main">
+    <section class="course-hero forum-hero">
+      <div class="hero-content">
+        <p class="eyebrow">{% trans 'FORO DEL AULA' %}</p>
+        <h1>{{ forum.title }}</h1>
+        <div class="prose forum-description">{{ forum.content|safe }}</div>
+        <div class="action-row">
+          {% if writable %}<a class="button button-primary" href="#forum-new-query">{% trans 'Abrir hilo / Nueva consulta' %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>{% endif %}
+          {% if teacher_view %}<a class="button button-secondary" href="{% url 'lms:course_forum_edit' course_id=course.pk forum_id=forum.pk %}">{% trans 'Editar foro' %}</a>{% endif %}
+        </div>
+      </div>
+      <i class="bi bi-chat-square-text forum-hero-icon" aria-hidden="true"></i>
+    </section>
+    <div class="section-heading"><h2>{% trans 'Consultas del foro' %}</h2></div>
+    <button type="button" class="button button-secondary" data-forum-refresh hidden>{% trans 'Hay novedades. Mostrar actualizaciones' %}</button>
+    <div data-forum-live-url="{% url 'lms:course_forum_detail' course_id=course.pk forum_id=forum.pk %}?fragment=1">
+      {% include 'lms/forum_queries.html' %}
+    </div>
+    <section class="content-panel forum-compose">
+    {% if writable %}
+      <h2 id="forum-new-query">{% trans 'Nueva consulta' %}</h2>
+      {% url 'lms:course_area' course_id=course.pk area='discussion' as cancel_query_url %}
+      {% include 'lms/forum_post_fields.html' with submit_label=_('Publicar consulta') cancel_url=cancel_query_url %}
+    {% else %}
+      <p class="quiet-note">{% trans 'Este foro está cerrado para nuevas publicaciones.' %}</p>
+    {% endif %}
+  </section>
+  </div>
+  <aside class="forum-sidebar" aria-label="{% trans 'Información del foro' %}">
+    <section class="content-panel">
+      <span class="forum-thread-icon" aria-hidden="true"><i class="bi bi-mortarboard"></i></span>
+      <h2>{% trans 'Tu aula' %}</h2>
+      <p>{{ course.nombre }}</p>
+      <p class="quiet-note">{{ forum.author.get_full_name|default:forum.author.username }}</p>
+      <a class="text-link" href="{% url 'lms:course_area' course_id=course.pk area='discussion' %}">{% trans 'Ver todos los foros' %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </section>
+    <section class="content-panel forum-guidance">
+      <h2>{% trans 'Comparte y aprende' %}</h2>
+      <p>{% trans 'Escribe un título claro, explica tu consulta y aporta el código o contexto necesario.' %}</p>
+      <p>{% trans 'Responde con respeto y ayuda a tus compañeros a encontrar una solución.' %}</p>
+    </section>
+  </aside>
+  </div>
+{% endblock %}

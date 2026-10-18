@@ -1,0 +1,27 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Mis duelos · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Mis duelos</h1>
+    <form method="get" class="d-flex flex-wrap align-items-end gap-2 mb-4">
+        <div><label class="form-label" for="duel-status">Estado</label><select class="form-select" id="duel-status" name="status">
+            <option value="">Todos</option>{% for value,label in status_choices %}<option value="{{ value }}"{% if value == selected_status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select></div>
+        <button class="btn btn-outline-primary" type="submit">Filtrar</button>
+        <a href="{% url 'duckyclash:duel_list' %}" class="btn btn-outline-secondary">Limpiar filtros</a>
+    </form>
+    {% if filter_error %}<p class="alert alert-danger" role="alert">{{ filter_error }}</p>{% endif %}
+    <div class="row g-3">
+    {% for duel in page_obj %}
+        <div class="col-md-6"><article class="card h-100"><div class="card-body">
+            <h2 class="h5">Duelo #{{ duel.pk }}</h2>
+            <p>{{ duel.agreement.creator.get_username }} contra {{ duel.agreement.opponent.get_username }}</p>
+            <p>{{ duel.get_status_display }} · {{ duel.agreement.offer.stake }} DuckyCoins por jugador</p>
+            <p>{% include 'duckyclash/time.html' with value=duel.agreement.offer.scheduled_at %}</p>
+            <a class="btn btn-outline-primary" href="{% url 'duckyclash:duel_detail' duel.pk %}">Ver duelo #{{ duel.pk }}</a>
+        </div></article></div>
+    {% empty %}<p class="border rounded p-3">No hay duelos con estos filtros. <a href="{% url 'duckyclash:open_list' %}">Explorar retos abiertos</a>.</p>{% endfor %}
+    </div>
+    {% include 'duckyclash/pagination.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ page_title }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'nexus:profile_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ page_title }}</h2>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      {% if action == 'Crear' %}
+      <!-- User selector for new profiles -->
+      <div class="nx-card p-4 mb-4">
+        <div class="nx-section-title mb-3">Candidato</div>
+        <label class="form-label fw-semibold small">Usuario <span class="text-danger">*</span></label>
+        <select name="profile_user" class="form-select" required>
+          <option value="">— Seleccionar usuario —</option>
+          {% for u in available_users %}
+          <option value="{{ u.pk }}">{{ u.get_full_name|default:u.username }} ({{ u.email }})</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Solo aparecen usuarios sin perfil DNA existente.</div>
+      </div>
+      {% else %}
+      <div class="nx-card p-3 mb-4 d-flex align-items-center gap-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+             style="width:44px;height:44px;background:linear-gradient(135deg,#1B3C59,#234d72);flex-shrink:0;">
+          {{ form.instance.user.get_full_name|default:form.instance.user.username|first|upper }}
+        </div>
+        <div>
+          <div class="fw-semibold">{{ form.instance.user.get_full_name|default:form.instance.user.username }}</div>
+          <div class="text-muted small">{{ form.instance.user.email }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Nexus Score & Archetypes -->
+      <div class="nx-card p-4 mb-4">
+        <div class="nx-section-title mb-3">Nexus DNA Score</div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Nexus Score (0–100) <span class="text-danger">*</span></label>
+            {{ form.nexus_score }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Arquetipo Principal</label>
+            {{ form.primary_archetype }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Arquetipo Secundario</label>
+            {{ form.secondary_archetype }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Arquetipo Terciario</label>
+            {{ form.tertiary_archetype }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Fiabilidad (%)</label>
+            {{ form.reliability }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Indices -->
+      <div class="nx-card p-4 mb-4">
+        <div class="nx-section-title mb-3">Master Intelligence Indices</div>
+        <div class="row g-3">
+          {% for field_name, label, color in indices_fields %}
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:{{ color }};">{{ label }}</label>
+            {{ form|getitem:field_name }}
+          </div>
+          {% empty %}
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#DC2626;">Leadership Score</label>
+            {{ form.leadership_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#8B5CF6;">Innovation Score</label>
+            {{ form.innovation_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#06B6D4;">Technology Score</label>
+            {{ form.technology_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#22C55E;">Future Score</label>
+            {{ form.future_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#F59E0B;">Career Score</label>
+            {{ form.career_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#EC4899;">Executive Score</label>
+            {{ form.executive_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#2563EB;">Motivation Score</label>
+            {{ form.motivation_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#6366F1;">Cognitive Score</label>
+            {{ form.cognitive_score }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small" style="color:#F97316;">Emotional Score</label>
+            {{ form.emotional_score }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="{% url 'nexus:profile_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="nx-btn-primary btn">
+          <i class="bi bi-check-lg me-1"></i>{{ action }} Perfil DNA
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

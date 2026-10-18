@@ -1,0 +1,56 @@
+{% load i18n %}
+<h2>{% trans 'Historial de intentos y feedback' %}</h2>
+{% if quiz_feedback_form.errors %}<div class="form-errors" role="alert">{{ quiz_feedback_form.errors }}</div>{% endif %}
+<div>
+  {% for group in course_quiz_result_groups %}
+    <details id="grades-{{ group.quiz.pk }}" class="content-accordion-item" data-notification-item-target="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=group.quiz.pk %}" data-notification-area="grades" data-quiz-info="grades-{{ group.quiz.pk }}"{% if group.feedback_error %} open{% endif %}>
+      <summary>{{ group.quiz.title }} · {{ group.quiz.reference_code }}</summary>
+      <div class="content-accordion-body">
+        <a href="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=group.quiz.pk %}">{% trans 'Ver prueba' %}</a>
+        <ul class="due-list">
+          {% for row in group.rows %}
+            <li>
+              {% if teacher_view %}<h3>{{ row.student.get_full_name|default:row.student.username }}</h3>{% endif %}
+              {% for result in row.results %}
+                <div>
+                  <span>{% trans 'Intento' %} {{ forloop.counter }} · {{ result.attempt.get_status_display }}</span>
+                  {% if result.grade %}
+                    <strong>{{ result.grade.grade }} / {{ result.grade.max_grade }}</strong>
+                    {% if teacher_view %}<span>{{ result.grade.get_status_display }}</span>{% endif %}
+                    <p>{% trans 'Acertadas' %}: {{ result.attempt.correct_count|default_if_none:'—' }} · {% trans 'Falladas' %}: {{ result.attempt.wrong_count|default_if_none:'—' }} · {% trans 'En blanco' %}: {{ result.attempt.blank_count|default_if_none:'—' }}</p>
+                    {% if result.grade.comment %}<p>{% trans 'Comentario' %}: {{ result.grade.comment|linebreaksbr }}</p>{% endif %}
+                  {% else %}
+                    <span>{% trans 'Resultados pendientes de publicación' %}</span>
+                  {% endif %}
+                  <p>{% trans 'Inicio' %}: {{ result.attempt.started_at|date:'d/m/Y H:i:s'|default:'—' }} · {% trans 'Entrega' %}: {{ result.attempt.submitted_at|date:'d/m/Y H:i:s'|default:'—' }}</p>
+                </div>
+              {% empty %}
+                <p>{% if row.not_performed %}{% trans 'No realizada' %}{% else %}{% trans 'Pendiente de realización' %}{% endif %}</p>
+              {% endfor %}
+              {% for notification in row.feedback %}
+                <div class="notice">
+                  <strong>{% trans 'Feedback' %} · {{ notification.event.actor.get_full_name|default:notification.event.actor.username }}</strong>
+                  <time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|date:'d/m/Y H:i:s' }}</time>
+                  <p>{{ notification.message|linebreaksbr }}</p>
+                </div>
+              {% endfor %}
+              {% if row.feedback_form %}
+                <details{% if row.feedback_form.is_bound %} open{% endif %}>
+                  <summary>{% trans 'Enviar feedback al alumno' %}</summary>
+                  <form method="post" data-quiz-feedback-form>
+                    {% csrf_token %}
+                    {{ row.feedback_form.quiz_id }}{{ row.feedback_form.student_id }}
+                    {{ row.feedback_form.message.label_tag }}
+                    {{ row.feedback_form.message }}
+                    {{ row.feedback_form.message.errors }}
+                    <button class="button button-secondary" type="submit">{% trans 'Guardar y enviar feedback' %}</button>
+                  </form>
+                </details>
+              {% endif %}
+            </li>
+          {% empty %}<li>{% trans 'No hay alumnos asignados a esta prueba.' %}</li>{% endfor %}
+        </ul>
+      </div>
+    </details>
+  {% empty %}<p>{% trans 'Todavía no hay pruebas disponibles.' %}</p>{% endfor %}
+</div>

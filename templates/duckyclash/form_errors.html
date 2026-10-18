@@ -1,0 +1,11 @@
+{% if form.errors %}
+<div class="alert alert-danger" role="alert" tabindex="-1" data-clash-errors>
+    <p class="fw-semibold">No se han guardado los cambios. Revisa los siguientes errores:</p>
+    {{ form.non_field_errors }}
+    <ul class="mb-0">
+        {% for field in form %}{% if field.errors %}
+        <li><a href="#{{ field.id_for_label }}">{{ field.label }}</a>: {{ field.errors|striptags }}</li>
+        {% endif %}{% endfor %}
+    </ul>
+</div>
+{% endif %}

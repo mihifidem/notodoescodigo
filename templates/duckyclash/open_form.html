@@ -1,0 +1,18 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Publicar reto abierto · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Publicar reto abierto</h1>
+    <div class="alert alert-info">Sin destinatario ni negociación. El primer candidato cuya aceptación confirme el servidor obtiene el reto. Publicar no reserva monedas. Con el proveedor local, las DuckyCoins son tus puntos canjeables y la aceptación descuenta la apuesta de ambos jugadores. El ganador recibe el bote; una cancelación válida o empate devuelve las reservas.</div>
+    <div class="card"><div class="card-body">
+        <p>Fecha, hora y vencimiento en {{ form.time_zone }}.</p>
+        <form method="post" enctype="multipart/form-data" action="{% url 'duckyclash:open_create' %}" data-clash-confirm="¿Publicar este reto abierto? El primer aceptante confirmado obtiene el duelo.">
+            {% include 'duckyclash/form_errors.html' %}
+            {% csrf_token %}{{ form.as_p }}
+            {% include 'duckyclash/catalog_fields.html' %}
+            <button type="submit" class="btn btn-primary">Publicar reto</button>
+            <a href="{% url 'duckyclash:open_list' %}" class="btn btn-outline-primary">Volver</a>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

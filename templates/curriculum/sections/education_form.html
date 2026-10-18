@@ -1,0 +1,4 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar formación{% else %}<i class="bi bi-mortarboard me-2 text-primary"></i>Nueva formación académica{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:education_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:education_list' %}{% endblock %}

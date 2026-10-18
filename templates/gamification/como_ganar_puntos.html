@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Como Ganar Puntos{% endblock %}
+{% block page_title %}Como Ganar Puntos{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <div>
+    <h2 class="h4 fw-bold mb-1">Listado de formas de conseguir puntos</h2>
+    <p class="text-muted mb-0">Guia rapida para alumnos sobre como subir puntos y nivel.</p>
+  </div>
+  <a href="{% url 'users:dashboard' %}" class="btn btn-sm btn-outline-secondary">Volver al dashboard</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-7">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-lightning-charge me-2 text-warning"></i>Formas automaticas
+      </div>
+      <div class="list-group list-group-flush">
+        {% for item in formas_automaticas %}
+        <div class="list-group-item py-3">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <div class="fw-semibold">{{ item.titulo }}</div>
+              <div class="small text-muted">{{ item.detalle }}</div>
+            </div>
+            <span class="badge bg-success-subtle text-success text-wrap">{{ item.valor }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-person-check me-2 text-primary"></i>Formas por validacion admin
+      </div>
+      <div class="list-group list-group-flush">
+        {% for item in formas_admin %}
+        <div class="list-group-item py-3">
+          <div class="fw-semibold">{{ item.titulo }}</div>
+          <div class="small text-muted mb-1">{{ item.detalle }}</div>
+          <span class="badge bg-primary-subtle text-primary">{{ item.valor }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-info-circle me-2 text-info"></i>Importante
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for nota in formas_gastar %}
+        <li class="list-group-item small">{{ nota }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

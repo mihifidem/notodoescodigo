@@ -1,0 +1,75 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Administración LMS" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Administración de plataforma" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "ADMINISTRACIÓN DE PLATAFORMA" %}</p>
+      <h1>{% trans "Campus LMS" %}</h1>
+      <p class="lede">{% trans "Monitoriza el ecosistema educativo y gobierna el catálogo de cursos, usuarios y auditoría." %}</p>
+    </div>
+    {% if can_use_django_admin %}
+      <a class="button button-secondary" href="{% url 'admin:index' %}">{% trans "Abrir administración Django" %}</a>
+    {% endif %}
+  </section>
+
+  <nav class="section-tabs" aria-label="{% trans 'Secciones de administración' %}">
+    {% for item in admin_nav %}
+      <a class="tab-link {% if request.path == item.url %}is-active{% endif %}" href="{{ item.url }}">{{ item.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="metrics-grid" aria-label="{% trans 'Indicadores de plataforma' %}">
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos totales" %}</span><strong>{{ course_count }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos publicados" %}</span><strong>{{ published_course_count }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Cursos en borrador" %}</span><strong>{{ draft_course_count }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Pertenencias activas" %}</span><strong>{{ active_membership_count }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Profesores y tutores" %}</span><strong>{{ teacher_count }}</strong></article>
+    <article class="metric-card"><span class="metric-label">{% trans "Almacenamiento" %}</span><strong>{{ storage_total_mb }} MB</strong></article>
+  </section>
+
+  <div class="admin-grid">
+    <section class="content-panel">
+      <h2>{% trans "Cola de moderación" %}</h2>
+      {% if moderation_queue %}
+        <ul class="stack-list">
+          {% for course in moderation_queue %}
+            <li>
+              <strong>{{ course.nombre }}</strong>
+              <span>{{ course.get_status_display|default:'Sin estado' }} · {% if course.activo %}{% trans "visible" %}{% else %}{% trans "oculto" %}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{% trans "No hay cursos pendientes de revisión en este momento." %}</p>
+      {% endif %}
+    </section>
+
+    <section class="content-panel">
+      <h2>{% trans "Auditoría reciente" %}</h2>
+      {% if recent_audit %}
+        <ul class="stack-list">
+          {% for event in recent_audit %}
+            <li>
+              <strong>{{ event.get_action_display }}</strong>
+              <span>{% if event.actor %}{{ event.actor.get_full_name|default:event.actor.username }}{% else %}{% trans "Sistema" %}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{% trans "Todavía no hay eventos de auditoría." %}</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="content-panel admin-note">
+    <h2>{% trans "Acceso administrativo" %}</h2>
+    <p>{% trans "Esta vista requiere superusuario o el permiso específico de gestión de plataforma. Ser docente o alumno en un curso no concede acceso global." %}</p>
+  </section>
+{% endblock %}

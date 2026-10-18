@@ -1,0 +1,7 @@
+{% load i18n %}
+<form method="post" action="{{ request.get_full_path }}" class="module-panel-form stacked-form" data-drawer-form>
+  {% csrf_token %}
+  <p>{% blocktrans with name=module.titulo %}Unidad formativa del módulo {{ name }}.{% endblocktrans %}</p>
+  {{ form.as_p }}
+  <button type="submit" class="button button-primary">{% trans 'Guardar unidad formativa' %}</button>
+</form>

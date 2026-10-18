@@ -1,0 +1,15 @@
+{% extends 'lms/base.html' %}
+{% load i18n tz %}
+{% block title %}{{ area_title }} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a><span aria-hidden="true">/</span><span aria-current="page">{{ area_title }}</span></nav>
+  <section class="page-heading"><div><p class="eyebrow">{% trans "CAMPUS PERSONAL" %}</p><h1>{{ area_title }}</h1><p class="lede">{% if area == 'calendar' %}{% trans "Todas las fechas de tus cursos, módulos, pruebas, actividades y páginas. Se actualizan automáticamente al cambiar su planificación." %}{% else %}{% trans "Comunicación del campus." %}{% endif %}</p></div></section>
+  {% if area == 'calendar' %}
+    <section class="content-panel">
+      {% if upcoming_evaluations %}<ul class="due-list calendar-list">{% for evaluation in upcoming_evaluations %}<li id="calendar-event-{{ evaluation.key }}"><span class="due-icon" aria-hidden="true">◷</span><div><h2>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h2>{% if evaluation.course %}<p>{{ evaluation.course.nombre }}</p>{% endif %}<p>{% timezone evaluation.time_zone %}<time datetime="{{ evaluation.moment|date:'c' }}">{% if evaluation.all_day %}{{ evaluation.moment|date:"l j F Y" }} · {% trans 'Todo el día' %}{% else %}{{ evaluation.moment|date:"l j F Y, H:i" }}{% endif %}</time>{% endtimezone %}{% if not evaluation.all_day %} · {{ evaluation.time_zone }}{% endif %}</p></div></li>{% endfor %}</ul>
+      {% else %}<div class="empty-state"><span class="empty-icon" aria-hidden="true">◷</span><h2>{% trans "No hay fechas configuradas" %}</h2><p>{% trans "Las fechas aparecerán al planificar tus cursos y contenidos." %}</p></div>{% endif %}
+    </section>
+  {% else %}
+    <section class="empty-state"><span class="empty-icon" aria-hidden="true">▤</span><h2>{% trans "La bandeja del campus todavía no está activa" %}</h2><p>{% trans "Mientras tanto puedes consultar las notificaciones de tu cuenta." %}</p><a class="button button-secondary" href="{% url 'users:notificaciones' %}">{% trans "Ver notificaciones" %}</a></section>
+  {% endif %}
+{% endblock %}

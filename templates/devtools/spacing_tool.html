@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Spacing Scale{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden spacing-tool-wrap">
+        <div class="card-header bg-warning text-dark py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Spacing Scale</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-dark btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-warning fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Ajusta la base de espaciado para generar una escala consistente de padding, margin y gaps. Es útil para mantener proporciones claras en interfaces y sistemas de diseño.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#spacingInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end" id="spacingForm">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Base</label>
+              <input type="number" name="base" id="base" value="{{ base|default:'8' }}" class="form-control form-control-lg" min="1" step="1">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-warning btn-lg w-100 rounded-pill">Aplicar</button>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="button" id="resetSpacingBtn" class="btn btn-outline-warning btn-lg w-100 rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div class="mt-4 row g-3" id="spacingGrid">
+            {% for step in steps %}
+            <div class="col-md-6 col-lg-4 spacing-step">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">{{ step.name }}</div>
+                <div class="fw-bold mt-2">{{ step.value }}px</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="spacingInstructionsModal" tabindex="-1" aria-labelledby="spacingInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="spacingInstructionsModalLabel">Instrucciones del Spacing Scale</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Define la base del sistema de espaciado con un valor como 8, 12 o 16.</li>
+          <li>La herramienta genera una escala proporcional para margenes, padding y gaps.</li>
+          <li>Usa valores pequeños para componentes compactos y valores mayores para secciones grandes.</li>
+          <li>Cuando cambies la base, la escala se recalcula de inmediato y puede aplicarse a tu diseño.</li>
+          <li>Pulsa <strong>Reset</strong> para volver a la escala por defecto.</li>
+        </ol>
+        <div class="alert alert-warning mb-0 rounded-4">
+          Consejo: una escala consistente reduce la sensación de caos visual y da más orden a la interfaz.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .spacing-tool-wrap,
+  [data-bs-theme="dark"] .spacing-tool-wrap .form-label,
+  [data-bs-theme="dark"] .spacing-tool-wrap .form-control,
+  [data-bs-theme="dark"] .spacing-tool-wrap .card-body,
+  [data-bs-theme="dark"] .spacing-tool-wrap .border,
+  [data-bs-theme="dark"] .spacing-tool-wrap .small,
+  [data-bs-theme="dark"] .spacing-tool-wrap .fw-bold {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .spacing-tool-wrap .form-control {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+
+  [data-bs-theme="dark"] .spacing-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .spacing-tool-wrap .border {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const baseInput = document.getElementById('base');
+    const resetBtn = document.getElementById('resetSpacingBtn');
+    const form = document.getElementById('spacingForm');
+
+    if (resetBtn && baseInput) {
+      resetBtn.addEventListener('click', function () {
+        baseInput.value = 8;
+        form.submit();
+      });
+    }
+  });
+</script>
+{% endblock %}

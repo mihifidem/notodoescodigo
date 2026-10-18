@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.titulo }} — Quiz{% endblock %}
+{% block page_title %}Quiz: {{ quiz.titulo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+
+    {% if ultimo_resultado %}
+    <div class="alert alert-{% if ultimo_resultado.aprobado %}success{% else %}warning{% endif %} mb-4">
+      <strong>Último intento:</strong> {{ ultimo_resultado.puntuacion }}/{{ ultimo_resultado.total_preguntas }}
+      ({{ ultimo_resultado.porcentaje }}%) 
+      {% if ultimo_resultado.aprobado %}✅ Aprobado{% else %}❌ No aprobado{% endif %}
+      — <span class="text-muted small">{{ ultimo_resultado.fecha|date:"d M Y H:i" }}</span>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0"><i class="bi bi-patch-question me-2"></i>{{ quiz.titulo }}</h5>
+          <small class="opacity-75">{{ preguntas|length }} preguntas · Mínimo {{ quiz.porcentaje_aprobacion }}% para aprobar · +{{ quiz.puntos_bonus }} pts bonus</small>
+        </div>
+        <div class="badge bg-light text-primary fs-6 px-3 py-2" id="timerBadge">00:00</div>
+      </div>
+      <div class="card-body">
+        <form method="post" id="quizForm">
+          {% csrf_token %}
+          <input type="hidden" name="tiempo_empleado_segundos" id="tiempo_empleado_segundos" value="0">
+          {% for pregunta in preguntas %}
+          <div class="mb-5 pb-4 border-bottom">
+            <p class="fw-semibold mb-3">{{ forloop.counter }}. {{ pregunta.texto }}</p>
+            {% for opcion in pregunta.opciones %}
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio"
+                     name="pregunta_{{ pregunta.id }}"
+                     id="resp_{{ pregunta.id }}_{{ opcion.key }}"
+                     value="{{ opcion.key }}" required>
+              <label class="form-check-label" for="resp_{{ pregunta.id }}_{{ opcion.key }}">
+                {{ opcion.key }}. {{ opcion.texto }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg fw-semibold">
+              <i class="bi bi-send me-2"></i>Enviar respuestas
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const timerBadge = document.getElementById('timerBadge');
+  const timeInput = document.getElementById('tiempo_empleado_segundos');
+  const form = document.getElementById('quizForm');
+  if (!timerBadge || !timeInput || !form) return;
+
+  let seconds = 0;
+  const timer = setInterval(() => {
+    seconds += 1;
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    timerBadge.textContent = `${m}:${s}`;
+    timeInput.value = String(seconds);
+  }, 1000);
+
+  form.addEventListener('submit', () => {
+    clearInterval(timer);
+    timeInput.value = String(seconds);
+  });
+})();
+</script>
+{% endblock %}

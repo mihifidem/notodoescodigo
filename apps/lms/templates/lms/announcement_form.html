@@ -1,0 +1,68 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+  <script src="{% static 'lms/prose-editor.js' %}"></script>
+  <script src="{% static 'lms/slug.js' %}" defer></script>
+  {{ form.media }}
+  <link rel="stylesheet" href="{% static 'lms/prose-editor.css' %}">
+{% endblock %}
+
+{% block title %}{% trans 'Nuevo anuncio' %} | {{ course.nombre }}{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans 'Mis aulas' %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}">{% trans 'Anuncios' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans 'Crear' %}</span>
+  </nav>
+
+  <section class="form-panel teacher-editor-panel">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow subtitulo">{% if is_edit %}{% trans 'EDITAR ANUNCIO' %}{% else %}{% trans 'NUEVO ANUNCIO' %}{% endif %}</p>
+        <h1>{% if is_edit %}{% trans 'Editar anuncio del curso' %}{% else %}{% trans 'Crear anuncio del curso' %}{% endif %}</h1>
+      </div>
+    </div>
+
+    <!-- Se añade la clase teacher-editor-form requerida por el CSS -->
+    <form method="post" class="stacked-form teacher-editor-form" data-auto-slug data-lms-validation-url="{% url 'lms:form_field_validate' form_type='announcement' %}" data-course-id="{{ course.pk }}" data-object-id="{{ form.instance.pk|default:'' }}" data-validation-failure-message="{% trans 'No se pudo validar el campo. Vuelve a intentarlo.' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="field-grid">
+        {% for field in form %}
+          {% if field.name == 'content' %}
+            <div class="field-block field-wide content-editor-block">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <div class="rich-editor-shell" data-rich-editor-shell data-editor-error="{% trans 'No se pudo cargar el editor visual. Puedes editar el HTML en el campo de contenido.' %}">
+                {{ field }}
+              </div>
+              {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+              {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+            </div>
+          {% else %}
+            <div class="field-block {% if field.field.widget.attrs.rows %}field-wide{% endif %}">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+              {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="action-row">
+        <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}">{% trans 'Cancelar' %}</a>
+        <button class="button button-primary" type="submit">{% if is_edit %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Guardar anuncio' %}{% endif %}</button>
+      </div>
+    </form>
+  </section>
+
+{% endblock %}

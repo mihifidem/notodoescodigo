@@ -1,0 +1,166 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ profile.user }} DNA – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold nexus-heading"
+         style="width:64px;height:64px;background:linear-gradient(135deg,#1B3C59,#234d72);font-size:1.5rem;flex-shrink:0;">
+      {{ profile.user.get_full_name|default:profile.user.username|first|upper }}
+    </div>
+    <div>
+      <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">
+        {{ profile.user.get_full_name|default:profile.user.username }}
+      </h2>
+      <div class="d-flex align-items-center gap-2 mt-1">
+        <span class="badge bg-{{ profile.level_class }}">{{ profile.level }}</span>
+        {% if profile.reliability %}
+          <span class="badge bg-light text-muted border">Fiabilidad: {{ profile.reliability }}%</span>
+        {% endif %}
+        <span class="text-muted small">Actualizado: {{ profile.updated_at|date:"d/m/Y" }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'nexus:profile_edit' profile.pk %}" class="nx-btn-primary btn btn-sm">
+      <i class="bi bi-pencil me-1"></i>Editar
+    </a>
+    <a href="{% url 'nexus:profile_delete' profile.pk %}" class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-trash me-1"></i>Eliminar
+    </a>
+    <a href="{% url 'nexus:profile_list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Nexus Score Big Card -->
+  <div class="col-md-4">
+    <div class="nx-hero text-center p-4" style="border-radius:16px;">
+      <div class="mb-1" style="color:#00C4FF;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">
+        Nexus DNA Score
+      </div>
+      <!-- Circular Score -->
+      <div class="mx-auto my-3" style="width:160px;height:160px;position:relative;display:flex;align-items:center;justify-content:center;">
+        <svg width="160" height="160" style="position:absolute;top:0;left:0;transform:rotate(-90deg);">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="12"/>
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#00C4FF" stroke-width="12"
+                  stroke-dasharray="{{ profile.score_gauge_percent|floatformat:0 }} 427"
+                  stroke-linecap="round"/>
+        </svg>
+        <div style="z-index:1;text-align:center;">
+          <div class="nexus-heading fw-bold" style="font-size:3rem;line-height:1;color:#fff;">{{ profile.nexus_score|floatformat:0 }}</div>
+          <div style="color:rgba(255,255,255,.6);font-size:.75rem;">/100</div>
+        </div>
+      </div>
+      <div class="fw-semibold" style="color:rgba(255,255,255,.9);">{{ profile.level }}</div>
+      <hr style="border-color:rgba(255,255,255,.15);">
+      <div class="d-flex justify-content-between small" style="color:rgba(255,255,255,.7);">
+        <span>Arquetipo 1</span>
+        <span class="fw-semibold text-white">{{ profile.primary_archetype|default:"—" }}</span>
+      </div>
+      <div class="d-flex justify-content-between small mt-1" style="color:rgba(255,255,255,.7);">
+        <span>Arquetipo 2</span>
+        <span class="fw-semibold text-white">{{ profile.secondary_archetype|default:"—" }}</span>
+      </div>
+      {% if profile.tertiary_archetype %}
+      <div class="d-flex justify-content-between small mt-1" style="color:rgba(255,255,255,.7);">
+        <span>Arquetipo 3</span>
+        <span class="fw-semibold text-white">{{ profile.tertiary_archetype }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Master Indices Radar -->
+  <div class="col-md-4">
+    <div class="nx-card p-4 h-100">
+      <div class="nx-section-title mb-3">Master Indices</div>
+      <canvas id="radarChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Indices bars -->
+  <div class="col-md-4">
+    <div class="nx-card p-4 h-100">
+      <div class="nx-section-title mb-3">Desglose de Índices</div>
+      {% for label, value, color in master_indices %}
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="small fw-semibold" style="color:{{ color }};">{{ label }}</span>
+          <span class="small fw-bold">{{ value|floatformat:0 }}</span>
+        </div>
+        <div class="nx-progress-bar bg-light" style="height:10px;">
+          <div class="h-100 rounded" style="width:{{ value|floatformat:0 }}%;background:{{ color }};transition:width .5s;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Module Results -->
+{% if module_results %}
+<div class="nx-card p-4">
+  <div class="nx-section-title mb-3">Resultados por Módulo</div>
+  <div class="row g-2">
+    {% for result in module_results %}
+    <div class="col-md-4 col-lg-3">
+      <div class="p-3 rounded border" style="border-color:{{ result.module.layer_color }}30!important;">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <div class="rounded" style="width:6px;height:30px;background:{{ result.module.layer_color }};flex-shrink:0;"></div>
+          <div class="fw-semibold small" style="color:{{ result.module.layer_color }};">{{ result.module.name }}</div>
+        </div>
+        <div class="nexus-heading fw-bold" style="font-size:1.6rem;color:#1B3C59;">
+          {{ result.score|floatformat:0 }}
+        </div>
+        <div class="nx-progress-bar bg-light mt-2">
+          <div class="h-100 rounded" style="width:{{ result.score|floatformat:0 }}%;background:{{ result.module.layer_color }};"></div>
+        </div>
+        {% if result.primary_archetype %}
+        <div class="text-muted mt-1" style="font-size:.7rem;">{{ result.primary_archetype }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block nexus_js %}
+<script>
+const ctx = document.getElementById('radarChart');
+if (ctx) {
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: [{% for l, v, c in master_indices %}'{{ l }}',{% endfor %}],
+      datasets: [{
+        data: [{% for l, v, c in master_indices %}{{ v|floatformat:0 }},{% endfor %}],
+        backgroundColor: 'rgba(27,60,89,0.15)',
+        borderColor: '#00C4FF',
+        borderWidth: 2,
+        pointBackgroundColor: '#1B3C59',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 20, font: { size: 10 } },
+          grid: { color: 'rgba(0,0,0,.06)' },
+          pointLabels: { font: { size: 11, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+</script>
+{% endblock %}

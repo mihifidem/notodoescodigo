@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}{{ evaluacion.titulo }}{% endblock %}
+{% block page_title %}Detalle evaluación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="mb-3">
+    <a href="{% url 'evaluations:list' %}" class="btn btn-sm btn-outline-secondary">&larr; Volver</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h1 class="h4 mb-2">{{ evaluacion.titulo }}</h1>
+          <div class="small text-muted mb-3">
+            <div><strong>Tipo:</strong> {{ evaluacion.get_tipo_prueba_display }}</div>
+            <div><strong>Ámbito:</strong> {{ evaluacion.get_alcance_tipo_display }}</div>
+            <div><strong>Aula:</strong> {{ evaluacion.aula.nombre }}</div>
+            {% if evaluacion.fecha_prueba %}
+            <div><strong>Fecha/hora prueba:</strong> {{ evaluacion.fecha_prueba|date:"d/m/Y H:i" }}</div>
+            {% endif %}
+            {% if evaluacion.fecha_cierre %}
+            <div><strong>Cierre:</strong> {{ evaluacion.fecha_cierre|date:"d/m/Y H:i" }}</div>
+            {% endif %}
+          </div>
+
+          {% if evaluacion.enunciado %}
+          <h2 class="h6">Enunciado</h2>
+          <p class="mb-3">{{ evaluacion.enunciado|linebreaksbr }}</p>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            {% if evaluacion.enunciado_pdf %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ evaluacion.enunciado_pdf.url }}" target="_blank" rel="noopener">Enunciado PDF</a>
+            {% endif %}
+            {% if evaluacion.criterios_evaluacion_pdf %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ evaluacion.criterios_evaluacion_pdf.url }}" target="_blank" rel="noopener">Criterios PDF</a>
+            {% endif %}
+            {% if evaluacion.rubrica_pdf %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ evaluacion.rubrica_pdf.url }}" target="_blank" rel="noopener">Rúbrica PDF</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Subir examen</h2>
+
+          {% if evaluacion.esta_abierta %}
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Archivo de respuesta</label>
+              {{ entrega_form.archivo_respuesta }}
+              {% if entrega_form.archivo_respuesta.errors %}
+              <div class="text-danger small mt-1">{{ entrega_form.archivo_respuesta.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-check mb-2">
+              {{ entrega_form.solicita_revision_exhaustiva }}
+              <label class="form-check-label" for="{{ entrega_form.solicita_revision_exhaustiva.id_for_label }}">
+                Solicitar revisión exhaustiva docente
+              </label>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Motivo (si solicitas revisión exhaustiva)</label>
+              {{ entrega_form.motivo_revision_exhaustiva }}
+              {% if entrega_form.motivo_revision_exhaustiva.errors %}
+              <div class="text-danger small mt-1">{{ entrega_form.motivo_revision_exhaustiva.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Subir entrega</button>
+          </form>
+          {% else %}
+          <div class="alert alert-warning mb-0">La evaluación no está abierta para entregas.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Mis entregas</h2>
+          {% if entregas_previas %}
+          <div class="list-group list-group-flush">
+            {% for e in entregas_previas %}
+            <div class="list-group-item px-0 py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <strong>Intento {{ e.intento_numero }}</strong>
+                <span class="badge {% if e.estado == 'CORREGIDA' %}bg-success{% elif e.estado == 'ERROR' %}bg-danger{% elif e.estado == 'REVISION_DOCENTE' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ e.get_estado_display }}</span>
+              </div>
+              <div class="small text-muted mb-2">{{ e.fecha_entrega|date:"d/m/Y H:i" }}</div>
+
+              {% if e.estado == 'CORREGIDA' or e.estado == 'REVISION_DOCENTE' %}
+                {% with c=e.correccion %}
+                {% if c %}
+                <div class="border rounded p-2 mb-2 bg-light small">
+                  <div class="fw-semibold mb-1">Puntuación: {{ c.puntuacion_total }} / {{ evaluacion.max_puntuacion }}</div>
+                  {% if c.requiere_revision_humana %}
+                  <div class="text-warning mb-1"><em>Pendiente de revisión docente</em></div>
+                  {% endif %}
+                  {% if c.feedback_global %}
+                  <div class="mb-1"><strong>Feedback:</strong> {{ c.feedback_global }}</div>
+                  {% endif %}
+                  {% if c.feedback_detallado %}
+                  <details class="mt-1">
+                    <summary class="text-primary" style="cursor:pointer;">Ver detalle por criterio</summary>
+                    <ul class="mt-1 mb-0 ps-3">
+                      {% for item in c.feedback_detallado %}
+                      <li class="mb-1">
+                        <strong>{{ item.criterion_id }}</strong>: {{ item.score }} — {{ item.justification }}
+                        {% if item.improvement %}
+                        <div class="text-muted">Mejora: {{ item.improvement }}</div>
+                        {% endif %}
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                  {% endif %}
+                  {% if c.plan_mejora %}
+                  <details class="mt-1">
+                    <summary class="text-secondary" style="cursor:pointer;">Plan de mejora</summary>
+                    <ul class="mt-1 mb-0 ps-3">
+                      {% for punto in c.plan_mejora %}
+                      <li>{{ punto }}</li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                  {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
+              {% endif %}
+
+              {% if evaluacion.esta_abierta and e.estado != 'CORREGIDA' and e.estado != 'REVISION_DOCENTE' %}
+              <div class="d-flex gap-2 mt-1">
+                <a href="{% url 'evaluations:entrega-edit' e.pk %}" class="btn btn-sm btn-outline-primary">Modificar</a>
+                <form method="post" action="{% url 'evaluations:entrega-delete' e.pk %}" onsubmit="return confirm('¿Seguro que quieres eliminar esta entrega?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted small mb-0">Aún no has subido ninguna entrega.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

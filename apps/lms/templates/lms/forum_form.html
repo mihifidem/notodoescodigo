@@ -1,0 +1,31 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% if forum %}{% trans 'Editar foro' %}{% else %}{% trans 'Crear foro' %}{% endif %} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='discussion' %}">{% trans 'Foro de discusión' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% if forum %}{% trans 'Editar foro' %}{% else %}{% trans 'Crear foro' %}{% endif %}</span>
+  </nav>
+  <section class="form-panel">
+    <h1>{% if forum %}{% trans 'Editar foro' %}{% else %}{% trans 'Crear foro' %}{% endif %}</h1>
+    <p class="lede">{{ course.nombre }}</p>
+    <form method="post" class="stacked-form" data-lms-validation-url="{% url 'lms:form_field_validate' form_type='discussion' %}" data-course-id="{{ course.pk }}" data-object-id="{{ forum.pk|default:'' }}" data-validation-failure-message="{% trans 'No se pudo validar el campo. Vuelve a intentarlo.' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="action-row">
+        <button type="submit" class="button button-primary">{% if forum %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Crear foro' %}{% endif %}</button>
+        <a class="button button-secondary" href="{% if forum %}{% url 'lms:course_forum_detail' course_id=course.pk forum_id=forum.pk %}{% else %}{% url 'lms:course_area' course_id=course.pk area='discussion' %}{% endif %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,768 @@
+{% extends "base.html" %}
+{% block page_title %}Resultados Nexus DNA{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .nx-heading { font-family:'Poppins',sans-serif; }
+  .nx-hero {
+    background:linear-gradient(135deg,#1B3C59 0%,#0f2540 100%);
+    border-radius:16px; color:#fff; padding:2rem 2.5rem; position:relative; overflow:hidden;
+  }
+  .nx-card { border:1px solid #E5E7EB; border-radius:12px; background:#fff; }
+  .nx-section-title {
+    font-family:'Poppins',sans-serif; font-size:1rem; font-weight:700;
+    color:#1B3C59; display:flex; align-items:center; gap:.5rem;
+  }
+  .nx-section-title::before {
+    content:''; display:inline-block; width:4px; height:18px;
+    background:#00C4FF; border-radius:2px;
+  }
+  .nx-bar { height:10px; border-radius:5px; overflow:hidden; background:#F1F5F9; }
+  .nx-bar-fill { height:100%; border-radius:5px; transition:width .6s ease; }
+  .archetype-badge {
+    background:linear-gradient(135deg,#1B3C59,#234d72);
+    color:#fff; border-radius:10px; padding:.75rem 1.25rem;
+    font-family:'Poppins',sans-serif; font-weight:600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'nexus:student_list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h2 class="nx-heading fw-bold mb-0" style="color:#1B3C59;">Tus resultados Nexus DNA</h2>
+      <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+        <span class="text-muted small">{{ sesion.test.nombre }} · Completado {{ sesion.completado_en|date:"d/m/Y H:i" }}</span>
+        {% if sesion.version_test %}
+          {% if sesion.version_test == 'essential' %}
+          <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.65rem;font-weight:700;"><i class="bi bi-unlock me-1"></i>Essential</span>
+          {% elif sesion.version_test == 'advanced' %}
+          <span class="badge" style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:700;"><i class="bi bi-person me-1"></i>Advanced</span>
+          {% elif sesion.version_test == 'premium' %}
+          <span class="badge" style="background:#fef3c7;color:#b45309;font-size:.65rem;font-weight:700;"><i class="bi bi-star-fill me-1"></i>Premium</span>
+          {% endif %}
+        {% elif sesion.resultados_json.version %}
+          <span class="badge" style="background:#F3F4F6;color:#374151;font-size:.65rem;font-weight:700;">{{ sesion.resultados_json.version|capfirst }}</span>
+        {% endif %}
+        {% if sesion.resultados_json.total_preguntas %}
+        <span class="text-muted small">
+          <i class="bi bi-list-check me-1"></i>{{ sesion.resultados_json.total_preguntas }} preguntas
+          {% if sesion.resultados_json.num_likert %}({{ sesion.resultados_json.num_likert }} valoración{% if sesion.resultados_json.num_abcd %} · {{ sesion.resultados_json.num_abcd }} escenarios{% endif %}){% endif %}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if dna %}
+  <div class="row g-4 mb-4">
+
+    <!-- Score principal -->
+    <div class="col-md-4">
+      <div class="nx-hero text-center p-4 h-100">
+        <div style="color:#00C4FF;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">
+          Nexus DNA Score
+        </div>
+        <!-- Gauge circular -->
+        <div class="mx-auto my-3" style="width:150px;height:150px;position:relative;display:flex;align-items:center;justify-content:center;">
+          <svg width="150" height="150" style="position:absolute;top:0;left:0;transform:rotate(-90deg);">
+            <circle cx="75" cy="75" r="63" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="11"/>
+            <circle cx="75" cy="75" r="63" fill="none" stroke="#00C4FF" stroke-width="11"
+                    stroke-dasharray="{{ dna.score_gauge_percent }} 396"
+                    stroke-linecap="round"/>
+          </svg>
+          <div style="z-index:1;text-align:center;">
+            <div class="nx-heading fw-bold" style="font-size:2.8rem;line-height:1;color:#fff;">
+              {{ dna.nexus_score|floatformat:0 }}
+            </div>
+            <div style="color:rgba(255,255,255,.6);font-size:.7rem;">/100</div>
+          </div>
+        </div>
+        <div class="fw-semibold" style="color:rgba(255,255,255,.9);">{{ dna.level }}</div>
+        <hr style="border-color:rgba(255,255,255,.15);">
+        <div class="d-flex flex-column gap-1" style="text-align:left;">
+          {% if dna.primary_archetype %}
+          <div class="d-flex justify-content-between small">
+            <span style="color:rgba(255,255,255,.6);">Arquetipo 1</span>
+            <span class="fw-semibold text-white">{{ dna.primary_archetype }}</span>
+          </div>
+          {% endif %}
+          {% if dna.secondary_archetype %}
+          <div class="d-flex justify-content-between small">
+            <span style="color:rgba(255,255,255,.6);">Arquetipo 2</span>
+            <span class="fw-semibold text-white">{{ dna.secondary_archetype }}</span>
+          </div>
+          {% endif %}
+          {% if dna.tertiary_archetype %}
+          <div class="d-flex justify-content-between small">
+            <span style="color:rgba(255,255,255,.6);">Arquetipo 3</span>
+            <span class="fw-semibold text-white">{{ dna.tertiary_archetype }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar chart -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">Perfil de Inteligencias</div>
+        <canvas id="radarChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Barras de índices -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">Master Indices</div>
+        {% for label, field, color in indices_labels %}
+        {% with val=dna|default:0 %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold" style="color:{{ color }};">{{ label }}</span>
+            <span class="small fw-bold">
+              {% if field == 'leadership_score' %}{{ dna.leadership_score|floatformat:0 }}
+              {% elif field == 'innovation_score' %}{{ dna.innovation_score|floatformat:0 }}
+              {% elif field == 'technology_score' %}{{ dna.technology_score|floatformat:0 }}
+              {% elif field == 'future_score' %}{{ dna.future_score|floatformat:0 }}
+              {% elif field == 'career_score' %}{{ dna.career_score|floatformat:0 }}
+              {% elif field == 'executive_score' %}{{ dna.executive_score|floatformat:0 }}
+              {% elif field == 'motivation_score' %}{{ dna.motivation_score|floatformat:0 }}
+              {% elif field == 'cognitive_score' %}{{ dna.cognitive_score|floatformat:0 }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="nx-bar">
+            <div class="nx-bar-fill" style="
+              {% if field == 'leadership_score' %}width:{{ dna.leadership_score|floatformat:0 }}%
+              {% elif field == 'innovation_score' %}width:{{ dna.innovation_score|floatformat:0 }}%
+              {% elif field == 'technology_score' %}width:{{ dna.technology_score|floatformat:0 }}%
+              {% elif field == 'future_score' %}width:{{ dna.future_score|floatformat:0 }}%
+              {% elif field == 'career_score' %}width:{{ dna.career_score|floatformat:0 }}%
+              {% elif field == 'executive_score' %}width:{{ dna.executive_score|floatformat:0 }}%
+              {% elif field == 'motivation_score' %}width:{{ dna.motivation_score|floatformat:0 }}%
+              {% elif field == 'cognitive_score' %}width:{{ dna.cognitive_score|floatformat:0 }}%
+              {% endif %};
+              background:{{ color }};"></div>
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  {% if dna.dimensiones and is_techmind or dna.dimensiones and is_careernav or dna.dimensiones and is_behaviormatrix or dna.dimensiones and is_conflictsync or dna.dimensiones and is_personasphere or dna.dimensiones and is_identitymap %}
+  <!-- Arquetipos + TII + 10 Dimensiones (TechMind / CareerNavigator / BehaviorMatrix / ConflictSync) -->
+  <div class="row g-4 mb-4">
+
+    <!-- Arquetipos -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">Arquetipos</div>
+        {% if dna.primary_archetype %}
+        <div class="archetype-badge mb-2 d-flex align-items-center gap-2">
+          <span style="font-size:1.2rem;">🥇</span>
+          <div>
+            <div style="font-size:.65rem;opacity:.6;text-transform:uppercase;letter-spacing:.06em;">Principal</div>
+            <div class="fw-bold">{{ dna.primary_archetype }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if dna.secondary_archetype %}
+        <div class="archetype-badge mb-2 d-flex align-items-center gap-2" style="background:linear-gradient(135deg,#234d72,#2a5f8a);">
+          <span style="font-size:1.2rem;">🥈</span>
+          <div>
+            <div style="font-size:.65rem;opacity:.6;text-transform:uppercase;letter-spacing:.06em;">Secundario</div>
+            <div class="fw-bold">{{ dna.secondary_archetype }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if dna.tertiary_archetype %}
+        <div class="archetype-badge d-flex align-items-center gap-2" style="background:linear-gradient(135deg,#2d5f5f,#1B3C59);">
+          <span style="font-size:1.2rem;">🥉</span>
+          <div>
+            <div style="font-size:.65rem;opacity:.6;text-transform:uppercase;letter-spacing:.06em;">Terciario</div>
+            <div class="fw-bold">{{ dna.tertiary_archetype }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if dna.reliability %}
+        <div class="mt-3 pt-3 border-top">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small text-muted">Fiabilidad del test</span>
+            <span class="small fw-bold" style="color:#00C4FF;">{{ dna.reliability|floatformat:0 }}%</span>
+          </div>
+          <div class="nx-bar">
+            <div class="nx-bar-fill" style="width:{{ dna.reliability|floatformat:0 }}%;background:#00C4FF;"></div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- TII gauge -->
+    <div class="col-md-4">
+      <div class="nx-hero text-center p-4 h-100">
+        <div style="color:#00C4FF;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">
+          {% if is_behaviormatrix %}Behavior Intelligence Index{% elif is_careernav %}Career Intelligence Index{% elif is_conflictsync %}Conflict Intelligence Index{% elif is_personasphere %}Personality Intelligence Index{% elif is_identitymap %}Motivational Identity Index{% else %}Technology Intelligence Index{% endif %}
+        </div>
+        <div class="mx-auto my-3" style="width:130px;height:130px;position:relative;display:flex;align-items:center;justify-content:center;">
+          <svg width="130" height="130" style="position:absolute;top:0;left:0;transform:rotate(-90deg);">
+            <circle cx="65" cy="65" r="54" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+            <circle cx="65" cy="65" r="54" fill="none" stroke="url(#tiiGrad)" stroke-width="10"
+                    stroke-dasharray="{{ dna.tii_gauge_percent }} 396" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="tiiGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00C4FF"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style="z-index:1;text-align:center;">
+            <div class="nx-heading fw-bold" style="font-size:2.4rem;line-height:1;color:#fff;">{{ dna.tii|floatformat:0 }}</div>
+            <div style="color:rgba(255,255,255,.4);font-size:.65rem;">/100</div>
+          </div>
+        </div>
+        <div class="fw-semibold small" style="color:rgba(255,255,255,.8);">
+          {% if dna.tii >= 85 %}Muy Alto{% elif dna.tii >= 70 %}Alto{% elif dna.tii >= 55 %}Medio{% else %}En Desarrollo{% endif %}
+        </div>
+        <div class="mt-2" style="color:rgba(255,255,255,.4);font-size:.7rem;">
+          {% if is_behaviormatrix %}Índice global de comportamiento{% elif is_careernav %}Índice de inteligencia de carrera{% elif is_conflictsync %}Índice de inteligencia de conflicto{% elif is_personasphere %}Índice global de personalidad profesional{% elif is_identitymap %}Índice de identidad motivacional{% else %}Índice global de madurez tecnológica{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 Dimensiones TechMind -->
+    <div class="col-md-4">
+      <div class="nx-card p-4 h-100">
+        <div class="nx-section-title mb-3">
+          {% if is_techmind %}10 Dimensiones TechMind{% elif is_behaviormatrix %}8 Dimensiones BehaviorMatrix™{% elif is_conflictsync %}8 Dimensiones ConflictSync™{% elif is_personasphere %}8 Dimensiones PersonaSphere{% elif is_identitymap %}9 Patrones IdentityMap™{% else %}10 Competencias CareerNavigator{% endif %}
+          <span class="ms-1 text-muted" style="font-size:.65rem;font-weight:400;">(pasa el cursor · clic para detalle)</span>
+        </div>
+        {% for dim in dna.dimensiones %}
+        <div class="mb-2 dim-clickable" role="button"
+             data-label="{{ dim.label }}" data-score="{{ dim.score }}" data-color="{{ dim.color }}"
+             data-bs-toggle="modal" data-bs-target="#dimModal"
+             style="cursor:pointer;">
+          <div class="d-flex justify-content-between mb-1 align-items-center">
+            <span class="small d-flex align-items-center gap-1"
+                  style="color:{{ dim.color }};font-weight:600;font-size:.72rem;">
+              {{ dim.label }}
+              <i class="bi bi-info-circle" style="font-size:.65rem;opacity:.6;"></i>
+            </span>
+            <span class="small fw-bold">{{ dim.score }}</span>
+          </div>
+          <div class="nx-bar">
+            <div class="nx-bar-fill" style="width:{{ dim.score }}%;background:{{ dim.color }};"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="nx-card p-4 text-center text-muted">
+    <i class="bi bi-exclamation-circle fs-2 mb-2 d-block opacity-25"></i>
+    <p>El perfil DNA aún no se ha generado.</p>
+    <p class="small">Es posible que el test no haya enviado datos en el formato esperado.</p>
+  </div>
+  {% endif %}
+
+  <!-- Modal dimensión -->
+  <div class="modal fade" id="dimModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:14px;border:none;overflow:hidden;">
+        <div class="modal-header border-0 pb-0" id="dimModalHeader">
+          <div>
+            <div class="text-muted small mb-1" id="dimModalSub"></div>
+            <h5 class="modal-title fw-bold" id="dimModalTitle"></h5>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <!-- Barra de puntuación -->
+          <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" id="dimModalScoreBox">
+            <div class="text-center" style="min-width:56px;">
+              <div class="fw-bold" style="font-size:2rem;line-height:1;" id="dimModalScore"></div>
+              <div class="text-muted" style="font-size:.65rem;">/100</div>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small text-muted">Tu puntuación</span>
+                <span class="small fw-semibold" id="dimModalNivel"></span>
+              </div>
+              <div style="height:8px;border-radius:4px;background:rgba(0,0,0,.08);">
+                <div style="height:100%;border-radius:4px;transition:width .5s;" id="dimModalBar"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Descripción -->
+          <p class="text-muted" style="font-size:.88rem;line-height:1.65;" id="dimModalDesc"></p>
+          <!-- Qué implica tu puntuación -->
+          <div class="rounded p-3 mb-2" id="dimModalImplica" style="font-size:.82rem;line-height:1.6;"></div>
+          <!-- Recomendación (solo si hay datos BD) -->
+          <div id="dimModalRecWrap" style="display:none;">
+            <div class="rounded p-3" id="dimModalRec"
+                 style="font-size:.82rem;line-height:1.6;background:#F0FDF4;border-left:3px solid #22C55E;border-radius:6px;">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if dna %}
+  <!-- Guardar en perfil CV -->
+  <div class="nx-card p-4 mb-4" style="border-left:4px solid #00C4FF;">
+    {% if sesion.guardado_en_cv %}
+    <div class="d-flex align-items-center gap-3">
+      <span class="fs-3">✅</span>
+      <div>
+        <div class="fw-bold" style="color:#1B3C59;">Resultados guardados en tu perfil CV</div>
+        <p class="text-muted small mb-1">
+          Tus soft skills Nexus ya están disponibles en tu Currículum.
+          Puedes activarlas en cualquier perfil de CV desde
+          <a href="{% url 'curriculum:dashboard' %}" class="fw-semibold">Currículum → Habilidades</a>.
+        </p>
+      </div>
+    </div>
+    {% else %}
+    <div class="nx-section-title mb-2">¿Guardar resultados en tu perfil de CV?</div>
+    <p class="text-muted small mb-3">
+      Volcamos los 9 índices del test como <strong>soft skills</strong> en tu Currículum Vitae
+      (nivel 1–5 calculado automáticamente). Podrás activarlos en cualquier perfil de CV
+      para que aparezcan en tu CV público.
+    </p>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Liderazgo</span>Nivel {{ dna.leadership_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Gestión Ejecutiva</span>Nivel {{ dna.executive_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Inteligencia Emocional</span>Nivel {{ dna.emotional_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Motivación e Influencia</span>Nivel {{ dna.motivation_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Pensamiento Crítico</span>Nivel {{ dna.cognitive_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Innovación y Creatividad</span>Nivel {{ dna.innovation_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Visión de Futuro</span>Nivel {{ dna.future_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Mentalidad Digital</span>Nivel {{ dna.technology_score|floatformat:0 }}/100</div></div>
+      <div class="col-md-4 col-6"><div class="p-2 rounded border bg-light small"><span class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;">Visión de Negocio</span>Nivel {{ dna.career_score|floatformat:0 }}/100</div></div>
+    </div>
+
+    <form method="post" action="{% url 'nexus:student_save_profile' sesion.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm fw-semibold px-4"
+              style="background:linear-gradient(135deg,#1B3C59,#234d72);color:#fff;border-radius:8px;">
+        <i class="bi bi-save me-1"></i>Sí, guardar en mi perfil CV
+      </button>
+      <span class="text-muted small ms-3">Puedes hacerlo más tarde desde tu perfil DNA.</span>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Informes guardados -->
+  {% if informes %}
+  <div class="nx-card p-4 mb-4" style="border-left:4px solid #7C3AED;">
+    <div class="nx-section-title mb-3"><i class="bi bi-file-earmark-richtext me-2"></i>Informes guardados</div>
+    <div class="row g-2">
+      {% for inf in informes %}
+      <div class="col-md-4">
+        <a href="{% url 'nexus:ver_informe' inf.pk %}" class="text-decoration-none">
+          <div class="p-3 rounded border bg-light d-flex align-items-center gap-3" style="transition:all .2s;" onmouseover="this.style.background='#f0f7ff';this.style.borderColor='#7C3AED'" onmouseout="this.style.background='';this.style.borderColor=''">
+            <i class="bi {{ inf.icono }} fs-4" style="color:#7C3AED;"></i>
+            <div>
+              <div class="fw-semibold small" style="color:#1B3C59;">{{ inf.get_tipo_display }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ inf.creado_en|date:"d/m/Y H:i" }}</div>
+            </div>
+            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Acciones -->
+  <div class="d-flex flex-wrap gap-2 mt-2">
+    <a href="{% url 'nexus:student_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-grid me-1"></i>Volver a mis tests
+    </a>
+    {% if dna %}
+    <a href="{% url 'nexus:student_my_dna' %}" class="btn btn-sm" style="background:#1B3C59;color:#fff;border-radius:8px;font-weight:600;">
+      <i class="bi bi-person-badge me-1"></i>Ver mi perfil DNA completo
+    </a>
+    <button type="button" class="btn btn-sm" style="background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;border-radius:8px;font-weight:600;" onclick="abrirModalInforme(event)">
+      <i class="bi bi-stars me-1"></i>Generar informe
+    </button>
+    {% endif %}
+    <a href="{% url 'nexus:student_delete_session' sesion.pk %}"
+       class="btn btn-sm btn-outline-danger ms-auto"
+       style="border-radius:8px;">
+      <i class="bi bi-trash me-1"></i>Borrar resultados
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% if dna %}
+<script>
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Leadership','Innovation','Technology','Future','Career','Executive','Motivation','Cognitive'],
+    datasets: [{
+      data: [
+        {{ dna.leadership_score|floatformat:0 }},
+        {{ dna.innovation_score|floatformat:0 }},
+        {{ dna.technology_score|floatformat:0 }},
+        {{ dna.future_score|floatformat:0 }},
+        {{ dna.career_score|floatformat:0 }},
+        {{ dna.executive_score|floatformat:0 }},
+        {{ dna.motivation_score|floatformat:0 }},
+        {{ dna.cognitive_score|floatformat:0 }},
+      ],
+      backgroundColor: 'rgba(27,60,89,.12)',
+      borderColor: '#00C4FF',
+      borderWidth: 2,
+      pointBackgroundColor: '#1B3C59',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      r: {
+        min: 0, max: 100,
+        ticks: { stepSize: 20, font: { size: 10 } },
+        grid: { color: 'rgba(0,0,0,.06)' },
+        pointLabels: { font: { size: 10, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+{% endif %}
+
+<script>
+function obtenerTipoInformePorDefecto() {
+  const nivel = '{{ sesion.version_test|default:sesion.resultados_json.version|default:sesion.test.nivel_acceso|default:"advanced" }}';
+  const mapa = {
+    essential: 'base',
+    advanced: 'ai_personal',
+    premium: 'ai_completo'
+  };
+  return mapa[String(nivel).toLowerCase()] || 'ai_personal';
+}
+
+function abrirModalInforme(event) {
+  event.preventDefault();
+  generarInformeIA(obtenerTipoInformePorDefecto());
+}
+
+function generarInformeIA(tipo) {
+  const button = document.querySelector('[onclick="abrirModalInforme(event)"]');
+  const originalText = button ? button.innerHTML : '';
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generando…';
+  }
+
+  fetch('{% url "nexus:generar_informe_ai" sesion.pk %}', {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+    body: `tipo=${encodeURIComponent(tipo)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (!data.ok) {
+      throw new Error(data.error || 'No se pudo generar el informe.');
+    }
+    window.location.href = data.redirect_url;
+  })
+  .catch(error => {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = originalText;
+    }
+    alert(error.message || 'Error al generar el informe.');
+  });
+}
+
+const DIM_INFO = {
+  // ── CareerNavigator ──────────────────────────────────────────
+  'Mentalidad de Crecimiento': {
+    desc: 'Refleja tu disposición a aprender, mejorar y ver los desafíos como oportunidades de desarrollo. Es la base de toda trayectoria profesional sostenida: sin ella, las demás competencias se estancan.',
+    alto: 'Tienes una mentalidad orientada al crecimiento muy sólida. Aprovechas los errores como aprendizaje, buscas retroalimentación activamente y no te limitas por creencias fijas sobre tus capacidades.',
+    medio: 'Tienes la base, pero a veces el miedo al fracaso o la zona de confort frenan tu desarrollo. Trabajar con mentores o llevar un diario de aprendizaje puede ayudarte a consolidar este hábito.',
+    bajo: 'Desarrollar una mentalidad de crecimiento es el cambio más impactante que puedes hacer en tu carrera. Empieza por replantear cómo interpretas los fracasos: son datos, no veredictos.'
+  },
+  'Liderazgo Emergente': {
+    desc: 'Mide tu capacidad para influir positivamente en otros, tomar iniciativa y asumir responsabilidades sin necesidad de un título formal. El liderazgo emergente se demuestra en la acción, no en el cargo.',
+    alto: 'Destacas como referente natural en tu entorno. Las personas buscan tu criterio, sigues tus propuestas y tienes impacto más allá de tu rol formal.',
+    medio: 'Tienes potencial de liderazgo claro. Busca oportunidades para liderar proyectos transversales, coordinar equipos pequeños o mentorizar a alguien de tu entorno.',
+    bajo: 'El liderazgo se entrena. Empieza liderando reuniones, proponiendo mejoras concretas y asumiendo responsabilidad en proyectos grupales aunque no seas el responsable formal.'
+  },
+  'Inteligencia Relacional': {
+    desc: 'Evalúa tu habilidad para construir, mantener y activar redes de contacto profesionales de forma genuina y estratégica. El networking no es coleccionar contactos, sino crear valor mutuo.',
+    alto: 'Tienes una red profesional activa y sabes cómo activarla. Generas conexiones con propósito y eres percibido como alguien que aporta valor en sus relaciones.',
+    medio: 'Tienes buenos vínculos pero quizás no los cultivas de forma sistemática. Establece el hábito de conectar con alguien nuevo cada semana y de mantener el contacto con tu red existente.',
+    bajo: 'El networking es una de las palancas más potentes del desarrollo profesional. Empieza por entornos de bajo riesgo: eventos de tu sector, comunidades online o alumni de tu formación.'
+  },
+  'Resiliencia Profesional': {
+    desc: 'Mide tu capacidad para recuperarte ante reveses, fracasos o cambios inesperados manteniendo el rendimiento y la motivación. La resiliencia no es no caer, es la velocidad con la que te levantas.',
+    alto: 'Gestionas la adversidad con madurez. Mantienes el foco en lo que puedes controlar, aprendes de los golpes y sigues adelante sin que los fracasos definan tu trayectoria.',
+    medio: 'Te recuperas, pero los momentos difíciles te afectan más de lo que te gustaría. Técnicas de gestión emocional, mindfulness o el apoyo de un coach pueden marcar la diferencia.',
+    bajo: 'La resiliencia se construye con práctica. Empieza por identificar qué situaciones te desestabilizan y trabaja en desarrollar rutinas de recuperación: ejercicio, reflexión, apoyo social.'
+  },
+  'Visión Estratégica': {
+    desc: 'Evalúa tu capacidad para pensar a largo plazo, anticipar escenarios y tomar decisiones alineadas con objetivos profesionales claros. Sin visión estratégica, el trabajo duro no lleva a ningún destino concreto.',
+    alto: 'Piensas en términos de trayectoria, no solo de tarea. Sabes dónde quieres estar y tomas decisiones coherentes con ese destino, incluso cuando implica renunciar a gratificaciones inmediatas.',
+    medio: 'Tienes objetivos pero quizás no los has articulado con suficiente claridad o no los revisas con regularidad. Define tu horizonte a 3-5 años y trabaja hacia atrás desde ahí.',
+    bajo: 'Definir una visión profesional clara es el primer paso. Dedica tiempo a reflexionar sobre qué tipo de profesional quieres ser en 5 años y qué pasos concretos te llevan hasta ahí.'
+  },
+  'Aprendizaje Continuo': {
+    desc: 'Refleja tu hábito y capacidad de adquirir nuevas competencias de forma autónoma y sistemática a lo largo de tu carrera. En un mercado que cambia cada 3-5 años, aprender es la única ventaja duradera.',
+    alto: 'El aprendizaje es parte de tu identidad profesional. Tienes un sistema de formación continua que te mantiene relevante y te abre puertas constantemente.',
+    medio: 'Aprendes cuando hay una necesidad clara pero no de forma proactiva. Incorporar bloques de aprendizaje en tu agenda semanal —aunque sean 30 minutos— cambia la trayectoria a largo plazo.',
+    bajo: 'Empieza pequeño: elige una habilidad relevante para tu sector y dedícale 15 minutos diarios durante 30 días. Plataformas como Coursera, LinkedIn Learning o YouTube son un punto de partida gratuito.'
+  },
+  'Ejecución con Impacto': {
+    desc: 'Mide tu capacidad para convertir planes e ideas en resultados concretos y medibles. Incluye gestión del tiempo, priorización, gestión de proyectos y la habilidad de terminar lo que empiezas.',
+    alto: 'Eres un ejecutor de alto rendimiento. Conviertes la estrategia en acción, gestionas bien tus recursos y generas resultados tangibles que otros pueden medir.',
+    medio: 'Tienes buenas ideas y arranques sólidos, pero a veces la ejecución pierde fuerza. Técnicas como GTD, OKRs personales o gestión por bloques de tiempo pueden darte la estructura que necesitas.',
+    bajo: 'La ejecución se aprende con sistemas. Empieza por definir 1-3 prioridades diarias y comprometerte a completarlas antes de pasar a lo siguiente. La disciplina de cierre es clave.'
+  },
+  'Agilidad e Innovación': {
+    desc: 'Evalúa tu capacidad para adaptarte rápidamente a cambios y proponer soluciones creativas ante problemas complejos o entornos de incertidumbre. Es la combinación de flexibilidad mental y pensamiento divergente.',
+    alto: 'Te adaptas rápido y piensas fuera del molde con naturalidad. Aportas ideas originales y no te paraliza la incertidumbre: la gestionas como una variable más.',
+    medio: 'Tienes capacidad creativa que no siempre aprovechas. Experimenta con metodologías como Design Thinking o técnicas de brainstorming estructurado para activar tu potencial innovador.',
+    bajo: 'La agilidad mental se entrena exponiéndote a nuevos contextos, perspectivas y problemas. Prueba a colaborar con personas de sectores distintos al tuyo o a explorar hobbies creativos.'
+  },
+  'Comunicación de Impacto': {
+    desc: 'Mide tu habilidad para transmitir ideas con claridad, persuasión y adaptación al interlocutor en diferentes formatos (oral, escrito, visual) y contextos (1:1, presentaciones, negociación).',
+    alto: 'Comunicas con claridad y persuasión. Adaptas tu mensaje al contexto y al interlocutor, y logras que tus ideas sean comprendidas, recordadas y adoptadas.',
+    medio: 'Comunicas bien en entornos cómodos pero quizás pierdes impacto en situaciones de mayor exposición. Hablar en público, escribir en LinkedIn o practicar pitches puede acelerar esta dimensión.',
+    bajo: 'La comunicación es la competencia que más amplifica todas las demás. Empieza por escribir con más frecuencia —notas, resúmenes, mensajes claros— y busca oportunidades de hablar ante pequeños grupos.'
+  },
+  'Presencia y Posicionamiento': {
+    desc: 'Evalúa tu capacidad para construir y gestionar tu marca personal: cómo eres percibido en tu sector, qué huella dejas en los entornos donde participas y si eres visible para las oportunidades que quieres atraer.',
+    alto: 'Tienes una presencia profesional clara y reconocible. Tu reputación trabaja por ti y atrae oportunidades sin que tengas que buscarlas activamente en cada caso.',
+    medio: 'Eres conocido en tu entorno inmediato pero tu presencia no trasciende más allá. Aumentar tu visibilidad online (LinkedIn, comunidades) y compartir tu conocimiento puede cambiar esto rápido.',
+    bajo: 'Construir presencia lleva tiempo pero empieza con un paso: completa tu perfil de LinkedIn, define en una frase en qué eres bueno y comparte algo de valor en tu red esta semana.'
+  },
+  'Preparación para IA': {
+    desc: 'Mide tu capacidad para trabajar, entender y colaborar con sistemas de Inteligencia Artificial. Incluye conocimientos básicos de IA, disposición para adoptar herramientas de IA en tu trabajo diario y comprensión de sus implicaciones éticas y prácticas.',
+    alto: 'Tienes una sólida base para integrarte en entornos con IA. Puedes aprovechar herramientas como asistentes generativos, automatización inteligente y análisis predictivo con confianza.',
+    medio: 'Tienes un punto de partida interesante. Con formación específica en IA aplicada a tu sector podrías acelerar tu perfil significativamente.',
+    bajo: 'Es una de las áreas de mayor crecimiento profesional. Te recomendamos comenzar con cursos introductorios de IA y explorar herramientas como ChatGPT, Copilot o herramientas no-code.'
+  },
+  'Automatización': {
+    desc: 'Evalúa tu mentalidad y habilidad para identificar procesos repetitivos y sustituirlos por flujos automatizados. Incluye tanto la automatización de tareas manuales como la orquestación de sistemas mediante herramientas no-code, scripts o plataformas RPA.',
+    alto: 'Piensas en eficiencia de forma natural. Tienes capacidad para diseñar flujos de trabajo que liberen tiempo para tareas de mayor valor añadido.',
+    medio: 'Conoces las posibilidades de la automatización pero aún no la aplicas de forma sistemática. Explorar herramientas como Zapier, Make o n8n puede marcar la diferencia.',
+    bajo: 'La automatización es una de las competencias más demandadas del mercado. Empezar por automatizar tareas simples del día a día te abrirá un mundo de posibilidades.'
+  },
+  'Adaptación Digital': {
+    desc: 'Refleja tu capacidad para ajustarte a nuevos entornos digitales, herramientas y formas de trabajar. No se trata solo de aprender software nuevo, sino de adoptar una mentalidad ágil ante el cambio tecnológico constante.',
+    alto: 'Eres un perfil altamente resiliente ante el cambio tecnológico. Puedes liderar procesos de transformación digital dentro de tu equipo u organización.',
+    medio: 'Te adaptas cuando es necesario, pero podrías beneficiarte de exponerte voluntariamente a nuevas plataformas y metodologías digitales.',
+    bajo: 'El entorno digital cambia rápido. Incorporar pequeños hábitos digitales diariamente —nuevas apps, workflows, formatos— acelera notablemente esta dimensión.'
+  },
+  'Innovación Tecnológica': {
+    desc: 'Mide tu orientación a crear, proponer o aplicar soluciones tecnológicas novedosas. Incluye la capacidad de ver oportunidades donde otros ven obstáculos y traducirlas en propuestas con impacto real.',
+    alto: 'Tienes un perfil innovador con capacidad para generar ideas con potencial tecnológico. Puedes actuar como catalizador de cambio en tu entorno.',
+    medio: 'Tienes ideas pero quizás no siempre encuentras el canal o la confianza para expresarlas. Participar en hackathons o proyectos internos puede desbloquearte.',
+    bajo: 'La innovación se aprende practicando. Metodologías como Design Thinking o Lean Startup pueden darte el marco que necesitas para estructurar ideas.'
+  },
+  'Liderazgo Digital': {
+    desc: 'Evalúa tu capacidad para guiar equipos, proyectos o iniciativas en contextos digitales. Incluye habilidades de comunicación en entornos remotos/híbridos, gestión de equipos distribuidos y toma de decisiones basada en datos.',
+    alto: 'Tienes un perfil de líder digital maduro. Puedes gestionar equipos en entornos complejos y liderar la adopción de herramientas y procesos digitales.',
+    medio: 'Muestras capacidades de liderazgo que puedes potenciar con habilidades digitales específicas: dashboards, comunicación asíncrona, herramientas de gestión colaborativa.',
+    bajo: 'El liderazgo digital se construye combinando habilidades blandas y herramientas digitales. Empieza liderando pequeños proyectos con herramientas como Notion, Trello o Slack.'
+  },
+  'Visión de Futuro Digital': {
+    desc: 'Refleja tu capacidad para anticipar tendencias tecnológicas y comprender cómo impactarán en tu sector, rol o mercado laboral. Es la competencia que separa a los profesionales reactivos de los proactivos.',
+    alto: 'Tienes una perspectiva estratégica del entorno digital. Puedes contribuir a la planificación a largo plazo de tu organización con criterio tecnológico.',
+    medio: 'Tienes conciencia del cambio pero aún no lo integras en tu planificación profesional. Seguir newsletters especializadas y tendencias tecnológicas te ayudará.',
+    bajo: 'Desarrollar esta dimensión es clave para la sostenibilidad profesional. Te recomendamos explorar informes de tendencias (Gartner, World Economic Forum) y reflexionar sobre el impacto en tu sector.'
+  },
+  'Capacidad de Aprendizaje': {
+    desc: 'Mide tu agilidad y motivación para adquirir nuevos conocimientos y habilidades, especialmente en contextos tecnológicos cambiantes. Incluye la capacidad de aprender de forma autónoma, estructurada y continua.',
+    alto: 'Eres un aprendiz ágil con alto potencial de upskilling. Te adaptas rápidamente a nuevas tecnologías y puedes ser referente de aprendizaje en tu entorno.',
+    medio: 'Aprendes cuando hay una necesidad clara. Incorporar hábitos de aprendizaje continuo —aunque sea 15 minutos al día— puede diferenciarte significativamente.',
+    bajo: 'El aprendizaje continuo es la competencia más crítica del siglo XXI. Plataformas como Coursera, LinkedIn Learning o YouTube son tu mejor aliado para comenzar.'
+  },
+  'Transformación Digital': {
+    desc: 'Evalúa tu comprensión y participación activa en procesos de transformación digital dentro de organizaciones. Incluye la capacidad de integrar tecnología en procesos de negocio, cultura organizacional y modelos de valor.',
+    alto: 'Puedes actuar como agente de cambio en procesos de transformación digital. Tu perfil es muy valorado en organizaciones en proceso de modernización.',
+    medio: 'Entiendes la transformación digital como concepto pero quizás no has liderado procesos de cambio. Busca proyectos donde puedas aportar visión digital.',
+    bajo: 'Comprender cómo la tecnología transforma los modelos de negocio es una ventaja competitiva enorme. Empieza analizando casos de éxito de digitalización en tu sector.'
+  },
+  'Curiosidad Digital': {
+    desc: 'Refleja tu impulso natural de explorar, experimentar y descubrir nuevas tecnologías, plataformas y herramientas digitales. Es la base de todas las demás dimensiones: sin curiosidad, el desarrollo tecnológico se estanca.',
+    alto: 'Tu curiosidad digital es un activo muy valioso. Esa disposición a explorar te permite detectar oportunidades y aprender antes que otros.',
+    medio: 'Tienes momentos de curiosidad pero no es un hábito sistemático. Reserva tiempo semanal para explorar una herramienta o tendencia nueva sin presión.',
+    bajo: 'La curiosidad se entrena. Empieza por seguir en redes a referentes tecnológicos de tu sector, o dedica 10 minutos al día a leer sobre una tecnología que no conoces.'
+  },
+  'Colaboración Digital': {
+    desc: 'Mide tu efectividad trabajando en entornos digitales colaborativos: equipos distribuidos, herramientas de comunicación asíncrona, documentación compartida y co-creación en remoto.',
+    alto: 'Destacas colaborando en entornos digitales. Sabes comunicar, coordinar y co-crear independientemente del canal o la distancia geográfica.',
+    medio: 'Colaboras bien pero quizás dependes demasiado de la presencialidad o de canales síncronos. Experimenta con herramientas de colaboración asíncrona como Loom, Notion o Miro.',
+    bajo: 'La colaboración digital es fundamental en el trabajo moderno. Empieza familiarizándote con una herramienta de comunicación en equipo y practica la comunicación por escrito de forma estructurada.'
+  }
+};
+
+/* ── Datos de dimensiones desde la base de datos (admin-gestionados) ── */
+const DIM_DB = {{ dim_info_db_json|safe }};
+
+function getNivel(score) {
+  if (score >= 85) return { label: 'Muy Alto', cls: 'text-success' };
+  if (score >= 70) return { label: 'Alto', cls: 'text-primary' };
+  if (score >= 55) return { label: 'Medio', cls: 'text-warning' };
+  return { label: 'En Desarrollo', cls: 'text-danger' };
+}
+
+function getRangoDb(rangos, score) {
+  /* Devuelve el rango de BD que cubre el score dado */
+  for (let i = 0; i < rangos.length; i++) {
+    if (score >= rangos[i].min && score <= rangos[i].max) return rangos[i];
+  }
+  return null;
+}
+
+document.querySelectorAll('.dim-clickable').forEach(el => {
+  el.addEventListener('click', () => {
+    const label = el.dataset.label;
+    const score = parseInt(el.dataset.score);
+    const color = el.dataset.color;
+    const nivel = getNivel(score);
+
+    /* ── Fuente 1: datos gestionados por el admin en BD ── */
+    const dbEntry = DIM_DB[label];
+    let desc    = '';
+    let implica = '';
+    let rec     = '';
+    let rangoTitulo = nivel.label;
+    let rangoColor  = color;
+
+    if (dbEntry) {
+      desc = dbEntry.descripcion || '';
+      const rango = getRangoDb(dbEntry.rangos || [], score);
+      if (rango) {
+        rangoTitulo = rango.titulo;
+        rangoColor  = rango.color || color;
+        implica     = rango.explicacion || '';
+        rec         = rango.recomendacion || '';
+      }
+    } else {
+      /* ── Fuente 2: fallback hardcodeado ── */
+      const info = DIM_INFO[label] || { desc: '', alto: '', medio: '', bajo: '' };
+      desc    = info.desc;
+      implica = score >= 85 ? info.alto : score >= 55 ? info.medio : info.bajo;
+    }
+
+    /* ── Rellenar el modal ── */
+    document.getElementById('dimModalTitle').textContent = label;
+    document.getElementById('dimModalSub').textContent   = dbEntry
+      ? (dbEntry.icono ? '' : 'Dimensión')
+      : 'Dimensión';
+    document.getElementById('dimModalHeader').style.borderBottom = `3px solid ${color}`;
+    document.getElementById('dimModalScore').textContent  = score;
+    document.getElementById('dimModalScore').style.color  = color;
+    document.getElementById('dimModalNivel').textContent  = rangoTitulo;
+    document.getElementById('dimModalNivel').className    = 'small fw-semibold';
+    document.getElementById('dimModalNivel').style.color  = rangoColor;
+    document.getElementById('dimModalBar').style.width      = score + '%';
+    document.getElementById('dimModalBar').style.background = color;
+    document.getElementById('dimModalScoreBox').style.background = color + '15';
+    document.getElementById('dimModalDesc').textContent = desc;
+
+    const implicaEl = document.getElementById('dimModalImplica');
+    implicaEl.innerHTML    = `<strong style="color:${color};">¿Qué significa tu puntuación?</strong><br>${implica}`;
+    implicaEl.style.background   = color + '10';
+    implicaEl.style.borderLeft   = `3px solid ${color}`;
+    implicaEl.style.borderRadius = '6px';
+
+    const recWrap = document.getElementById('dimModalRecWrap');
+    const recEl   = document.getElementById('dimModalRec');
+    if (rec) {
+      recEl.innerHTML = `<strong style="color:#15803d;"><i class="bi bi-lightbulb-fill me-1"></i>Recomendación</strong><br>${rec}`;
+      recWrap.style.display = '';
+    } else {
+      recWrap.style.display = 'none';
+    }
+  });
+});
+
+/* ── Popovers de hover en cada dimensión ── */
+document.querySelectorAll('.dim-clickable').forEach(el => {
+  const label = el.dataset.label;
+  const score = parseInt(el.dataset.score);
+  const color = el.dataset.color;
+
+  const dbEntry  = DIM_DB[label];
+  const fallback = DIM_INFO[label] || {};
+  const rango    = dbEntry ? getRangoDb(dbEntry.rangos || [], score) : null;
+  const nivel    = getNivel(score);
+
+  const rangoTitulo = rango    ? rango.titulo    : nivel.label;
+  const rangoColor  = rango    ? rango.color     : color;
+  const desc        = dbEntry  ? dbEntry.descripcion : (fallback.desc || '');
+  const brief       = rango    ? rango.explicacion
+    : (score >= 85 ? fallback.alto : score >= 55 ? fallback.medio : fallback.bajo) || '';
+
+  /* Truncar para popup compacto */
+  const cap  = s => s && s.length > 170 ? s.slice(0, 170) + '…' : (s || '');
+  const capD = s => s && s.length > 130 ? s.slice(0, 130) + '…' : (s || '');
+
+  const popTitle = `<span style="color:${color};font-weight:700;">${label}</span>`
+    + ` <span style="background:${rangoColor};color:#fff;font-size:.6rem;font-weight:700;`
+    + `padding:2px 7px;border-radius:99px;vertical-align:middle;">${rangoTitulo} · ${score}</span>`;
+
+  const popContent = (capD(desc) ? `<p style="font-size:.77rem;color:#4B5563;line-height:1.5;margin:0 0 6px;">${capD(desc)}</p>` : '')
+    + (cap(brief)  ? `<p style="font-size:.75rem;color:#374151;border-left:2px solid ${rangoColor};`
+                   + `padding-left:8px;margin:0 0 4px;line-height:1.5;">${cap(brief)}</p>` : '')
+    + `<p style="font-size:.62rem;color:#9CA3AF;margin:4px 0 0;text-align:right;">Clic para ver detalle completo →</p>`;
+
+  if (!desc && !brief) return; /* sin datos → no inicializar popover */
+
+  new bootstrap.Popover(el, {
+    trigger:   'hover',
+    placement: 'left',
+    html:      true,
+    title:     popTitle,
+    content:   popContent,
+    container: 'body',
+    delay:     { show: 180, hide: 80 },
+    customClass: 'dim-popover',
+  });
+});
+</script>
+
+<style>
+.dim-popover { max-width: 320px; }
+.dim-popover .popover-header { background:#F8FAFC; border-bottom:1px solid #E5E7EB; padding:.6rem .8rem; }
+.dim-popover .popover-body   { padding:.6rem .8rem; }
+</style>
+{% endblock %}

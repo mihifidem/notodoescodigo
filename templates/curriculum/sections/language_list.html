@@ -1,0 +1,34 @@
+{% extends "curriculum/sections/_list_base.html" %}
+{% block list_title %}<i class="bi bi-translate me-2 text-primary"></i>Idiomas{% endblock %}
+{% block create_url %}{% url 'curriculum:language_create' %}{% endblock %}
+
+{% block list_content %}
+{% if items %}
+<div class="row g-3">
+  {% for lang in items %}
+  <div class="col-sm-6 col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h6 class="fw-bold mb-0">{{ lang.idioma }}</h6>
+          <div class="d-flex gap-1">
+            <a href="{% url 'curriculum:language_edit' pk=lang.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{% url 'curriculum:language_delete' pk=lang.pk %}" onsubmit="return confirm('¿Eliminar?');">
+              {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button>
+            </form>
+          </div>
+        </div>
+        <span class="badge bg-primary-subtle text-primary mt-1">{{ lang.get_nivel_display }}</span>
+        {% if lang.certificacion %}<p class="text-muted small mt-1 mb-0">{{ lang.certificacion }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-translate" style="font-size:3rem;"></i>
+  <p class="mt-2">Sin idiomas. <a href="{% url 'curriculum:language_create' %}">Añade el primero</a></p>
+</div>
+{% endif %}
+{% endblock %}

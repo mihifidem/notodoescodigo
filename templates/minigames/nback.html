@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block page_title %}NBackFlow — Memoria de Trabajo{% endblock %}
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+body{background:#07031A;}
+#page-content{background:#07031A!important;}
+main.flex-grow-1{background:#07031A!important;color:rgba(255,255,255,.85)!important;padding:0!important;}
+
+.mg-wrap{max-width:520px;margin:0 auto;padding:1.5rem 1rem;}
+.mg-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.mg-logo{font-family:'Poppins',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;}
+.mg-logo span{background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.mg-back{color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;display:flex;align-items:center;gap:5px;}
+.mg-back:hover{color:#fff;}
+
+.nb-hud{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.hud-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:10px;text-align:center;}
+.hud-n{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700;color:#fff;line-height:1;}
+.hud-l{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+
+.nb-progress-wrap{height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:1.25rem;}
+.nb-progress-fill{height:100%;background:linear-gradient(90deg,#A855F7,#EC4899);border-radius:99px;transition:width .3s;}
+
+.nb-letter-stage{
+  background:linear-gradient(145deg,#12051F,#07031A);
+  border:1px solid rgba(168,85,247,.15);border-radius:24px;
+  padding:2.5rem;text-align:center;margin-bottom:.75rem;
+  min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  position:relative;overflow:hidden;
+}
+.nb-letter-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 50%,rgba(168,85,247,.05),transparent 70%);pointer-events:none;}
+.nb-letter{font-family:'JetBrains Mono',monospace;font-size:5rem;font-weight:700;color:#fff;line-height:1;transition:all .15s;}
+.nb-letter.new{animation:letterPop .2s ease;}
+@keyframes letterPop{0%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
+.nb-trial-info{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.25);margin-top:.75rem;}
+
+.nb-history{display:flex;gap:6px;justify-content:center;margin-bottom:1rem;min-height:20px;flex-wrap:wrap;}
+.nb-hist-item{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);}
+.nb-hist-item.target{background:rgba(168,85,247,.2);color:#C084FC;}
+
+.nb-feedback{text-align:center;height:22px;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;margin-bottom:.75rem;}
+
+.nb-btns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:.75rem;}
+.nb-btn{
+  font-family:'Poppins',sans-serif;font-size:1rem;font-weight:800;
+  border:none;border-radius:16px;padding:18px;cursor:pointer;
+  transition:all .15s;letter-spacing:.5px;
+}
+.nb-btn-yes{background:linear-gradient(135deg,#4C1D95,#A855F7);color:#fff;}
+.nb-btn-no{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);border:1.5px solid rgba(255,255,255,.12);}
+.nb-btn:hover:not(:disabled){filter:brightness(1.2);transform:translateY(-2px);}
+.nb-btn:disabled{opacity:.4;cursor:default;}
+.nb-btn.flash-correct{background:linear-gradient(135deg,#14532D,#22C55E)!important;color:#fff!important;}
+.nb-btn.flash-wrong{background:linear-gradient(135deg,#7F1D1D,#EF4444)!important;color:#fff!important;}
+
+.nb-hint{text-align:center;font-size:.7rem;color:rgba(255,255,255,.2);}
+
+.mg-overlay{position:fixed;inset:0;background:rgba(7,3,26,.93);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(8px);}
+.mg-modal{background:linear-gradient(145deg,#12051F,#07031A);border:1px solid rgba(168,85,247,.2);border-radius:20px;padding:2.5rem;text-align:center;max-width:420px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,.7);}
+.mg-modal-icon{font-size:3.5rem;margin-bottom:1rem;}
+.mg-modal-title{font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:.5rem;}
+.mg-modal-sub{color:rgba(255,255,255,.45);font-size:.85rem;margin-bottom:1.5rem;line-height:1.6;}
+.mg-modal-score{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;color:#A855F7;line-height:1;margin-bottom:.2rem;}
+.mg-modal-score-lbl{font-size:.65rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1.5rem;}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.result-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;}
+.result-n{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700;color:#fff;}
+.result-l{font-size:.58rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.mg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:12px;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .2s;}
+.mg-btn-primary{background:linear-gradient(135deg,#4C1D95,#A855F7);color:#fff;}
+.mg-btn-secondary{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+.mg-btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.mg-btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+  <div class="mg-nav">
+    <div class="mg-logo">🧬 NBack<span>Flow</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <div class="nb-hud">
+    <div class="hud-box"><div class="hud-n" id="nbTrial">0/30</div><div class="hud-l">Trial</div></div>
+    <div class="hud-box"><div class="hud-n" id="nbHits" style="color:#A855F7;">0</div><div class="hud-l">Aciertos</div></div>
+    <div class="hud-box"><div class="hud-n" id="nbFA">0</div><div class="hud-l">Falsas</div></div>
+    <div class="hud-box"><div class="hud-n" id="nbScore">0</div><div class="hud-l">Puntos</div></div>
+  </div>
+  <div class="nb-progress-wrap"><div class="nb-progress-fill" id="nbProgressFill" style="width:0%"></div></div>
+
+  <div class="nb-history" id="nbHistory"></div>
+
+  <div class="nb-letter-stage">
+    <div class="nb-letter" id="nbLetter">?</div>
+    <div class="nb-trial-info" id="nbTrialInfo">Espera el inicio</div>
+  </div>
+
+  <div class="nb-feedback" id="nbFeedback"></div>
+  <div class="nb-btns">
+    <button class="nb-btn nb-btn-yes" id="btnYes" onclick="respond(true)" disabled>✓ SÍ (igual)</button>
+    <button class="nb-btn nb-btn-no" id="btnNo" onclick="respond(false)" disabled>✗ NO (diferente)</button>
+  </div>
+  <div class="nb-hint">← A = Sí igual &nbsp;&nbsp; No diferente = L →</div>
+</div>
+
+<!-- Start -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">🧬</div>
+    <div class="mg-modal-title">NBackFlow · 2-Back</div>
+    <div class="mg-modal-sub">Aparece una letra cada vez. Pulsa <strong style="color:#C084FC">SÍ</strong> si la letra actual es igual a la de <strong>2 posiciones atrás</strong>. Pulsa <strong>NO</strong> si es diferente. 30 trials, 2 segundos cada uno.</div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🧬</div>
+    <div class="mg-modal-title" id="endTitle">Fin</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos</div>
+    <div class="result-grid">
+      <div class="result-box"><div class="result-n" id="endHits">0</div><div class="result-l">Aciertos</div></div>
+      <div class="result-box"><div class="result-n" id="endFA">0</div><div class="result-l">Falsas alarmas</div></div>
+      <div class="result-box"><div class="result-n" id="endAcc">0%</div><div class="result-l">Precisión</div></div>
+    </div>
+    <div class="mg-modal-sub" id="endMsg"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const LETTERS='ABCDEFGHIJ';
+const N=2, TOTAL_TRIALS=30, TRIAL_MS=2000;
+let sequence=[],isTarget=[],trialIdx=0,score=0,hits=0,falseAlarms=0,misses=0,correctRej=0;
+let trialTO=null,phase='idle',responded=false;
+
+function genSequence(){
+  const seq=[];
+  for(let i=0;i<N;i++) seq.push(LETTERS[Math.floor(Math.random()*LETTERS.length)]);
+  const tgts=new Set();
+  while(tgts.size<9){ tgts.add(N+Math.floor(Math.random()*(TOTAL_TRIALS-N))); }
+  for(let i=N;i<TOTAL_TRIALS;i++){
+    if(tgts.has(i)){
+      seq.push(seq[i-N]);
+    } else {
+      let l;
+      do{ l=LETTERS[Math.floor(Math.random()*LETTERS.length)]; }
+      while(l===seq[i-N]);
+      seq.push(l);
+    }
+  }
+  const targets=[];
+  for(let i=0;i<TOTAL_TRIALS;i++) targets.push(i>=N&&seq[i]===seq[i-N]);
+  return {seq,targets};
+}
+
+let seqData=null;
+
+function startGame(){
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  seqData=genSequence();
+  trialIdx=0;score=0;hits=0;falseAlarms=0;misses=0;correctRej=0;phase='running';
+  document.getElementById('nbHistory').innerHTML='';
+  updateHUD();
+  nextTrial();
+}
+
+function nextTrial(){
+  if(trialIdx>=TOTAL_TRIALS){endGame();return;}
+  responded=false;
+  const canRespond=trialIdx>=N;
+  const letter=seqData.seq[trialIdx];
+  const target=seqData.targets[trialIdx];
+
+  document.getElementById('nbLetter').textContent=letter;
+  document.getElementById('nbLetter').classList.add('new');
+  setTimeout(()=>document.getElementById('nbLetter').classList.remove('new'),200);
+  document.getElementById('nbTrialInfo').textContent='Trial '+(trialIdx+1)+'/'+TOTAL_TRIALS+(canRespond?' · ¿igual a 2 atrás?':' · (observa)');
+  document.getElementById('nbFeedback').textContent='';
+  document.getElementById('nbProgressFill').style.width=((trialIdx+1)/TOTAL_TRIALS*100)+'%';
+
+  const yes=document.getElementById('btnYes');
+  const no=document.getElementById('btnNo');
+  yes.disabled=!canRespond;
+  no.disabled=!canRespond;
+  yes.className='nb-btn nb-btn-yes';
+  no.className='nb-btn nb-btn-no';
+
+  // Update history: show last N+1 letters
+  const hist=document.getElementById('nbHistory');
+  const start=Math.max(0,trialIdx-4);
+  hist.innerHTML='';
+  for(let i=start;i<=trialIdx;i++){
+    const d=document.createElement('div');
+    d.className='nb-hist-item'+(seqData.targets[i]?' target':'');
+    d.textContent=seqData.seq[i];
+    hist.appendChild(d);
+  }
+
+  trialTO=setTimeout(()=>{
+    if(!responded&&canRespond){
+      // Timeout = no response
+      if(target){misses++;}
+      else{correctRej++;score+=5;}
+      updateHUD();
+      advanceTrial();
+    } else if(!canRespond){
+      advanceTrial();
+    }
+  },TRIAL_MS);
+}
+
+function respond(yes){
+  if(!responded&&trialIdx>=N){
+    clearTimeout(trialTO);
+    responded=true;
+    const target=seqData.targets[trialIdx];
+    const correct=(yes&&target)||(!yes&&!target);
+    const fb=document.getElementById('nbFeedback');
+    const yesBtn=document.getElementById('btnYes');
+    const noBtn=document.getElementById('btnNo');
+    yesBtn.disabled=true;noBtn.disabled=true;
+    if(correct){
+      const pts=yes?15:8;
+      score+=pts;
+      if(yes) hits++; else correctRej++;
+      fb.style.color='#4ADE80';fb.textContent='✓ +'+pts;
+      (yes?yesBtn:noBtn).classList.add('flash-correct');
+    } else {
+      if(yes){falseAlarms++;}else{misses++;}
+      fb.style.color='#FCA5A5';fb.textContent='✗ '+(yes?'Falsa alarma':'Perdiste un acierto');
+      (yes?yesBtn:noBtn).classList.add('flash-wrong');
+    }
+    updateHUD();
+    setTimeout(advanceTrial,500);
+  }
+}
+
+function advanceTrial(){
+  trialIdx++;
+  nextTrial();
+}
+
+function updateHUD(){
+  document.getElementById('nbTrial').textContent=trialIdx+'/'+TOTAL_TRIALS;
+  document.getElementById('nbHits').textContent=hits;
+  document.getElementById('nbFA').textContent=falseAlarms;
+  document.getElementById('nbScore').textContent=score;
+}
+
+function endGame(){
+  const total=hits+falseAlarms+misses+correctRej;
+  const acc=total?Math.round((hits+correctRej)/total*100):0;
+  const msgs=['Sigue entrenando la memoria de trabajo','Buena capacidad de procesamiento','¡Excelente memoria de trabajo!','¡Inteligencia fluida de élite!'];
+  const idx=acc>=85?3:acc>=70?2:acc>=55?1:0;
+  document.getElementById('endIcon').textContent=acc>=80?'🏆':acc>=65?'⭐':'🧬';
+  document.getElementById('endTitle').textContent=acc>=80?'¡Élite cognitivo!':acc>=65?'¡Bien hecho!':'Sigue entrenando';
+  document.getElementById('endScore').textContent=score.toLocaleString();
+  document.getElementById('endHits').textContent=hits;
+  document.getElementById('endFA').textContent=falseAlarms;
+  document.getElementById('endAcc').textContent=acc+'%';
+  document.getElementById('endMsg').textContent=msgs[idx]+' · '+acc+'% precisión · '+misses+' aciertos perdidos';
+  document.getElementById('endOverlay').style.display='flex';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='KeyA'||e.code==='ArrowLeft') respond(true);
+  if(e.code==='KeyL'||e.code==='ArrowRight') respond(false);
+});
+</script>
+{% endblock %}

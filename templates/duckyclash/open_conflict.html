@@ -1,0 +1,9 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Revisa el reto · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">El reto no está disponible</h1>
+    <div class="alert alert-danger" role="alert">{{ errors }}</div>
+    <a class="btn btn-outline-primary" href="{% url 'duckyclash:open_list' %}">Actualizar Retos Abiertos</a>
+</div>
+{% endblock %}

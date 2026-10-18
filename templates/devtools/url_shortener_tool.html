@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}URL shortener{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-secondary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">URL shortener</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-12">
+              <label class="form-label">URL original</label>
+              <input type="text" name="url" value="{{ url }}" class="form-control">
+            </div>
+            <div class="col-12"><button type="submit" class="btn btn-secondary rounded-pill">Generar</button></div>
+          </form>
+
+          <div class="mt-4 p-4 bg-light border rounded-4">
+            <div class="small text-uppercase text-secondary">Código</div>
+            <div class="fw-bold fs-5 mt-2">{{ code }}</div>
+            <div class="small text-uppercase text-secondary mt-4">URL corta</div>
+            <div class="fw-semibold mt-2">{{ short_url }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

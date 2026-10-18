@@ -1,0 +1,29 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Elige tu Ducky actual · DuckyClash{% endblock %}
+{% block clash_content %}
+<main class="container py-4">
+    <h1 class="h3">Has llegado a la época actual</h1>
+    <p class="text-body-secondary">Elige tu personaje. Todos tienen 35 puntos repartidos entre ATK, DEF, LOG, SPE y QUA.</p>
+    <form method="post" class="row g-3" aria-label="Elegir personaje actual">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {% for specialty in specialties %}
+        <div class="col-md-6 col-xl-4">
+            <label class="card h-100 p-3">
+                <span class="form-check">
+                    <input class="form-check-input" type="radio" name="specialty"
+                           value="{{ specialty.value }}" required>
+                    <strong class="ms-2">{{ specialty.label }}</strong>
+                </span>
+                <span class="small mt-2">ATK {{ specialty.stats.ATK }} · DEF {{ specialty.stats.DEF }} ·
+                    LOG {{ specialty.stats.LOG }} · SPE {{ specialty.stats.SPE }} · QUA {{ specialty.stats.QUA }}</span>
+            </label>
+        </div>
+        {% endfor %}
+        {% if form.specialty.errors %}<div class="text-danger">{{ form.specialty.errors }}</div>{% endif %}
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Confirmar personaje</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

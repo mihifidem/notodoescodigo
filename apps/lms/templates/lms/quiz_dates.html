@@ -1,0 +1,13 @@
+{% load i18n %}
+<dl class="quiz-dates">
+  <dt>{% trans 'Inicio / apertura' %}</dt>
+  <dd>{% if quiz.available_from %}<time datetime="{{ quiz.available_from|date:'c' }}">{{ quiz.available_from|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}</dd>
+  <dt>{% trans 'Cierre' %}</dt>
+  <dd>{% if quiz.available_until %}<time datetime="{{ quiz.available_until|date:'c' }}">{{ quiz.available_until|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}</dd>
+  <dt>{% trans 'Entrega' %}</dt>
+  <dd>{% if quiz.due_at %}<time datetime="{{ quiz.due_at|date:'c' }}">{{ quiz.due_at|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}</dd>
+  <dt>{% trans 'Publicación de soluciones' %}</dt>
+  <dd>{% if quiz.publish_answers_at %}<time datetime="{{ quiz.publish_answers_at|date:'c' }}">{{ quiz.publish_answers_at|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}</dd>
+  <dt>{% trans 'Publicación de notas' %}</dt>
+  <dd>{% if quiz.publish_grade_at %}<time datetime="{{ quiz.publish_grade_at|date:'c' }}">{{ quiz.publish_grade_at|date:'d/m/Y H:i:s' }}</time>{% else %}{% trans 'Sin fecha programada' %}{% endif %}</dd>
+</dl>

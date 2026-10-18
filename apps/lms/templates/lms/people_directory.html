@@ -1,0 +1,70 @@
+{% load i18n %}
+<section class="course-directory">
+  <nav class="directory-tabs" aria-label="{% trans 'Vista de participantes' %}">
+    <a href="?tab=all" {% if people_tab == 'all' %}aria-current="page"{% endif %}>{% trans 'Todos' %}</a>
+    {% if teacher_view %}<a href="?tab=groups" {% if people_tab == 'groups' %}aria-current="page"{% endif %}>{% trans 'Grupos' %}</a>{% endif %}
+  </nav>
+  {% if people_tab == 'groups' %}
+    {% for group in people_groups %}
+      <details class="content-accordion-item">
+        <summary>{{ group.section.title }} · {{ group.members|length }} {% trans 'personas' %}</summary>
+        <ul>{% for person in group.members %}<li>{{ person.user.get_full_name|default:person.user.username }} · {{ person.role }}</li>{% empty %}<li>{% trans 'Sin participantes asignados.' %}</li>{% endfor %}</ul>
+      </details>
+    {% empty %}<p class="quiet-note">{% trans 'No hay grupos en este curso.' %}</p>{% endfor %}
+    <details class="content-accordion-item">
+      <summary>{% trans 'Sin grupo asignado' %} · {{ people_ungrouped|length }}</summary>
+      <ul>{% for person in people_ungrouped %}<li>{{ person.user.get_full_name|default:person.user.username }} · {{ person.role }}</li>{% empty %}<li>{% trans 'Todos los participantes tienen grupo.' %}</li>{% endfor %}</ul>
+    </details>
+  {% else %}
+    <form method="get" class="directory-search">
+      <label for="people-search" class="visually-hidden">{% trans 'Buscar personas' %}</label>
+      <input id="people-search" name="q" type="search" value="{{ people_query }}" placeholder="{% trans 'Buscar personas' %}" maxlength="200">
+      <label for="people-role" class="visually-hidden">{% trans 'Rol' %}</label>
+      <select id="people-role" name="role"><option value="">{% trans 'Todos los roles' %}</option>{% for value,label in people_roles %}<option value="{{ value }}"{% if people_role == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      <button type="submit" class="button button-light button-small">{% trans 'Buscar' %}</button>
+      {% if people_filtered %}<a href="?tab=all">{% trans 'Limpiar' %}</a>{% endif %}
+    </form>
+    <p class="quiet-note">{% blocktrans count total=course_participants|length %}{{ total }} persona inscrita{% plural %}{{ total }} personas inscritas{% endblocktrans %}</p>
+    <div class="directory-scroll">
+      <table class="directory-table people-table">
+        <caption class="visually-hidden">{% trans 'Personas inscritas en el aula' %}</caption>
+        <thead><tr>
+          {% if can_send_people_notification %}
+            <th scope="col"><label title="{% trans 'Seleccionar los alumnos mostrados' %}"><input type="checkbox" {% if not people_filtered %}name="send_all"{% endif %} form="people-notification-form" data-people-select-all {% if people_notification_form.send_all.value %}checked{% endif %}><span class="visually-hidden">{% trans 'Seleccionar todos los alumnos mostrados' %}</span></label></th>
+          {% endif %}
+          <th scope="col">{% trans 'Nombre' %}</th>
+          {% if teacher_view %}
+            <th scope="col">{% trans 'Identificación de inicio de sesión' %}</th>
+            <th scope="col">{% trans 'ID interno' %}</th>
+            <th scope="col">{% trans 'Sección' %}</th>
+          {% endif %}
+          <th scope="col">{% trans 'Rol' %}</th>
+          {% if teacher_view %}<th scope="col">{% trans 'Última actividad' %}</th><th scope="col">{% trans 'Actividad total' %}</th><th scope="col">{% trans 'Detalles' %}</th>{% endif %}
+        </tr></thead>
+        <tbody>
+          {% for person in course_participants %}
+          <tr>
+            {% if can_send_people_notification %}<td>{% if person.role_key == 'student' %}<input type="checkbox" name="recipients" value="{{ person.user.pk }}" form="people-notification-form" data-people-recipient aria-label="{% trans 'Seleccionar a' %} {{ person.user.get_full_name|default:person.user.username }}" {% if person.notification_selected %}checked{% endif %}>{% endif %}</td>{% endif %}
+            <th scope="row"><div class="directory-person">
+              {% if teacher_view and person.user.avatar %}<img class="directory-avatar" src="{{ person.user.avatar.url }}" alt="" loading="lazy">{% else %}<span class="directory-avatar directory-avatar-placeholder" aria-hidden="true"><i class="bi bi-person-fill"></i></span>{% endif %}
+              <span>{% if teacher_view %}{{ person.user.get_full_name|default:person.user.username }}{% else %}{{ person.name }}{% endif %}</span>
+            </div></th>
+            {% if teacher_view %}
+              <td>{{ person.user.username }}{% if person.user.email %}<small>{{ person.user.email }}</small>{% endif %}</td>
+              <td>{{ person.user.pk }}</td>
+              <td>{{ person.section.title|default:course.nombre }}</td>
+            {% endif %}
+            <td>{{ person.role }}</td>
+            {% if teacher_view %}
+              <td>{% if person.last_activity %}<time datetime="{{ person.last_activity|date:'c' }}">{{ person.last_activity|date:'d M Y, H:i' }}</time>{% else %}—{% endif %}</td>
+              <td>{{ person.activity_duration|default_if_none:'—' }}</td>
+              <td><details class="directory-actions"><summary aria-label="{% trans 'Detalles del participante' %} {{ person.user.username }}"><i class="bi bi-three-dots-vertical" aria-hidden="true"></i></summary><div><p>{{ person.status }}</p><p>{% trans 'Inscripción' %}: {{ person.joined_at|date:'d/m/Y' }}</p></div></details></td>
+            {% endif %}
+          </tr>
+          {% empty %}<tr><td colspan="9">{% trans 'No hay personas que coincidan con los filtros.' %}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if teacher_view %}<p class="quiet-note">{% trans 'El ID interno no es un identificador SIS. La actividad total suma únicamente duraciones registradas; un guion indica que no hay datos.' %}</p>{% endif %}
+  {% endif %}
+</section>

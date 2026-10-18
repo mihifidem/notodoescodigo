@@ -1,0 +1,80 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Mis aulas" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <span aria-current="page">{% trans "Inicio" %}</span>
+  </nav>
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "TU ESPACIO DE APRENDIZAJE" %}</p>
+      <h1>{% blocktrans with name=request.user.get_short_name|default:request.user.username %}Hola, {{ name }}{% endblocktrans %}</h1>
+      <p class="lede">{% trans "Retoma tus aulas o descubre nuevos cursos para seguir avanzando." %}</p>
+    </div>
+    {% if can_create_course %}<a class="button button-primary" href="{% url 'lms:course_create' %}"><span aria-hidden="true">＋</span> {% trans "Crear aula" %}</a>{% endif %}
+  </section>
+
+  {% if show_onboarding %}
+    <section class="onboarding-banner" aria-labelledby="welcome-title">
+      <div class="onboarding-icon" aria-hidden="true">✦</div>
+      <div><p class="eyebrow">{% trans "BIENVENIDO AL CAMPUS" %}</p><h2 id="welcome-title">{% trans "Tu siguiente aprendizaje empieza aquí" %}</h2><p>{% trans "Explora los cursos publicados y abre un aula para ver sus contenidos y actividades." %}</p></div>
+      <a class="button button-light" href="#discover-courses">{% trans "Explorar cursos" %}</a>
+    </section>
+  {% endif %}
+
+  <section class="section-block" aria-labelledby="my-courses">
+    <div class="section-heading">
+      <div><p class="eyebrow">{% trans "CAMPUS PERSONAL" %}</p><h2 id="my-courses">{% trans "Mis aulas" %}</h2></div>
+      <span class="count-pill">{{ course_count }} {% trans "aulas" %}</span>
+    </div>
+    {% if memberships or legacy_courses %}
+      <div class="course-grid">
+        {% for membership in memberships %}
+          <article class="course-card">
+            <div class="card-topline">
+              <span class="status {% if membership.course.lms_settings.archived %}status-draft{% elif membership.course.activo %}status-published{% else %}status-draft{% endif %}">{% if membership.course.lms_settings.archived %}{% trans "Archivado" %}{% elif membership.course.activo %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
+              <span class="role-label">{{ membership.get_role_display }}</span>
+            </div>
+            <h3><a href="{% url 'lms:course_detail' course_id=membership.course.pk %}">{{ membership.course.nombre }}</a></h3>
+            <p>{{ membership.course.descripcion|truncatewords:22|default:_("Un aula para aprender y compartir conocimiento.") }}</p>
+            {% if membership.section %}<p class="section-label">{% trans "Sección" %}: {{ membership.section.title }}</p>{% endif %}
+            <a class="card-link" href="{% url 'lms:course_detail' course_id=membership.course.pk %}">{% trans "Entrar al aula" %} <span aria-hidden="true">→</span></a>
+          </article>
+        {% endfor %}
+        {% for enrollment in legacy_courses %}
+          <article class="course-card">
+            <div class="card-topline"><span class="status status-published">{% trans "Curso actual" %}</span><span class="role-label">{% trans "Alumno" %}</span></div>
+            <h3><a href="{% url 'lms:course_detail' course_id=enrollment.curso.pk %}">{{ enrollment.curso.nombre }}</a></h3>
+            <p>{{ enrollment.curso.descripcion|truncatewords:22|default:_("Continúa donde lo dejaste.") }}</p>
+            <a class="card-link" href="{% url 'lms:course_detail' course_id=enrollment.curso.pk %}">{% trans "Continuar aprendiendo" %} <span aria-hidden="true">→</span></a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <span class="empty-icon" aria-hidden="true">▦</span>
+        <h3>{% trans "Todavía no tienes aulas" %}</h3>
+        <p>{% trans "Cuando te inscribas en un curso o te añadan a un aula, aparecerá aquí." %}</p>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="section-block" id="discover-courses" aria-labelledby="discover-title">
+    <div class="section-heading"><div><p class="eyebrow">{% trans "SIGUIENTE PASO" %}</p><h2 id="discover-title">{% trans "Explora cursos" %}</h2></div><a class="text-link" href="{% url 'courses:list' %}">{% trans "Ver cursos actuales" %} <span aria-hidden="true">→</span></a></div>
+    {% if discoverable_courses %}
+      <div class="course-grid">
+        {% for course in discoverable_courses %}
+          <article class="course-card">
+            <div class="card-topline"><span class="status status-published">{% trans "Publicado" %}</span>{% if course.destacado %}<span class="role-label">{% trans "Destacado" %}</span>{% endif %}</div>
+            <h3><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a></h3>
+            <p>{{ course.descripcion|truncatewords:22|default:_("Descubre los contenidos de esta aula.") }}</p>
+            <p class="course-meta">{% if course.fecha_fin %}{% trans "Finaliza" %} <time datetime="{{ course.fecha_fin|date:'Y-m-d' }}">{{ course.fecha_fin|date:"j M Y" }}</time>{% else %}{% trans "Acceso disponible" %}{% endif %}</p>
+            <a class="card-link" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Conocer el curso" %} <span aria-hidden="true">→</span></a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state empty-state-compact"><p>{% trans "No hay nuevos cursos publicados por ahora." %}</p></div>
+    {% endif %}
+  </section>
+{% endblock %}

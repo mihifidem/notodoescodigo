@@ -1,0 +1,32 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Importar preguntas' %} | {{ bank.title }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{% trans 'Importar preguntas CSV' %}</h1>
+    <p>{{ bank.title }}</p>
+    <p class="quiet-note">{% trans 'UTF-8, separado por punto y coma o coma; máximo 1 MB y 1000 preguntas. Se importarán como borradores. Las filas con errores también se guardarán, marcadas Revisar y sin poder publicarse hasta corregirlas. Si el archivo no se puede leer, se conservará el banco y se notificará el error.' %}</p>
+    <pre>Pregunta;OpcionA;OpcionB;OpcionC;OpcionD;RespuestaCorrecta</pre>
+    {% if preview %}
+      <p>{% blocktrans count total=preview|length %}{{ total }} pregunta revisada{% plural %}{{ total }} preguntas revisadas{% endblocktrans %}</p>
+      <form method="post" class="action-row">
+        {% csrf_token %}<button class="button button-primary" name="action" value="confirm">{% trans 'Confirmar importación' %}</button>
+        <button class="button button-secondary" name="action" value="cancel">{% trans 'Cancelar' %}</button>
+      </form>
+      {% for row in preview %}
+        <details class="content-accordion-item">
+          <summary>{{ forloop.counter }} · {{ row.prompt }}{% if row.csv_review %} · {% trans 'Revisar' %}{% endif %}</summary>
+          <div class="content-accordion-body">
+            {% if row.csv_review %}<div class="form-error" role="alert"><strong>{% trans 'Fila' %} {{ row.csv_review.row }} · {% trans 'Revisar' %}</strong><ul>{% for error in row.csv_review.errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
+            <ol type="A"><li>{{ row.option_a }}</li><li>{{ row.option_b }}</li><li>{{ row.option_c }}</li><li>{{ row.option_d }}</li></ol><p>{% trans 'Respuesta correcta' %}: {{ row.correct }}</p>
+          </div>
+        </details>
+      {% endfor %}
+    {% else %}
+      <form method="post" enctype="multipart/form-data" class="stacked-form">
+        {% csrf_token %}{{ form.as_p }}
+        <div class="action-row"><button class="button button-primary" type="submit">{% trans 'Validar y previsualizar' %}</button><a class="button button-secondary" href="{% url 'lms:knowledge_bank' course_id=course.pk bank_id=bank.pk %}">{% trans 'Cancelar' %}</a></div>
+      </form>
+    {% endif %}
+  </section>
+{% endblock %}

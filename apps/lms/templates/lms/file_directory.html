@@ -1,0 +1,60 @@
+{% load i18n %}
+<section class="course-directory">
+  <form method="get" class="directory-search">
+    <label for="file-search" class="visually-hidden">{% trans 'Buscar archivos' %}</label>
+    <input id="file-search" type="search" name="q" value="{{ file_query }}" maxlength="200" placeholder="{% trans 'Buscar archivos…' %}">
+    {% if file_folder %}<input type="hidden" name="folder" value="{{ file_folder }}">{% endif %}
+    <label for="file-sort" class="visually-hidden">{% trans 'Ordenar archivos' %}</label>
+    <select id="file-sort" name="sort">
+      <option value="name"{% if file_sort == 'name' %} selected{% endif %}>{% trans 'Nombre' %}</option>
+      <option value="created"{% if file_sort == 'created' %} selected{% endif %}>{% trans 'Creado' %}</option>
+      <option value="modified"{% if file_sort == 'modified' %} selected{% endif %}>{% trans 'Modificado recientemente' %}</option>
+      <option value="size"{% if file_sort == 'size' %} selected{% endif %}>{% trans 'Tamaño' %}</option>
+    </select>
+    <button class="button button-light button-small" type="submit">{% trans 'Buscar' %}</button>
+  </form>
+  <div class="directory-file-summary">
+    <strong>{{ course.nombre }}{% if file_folder %} / {{ file_folder }}{% endif %}</strong>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='files' %}">{% trans 'Todos los archivos del curso' %}</a>
+  </div>
+  <div class="directory-scroll">
+    <table class="directory-table directory-file-table">
+      <caption class="visually-hidden">{% trans 'Archivos y carpetas del curso' %}</caption>
+      <thead><tr>
+        <th scope="col">{% trans 'Nombre' %}</th><th scope="col">{% trans 'Creado' %}</th>
+        <th scope="col">{% trans 'Modificado por última vez' %}</th><th scope="col">{% trans 'Propietario' %}</th>
+        <th scope="col">{% trans 'Tamaño' %}</th><th scope="col">{% trans 'Estado' %}</th><th scope="col">{% trans 'Acciones' %}</th>
+      </tr></thead>
+      <tbody>
+        {% if not file_folder and not file_query %}
+          {% for folder in folders %}
+            <tr><th scope="row"><div class="directory-file-name"><i class="bi bi-folder-fill" aria-hidden="true"></i><a href="?folder={{ folder|urlencode }}">{{ folder }}</a></div></th><td colspan="6">{% trans 'Carpeta' %}</td></tr>
+          {% endfor %}
+        {% endif %}
+        {% for file in files %}
+          <tr>
+            <th scope="row"><div class="directory-file-name">
+              <i class="bi {% if file.mime_type == 'application/pdf' %}bi-file-earmark-pdf{% elif 'image/' in file.mime_type %}bi-file-earmark-image{% else %}bi-file-earmark{% endif %}" aria-hidden="true"></i>
+              <span>{% if file.allow_preview %}<a href="{% url 'lms:course_file_download' course_id=course.pk file_id=file.pk %}?inline=1">{{ file.title }}</a>{% elif file.allow_download %}<a href="{% url 'lms:course_file_download' course_id=course.pk file_id=file.pk %}">{{ file.title }}</a>{% else %}{{ file.title }}{% endif %}<small>{{ file.file_name }}{% if file.folder %} · {{ file.folder }}{% endif %}</small></span>
+            </div></th>
+            <td><time datetime="{{ file.created_at|date:'c' }}">{{ file.created_at|date:'d M Y' }}</time></td>
+            <td><time datetime="{{ file.updated_at|date:'c' }}">{{ file.updated_at|date:'d M Y, H:i' }}</time></td>
+            <td>{{ file.owner.get_full_name|default:file.owner.username|default:'—' }}</td>
+            <td>{{ file.size|filesizeformat }}</td>
+            <td><span title="{{ file.get_access_policy_display }}"><i class="bi {% if file.visibility == 'private' or file.visibility == 'teachers' %}bi-eye-slash{% else %}bi-check-circle{% endif %}" aria-hidden="true"></i> {{ file.get_visibility_display }}</span></td>
+            <td><details class="directory-actions"><summary aria-label="{% trans 'Acciones de' %} {{ file.title }}"><i class="bi bi-three-dots-vertical" aria-hidden="true"></i></summary><div>
+              {% if file.allow_download %}<a href="{% url 'lms:course_file_download' course_id=course.pk file_id=file.pk %}">{% trans 'Descargar' %}</a>{% endif %}
+              {% if file.allow_preview %}<a href="{% url 'lms:course_file_download' course_id=course.pk file_id=file.pk %}?inline=1">{% trans 'Vista previa' %}</a>{% endif %}
+              {% if teacher_view %}
+                <a href="{% url 'lms:course_file_edit' course_id=course.pk file_id=file.pk %}">{% trans 'Editar' %}</a>
+                <form method="post" action="{% url 'lms:course_file_delete' course_id=course.pk file_id=file.pk %}" onsubmit="return confirm('{% trans '¿Retirar este archivo del curso?' %}');">{% csrf_token %}<button type="submit" class="button button-danger button-small">{% trans 'Retirar' %}</button></form>
+              {% endif %}
+            </div></details></td>
+          </tr>
+        {% empty %}<tr><td colspan="7">{% trans 'No hay archivos que coincidan con la búsqueda o carpeta.' %}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="quiet-note">{{ file_storage_size|filesizeformat }} {% trans 'en archivos disponibles del curso' %} · {{ files|length }} {% trans 'archivos mostrados' %}</p>
+  {% if teacher_view %}<p class="quiet-note">{% trans 'Para crear o cambiar una carpeta, indica su nombre al cargar o editar un archivo. No se muestran carpetas vacías.' %}</p>{% endif %}
+</section>

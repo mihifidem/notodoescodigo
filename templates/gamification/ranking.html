@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Ranking — MihiTraining{% endblock %}
+{% block page_title %}Ranking de Alumnos{% endblock %}
+
+{% block content %}
+{% if mi_posicion %}
+<div class="alert alert-primary d-flex align-items-center gap-3 mb-4">
+  <i class="bi bi-trophy-fill fs-3 text-warning"></i>
+  <div>Tu posición actual en el ranking: <strong>#{{ mi_posicion }}</strong></div>
+</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">#</th>
+          <th>Alumno</th>
+          <th>Nivel</th>
+          <th class="text-end">Puntos</th>
+          <th class="text-end pe-4">Racha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alumno in ranking %}
+        <tr {% if alumno == request.user %}class="table-primary"{% endif %}>
+          <td class="ps-4 fw-bold text-muted">
+            {% with forloop.counter as pos %}
+              {% if pos == 1 %}🥇{% elif pos == 2 %}🥈{% elif pos == 3 %}🥉{% else %}{{ pos }}{% endif %}
+            {% endwith %}
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              {% if alumno.avatar %}
+                <img src="{{ alumno.avatar.url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;" alt="">
+              {% else %}
+                <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                  <span class="text-white small fw-bold">{{ alumno.username|first|upper }}</span>
+                </div>
+              {% endif %}
+              <div>
+                <div class="fw-semibold small">{{ alumno.get_full_name|default:alumno.username }}</div>
+                <div class="text-muted" style="font-size:.7rem;">@{{ alumno.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge bg-secondary text-uppercase">{{ alumno.nivel }}</span></td>
+          <td class="text-end fw-bold text-warning">{{ alumno.puntos_totales }}</td>
+          <td class="text-end pe-4 text-danger"><i class="bi bi-fire me-1"></i>{{ alumno.streak }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

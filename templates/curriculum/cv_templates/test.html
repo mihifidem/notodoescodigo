@@ -1,0 +1,367 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile.nombre|default:"CV" }}</title>
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #0f766e;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(145deg, #f8fafc 0%, #ecfeff 100%);
+            color: var(--text);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .sidebar {
+            padding: 18px;
+            position: sticky;
+            top: 16px;
+            align-self: start;
+        }
+
+        .main {
+            padding: 18px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 0 0 10px;
+            color: var(--primary);
+        }
+
+        h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+        }
+
+        .section {
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-child {
+            border-bottom: 0;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .kv {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .value {
+            color: var(--muted);
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            margin: 4px 6px 0 0;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #99f6e4;
+            background: #ccfbf1;
+            font-size: 12px;
+            color: #115e59;
+        }
+
+        .fallback {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        a {
+            color: #0f766e;
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+{% with cv=profile.cv %}
+<div class="layout">
+    <aside class="panel sidebar">
+        <section class="section">
+            <h1>
+                {% if cv.personal_info and cv.personal_info.nombre %}{{ cv.personal_info.nombre }}{% else %}<span class="fallback">Nombre</span>{% endif %}
+                {% if cv.personal_info and cv.personal_info.apellidos %} {{ cv.personal_info.apellidos }}{% endif %}
+            </h1>
+
+            <div class="kv"><span class="label">Profesion:</span> <span class="value">{% if cv.professional_profile and cv.professional_profile.profesion %}{{ cv.professional_profile.profesion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Email principal:</span> <span class="value">{% if cv.personal_info and cv.personal_info.email_profesional1 %}{{ cv.personal_info.email_profesional1 }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Email secundario:</span> <span class="value">{% if cv.personal_info and cv.personal_info.email_profesional2 %}{{ cv.personal_info.email_profesional2 }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Telefono 1:</span> <span class="value">{% if cv.personal_info and cv.personal_info.telefono1 %}{{ cv.personal_info.telefono1 }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Telefono 2:</span> <span class="value">{% if cv.personal_info and cv.personal_info.telefono2 %}{{ cv.personal_info.telefono2 }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Ciudad:</span> <span class="value">{% if cv.personal_info and cv.personal_info.ciudad %}{{ cv.personal_info.ciudad }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Pais:</span> <span class="value">{% if cv.personal_info and cv.personal_info.pais %}{{ cv.personal_info.pais }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Codigo postal:</span> <span class="value">{% if cv.personal_info and cv.personal_info.codigo_postal %}{{ cv.personal_info.codigo_postal }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Fecha nacimiento:</span> <span class="value">{% if cv.personal_info and cv.personal_info.fecha_nacimiento %}{{ cv.personal_info.fecha_nacimiento }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Nacionalidad:</span> <span class="value">{% if cv.personal_info and cv.personal_info.nacionalidad %}{{ cv.personal_info.nacionalidad }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Carnet conducir:</span> <span class="value">{% if cv.personal_info %}{% if cv.personal_info.carnet_conducir %}Si{% else %}No{% endif %}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Disponibilidad:</span> <span class="value">{% if cv.personal_info and cv.personal_info.disponibilidad %}{{ cv.personal_info.get_disponibilidad_display }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            <div class="kv"><span class="label">Foto:</span> <span class="value">{% if cv.personal_info and cv.personal_info.foto %}<a href="{{ cv.personal_info.foto.url }}" target="_blank" rel="noreferrer">Ver foto</a>{% else %}<span class="fallback">No subida</span>{% endif %}</span></div>
+        </section>
+
+        <section class="section">
+            <h2>Redes</h2>
+            {% if profile.mostrar_redes %}
+                <div class="kv"><span class="label">LinkedIn:</span> <span class="value">{% if cv.social_networks and cv.social_networks.linkedin %}<a href="{{ cv.social_networks.linkedin }}" target="_blank" rel="noreferrer">{{ cv.social_networks.linkedin }}</a>{% else %}<span class="fallback">No informado</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">GitHub:</span> <span class="value">{% if cv.social_networks and cv.social_networks.github %}<a href="{{ cv.social_networks.github }}" target="_blank" rel="noreferrer">{{ cv.social_networks.github }}</a>{% else %}<span class="fallback">No informado</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Portfolio:</span> <span class="value">{% if cv.social_networks and cv.social_networks.portfolio %}<a href="{{ cv.social_networks.portfolio }}" target="_blank" rel="noreferrer">{{ cv.social_networks.portfolio }}</a>{% else %}<span class="fallback">No informado</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Twitter/X:</span> <span class="value">{% if cv.social_networks and cv.social_networks.twitter %}<a href="{{ cv.social_networks.twitter }}" target="_blank" rel="noreferrer">{{ cv.social_networks.twitter }}</a>{% else %}<span class="fallback">No informado</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Otras:</span> <span class="value">{% if cv.social_networks and cv.social_networks.otras %}{{ cv.social_networks.otras }}{% else %}<span class="fallback">No informado</span>{% endif %}</span></div>
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+    </aside>
+
+    <main class="panel main">
+        <section class="section">
+            <h2>Perfil Profesional</h2>
+            {% if profile.mostrar_perfil_profesional %}
+                <div class="kv"><span class="label">Objetivo:</span> <span class="value">{% if cv.professional_profile and cv.professional_profile.objetivo %}{{ cv.professional_profile.objetivo }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Resumen:</span> <span class="value">{% if cv.professional_profile and cv.professional_profile.resumen %}{{ cv.professional_profile.resumen }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Experiencia Laboral</h2>
+            {% if profile.experiencias.all %}
+                {% for e in profile.experiencias.all %}
+                    <article class="card">
+                        <h3>{{ e.puesto|default:"No disponible" }} - {{ e.empresa|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Ubicacion:</span> <span class="value">{% if e.ubicacion %}{{ e.ubicacion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Fecha inicio:</span> <span class="value">{{ e.fecha_inicio|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Fecha fin:</span> <span class="value">{% if e.fecha_fin %}{{ e.fecha_fin }}{% elif e.trabajo_actual %}Actualidad{% else %}<span class="fallback">No indicada</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Trabajo actual:</span> <span class="value">{% if e.trabajo_actual %}Si{% else %}No{% endif %}</span></div>
+                        <div class="kv"><span class="label">Descripcion:</span> <span class="value">{% if e.descripcion %}{{ e.descripcion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Logros:</span> <span class="value">{% if e.logros %}{{ e.logros }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Formacion Academica</h2>
+            {% if profile.educaciones.all %}
+                {% for e in profile.educaciones.all %}
+                    <article class="card">
+                        <h3>{{ e.titulo|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Centro:</span> <span class="value">{{ e.centro|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Ubicacion:</span> <span class="value">{% if e.ubicacion %}{{ e.ubicacion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Fecha inicio:</span> <span class="value">{{ e.fecha_inicio|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Fecha fin:</span> <span class="value">{% if e.fecha_fin %}{{ e.fecha_fin }}{% elif e.en_curso %}En curso{% else %}<span class="fallback">No indicada</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">En curso:</span> <span class="value">{% if e.en_curso %}Si{% else %}No{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Formacion Complementaria</h2>
+            {% if profile.formaciones.all %}
+                {% for e in profile.formaciones.all %}
+                    <article class="card">
+                        <h3>{{ e.nombre|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Tipo:</span> <span class="value">{{ e.get_tipo_display|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Entidad:</span> <span class="value">{% if e.entidad %}{{ e.entidad }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Fecha:</span> <span class="value">{% if e.fecha %}{{ e.fecha }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Descripcion:</span> <span class="value">{% if e.descripcion %}{{ e.descripcion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Skills</h2>
+            {% if profile.habilidades.all %}
+                {% for e in profile.habilidades.all %}
+                    <article class="card">
+                        <h3>{{ e.nombre|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Tipo:</span> <span class="value">{{ e.get_tipo_display|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Categoria:</span> <span class="value">{% if e.categoria %}{{ e.get_categoria_display }}{% else %}<span class="fallback">Sin categoria</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Nivel:</span> <span class="value">{% if e.nivel %}{{ e.nivel }}/5{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Idiomas</h2>
+            {% if profile.idiomas.all %}
+                {% for e in profile.idiomas.all %}
+                    <article class="card">
+                        <h3>{{ e.idioma|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Nivel:</span> <span class="value">{{ e.get_nivel_display|default:"No disponible" }}</span></div>
+                        <div class="kv"><span class="label">Certificacion:</span> <span class="value">{% if e.certificacion %}{{ e.certificacion }}{% else %}<span class="fallback">Sin certificacion</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Proyectos</h2>
+            {% if profile.proyectos.all %}
+                {% for e in profile.proyectos.all %}
+                    <article class="card">
+                        <h3>{{ e.nombre|default:"No disponible" }}</h3>
+                        <div class="kv"><span class="label">Descripcion:</span> <span class="value">{% if e.descripcion %}{{ e.descripcion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Tecnologias:</span> <span class="value">{% if e.tecnologias %}{{ e.tecnologias }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Enlace:</span> <span class="value">{% if e.link %}<a href="{{ e.link }}" target="_blank" rel="noreferrer">{{ e.link }}</a>{% else %}<span class="fallback">Sin enlace</span>{% endif %}</span></div>
+                        <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="fallback">Sin datos en esta seccion.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Logros</h2>
+            {% if profile.mostrar_logros %}
+                {% if profile.logros.all %}
+                    {% for e in profile.logros.all %}
+                        <article class="card">
+                            <h3>{{ e.titulo|default:"No disponible" }}</h3>
+                            <div class="kv"><span class="label">Tipo:</span> <span class="value">{{ e.get_tipo_display|default:"No disponible" }}</span></div>
+                            <div class="kv"><span class="label">Descripcion:</span> <span class="value">{% if e.descripcion %}{{ e.descripcion }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                            <div class="kv"><span class="label">Fecha:</span> <span class="value">{% if e.fecha %}{{ e.fecha }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                            <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <p class="fallback">Sin datos en esta seccion.</p>
+                {% endif %}
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Voluntariado</h2>
+            {% if profile.mostrar_voluntariado %}
+                {% if profile.voluntariados.all %}
+                    {% for e in profile.voluntariados.all %}
+                        <article class="card">
+                            <h3>{{ e.funcion|default:"No disponible" }} - {{ e.organizacion|default:"No disponible" }}</h3>
+                            <div class="kv"><span class="label">Impacto:</span> <span class="value">{% if e.impacto %}{{ e.impacto }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                            <div class="kv"><span class="label">Fecha inicio:</span> <span class="value">{% if e.fecha_inicio %}{{ e.fecha_inicio }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                            <div class="kv"><span class="label">Fecha fin:</span> <span class="value">{% if e.fecha_fin %}{{ e.fecha_fin }}{% elif e.en_curso %}En curso{% else %}<span class="fallback">No indicada</span>{% endif %}</span></div>
+                            <div class="kv"><span class="label">En curso:</span> <span class="value">{% if e.en_curso %}Si{% else %}No{% endif %}</span></div>
+                            <div class="kv"><span class="label">Orden:</span> <span class="value">{{ e.orden }}</span></div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <p class="fallback">Sin datos en esta seccion.</p>
+                {% endif %}
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Intereses</h2>
+            {% if profile.mostrar_intereses %}
+                {% if profile.intereses.all %}
+                    {% for i in profile.intereses.all %}
+                        <span class="badge">{{ i.nombre|default:"Sin nombre" }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="fallback">Sin intereses cargados.</p>
+                {% endif %}
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>Otros Datos</h2>
+            {% if profile.mostrar_otros %}
+                <div class="kv"><span class="label">Disponibilidad para viajar:</span> <span class="value">{% if cv.other_info %}{% if cv.other_info.disponibilidad_viajar %}Si{% else %}No{% endif %}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Teletrabajo:</span> <span class="value">{% if cv.other_info and cv.other_info.teletrabajo %}{{ cv.other_info.get_teletrabajo_display }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Expectativa salarial:</span> <span class="value">{% if cv.other_info and cv.other_info.expectativa_salarial %}{{ cv.other_info.expectativa_salarial }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+                <div class="kv"><span class="label">Notas:</span> <span class="value">{% if cv.other_info and cv.other_info.notas %}{{ cv.other_info.notas }}{% else %}<span class="fallback">No disponible</span>{% endif %}</span></div>
+            {% else %}
+                <p class="fallback">Seccion oculta por configuracion del perfil.</p>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endwith %}
+</body>
+</html>

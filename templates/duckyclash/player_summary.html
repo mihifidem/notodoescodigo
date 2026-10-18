@@ -1,0 +1,6 @@
+<div class="text-break">
+    <h2 class="h5">{{ player.user.get_username }}</h2>
+    {% if player.profile %}<p>{{ player.profile.nickname }} · {{ player.profile.get_avatarType_display }} · Nivel {{ player.profile.level }}</p>{% else %}<p>Perfil no disponible.</p>{% endif %}
+    {% if player.participant %}<p>HP: {{ player.participant.hp }} / {{ player.participant.max_hp }} · {% if player.participant.ready_at %}Preparado{% else %}Sin confirmar preparación{% endif %}</p>{% endif %}
+    <p>Reserva: {% if player.release.status == 'confirmed' %}<strong>Liberada · {{ player.release.amount }} DuckyCoins</strong>{% elif player.hold.status == 'confirmed' and player.hold.bank_reference %}<strong>Confirmada{% if is_terminal %} (registro histórico){% endif %} · {{ player.hold.amount }} DuckyCoins</strong>{% elif player.hold %}{{ player.hold.get_status_display }} · {{ player.hold.amount }} DuckyCoins{% else %}Pendiente de solicitar{% endif %}</p>
+</div>

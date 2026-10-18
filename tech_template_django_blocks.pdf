@@ -1,0 +1,128 @@
+Bloques Django y variables en tech.html
+======================================
+
+A continuación se listan todos los bloques de código Django (no HTML, CSS ni JS) presentes en la plantilla tech.html, indicando si son expresiones {{ }}, condicionales {% if %}, bucles {% for %}, etc.
+
+---
+
+{{ profile.cv.personal_info.nombre }}
+{{ profile.cv.personal_info.apellidos }}
+{{ profile.cv.professional_profile.profesion }}
+{{ profile.cv.personal_info.email_profesional1 }}
+{{ profile.cv.personal_info.telefono1 }}
+{{ profile.cv.personal_info.ciudad }}
+{{ profile.cv.personal_info.pais }}
+{{ profile.cv.professional_profile.cv }}
+{% if profile.cv.professional_profile.objetivo %}
+    {{ profile.cv.professional_profile.objetivo }}
+{% endif %}
+{{ profile.cv.professional_profile.resumen }}
+
+{{ profile.cv.personal_info.cv }}
+{{ profile.cv.personal_info.telefono1 }}
+{% if profile.cv.personal_info.telefono2 %}
+    {{ profile.cv.personal_info.telefono2 }}
+{% endif %}
+{{ profile.cv.personal_info.email_profesional1 }}
+{% if profile.cv.personal_info.email_profesional2 %}
+    {{ profile.cv.personal_info.email_profesional2 }}
+{% endif %}
+{{ profile.cv.personal_info.ciudad }}
+{{ profile.cv.personal_info.pais }}
+{{ profile.cv.personal_info.codigo_postal }}
+{% if profile.cv.personal_info.fecha_nacimiento %}
+    {{ profile.cv.personal_info.fecha_nacimiento }}
+{% endif %}
+{% if profile.cv.personal_info.nacionalidad %}
+    {{ profile.cv.personal_info.nacionalidad }}
+{% endif %}
+{% if profile.cv.personal_info.carnet_conducir is not None %}
+    {{ profile.cv.personal_info.carnet_conducir|yesno:"Si,No" }}
+{% endif %}
+{% if profile.cv.personal_info.disponibilidad %}
+    {{ profile.cv.personal_info.disponibilidad }}
+{% endif %}
+{% if profile.cv.personal_info.foto %}
+    {{ profile.cv.personal_info.foto }}
+{% endif %}
+
+{% if profile.experiencias.exists %}
+{% for item in profile.experiencias.all %}
+    {{ item.puesto }}
+    {{ item.empresa }}
+    {% if item.ubicacion %}{{ item.ubicacion }}{% endif %}
+    {{ item.fecha_inicio }}
+    {% if item.fecha_fin %}{{ item.fecha_fin }}{% endif %}
+    {{ item.trabajo_actual|yesno:"Si,No" }}
+    {% if item.descripcion %}{{ item.descripcion }}{% endif %}
+    {% if item.logros %}{{ item.logros }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% for item in profile.cv.educations.all %}
+    {{ item.titulo }}
+    {{ item.centro }}
+    {% if item.ubicacion %}{{ item.ubicacion }}{% endif %}
+    {{ item.fecha_inicio }}
+    {% if item.fecha_fin %}{{ item.fecha_fin }}{% endif %}
+    {{ item.en_curso|yesno:"Si,No" }}
+{% endfor %}
+
+{% for item in profile.cv.trainings.all %}
+    {{ item.tipo }}
+    {{ item.nombre }}
+    {% if item.entidad %}{{ item.entidad }}{% endif %}
+    {% if item.fecha %}{{ item.fecha }}{% endif %}
+    {% if item.descripcion %}{{ item.descripcion }}{% endif %}
+{% endfor %}
+
+{% for skill in profile.cv.skills.all %}
+    {{ skill.tipo }}
+    {% if skill.categoria %}{{ skill.categoria }}{% endif %}
+    {{ skill.nombre }}
+    {% if skill.nivel %}{{ skill.nivel }}{% endif %}
+{% endfor %}
+
+{% for item in profile.cv.languages.all %}
+    {{ item.idioma }}
+    {{ item.nivel }}
+    {% if item.certificacion %}{{ item.certificacion }}{% endif %}
+{% endfor %}
+
+{% for item in profile.cv.projects.all %}
+    {{ item.nombre }}
+    {% if item.descripcion %}{{ item.descripcion }}{% endif %}
+    {% if item.tecnologias %}{{ item.tecnologias }}{% endif %}
+    {% if item.link %}{{ item.link }}{% endif %}
+{% endfor %}
+
+{% for item in profile.cv.achievements.all %}
+    {{ item.titulo }}
+    {{ item.tipo }}
+    {% if item.descripcion %}{{ item.descripcion }}{% endif %}
+    {% if item.fecha %}{{ item.fecha }}{% endif %}
+{% endfor %}
+
+{% for item in profile.voluntariados.all %}
+    {{ item.organizacion }}
+    {{ item.funcion }}
+    {% if item.impacto %}{{ item.impacto }}{% endif %}
+    {% if item.fecha_inicio %}{{ item.fecha_inicio }}{% endif %}
+    {% if item.fecha_fin %}{{ item.fecha_fin }}{% endif %}
+    {{ item.en_curso|yesno:"Si,No" }}
+{% endfor %}
+
+{% if profile.cv.social_networks.linkedin %}{{ profile.cv.social_networks.linkedin }}{% endif %}
+{% if profile.cv.social_networks.github %}{{ profile.cv.social_networks.github }}{% endif %}
+{% if profile.cv.social_networks.portfolio %}{{ profile.cv.social_networks.portfolio }}{% endif %}
+{% if profile.cv.social_networks.twitter %}{{ profile.cv.social_networks.twitter }}{% endif %}
+{% if profile.cv.social_networks.otras %}{{ profile.cv.social_networks.otras }}{% endif %}
+
+{% for item in profile.intereses.all %}
+    {{ item.nombre }}
+{% endfor %}
+
+{{ cv.other_info.disponibilidad_viajar|yesno:"Si,No" }}
+{{ cv.other_info.teletrabajo }}
+{% if cv.other_info.expectativa_salarial %}{{ cv.other_info.expectativa_salarial }}{% endif %}
+{% if cv.other_info.notas %}{{ cv.other_info.notas }}{% endif %}

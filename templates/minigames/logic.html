@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+{% block page_title %}CodeFlow — Lógica{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+body { background: #0D0B1E; }
+#page-content { background: #0D0B1E !important; }
+main.flex-grow-1 { background: #0D0B1E !important; color: rgba(255,255,255,.85) !important; padding: 0 !important; }
+.mg-wrap { max-width: 640px; margin: 0 auto; padding: 1.5rem 1rem; }
+.mg-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+.mg-logo { font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; }
+.mg-logo span { background:linear-gradient(135deg,#8B5CF6,#EC4899); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.mg-back { color:rgba(255,255,255,.5); text-decoration:none; font-size:.8rem; display:flex; align-items:center; gap:5px; }
+.mg-back:hover { color:#fff; }
+
+/* HUD */
+.cf-hud { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.5rem; }
+.hud-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:10px; text-align:center; }
+.hud-n { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; color:#fff; line-height:1; }
+.hud-l { font-size:.6rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+#cfTimer { color:#8B5CF6; }
+#cfTimer.warn { color:#F59E0B !important; }
+#cfTimer.danger { color:#EF4444 !important; animation:blink .5s step-end infinite; }
+@keyframes blink { 50%{opacity:.2} }
+
+/* Progress bar */
+.cf-progress-wrap { margin-bottom:1.5rem; }
+.cf-progress-label { display:flex; justify-content:space-between; font-size:.72rem; color:rgba(255,255,255,.4); margin-bottom:6px; }
+.cf-progress-track { height:6px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; }
+.cf-progress-fill { height:100%; background:linear-gradient(90deg,#8B5CF6,#EC4899); border-radius:99px; transition:width .5s ease; }
+
+/* Question card */
+.cf-card {
+  background:linear-gradient(145deg,#13102A,#0D0B1E);
+  border:1px solid rgba(139,92,246,.2); border-radius:20px;
+  padding:2rem; margin-bottom:1.25rem;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  min-height:260px; position:relative; overflow:hidden;
+}
+.cf-card::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(60% 60% at 90% 10%,rgba(139,92,246,.08),transparent 70%);
+}
+.cf-type-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase;
+  background:rgba(139,92,246,.1); color:#A78BFA; border:1px solid rgba(139,92,246,.2);
+  padding:3px 12px; border-radius:99px; margin-bottom:1rem;
+}
+.cf-question { font-size:.9rem; color:rgba(255,255,255,.6); margin-bottom:1.25rem; line-height:1.5; }
+.cf-sequence {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:1.5rem;
+}
+.cf-token {
+  font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700;
+  background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.1);
+  border-radius:10px; padding:10px 16px; color:#fff; min-width:52px; text-align:center;
+}
+.cf-token.hidden {
+  background:rgba(139,92,246,.08); border-color:rgba(139,92,246,.3);
+  color:rgba(139,92,246,.8); letter-spacing:2px;
+}
+.cf-sep { font-size:1.2rem; color:rgba(255,255,255,.25); }
+
+/* Answer options */
+.cf-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.cf-opt {
+  font-family:'JetBrains Mono',monospace; font-size:1.1rem; font-weight:700;
+  background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px; padding:14px; color:#fff; cursor:pointer;
+  transition:all .18s; text-align:center;
+}
+.cf-opt:hover:not(:disabled) { background:rgba(139,92,246,.12); border-color:rgba(139,92,246,.4); transform:translateY(-2px); }
+.cf-opt.correct { background:rgba(34,197,94,.15); border-color:#22C55E !important; color:#22C55E; }
+.cf-opt.wrong   { background:rgba(239,68,68,.12); border-color:#EF4444 !important; color:#EF4444; }
+.cf-opt:disabled { cursor:default; }
+
+/* Feedback */
+.cf-feedback { display:none; padding:12px 16px; border-radius:12px; margin-top:12px; font-size:.85rem; font-weight:600; }
+.cf-feedback.show { display:block; }
+.cf-feedback.ok  { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.25); color:#4ADE80; }
+.cf-feedback.ko  { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); color:#FCA5A5; }
+
+/* Overlays */
+.mg-overlay { position:fixed; inset:0; background:rgba(13,11,30,.9); display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(8px); }
+.mg-modal { background:linear-gradient(145deg,#13102A,#0D0B1E); border:1px solid rgba(139,92,246,.2); border-radius:20px; padding:2.5rem; text-align:center; max-width:400px; width:90%; box-shadow:0 32px 80px rgba(0,0,0,.6); }
+.mg-modal-icon { font-size:3.5rem; margin-bottom:1rem; }
+.mg-modal-title { font-family:'Poppins',sans-serif; font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+.mg-modal-sub { color:rgba(255,255,255,.45); font-size:.85rem; margin-bottom:1.5rem; }
+.mg-modal-score { font-family:'JetBrains Mono',monospace; font-size:2.8rem; font-weight:700; color:#8B5CF6; line-height:1; margin-bottom:.25rem; }
+.mg-modal-score-lbl { font-size:.65rem; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:1.5rem; }
+.result-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:1.5rem; }
+.result-box { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:10px; }
+.result-n { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; color:#fff; }
+.result-l { font-size:.6rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; }
+.mg-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 28px; border-radius:12px; font-weight:700; font-size:.9rem; border:none; cursor:pointer; transition:all .2s; }
+.mg-btn-primary { background:linear-gradient(135deg,#5B21B6,#8B5CF6); color:#fff; }
+.mg-btn-secondary { background:rgba(255,255,255,.07); color:rgba(255,255,255,.6); }
+.mg-btn:hover { filter:brightness(1.1); transform:translateY(-2px); }
+.mg-btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+  <div class="mg-nav">
+    <div class="mg-logo">⚡ Code<span>Flow</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <!-- HUD -->
+  <div class="cf-hud">
+    <div class="hud-box"><div class="hud-n" id="cfTimer">25</div><div class="hud-l">Segundos</div></div>
+    <div class="hud-box"><div class="hud-n" id="cfRound">1/10</div><div class="hud-l">Ronda</div></div>
+    <div class="hud-box"><div class="hud-n" id="cfScore">0</div><div class="hud-l">Puntos</div></div>
+    <div class="hud-box"><div class="hud-n" id="cfStreak">0</div><div class="hud-l">Racha 🔥</div></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="cf-progress-wrap">
+    <div class="cf-progress-label"><span>Progreso</span><span id="cfPct">0%</span></div>
+    <div class="cf-progress-track"><div class="cf-progress-fill" id="cfProgressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Card -->
+  <div class="cf-card" id="cfCard">
+    <div class="cf-type-badge" id="cfTypeBadge">·</div>
+    <div class="cf-question" id="cfQuestion"></div>
+    <div class="cf-sequence" id="cfSequence"></div>
+    <div class="cf-opts" id="cfOpts"></div>
+    <div class="cf-feedback" id="cfFeedback"></div>
+  </div>
+</div>
+
+<!-- Start overlay -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">⚡</div>
+    <div class="mg-modal-title">CodeFlow</div>
+    <div class="mg-modal-sub">Completa las secuencias lógicas. 10 rondas · 25 segundos cada una. Respuestas rápidas dan puntos extra.</div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End overlay -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🎉</div>
+    <div class="mg-modal-title" id="endTitle">Fin del juego</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos totales</div>
+    <div class="result-grid">
+      <div class="result-box"><div class="result-n" id="endCorrect">0</div><div class="result-l">Correctas</div></div>
+      <div class="result-box"><div class="result-n" id="endMaxStreak">0</div><div class="result-l">Racha máx</div></div>
+    </div>
+    <div class="mg-modal-sub" id="endMsg"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── Sequence generators ─────────────────────────────────────────────── */
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=randInt(0,i);[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+const GENERATORS = [
+  // Arithmetic +n
+  () => {
+    const start = randInt(1,20), step = randInt(2,9);
+    const seq = [start, start+step, start+2*step, start+3*step, start+4*step];
+    return { type:'Aritmética', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:`+${step}` };
+  },
+  // Arithmetic -n
+  () => {
+    const start = randInt(30,80), step = randInt(2,8);
+    const seq = [start, start-step, start-2*step, start-3*step, start-4*step];
+    return { type:'Aritmética', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:`-${step}` };
+  },
+  // Geometric ×n
+  () => {
+    const start = randInt(1,4), factor = randInt(2,3);
+    const seq = [start, start*factor, start*factor**2, start*factor**3, start*factor**4];
+    return { type:'Geométrica', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:`×${factor}` };
+  },
+  // Fibonacci-style a+b
+  () => {
+    const a = randInt(1,6), b = randInt(a+1,10);
+    const seq = [a, b, a+b, a+2*b, a+3*b];
+    return { type:'Fibonacci', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:'a+b' };
+  },
+  // Square numbers
+  () => {
+    const offset = randInt(0,3);
+    const seq = [1,2,3,4,5].map(n => (n+offset)*(n+offset));
+    return { type:'Cuadrados', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:'n²' };
+  },
+  // Alternating +a -b
+  () => {
+    const start = randInt(10,40), a = randInt(3,8), b = randInt(1,4);
+    const seq = [start];
+    for(let i=0;i<4;i++) seq.push(i%2===0 ? seq[seq.length-1]+a : seq[seq.length-1]-b);
+    return { type:'Alternante', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:`+${a}/-${b}` };
+  },
+  // Letters A-Z
+  () => {
+    const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const start = randInt(0,18), step = randInt(1,4);
+    const seq = [0,1,2,3,4].map(i => alpha[(start+i*step)%26]);
+    return { type:'Letras', q:'¿Cuál es la siguiente letra?', visible:seq.slice(0,4), answer:seq[4], rule:`+${step}` };
+  },
+  // Skip pattern ×2 +1
+  () => {
+    const start = randInt(2,10);
+    const seq = [start];
+    for(let i=0;i<4;i++) seq.push(seq[seq.length-1]*2+1);
+    return { type:'Patrón', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:'×2+1' };
+  },
+  // Powers of 2
+  () => {
+    const offset = randInt(0,4);
+    const seq = [0,1,2,3,4].map(n => Math.pow(2, n+offset));
+    return { type:'Potencias', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:'2ⁿ' };
+  },
+  // Sum of previous two (fib variant)
+  () => {
+    const a = randInt(2,8), b = randInt(a+1,15);
+    const seq = [a, b];
+    for(let i=0;i<3;i++) seq.push(seq[seq.length-1]+seq[seq.length-2]);
+    return { type:'Suma Prev.', q:'¿Cuál es el siguiente número?', visible:seq.slice(0,4), answer:seq[4], rule:'a+b=c' };
+  },
+];
+
+/* ── Game state ─────────────────────────────────────────────────────── */
+let round=0, totalRounds=10, score=0, streak=0, maxStreak=0, correct=0;
+let timerVal=25, timerInt=null, answered=false, currentQ=null;
+const TIME_PER_ROUND = 25;
+
+function startGame() {
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  round=0; score=0; streak=0; maxStreak=0; correct=0;
+  nextRound();
+}
+
+function nextRound() {
+  clearInterval(timerInt);
+  round++;
+  if (round > totalRounds) { endGame(); return; }
+
+  answered = false;
+  timerVal = TIME_PER_ROUND;
+  updateHUD();
+
+  // Generate question
+  const gen = GENERATORS[Math.floor(Math.random()*GENERATORS.length)];
+  currentQ = gen();
+
+  // Render sequence
+  const seqEl = document.getElementById('cfSequence');
+  seqEl.innerHTML = currentQ.visible.map(v =>
+    `<div class="cf-token">${v}</div><div class="cf-sep">→</div>`
+  ).join('') + `<div class="cf-token hidden">?</div>`;
+
+  document.getElementById('cfTypeBadge').textContent = currentQ.type;
+  document.getElementById('cfQuestion').textContent = currentQ.q;
+
+  // Generate distractors
+  const ans = currentQ.answer;
+  const isNum = typeof ans === 'number';
+  let opts;
+  if (isNum) {
+    const deltas = shuffle([-2,-3,+2,+3,-5,+5,-1,+1].filter(d=>d!==0));
+    const distractors = [];
+    for(let d of deltas) {
+      const v = ans + d;
+      if (v > 0 && !distractors.includes(v) && v !== ans) { distractors.push(v); if(distractors.length===3) break; }
+    }
+    opts = shuffle([ans, ...distractors]);
+  } else {
+    const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const idx = alpha.indexOf(ans);
+    const pool = shuffle(alpha.split('').filter(c=>c!==ans)).slice(0,3);
+    opts = shuffle([ans, ...pool]);
+  }
+
+  const optsEl = document.getElementById('cfOpts');
+  optsEl.innerHTML = opts.map(o =>
+    `<button class="cf-opt" onclick="answer('${o}')">${o}</button>`
+  ).join('');
+
+  document.getElementById('cfFeedback').className='cf-feedback';
+  document.getElementById('cfFeedback').textContent='';
+
+  // Timer
+  timerInt = setInterval(() => {
+    timerVal--;
+    const el = document.getElementById('cfTimer');
+    el.textContent = timerVal;
+    el.className = 'hud-n' + (timerVal<=5?' danger':timerVal<=10?' warn':'');
+    if (timerVal<=0) { clearInterval(timerInt); if(!answered) timeOut(); }
+  }, 1000);
+}
+
+function answer(val) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInt);
+
+  const isCorrect = String(val) === String(currentQ.answer);
+  const timeBonus = isCorrect ? timerVal * 4 : 0;
+  const streakBonus = isCorrect ? streak * 10 : 0;
+  const pts = isCorrect ? 100 + timeBonus + streakBonus : 0;
+
+  if (isCorrect) {
+    streak++; maxStreak=Math.max(maxStreak,streak);
+    correct++; score+=pts;
+  } else {
+    streak=0;
+  }
+  updateHUD();
+
+  // Mark buttons
+  document.querySelectorAll('.cf-opt').forEach(btn => {
+    btn.disabled=true;
+    if (String(btn.textContent.trim())===String(currentQ.answer)) btn.classList.add('correct');
+    else if (String(btn.textContent.trim())===String(val) && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('cfFeedback');
+  fb.className = 'cf-feedback show ' + (isCorrect?'ok':'ko');
+  fb.textContent = isCorrect
+    ? `✓ Correcto! +${pts} pts (regla: ${currentQ.rule})`
+    : `✗ Era ${currentQ.answer} (regla: ${currentQ.rule})`;
+
+  setTimeout(nextRound, isCorrect ? 900 : 1600);
+}
+
+function timeOut() {
+  if (answered) return;
+  answered=true; streak=0; updateHUD();
+  document.querySelectorAll('.cf-opt').forEach(btn => {
+    btn.disabled=true;
+    if (String(btn.textContent.trim())===String(currentQ.answer)) btn.classList.add('correct');
+  });
+  const fb = document.getElementById('cfFeedback');
+  fb.className='cf-feedback show ko';
+  fb.textContent=`⏰ Tiempo! Era ${currentQ.answer} (regla: ${currentQ.rule})`;
+  setTimeout(nextRound, 1600);
+}
+
+function updateHUD() {
+  document.getElementById('cfTimer').textContent=timerVal;
+  document.getElementById('cfRound').textContent=round+'/'+totalRounds;
+  document.getElementById('cfScore').textContent=score;
+  document.getElementById('cfStreak').textContent=streak;
+  const pct=Math.round(((round-1)/totalRounds)*100);
+  document.getElementById('cfProgressFill').style.width=pct+'%';
+  document.getElementById('cfPct').textContent=pct+'%';
+}
+
+function endGame() {
+  clearInterval(timerInt);
+  const pct=Math.round((correct/totalRounds)*100);
+  const msgs=['¡Sigue practicando!','Buen intento, vas mejorando','¡Buen trabajo!','¡Excelente lógica!','¡Perfecto! Razonamiento sobresaliente'];
+  const msgIdx=Math.floor(pct/25);
+
+  document.getElementById('endIcon').textContent=pct>=80?'🏆':pct>=60?'⭐':'🎯';
+  document.getElementById('endTitle').textContent=pct>=80?'¡Brillante!':pct>=60?'¡Bien hecho!':'Fin del juego';
+  document.getElementById('endScore').textContent=score.toLocaleString();
+  document.getElementById('endCorrect').textContent=correct+'/'+totalRounds;
+  document.getElementById('endMaxStreak').textContent=maxStreak;
+  document.getElementById('endMsg').textContent=msgs[Math.min(msgIdx,4)]+' · '+pct+'% de aciertos';
+  document.getElementById('endOverlay').style.display='flex';
+}
+</script>
+{% endblock %}

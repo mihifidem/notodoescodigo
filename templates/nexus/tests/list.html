@@ -1,0 +1,80 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Tests – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="nexus-heading fw-bold mb-1" style="color:#1B3C59;">Assessments</h2>
+    <div class="d-flex gap-3 small text-muted">
+      <span><span class="badge bg-secondary me-1">{{ draft_count }}</span>Draft</span>
+      <span><span class="badge bg-success me-1">{{ active_count }}</span>Activos</span>
+      <span><span class="badge bg-danger me-1">{{ closed_count }}</span>Cerrados</span>
+    </div>
+  </div>
+  <a href="{% url 'nexus:assessment_create' %}" class="nx-btn-primary btn">
+    <i class="bi bi-plus-lg me-1"></i>Nuevo Test
+  </a>
+</div>
+
+{% if assessments %}
+<div class="nx-card overflow-hidden">
+  <table class="table nx-table mb-0 align-middle">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Estado</th>
+        <th>Módulos</th>
+        <th>Sesiones</th>
+        <th>Creado por</th>
+        <th>Fecha</th>
+        <th style="width:130px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in assessments %}
+      <tr>
+        <td>
+          <a href="{% url 'nexus:assessment_detail' a.pk %}" class="fw-semibold text-decoration-none" style="color:#1B3C59;">
+            {{ a.title }}
+          </a>
+          {% if a.description %}
+          <div class="text-muted small text-truncate" style="max-width:260px;">{{ a.description }}</div>
+          {% endif %}
+        </td>
+        <td><span class="badge bg-{{ a.status_class }}">{{ a.get_status_display }}</span></td>
+        <td>
+          <span class="badge" style="background:rgba(27,60,89,.1);color:#1B3C59;">{{ a.module_count }}</span>
+        </td>
+        <td>
+          <span class="badge" style="background:rgba(0,196,255,.1);color:#0090cc;">{{ a.session_count }}</span>
+        </td>
+        <td class="small text-muted">{{ a.created_by|default:"—" }}</td>
+        <td class="small text-muted">{{ a.created_at|date:"d/m/Y" }}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'nexus:assessment_detail' a.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'nexus:assessment_edit' a.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'nexus:assessment_delete' a.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="nx-card p-5 text-center text-muted">
+  <i class="bi bi-clipboard2-pulse fs-1 mb-3 d-block opacity-25"></i>
+  <p class="mb-3">No hay tests creados aún.</p>
+  <a href="{% url 'nexus:assessment_create' %}" class="nx-btn-primary btn btn-sm">
+    <i class="bi bi-plus me-1"></i>Crear primer test
+  </a>
+</div>
+{% endif %}
+{% endblock %}

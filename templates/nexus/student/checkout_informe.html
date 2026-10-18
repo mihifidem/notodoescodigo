@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block page_title %}Desbloquear informe{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <span class="text-uppercase text-muted small fw-bold">Nexus AI Coach</span>
+              <h2 class="fw-bold mb-0 mt-2">Desbloquear informe</h2>
+            </div>
+            <span class="badge text-bg-primary fs-6 px-3 py-2">€{{ precio|floatformat:2 }}</span>
+          </div>
+
+          <div class="alert alert-light border mb-4">
+            <div class="d-flex justify-content-between">
+              <strong>{{ informe.get_tipo_display }}</strong>
+              <span>{{ informe.sesion.test.nombre }}</span>
+            </div>
+          </div>
+
+          <div class="alert alert-{{ estado_pago_clase }} border-0 mb-4">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+              <div>
+                <strong>Estado del informe:</strong> {{ estado_pago_label }}
+              </div>
+              {% if ultimo_pago %}
+                <small class="text-muted">
+                  {% if ultimo_pago.esta_pagado %}Pago confirmado{% else %}Pago pendiente de confirmación{% endif %}
+                </small>
+              {% endif %}
+            </div>
+          </div>
+
+          <p class="text-muted mb-4">
+            Este informe contiene una interpretación profesional de tus resultados. Desbloquéalo con una compra segura para ver el análisis completo.
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <form method="post" action="{% url 'nexus:checkout_informe_stripe' informe.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold">
+                  <i class="bi bi-credit-card me-2"></i>Pagar con Stripe
+                </button>
+              </form>
+            </div>
+            <div class="col-md-6">
+              <form method="post" action="{% url 'nexus:checkout_informe_paypal' informe.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary w-100 py-3 fw-semibold">
+                  <i class="bi bi-paypal me-2"></i>Pagar con PayPal
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {% if debug %}
+          <div class="border border-warning rounded p-3 bg-warning-subtle mb-4">
+            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+              <div>
+                <div class="fw-semibold text-warning-emphasis">Modo desarrollo</div>
+                <small class="text-muted">Botón temporal para saltarse el pago durante pruebas.</small>
+              </div>
+              <form method="post" action="{% url 'nexus:checkout_informe_dev_skip' informe.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning fw-semibold">
+                  <i class="bi bi-fast-forward-circle me-2"></i>Saltarse pago
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="mt-4 d-flex justify-content-center">
+            <form method="post" action="{% url 'nexus:delete_informe' informe.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Seguro que quieres borrar este informe guardado?');">
+                <i class="bi bi-trash me-2"></i>Borrar informe
+              </button>
+            </form>
+          </div>
+
+          <div class="small text-muted mt-4">
+            <i class="bi bi-shield-check me-2"></i>Pago seguro • Acceso inmediato • Informe disponible para descarga/impresión
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

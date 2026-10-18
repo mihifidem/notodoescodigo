@@ -1,0 +1,24 @@
+{% load static %}
+{% if not hide_players %}
+<div class="row g-3 mb-4">
+    {% for player in players %}
+    <div class="col-md-6"><article class="card h-100"><div class="card-body d-flex gap-3">
+        {% if player.avatar %}<img src="{% static player.avatar.avatarFallback %}" width="64" height="64" class="rounded align-self-start" alt="Avatar de {{ player.user.get_username }}">{% endif %}
+        {% include 'duckyclash/player_summary.html' %}
+    </div></article></div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="card card-body mb-4">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Estado económico</dt><dd class="col-sm-8">{{ duel.get_status_display }} · {{ duel.get_bank_mode_display }}</dd>
+        {% if session %}<dt class="col-sm-4">Fase del combate</dt><dd class="col-sm-8">{{ session.get_phase_display }}</dd>{% endif %}
+        <dt class="col-sm-4">Fecha acordada</dt><dd class="col-sm-8">{% include 'duckyclash/time.html' with value=offer.scheduled_at %}</dd>
+        <dt class="col-sm-4">Apuesta</dt><dd class="col-sm-8">{{ offer.stake }} DuckyCoins por jugador</dd>
+        <dt class="col-sm-4">Categoría</dt><dd class="col-sm-8">{{ offer.category }}{% if offer.subcategory %} / {{ offer.subcategory }}{% endif %}</dd>
+        <dt class="col-sm-4">Paisaje del retador</dt><dd class="col-sm-8">{{ offer.landscape.name }}</dd>
+        <dt class="col-sm-4">Versión aceptada</dt><dd class="col-sm-8">{{ offer.version }} · <a href="{% url 'duckyclash:challenge_detail' duel.agreement.challenge_id %}">Ver condiciones e historial</a></dd>
+    </dl>
+    {% if offer.landscape.image %}<img src="{{ offer.landscape.image.url }}" class="img-fluid rounded mt-2" alt="Paisaje elegido: {{ offer.landscape.name }}" loading="lazy">{% else %}<p class="small text-body-secondary mb-0">Este paisaje no tiene imagen publicada.</p>{% endif %}
+</div>
+{% if duel.bank_reason %}<p class="alert alert-info">{{ duel.bank_reason }}</p>{% endif %}

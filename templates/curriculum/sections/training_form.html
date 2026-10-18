@@ -1,0 +1,4 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar formación{% else %}<i class="bi bi-patch-check me-2 text-primary"></i>Nueva formación complementaria{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:training_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:training_list' %}{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Usuarios LMS" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:admin_dashboard' %}">{% trans "Administración" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Usuarios" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "GESTIÓN DE PERSONAS" %}</p>
+      <h1>{% trans "Usuarios y perfiles LMS" %}</h1>
+    </div>
+    <form class="toolbar-search" method="get">
+      <input type="search" name="q" value="{{ query }}" placeholder="{% trans 'Buscar por nombre o email' %}">
+      <button class="button button-primary" type="submit">{% trans "Buscar" %}</button>
+    </form>
+  </section>
+
+  <nav class="section-tabs" aria-label="{% trans 'Secciones de administración' %}">
+    {% for item in admin_nav %}
+      <a class="tab-link {% if request.path == item.url %}is-active{% endif %}" href="{{ item.url }}">{{ item.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="content-panel">
+    {% if users %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{% trans "Usuario" %}</th>
+              <th>{% trans "Acceso" %}</th>
+              <th>{% trans "Pertenencias" %}</th>
+              <th>{% trans "Rol docente" %}</th>
+              <th>{% trans "Acciones" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in users %}
+              {% with user=item.user %}
+                <tr>
+                  <td>
+                    <strong>{{ user.get_full_name|default:user.username }}</strong><br>
+                    <small>{{ user.email|default:'Sin email' }}</small>
+                  </td>
+                  <td>{% if user.is_active %}<span class="tag success">{% trans "Activo" %}</span>{% else %}<span class="tag muted">{% trans "Inactivo" %}</span>{% endif %}</td>
+                  <td>{{ item.membership_count }}</td>
+                  <td>{{ item.teacher_count }}</td>
+                  <td>
+                    <form method="post" action="{% url 'lms:admin_user_toggle' user_id=user.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="reason" value="{% trans 'Cambio administrativo desde el panel LMS' %}">
+                      <button class="button button-small {% if user.is_active %}button-secondary{% else %}button-primary{% endif %}" type="submit">
+                        {% if user.is_active %}{% trans "Suspender" %}{% else %}{% trans "Reactivar" %}{% endif %}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>{% trans "No se han encontrado usuarios con esos criterios." %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

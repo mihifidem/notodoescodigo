@@ -1,0 +1,87 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Tests HTML – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="nexus-heading fw-bold mb-1" style="color:#1B3C59;">Tests (Plantillas HTML)</h2>
+    <p class="text-muted mb-0 small">
+      {{ tests.count }} test{{ tests.count|pluralize }} ·
+      <span class="text-success fw-semibold">{{ completadas }}</span> sesiones completadas ·
+      <span class="text-muted">{{ total_sesiones }} total</span>
+    </p>
+  </div>
+  <a href="{% url 'nexus:test_create' %}" class="nx-btn-primary btn">
+    <i class="bi bi-plus-lg me-1"></i>Subir nuevo test
+  </a>
+</div>
+
+{% if tests %}
+<div class="nx-card overflow-hidden">
+  <table class="table nx-table mb-0 align-middle">
+    <thead>
+      <tr>
+        <th>Nombre del test</th>
+        <th>Archivo</th>
+        <th>Estado</th>
+        <th>Sesiones</th>
+        <th>Completadas</th>
+        <th>Creado por</th>
+        <th>Fecha</th>
+        <th style="width:120px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tests %}
+      <tr>
+        <td>
+          <div class="fw-semibold" style="color:#1B3C59;">{{ t.nombre }}</div>
+          {% if t.descripcion %}
+          <div class="text-muted small text-truncate" style="max-width:260px;">{{ t.descripcion }}</div>
+          {% endif %}
+        </td>
+        <td>
+          <code class="small text-muted">{{ t.archivo_html.name|default:"—" }}</code>
+        </td>
+        <td>
+          {% if t.activo %}
+            <span class="badge bg-success">Activo</span>
+          {% else %}
+            <span class="badge bg-secondary">Borrador</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge" style="background:rgba(27,60,89,.1);color:#1B3C59;">{{ t.total_sesiones }}</span>
+        </td>
+        <td>
+          <span class="badge bg-success-subtle text-success">{{ t.sesiones_completadas }}</span>
+        </td>
+        <td class="small text-muted">{{ t.creado_por|default:"—" }}</td>
+        <td class="small text-muted">{{ t.creado_en|date:"d/m/Y" }}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'nexus:test_edit' t.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'nexus:test_delete' t.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="nx-card p-5 text-center text-muted">
+  <i class="bi bi-file-earmark-code fs-1 mb-3 d-block opacity-25"></i>
+  <p class="mb-1 fw-semibold">No hay tests creados aún.</p>
+  <p class="mb-3 small">Sube un archivo HTML con el test y Django lo renderizará para los alumnos con su contexto de usuario.</p>
+  <a href="{% url 'nexus:test_create' %}" class="nx-btn-primary btn btn-sm">
+    <i class="bi bi-plus me-1"></i>Subir primer test
+  </a>
+</div>
+{% endif %}
+{% endblock %}

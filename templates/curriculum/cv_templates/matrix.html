@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CV Matrix</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    background: black;
+    color: rgba(0,255,0,0.7);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 20px;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.nav-matrix {
+    position: sticky;
+    top: 0;
+    background: black;
+    z-index: 10;
+    padding: 10px;
+}
+.nav-matrix a {
+    color: rgba(0,255,0,0.6);
+    border: 1px solid rgba(0,255,0,0.2);
+    padding: 5px 10px;
+    font-size: 12px;
+}
+.nav-matrix a:hover,
+.nav-matrix a.active {
+    color: #00ff00;
+    border-color: #00ff00;
+}
+.nav-matrix a.active {
+    box-shadow: 0 0 8px rgba(0,255,0,0.4);
+}
+
+/*TOP */
+.top { margin-bottom: 30px; }
+
+.top-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#nombre {
+    font-size: 28px;
+    color: #00ff00;
+    text-shadow: 0 0 8px rgba(0,255,0,0.9);
+}
+
+.profesion {
+    font-size: 16px;
+    color: rgba(0,255,0,0.8);
+}
+
+.perfil-texto {
+    margin-top: 10px;
+    line-height: 1.4;
+    color: rgba(0,255,0,0.75);
+}
+
+/*GRID */
+.main {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 30px;
+}
+
+.column {
+    border-left: 2px solid rgba(0,255,0,0.3);
+    padding-left: 15px;
+}
+
+/*SECTION CARD*/
+.section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid rgba(0,255,0,0.25);
+    border-radius: 8px;
+    background: rgba(0,255,0,0.03);
+    box-shadow: 0 0 10px rgba(0,255,0,0.05);
+}
+.section:hover {
+    border-color: rgba(0,255,0,0.5);
+    box-shadow: 0 0 12px rgba(0,255,0,0.2);
+}
+
+
+/*TITLES */
+.section h2 {
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0,255,0,0.2);
+    color: rgba(0,255,0,0.85);
+}
+
+h3 {
+    font-size: 14px;
+    color: rgba(0,255,0,0.8);
+}
+
+
+/*LISTS*/
+.section ul { padding-left: 18px; }
+
+p, li {
+    color: rgba(0,255,0,0.7);
+    margin: 6px 0;
+}
+
+
+/* item card*/
+.item-card {
+    margin-bottom: 20px;
+    padding: 12px;
+    border: 1px solid rgba(0,255,0,0.2);
+    border-radius: 6px;
+    background: rgba(0,255,0,0.02);
+}
+
+.item-card + .item-card {
+    margin-top: 15px;
+}
+
+.item-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #00ff00;
+    margin-bottom: 8px;
+    text-shadow: 0 0 6px rgba(0,255,0,0.6);
+}
+
+.item-fecha { color: rgba(0,255,0,0.8); }
+
+.item-desc {
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.item-logros {
+    margin-top: 8px;
+    color: rgba(0,255,0,0.85);
+}
+
+.section-content { margin-top: 15px; }
+.hidden { display: none; }
+
+
+/* link */
+a {
+    color: #00ff00;
+    text-decoration: none;
+}
+a:hover {
+    text-shadow: 0 0 6px rgba(0,255,0,0.8);
+    text-decoration: underline;
+}
+
+
+/* BUTTON */
+.matrix-btn {
+    background: black;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+}
+.matrix-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+</style>
+</head>
+<body>
+
+<div class="nav-matrix">
+    <a href="#" class="nav-link active" data-seccion="all">> todo</a>
+    <a href="#" class="nav-link" data-seccion="experiencia">> experiencia</a>
+    <a href="#" class="nav-link" data-seccion="educacion">> educación</a>
+    <a href="#" class="nav-link" data-seccion="formacion">> formación</a>
+    <a href="#" class="nav-link" data-seccion="habilidades">> habilidades</a>
+    <a href="#" class="nav-link" data-seccion="idiomas">> idiomas</a>
+    <a href="#" class="nav-link" data-seccion="proyectos">> proyectos</a>
+    <a href="#" class="nav-link" data-seccion="logros">> logros</a>
+    <a href="#" class="nav-link" data-seccion="voluntariado">> voluntariado</a>
+    <a href="#" class="nav-link" data-seccion="redes">> redes</a>
+    <a href="#" class="nav-link" data-seccion="intereses">> intereses</a>
+    <a href="#" class="nav-link" data-seccion="otros">> otros</a>
+</div>
+
+<canvas id="matrix"></canvas>
+
+<!-- TOP -->
+<div class="top">
+    <div class="top-header">
+        <h1 id="nombre"></h1>
+        <span class="profesion">
+            <span class="typing-value">{{ profile.cv.professional_profile.profesion }}</span>
+        </span>
+    </div>
+
+    <div class="perfil-texto">
+        {% if profile.cv.professional_profile.objetivo %}
+        <p><strong>Objetivo:</strong>
+            <span class="typing-value typing-slow">{{ profile.cv.professional_profile.objetivo }}</span>
+        </p>
+        {% endif %}
+
+        <p><strong>Resumen:</strong>
+            <span class="typing-value typing-slow">{{ profile.cv.professional_profile.resumen }}</span>
+        </p>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- LEFT -->
+<div class="column">
+
+<section class="section">
+<h2>Informacion Personal</h2>
+<ul>
+<!-- <li>CV referencia: <span class="typing-value">{{ profile.cv.personal_info.cv }}</span></li> -->
+<li>Telefono 1: <span class="typing-value">{{ profile.cv.personal_info.telefono1 }}</span></li>
+
+{% if profile.cv.personal_info.telefono2 %}
+<li>Telefono 2: <span class="typing-value">{{ profile.cv.personal_info.telefono2 }}</span></li>
+{% endif %}
+
+<li>Email 1: <span class="typing-value">{{ profile.cv.personal_info.email_profesional1 }}</span></li>
+
+{% if profile.cv.personal_info.email_profesional2 %}
+<li>Email 2: <span class="typing-value">{{ profile.cv.personal_info.email_profesional2 }}</span></li>
+{% endif %}
+
+<li>Ciudad: <span class="typing-value">{{ profile.cv.personal_info.ciudad }}</span></li>
+<li>Pais: <span class="typing-value">{{ profile.cv.personal_info.pais }}</span></li>
+<li>Codigo postal: <span class="typing-value">{{ profile.cv.personal_info.codigo_postal }}</span></li>
+
+{% if profile.cv.personal_info.fecha_nacimiento %}
+<li>Fecha nacimiento: <span class="typing-value">{{ profile.cv.personal_info.fecha_nacimiento }}</span></li>
+{% endif %}
+
+{% if profile.cv.personal_info.nacionalidad %}
+<li>Nacionalidad: <span class="typing-value">{{ profile.cv.personal_info.nacionalidad }}</span></li>
+{% endif %}
+
+{% if profile.cv.personal_info.carnet_conducir != None %}
+<li>Carnet conducir: <span class="typing-value">{{ profile.cv.personal_info.carnet_conducir|yesno:"Si,No" }}</span></li>
+{% endif %}
+
+{% if profile.cv.personal_info.disponibilidad %}
+<li>Disponibilidad: <span class="typing-value">{{ profile.cv.personal_info.disponibilidad }}</span></li>
+{% endif %}
+
+{% if cv.personal_info.foto %}
+<li>Foto: {{ profile.cv.personal_info.foto }}</li>
+{% endif %}
+</ul>
+</section>
+
+<!-- Idiomas -->
+{% if not seccion or seccion == "all" or seccion == "idiomas" %}
+<section class="section" data-seccion="idiomas">
+
+<h2>Idiomas</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+<ul>
+
+{% for i in profile.idiomas.all|dictsort:"orden" %}
+<li>
+{{ i.idioma }} -
+<span class="typing-value">{{ i.nivel }}</span>
+
+{% if i.certificacion %}
+ - <span class="typing-value">{{ i.certificacion }}</span>
+{% endif %}
+</li>
+{% endfor %}
+
+</ul>
+</div>
+
+</section>
+{% endif %}
+
+<!-- REDES -->
+{% if not seccion or seccion == "all" or seccion == "redes" %}
+<section class="section" data-seccion="redes">
+
+<div class="section-header">
+<h2>Redes Sociales</h2>
+<button class="matrix-btn" onclick="toggleSection(this)">> unlock data</button>
+</div>
+
+<div class="section-content hidden">
+<ul>
+{% with sn=profile.cv.social_networks %}
+     {% if sn.linkedin %}
+     <li>
+     LinkedIn:
+     <a href="https://{{ sn.linkedin|cut:'https://'|cut:'http://' }}"
+         target="_blank"
+         class="typing-value">
+         {{ sn.linkedin }}
+     </a>
+     </li>
+     {% endif %}
+     {% if sn.github %}
+     <li>
+     GitHub:
+     <a href="https://{{ sn.github|cut:'https://'|cut:'http://' }}"
+         target="_blank"
+         class="typing-value">
+         {{ sn.github }}
+     </a>
+     </li>
+     {% endif %}
+     {% if sn.portfolio %}
+     <li>
+     Portfolio:
+     <a href="https://{{ sn.portfolio|cut:'https://'|cut:'http://' }}"
+         target="_blank"
+         class="typing-value">
+         {{ sn.portfolio }}
+     </a>
+     </li>
+     {% endif %}
+     {% if sn.twitter %}
+     <li>
+     Twitter/X:
+     <a href="https://{{ sn.twitter|cut:'https://'|cut:'http://' }}"
+         target="_blank"
+         class="typing-value">
+         {{ sn.twitter }}
+     </a>
+     </li>
+     {% endif %}
+     {% if sn.otras %}
+     <li>
+     Otras:
+     <a href="https://{{ sn.otras|cut:'https://'|cut:'http://' }}"
+         target="_blank"
+         class="typing-value">
+         {{ sn.otras }}
+     </a>
+     </li>
+     {% endif %}
+{% endwith %}
+</ul>
+</div>
+
+</section>
+{% endif %}
+
+</div>
+
+<!-- CENTER -->
+<div class="column">
+
+<!-- Experiencia -->
+{% if not seccion or seccion == "all" or seccion == "experiencia" %}
+<section class="section" data-seccion="experiencia">
+
+<h2>Experiencia</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for e in profile.experiencias.all|dictsort:"orden" %}
+<div class="item-card">
+
+<h3 class="item-title">{{ e.puesto }} - {{ e.empresa }}</h3>
+
+{% if e.ubicacion %}
+<p>Ubicacion: <span class="typing-value">{{ e.ubicacion }}</span></p>
+{% endif %}
+
+<p>
+Inicio: <span class="typing-value">{{ e.fecha_inicio }}</span>
+{% if e.fecha_fin %} | Fin: <span class="typing-value">{{ e.fecha_fin }}</span>{% endif %}
+</p>
+
+<p>
+Trabajo actual:
+<span class="typing-value">{{ e.trabajo_actual|yesno:"Si,No" }}</span>
+</p>
+
+{% if e.descripcion %}
+<p><span class="typing-value">{{ e.descripcion }}</span></p>
+{% endif %}
+
+{% if e.logros %}
+<p>Logros: <span class="typing-value">{{ e.logros }}</span></p>
+{% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+</section>
+{% endif %}
+
+
+<!-- Educacion -->
+{% if not seccion or seccion == "all" or seccion == "educacion" %}
+<section class="section" data-seccion="educacion">
+
+<h2>Formación Académica</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for e in profile.educaciones.all|dictsort:"orden" %}
+<div class="item-card">
+
+<p>Titulo: <span class="typing-value">{{ e.titulo }}</span></p>
+<p>Centro: <span class="typing-value">{{ e.centro }}</span></p>
+
+{% if e.ubicacion %}
+<p>Ubicacion: <span class="typing-value">{{ e.ubicacion }}</span></p>
+{% endif %}
+
+<p>
+Inicio: <span class="typing-value">{{ e.fecha_inicio }}</span>
+{% if e.fecha_fin %} | Fin: <span class="typing-value">{{ e.fecha_fin }}</span>{% endif %}
+</p>
+
+<p>
+En curso:
+<span class="typing-value">{{ e.en_curso|yesno:"Si,No" }}</span>
+</p>
+
+</div>
+{% endfor %}
+
+</div>
+
+</section>
+{% endif %}
+
+
+<!-- Formacion -->
+
+{% if not seccion or seccion == "all" or seccion == "educacion" or seccion == "formacion" %}
+<section class="section" data-seccion="formacion">
+
+<h2>Formación Complementaria</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for f in profile.formaciones.all|dictsort:"orden" %}
+<div class="item-card">
+
+<p>Tipo: <span class="typing-value">{{ f.tipo }}</span></p>
+<p>Nombre: <span class="typing-value">{{ f.nombre }}</span></p>
+
+{% if f.entidad %}
+<p>Entidad: <span class="typing-value">{{ f.entidad }}</span></p>
+{% endif %}
+
+{% if f.fecha %}
+<p>Fecha: <span class="typing-value">{{ f.fecha }}</span></p>
+{% endif %}
+
+{% if f.descripcion %}
+<p><span class="typing-value">{{ f.descripcion }}</span></p>
+{% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+
+</section>
+{% endif %}
+
+
+{% if not seccion or seccion == "all" or seccion == "habilidades" %}
+<section class="section" data-seccion="habilidades">
+
+<h2>Habilidades</h2>
+
+<button type="button" class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+<ul>
+
+{% for s in profile.habilidades.all|dictsort:"orden" %}
+<li>
+{{ s.tipo }}
+
+{% if s.categoria %}
+ | {{ s.categoria }}
+{% endif %}
+
+| <span class="typing-value">{{ s.nombre }}</span>
+
+{% if s.nivel %}
+ | Nivel <span class="typing-value">{{ s.nivel }}</span>
+{% endif %}
+</li>
+{% endfor %}
+
+</ul>
+</div>
+
+</section>
+{% endif %}
+</div>
+
+
+
+<!-- RIGHT -->
+<div class="column">
+
+
+<!-- Proyectos -->
+{% if not seccion or seccion == "all" or seccion == "proyectos" %}
+<section class="section" data-seccion="proyectos">
+
+<h2>Proyectos</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for p in profile.proyectos.all|dictsort:"orden" %}
+<div class="item-card">
+
+<p>Nombre: <span class="typing-value">{{ p.nombre }}</span></p>
+
+{% if p.descripcion %}
+<p><span class="typing-value">{{ p.descripcion }}</span></p>
+{% endif %}
+
+{% if p.tecnologias %}
+<p>Tecnologias: <span class="typing-value">{{ p.tecnologias }}</span></p>
+{% endif %}
+
+{% if p.link %}
+<p>
+Link:
+<a href="{{ p.link }}" target="_blank" class="typing-value">
+    {{ p.link }}
+</a>
+</p>
+{% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+
+</section>
+{% endif %}
+
+
+<!-- Logros -->
+{% if not seccion or seccion == "all" or seccion == "logros" %}
+<section class="section" data-seccion="logros">
+
+<h2>Logros</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for a in profile.logros.all|dictsort:"orden" %}
+<div class="item-card">
+
+<p>Titulo: <span class="typing-value">{{ a.titulo }}</span></p>
+<p>Tipo: <span class="typing-value">{{ a.get_tipo_display }}</span></p>
+
+{% if a.descripcion %}
+<p><span class="typing-value">{{ a.descripcion }}</span></p>
+{% endif %}
+
+{% if a.fecha %}
+<p>Fecha: <span class="typing-value">{{ a.fecha }}</span></p>
+{% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+
+</section>
+{% endif %}
+
+<!-- Voluntariado -->
+{% if not seccion or seccion == "all" or seccion == "voluntariado" %}
+<section class="section" data-seccion="voluntariado">
+
+<h2>Voluntariado</h2>
+
+<button class="matrix-btn" onclick="toggleSection(this)">
+    > unlock data
+</button>
+
+<div class="section-content hidden">
+
+{% for v in profile.voluntariados.all|dictsort:"orden" %}
+<div class="item-card">
+
+<p>Organizacion: <span class="typing-value">{{ v.organizacion }}</span></p>
+<p>Funcion: <span class="typing-value">{{ v.funcion }}</span></p>
+
+{% if v.impacto %}
+<p>Impacto: <span class="typing-value">{{ v.impacto }}</span></p>
+{% endif %}
+
+<p>
+Inicio: <span class="typing-value">{{ v.fecha_inicio }}</span>
+{% if v.fecha_fin %} | Fin: <span class="typing-value">{{ v.fecha_fin }}</span>{% endif %}
+</p>
+
+<p>
+En curso:
+<span class="typing-value">{{ v.en_curso|yesno:"Si,No" }}</span>
+</p>
+
+</div>
+{% endfor %}
+
+</div>
+
+</section>
+{% endif %}
+
+<!-- Intereses -->
+{% if not seccion or seccion == "all" or seccion == "intereses" %}
+<section class="section" data-seccion="intereses">
+
+<div class="section-header">
+<h2>Intereses</h2>
+<button class="matrix-btn" onclick="toggleSection(this)">> unlock data</button>
+</div>
+
+<div class="section-content hidden">
+<ul>
+
+{% for item in profile.intereses.all|dictsort:"orden" %}
+<li>
+<span class="typing-value">{{ item.nombre }}</span>
+</li>
+{% endfor %}
+
+</ul>
+</div>
+
+</section>
+{% endif %}
+
+<!-- OtraInfo -->
+{% if not seccion or seccion == "all" or seccion == "otros" %}
+<section class="section" data-seccion="otros">
+
+<div class="section-header">
+<h2>Otros Datos</h2>
+<button class="matrix-btn" onclick="toggleSection(this)">> unlock data</button>
+</div>
+
+<div class="section-content hidden">
+<ul>
+
+{% with oi=profile.cv.other_info %}
+<li>
+Disponibilidad para viajar:
+<span class="typing-value">
+{{ oi.disponibilidad_viajar|yesno:"Si,No" }}
+</span>
+</li>
+
+<li>
+Teletrabajo:
+<span class="typing-value">{{ oi.get_teletrabajo_display }}</span>
+</li>
+
+{% if oi.expectativa_salarial %}
+<li>
+Expectativa salarial:
+<span class="typing-value">{{ oi.expectativa_salarial }}</span>
+</li>
+{% endif %}
+
+{% if oi.notas %}
+<li>
+Notas:
+<span class="typing-value">{{ oi.notas }}</span>
+</li>
+{% endif %}
+{% endwith %}
+
+</ul>
+</div>
+
+</section>
+{% endif %}
+
+</div><!-- /column RIGHT -->
+
+</div><!-- /main -->
+
+<!-- Foto  
+<div id="fotoModal" class="foto-modal hidden">
+    <div class="foto-overlay"></div>
+
+    <div class="foto-content">
+        <p id="fotoStatus">processing image...</p>
+        <img id="fotoImg" src="" />
+    </div>
+</div>
+-->
+
+<script>
+
+// fondo Matrix
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const fontSize = 14;
+const gotas = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const columnas = Math.floor(canvas.width / fontSize);
+
+    gotas.length = 0;
+    for (let i = 0; i < columnas; i++) {
+        gotas[i] = 1;
+    }
+}
+
+// init
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
+
+function draw() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "rgba(0,255,0,0.6)";
+    ctx.font = fontSize + "px monospace";
+
+    for (let i=0;i<gotas.length;i++){
+        const texto = letras[Math.floor(Math.random()*letras.length)];
+        ctx.fillText(texto, i*fontSize, gotas[i]*fontSize);
+
+        if (gotas[i]*fontSize > canvas.height && Math.random()>0.975){
+            gotas[i]=0;
+        }
+        gotas[i]++;
+    }
+}
+setInterval(draw,33);
+
+//efecto Nombre moviendo letras 
+function efectoMatrixNombre(el,texto){
+    let iter=0;
+
+    const intervalo=setInterval(()=>{
+        const res=texto.split("").map((l,i)=>{
+            if(i<iter)return l;
+            return letras[Math.floor(Math.random()*letras.length)];
+        }).join("");
+
+        el.innerText="> "+res;
+
+        if(iter>=texto.length){
+            clearInterval(intervalo);
+            el.innerText="> "+texto;
+        }
+
+        iter+=1/3;
+    },40);
+}
+
+const nombreEl=document.getElementById("nombre");
+const nombreTexto="{{ cv.personal_info.nombre }} {{ cv.personal_info.apellidos }}";
+
+function animarNombre(){
+    if(nombreEl) efectoMatrixNombre(nombreEl,nombreTexto);
+}
+animarNombre();
+setInterval(animarNombre,10000);
+
+
+// esribirEfecto
+function escribirTexto(el,texto,vel){
+    let i=0;
+    function escribir(){
+        if(i<texto.length){
+            el.innerHTML+=texto.charAt(i);
+            i++;
+            setTimeout(escribir,vel);
+        }
+    }
+    escribir();
+}
+
+window.onload=()=>{
+    document.querySelectorAll(".typing-value:not(.typing-slow)").forEach(el=>{
+        const t=el.innerHTML;
+        el.innerHTML="";
+        escribirTexto(el,t,30);
+    });
+
+    document.querySelectorAll(".typing-slow").forEach(el=>{
+        const t=el.innerHTML;
+        el.innerHTML="";
+        escribirTexto(el,t,40);
+    });
+};
+
+//Botones
+function toggleSection(btn){
+
+    const section = btn.closest(".section");
+    const content = section.querySelector(".section-content");
+
+    if (!content) return;
+
+    // cerrar
+    if (!content.classList.contains("hidden")){
+        content.classList.add("hidden");
+        btn.innerText = "> unlock data";
+        btn.disabled = false;
+        return;
+    }
+
+    // abrir
+    btn.innerText = "processing request...";
+    btn.disabled = true;
+
+    setTimeout(()=>{
+        btn.innerText = "access granted";
+        content.classList.remove("hidden");
+
+        const elementos = content.querySelectorAll(".typing-value");
+
+        elementos.forEach(el=>{
+            const texto = el.innerHTML;
+            el.innerHTML = "";
+            escribirTexto(el, texto, 40);
+        });
+
+        btn.disabled = false;
+
+    }, 1500);
+}
+
+// sin recarga
+function filtrarSecciones(seccion) {
+    document.querySelectorAll(".section[data-seccion]").forEach(sec => {
+        sec.style.display = (seccion === "all" || sec.dataset.seccion === seccion) ? "" : "none";
+    });
+    document.querySelectorAll(".nav-link").forEach(a => {
+        a.classList.toggle("active", a.dataset.seccion === seccion);
+    });
+}
+
+document.querySelectorAll(".nav-link").forEach(a => {
+    a.addEventListener("click", function(e) {
+        e.preventDefault();
+        filtrarSecciones(this.dataset.seccion);
+    });
+});
+
+/*
+function mostrarFoto(btn, url){
+
+    const modal = document.getElementById("fotoModal");
+    const img = document.getElementById("fotoImg");
+    const status = document.getElementById("fotoStatus");
+
+    modal.classList.remove("hidden");
+    img.style.display = "none";
+    img.src = "";
+    status.innerText = "processing image...";
+
+    // efecto glitch
+    status.classList.add("glitch");
+
+    setTimeout(()=>{
+        status.innerText = "decrypting...";
+    }, 1000);
+
+    setTimeout(()=>{
+        status.innerText = "access granted";
+        status.classList.remove("glitch");
+
+        img.src = url;
+        img.style.display = "block";
+    }, 2500);
+}
+
+
+document.addEventListener("click", function(e){
+    const modal = document.getElementById("fotoModal");
+    if(e.target.classList.contains("foto-overlay")){
+        modal.classList.add("hidden");
+    }
+}); */
+
+</script>
+
+</body>
+
+
+</html>

@@ -1,0 +1,654 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Admin — MihiTraining{% endblock %}
+{% block page_title %}Dashboard Administrador{% endblock %}
+
+{% block content %}
+{# ── Quick actions ─── #}
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a href="{% url 'analytics:cv_tracker' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-file-person me-1"></i>CV Tracker
+  </a>
+
+  </a>
+</div>
+
+<!-- KPI row -->
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+  <div class="col">
+    <div class="card border-0 bg-primary text-white text-center py-4 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_usuarios }}</div>
+      <small>Alumnos registrados</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-success text-white text-center py-4 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_cursos }}</div>
+      <small>Cursos activos</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-warning text-dark text-center py-4 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_inscripciones }}</div>
+      <small>Inscripciones</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-info text-white text-center py-4 shadow-sm">
+      <div class="display-6 fw-bold">{{ nuevos_usuarios_30d }}</div>
+      <small>Nuevos (30 días)</small>
+    </div>
+  </div>
+</div>
+
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+  <div class="col">
+    <div class="card border-0 bg-dark text-white text-center py-3 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_posts_publicados }}</div>
+      <small>Posts publicados</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-secondary text-white text-center py-3 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_lecturas_blog }}</div>
+      <small>Lecturas de blog</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-primary text-white text-center py-3 shadow-sm">
+      <div class="display-6 fw-bold">{{ total_likes_blog }}</div>
+      <small>Me gusta en posts</small>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card border-0 bg-success text-white text-center py-3 shadow-sm">
+      <div class="display-6 fw-bold">{{ duracion_media_blog_segundos }}s</div>
+      <small>Tiempo medio lectura</small>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- Top students -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-trophy me-2 text-warning"></i>Top 10 Alumnos</span>
+        {% if total_alumnos_ranking > 10 %}
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#restoAlumnos"
+          aria-expanded="{% if mostrar_resto_expandido %}true{% else %}false{% endif %}"
+          aria-controls="restoAlumnos"
+        >
+          Ver resto
+        </button>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead class="table-light"><tr><th>#</th><th>Alumno</th><th>Aula</th><th class="text-end">Puntos</th></tr></thead>
+          <tbody>
+            {% for u in top_alumnos %}
+            <tr>
+              <td class="text-muted fw-bold">{{ forloop.counter }}</td>
+              <td>
+                <a href="{% url 'analytics:admin_alumno_puntos' usuario_id=u.id %}" class="fw-semibold text-decoration-none">
+                  {{ u.get_full_name|default:u.username }}
+                </a>
+              </td>
+              <td class="small text-muted">{{ u.aula.nombre|default:'Sin aula' }}</td>
+              <td class="text-end fw-bold text-warning">{{ u.puntos }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if total_alumnos_ranking > 10 and resto_alumnos_page %}
+        <div class="collapse border-top {% if mostrar_resto_expandido %}show{% endif %}" id="restoAlumnos">
+          <form method="get" class="p-3 border-bottom bg-light">
+            <div class="row g-2 align-items-end">
+              <div class="col-12 col-md-5">
+                <label class="form-label small fw-semibold mb-1">Buscar alumno</label>
+                <input
+                  type="text"
+                  name="alumno"
+                  class="form-control form-control-sm"
+                  value="{{ filtro_alumno }}"
+                  placeholder="Usuario, nombre o email"
+                >
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small fw-semibold mb-1">Filtrar por aula</label>
+                <select name="aula" class="form-select form-select-sm">
+                  <option value="" {% if not filtro_aula %}selected{% endif %}>Todas</option>
+                  <option value="sin_aula" {% if filtro_aula == 'sin_aula' %}selected{% endif %}>Sin aula</option>
+                  {% for aula in aulas_filtro %}
+                  <option value="{{ aula.id }}" {% if filtro_aula == aula.id|stringformat:'s' %}selected{% endif %}>{{ aula.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12 col-md-3 d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-sm btn-dark">Filtrar</button>
+                <a href="{% url 'analytics:dashboard_admin' %}#restoAlumnos" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+              </div>
+            </div>
+          </form>
+
+          <div class="p-3 pb-0 small text-muted">Puestos 11 en adelante ({{ total_alumnos_ranking|add:'-10' }} alumno(s))</div>
+          <table class="table table-sm mb-0">
+            <thead class="table-light">
+              <tr><th>#</th><th>Alumno</th><th>Aula</th><th class="text-end">Puntos</th></tr>
+            </thead>
+            <tbody>
+              {% for u in resto_alumnos_page.object_list %}
+              <tr>
+                <td class="text-muted fw-bold">{{ forloop.counter0|add:resto_alumnos_page.start_index }}</td>
+                <td>
+                  <a href="{% url 'analytics:admin_alumno_puntos' usuario_id=u.id %}" class="fw-semibold text-decoration-none">
+                    {{ u.get_full_name|default:u.username }}
+                  </a>
+                </td>
+                <td class="small text-muted">{{ u.aula.nombre|default:'Sin aula' }}</td>
+                <td class="text-end">{{ u.puntos }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-3">No hay alumnos para ese filtro.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          {% if resto_alumnos_page.paginator.num_pages > 1 %}
+          <div class="p-3 border-top d-flex justify-content-between align-items-center">
+            <small class="text-muted">Página {{ resto_alumnos_page.number }} de {{ resto_alumnos_page.paginator.num_pages }}</small>
+            <nav aria-label="Paginación ranking alumnos">
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if not resto_alumnos_page.has_previous %}disabled{% endif %}">
+                  {% if resto_alumnos_page.has_previous %}
+                  <a
+                    class="page-link"
+                    href="?alumno={{ filtro_alumno|urlencode }}&aula={{ filtro_aula }}&page={{ resto_alumnos_page.previous_page_number }}#restoAlumnos"
+                    tabindex="-1"
+                    aria-disabled="false"
+                  >Anterior</a>
+                  {% else %}
+                  <span class="page-link" aria-disabled="true">Anterior</span>
+                  {% endif %}
+                </li>
+                <li class="page-item {% if not resto_alumnos_page.has_next %}disabled{% endif %}">
+                  {% if resto_alumnos_page.has_next %}
+                  <a
+                    class="page-link"
+                    href="?alumno={{ filtro_alumno|urlencode }}&aula={{ filtro_aula }}&page={{ resto_alumnos_page.next_page_number }}#restoAlumnos"
+                    aria-disabled="false"
+                  >Siguiente</a>
+                  {% else %}
+                  <span class="page-link" aria-disabled="true">Siguiente</span>
+                  {% endif %}
+                </li>
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Difficult topics -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Temas más difíciles
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead class="table-light"><tr><th>Tema</th><th class="text-end">Fallos</th><th class="text-end">Total</th></tr></thead>
+          <tbody>
+            {% for t in temas_dificiles %}
+            <tr>
+              <td class="small">{{ t.quiz__tema__titulo|truncatechars:35 }}</td>
+              <td class="text-end text-danger fw-semibold">{{ t.fallos }}</td>
+              <td class="text-end text-muted">{{ t.total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular courses -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-book me-2 text-success"></i>Cursos más populares
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for curso in cursos_populares %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ curso.nombre }}</span>
+          <span class="badge bg-success">{{ curso.inscritos }} inscritos</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Created achievements -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-award me-2 text-primary"></i>Logros creados
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Logro</th>
+              <th>Insignia</th>
+              <th class="text-end">Puntos base</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for logro in logros_creados %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ logro.nombre }}</div>
+                <div class="small text-muted">{{ logro.descripcion|truncatechars:55 }}</div>
+              </td>
+              <td class="small">{{ logro.insignia.nombre|default:'-' }}</td>
+              <td class="text-end fw-bold text-warning">{{ logro.puntos_recompensa }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center text-muted py-3">No hay logros creados.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign achievement manually -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-person-plus me-2 text-success"></i>Asignar logro por correccion
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="asignar_logro">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ asignar_logro_form.usuario.label }}</label>
+            {{ asignar_logro_form.usuario }}
+            {% if asignar_logro_form.usuario.errors %}
+              <div class="text-danger small mt-1">{{ asignar_logro_form.usuario.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ asignar_logro_form.logro.label }}</label>
+            {{ asignar_logro_form.logro }}
+            {% if asignar_logro_form.logro.errors %}
+              <div class="text-danger small mt-1">{{ asignar_logro_form.logro.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ asignar_logro_form.puntos_asignados.label }}</label>
+            {{ asignar_logro_form.puntos_asignados }}
+            {% if asignar_logro_form.puntos_asignados.errors %}
+              <div class="text-danger small mt-1">{{ asignar_logro_form.puntos_asignados.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check2-circle me-1"></i>Asignar logro y puntos
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign mission to students -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-lightning-charge me-2 text-danger"></i>Asignar mision a alumnos
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="asignar_mision">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ asignar_mision_form.mision.label }}</label>
+            {{ asignar_mision_form.mision }}
+            {% if asignar_mision_form.mision.errors %}
+              <div class="text-danger small mt-1">{{ asignar_mision_form.mision.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ asignar_mision_form.usuarios.label }}</label>
+            {{ asignar_mision_form.usuarios }}
+            <div class="form-text">Puedes seleccionar varios alumnos con Ctrl/Cmd + clic.</div>
+            {% if asignar_mision_form.usuarios.errors %}
+              <div class="text-danger small mt-1">{{ asignar_mision_form.usuarios.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-check mb-3">
+            {{ asignar_mision_form.aplicar_puntos_ahora }}
+            <label class="form-check-label" for="{{ asignar_mision_form.aplicar_puntos_ahora.id_for_label }}">
+              {{ asignar_mision_form.aplicar_puntos_ahora.label }}
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-plus-circle me-1"></i>Asignar mision
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send direct message -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-envelope me-2 text-primary"></i>Enviar mensaje a usuario
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="enviar_mensaje">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ enviar_mensaje_form.usuario.label }}</label>
+            {{ enviar_mensaje_form.usuario }}
+            {% if enviar_mensaje_form.usuario.errors %}
+              <div class="text-danger small mt-1">{{ enviar_mensaje_form.usuario.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ enviar_mensaje_form.titulo.label }}</label>
+            {{ enviar_mensaje_form.titulo }}
+            {% if enviar_mensaje_form.titulo.errors %}
+              <div class="text-danger small mt-1">{{ enviar_mensaje_form.titulo.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ enviar_mensaje_form.mensaje.label }}</label>
+            {{ enviar_mensaje_form.mensaje }}
+            {% if enviar_mensaje_form.mensaje.errors %}
+              <div class="text-danger small mt-1">{{ enviar_mensaje_form.mensaje.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send me-1"></i>Enviar mensaje
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recalculate user points -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-arrow-repeat me-2 text-dark"></i>Recalcular puntos
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="recalcular_puntos">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ recalcular_puntos_form.usuario.label }}</label>
+            {{ recalcular_puntos_form.usuario }}
+            <div class="form-text">Selecciona un alumno para recalcular solo su puntuacion.</div>
+            {% if recalcular_puntos_form.usuario.errors %}
+              <div class="text-danger small mt-1">{{ recalcular_puntos_form.usuario.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-check mb-3">
+            {{ recalcular_puntos_form.recalcular_todos }}
+            <label class="form-check-label" for="{{ recalcular_puntos_form.recalcular_todos.id_for_label }}">
+              {{ recalcular_puntos_form.recalcular_todos.label }}
+            </label>
+          </div>
+
+          {% if recalcular_puntos_form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+              {{ recalcular_puntos_form.non_field_errors.0 }}
+            </div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-dark">
+            <i class="bi bi-calculator me-1"></i>Recalcular
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generador IA de posts -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-robot me-2 text-primary"></i>Generador IA de Posts</span>
+        <span class="badge bg-secondary">{{ total_posts_borradores }} borrador{{ total_posts_borradores|pluralize:"es" }}</span>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate
+              onsubmit="return confirm('¿Lanzar generación de posts con IA? Puede tardar hasta 1 minuto.');">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="generar_posts_ia">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-sm-6">
+              <label class="form-label small fw-semibold mb-1">Keyword (tag Medium)</label>
+              <input type="text" name="keyword" value="python"
+                     class="form-control form-control-sm" placeholder="ej: django, ai, python">
+              <div class="form-text">Tag que se buscará en Medium</div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <label class="form-label small fw-semibold mb-1">Artículos (max 10)</label>
+              <input type="number" name="max_items" value="3" min="1" max="10"
+                     class="form-control form-control-sm">
+            </div>
+            <div class="col-6 col-sm-3">
+              <label class="form-label small fw-semibold mb-1">Categoría</label>
+              <input type="text" name="categoria" value="Tecnología"
+                     class="form-control form-control-sm">
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-3 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="publicar" value="1" id="chkPublicar">
+              <label class="form-check-label small" for="chkPublicar">
+                Publicar directamente <span class="text-muted">(si no, queda borrador)</span>
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="con_imagen" value="1" id="chkImagen">
+              <label class="form-check-label small" for="chkImagen">
+                Imagen DALL·E <span class="text-muted">(más lento, consume créditos)</span>
+              </label>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-stars me-1"></i>Generar posts
+            </button>
+            {% if total_posts_borradores %}
+            <a href="{% url 'admin:blog_postblog_changelist' %}?publicado__exact=0"
+               class="btn btn-outline-warning btn-sm">
+              <i class="bi bi-pencil-square me-1"></i>Revisar {{ total_posts_borradores }} borrador{{ total_posts_borradores|pluralize:"es" }}
+            </a>
+            {% endif %}
+            <a href="{% url 'blog:list' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-eye me-1"></i>Ver blog
+            </a>
+          </div>
+          <div class="alert alert-info small mt-3 mb-0 py-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Usa <strong>GPT-4o-mini</strong>. Necesita <code>OPENAI_API_KEY</code> configurada.
+            ~10-30 seg/artículo.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent activity -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-clock-history me-2 text-info"></i>Actividad reciente
+      </div>
+      <div class="card-body p-0" style="max-height:280px;overflow-y:auto;">
+        <ul class="list-group list-group-flush">
+          {% for act in actividades_recientes %}
+          <li class="list-group-item small py-2">
+            <span class="fw-semibold">{{ act.usuario.username }}</span>
+            <span class="text-muted ms-1">{{ act.descripcion|truncatechars:50 }}</span>
+            <span class="float-end text-muted">{{ act.timestamp|timesince }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cleanup duplicate points -->
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-shield-check me-2 text-danger"></i>Eliminar duplicados de puntos
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate onsubmit="return confirm('Se eliminarán actividades duplicadas de lectura y se ajustarán puntos. ¿Continuar?');">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="limpiar_duplicados_puntos">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ limpiar_duplicados_form.usuario.label }}</label>
+            {{ limpiar_duplicados_form.usuario }}
+            <div class="form-text">Selecciona un alumno para limpiar solo su histórico.</div>
+            {% if limpiar_duplicados_form.usuario.errors %}
+              <div class="text-danger small mt-1">{{ limpiar_duplicados_form.usuario.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-check mb-3">
+            {{ limpiar_duplicados_form.limpiar_todos }}
+            <label class="form-check-label" for="{{ limpiar_duplicados_form.limpiar_todos.id_for_label }}">
+              {{ limpiar_duplicados_form.limpiar_todos.label }}
+            </label>
+          </div>
+
+          {% if limpiar_duplicados_form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+              {{ limpiar_duplicados_form.non_field_errors.0 }}
+            </div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash3 me-1"></i>Eliminar duplicados
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blog analytics per user -->
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-journal-text me-2 text-primary"></i>Uso de blog por usuario</span>
+        <small class="text-muted">lecturas, tiempo, premios y me gusta</small>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Usuario</th>
+              <th class="text-end">Posts vistos</th>
+              <th class="text-end">Tiempo lectura</th>
+              <th class="text-end">Con premio</th>
+              <th class="text-end">Me gusta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in estadisticas_blog_por_usuario %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ fila.usuario.get_full_name|default:fila.usuario.username }}</div>
+                <div class="small text-muted">{{ fila.usuario.username }}</div>
+              </td>
+              <td class="text-end">{{ fila.posts_vistos }}</td>
+              <td class="text-end">{{ fila.tiempo_total_segundos }}s</td>
+              <td class="text-end">
+                <span class="badge bg-success">{{ fila.premios_obtenidos }}</span>
+              </td>
+              <td class="text-end">
+                <span class="badge bg-primary">{{ fila.me_gusta }}</span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-3">Sin actividad de blog registrada.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course analytics per user -->
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-mortarboard me-2 text-success"></i>Estadística de cursos por usuario</span>
+        <small class="text-muted">inscripciones, completados, quiz y puntos</small>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Usuario</th>
+              <th class="text-end">Inscripciones</th>
+              <th class="text-end">Cursos completados</th>
+              <th class="text-end">Temas completados</th>
+              <th class="text-end">Quiz aprobados</th>
+              <th class="text-end">Puntos cursos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in estadisticas_curso_por_usuario %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ fila.usuario.get_full_name|default:fila.usuario.username }}</div>
+                <div class="small text-muted">{{ fila.usuario.username }}</div>
+                {% if fila.usuario.aula %}<div class="small"><span class="badge bg-secondary">{{ fila.usuario.aula }}</span></div>{% endif %}
+              </td>
+              <td class="text-end">{{ fila.inscripciones }}</td>
+              <td class="text-end">{{ fila.cursos_completados }}</td>
+              <td class="text-end">{{ fila.temas_completados }}</td>
+              <td class="text-end">{{ fila.quiz_aprobados }}</td>
+              <td class="text-end"><span class="badge bg-warning text-dark">{{ fila.puntos_curso }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-3">Sin actividad de cursos registrada.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

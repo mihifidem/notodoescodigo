@@ -1,0 +1,4 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar proyecto{% else %}<i class="bi bi-code-slash me-2 text-primary"></i>Nuevo proyecto{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:project_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:project_list' %}{% endblock %}

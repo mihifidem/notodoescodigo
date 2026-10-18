@@ -1,0 +1,28 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <h1>DuckyClash</h1>
+        <a class="btn btn-outline-primary" href="{% url 'ducky_arenas:home' %}">Volver al lobby</a>
+    </div>
+    <a class="btn btn-primary mb-3" href="{% url 'duckyclash:challenge_create' %}"><i class="bi bi-send me-1" aria-hidden="true"></i> Enviar reto privado</a>
+    <a class="btn btn-outline-primary mb-3" href="{% url 'duckyclash:open_list' %}">Retos Abiertos</a>
+    <div class="alert alert-info">Retos, preguntas y combate validados por Django. Para jugar con apuestas se necesitan ambas reservas bancarias verificadas y los proveedores configurados.</div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4"><a class="card card-body text-decoration-none" href="{% url 'duckyclash:invitations_received' %}"><strong>{{ received_count }}</strong> Invitaciones recibidas pendientes</a></div>
+        <div class="col-sm-4"><a class="card card-body text-decoration-none" href="{% url 'duckyclash:invitations_sent' %}"><strong>{{ sent_count }}</strong> Invitaciones enviadas pendientes</a></div>
+        <div class="col-sm-4"><a class="card card-body text-decoration-none" href="{% url 'duckyclash:duel_list' %}"><strong>{{ duel_count }}</strong> Duelos sin cerrar</a></div>
+    </div>
+    <h2 class="h5">Retos recientes</h2>
+    <div class="list-group">
+        {% for challenge in challenges %}
+        <a class="list-group-item list-group-item-action" href="{% url 'duckyclash:challenge_detail' challenge.pk %}">
+            Reto #{{ challenge.pk }} · {{ challenge.creator.get_username }} contra {{ challenge.opponent.get_username|default:"Rival pendiente" }} · {% if challenge.is_expired %}Caducado{% else %}{{ challenge.get_status_display }}{% endif %}
+        </a>
+        {% empty %}
+        <p class="text-body-secondary">No hay retos DuckyClash disponibles.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

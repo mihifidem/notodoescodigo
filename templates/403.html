@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}No autorizado (403){% endblock %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="display-3 text-danger">403</h1>
+    <h2 class="mb-4">No tienes autorización para acceder a esta página</h2>
+    <p>Si crees que esto es un error, contacta con el administrador.</p>
+    <a href="/dashboard/" class="btn btn-primary mt-3">Volver al inicio</a>
+</div>
+{% endblock %}

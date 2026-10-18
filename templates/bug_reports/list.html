@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Mis Bugs{% endblock %}
+{% block page_title %}Mis Reportes de Bugs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h4 fw-bold mb-1">Reportes enviados</h2>
+    <p class="text-muted mb-0">Solo visible para alumnos. Aquí puedes seguir el estado de tus reportes.</p>
+  </div>
+  <a href="{% url 'bug_reports:create' %}" class="btn btn-primary">
+    <i class="bi bi-bug me-1"></i>Reportar bug
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Titulo</th>
+          <th>Estado</th>
+          <th class="text-end">Puntos</th>
+          <th>Creado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for bug in bugs %}
+        <tr>
+          <td>
+            <div class="fw-semibold">{{ bug.titulo }}</div>
+            <div class="small text-muted">{{ bug.descripcion|truncatechars:90 }}</div>
+          </td>
+          <td>
+            {% if bug.estado == 'pendiente' %}
+              <span class="badge bg-warning text-dark">Pendiente</span>
+            {% elif bug.estado == 'validado' %}
+              <span class="badge bg-success">Validado</span>
+            {% else %}
+              <span class="badge bg-danger">Rechazado</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if bug.puntos_asignados %}
+              <span class="fw-semibold text-success">+{{ bug.puntos_premio }}</span>
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ bug.creado_en|date:'d/m/Y H:i' }}</td>
+        </tr>
+        {% if bug.comentarios_admin %}
+        <tr>
+          <td colspan="4" class="bg-light">
+            <span class="small text-muted fw-semibold">Comentario admin:</span>
+            <span class="small">{{ bug.comentarios_admin }}</span>
+          </td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">
+            No tienes reportes todavía. Usa "Reportar bug" para enviar el primero.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% if module %}{% trans 'Editar módulo' %}{% else %}{% trans 'Nuevo módulo' %}{% endif %} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans 'Contenido' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% if module %}{% trans 'Editar módulo' %}{% else %}{% trans 'Nuevo módulo' %}{% endif %}</span>
+  </nav>
+  <section class="form-panel">
+    <h1>{% if module %}{% trans 'Editar módulo' %}{% else %}{% trans 'Nuevo módulo' %}{% endif %}</h1>
+    <form method="post" class="stacked-form" data-lms-validation-url="{% url 'lms:form_field_validate' form_type='module' %}" data-course-id="{{ course.pk }}" data-object-id="{{ module.pk|default:'' }}" data-validation-failure-message="{% trans 'No se pudo validar el campo. Vuelve a intentarlo.' %}">
+      {% csrf_token %}
+      <input type="hidden" name="return_to" value="content">
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="action-row">
+        <button type="submit" class="button button-primary">{% trans 'Guardar módulo' %}</button>
+        <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

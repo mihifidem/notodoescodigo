@@ -1,0 +1,36 @@
+{% extends "curriculum/sections/_list_base.html" %}
+{% block list_title %}<i class="bi bi-patch-check me-2 text-primary"></i>Formación complementaria{% endblock %}
+{% block create_url %}{% url 'curriculum:training_create' %}{% endblock %}
+
+{% block list_content %}
+{% if items %}
+<div class="row g-3">
+  {% for item in items %}
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <span class="badge bg-secondary mb-2">{{ item.get_tipo_display }}</span>
+          <div class="d-flex gap-1">
+            <a href="{% url 'curriculum:training_edit' pk=item.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{% url 'curriculum:training_delete' pk=item.pk %}" onsubmit="return confirm('¿Eliminar?');">
+              {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></button>
+            </form>
+          </div>
+        </div>
+        <h6 class="fw-bold">{{ item.nombre }}</h6>
+        {% if item.entidad %}<p class="text-muted small mb-0">{{ item.entidad }}</p>{% endif %}
+        {% if item.fecha %}<p class="text-muted small mb-0">{{ item.fecha|date:"m/Y" }}</p>{% endif %}
+        {% if item.descripcion %}<p class="small mt-1 mb-0">{{ item.descripcion }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-patch-check" style="font-size:3rem;"></i>
+  <p class="mt-2">Sin formación complementaria. <a href="{% url 'curriculum:training_create' %}">Añade la primera</a></p>
+</div>
+{% endif %}
+{% endblock %}

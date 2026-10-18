@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Base64{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-secondary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Base64</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Esta miniapp te ayuda a codificar o decodificar datos de forma rápida sin salir de tu flujo de trabajo.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#toolInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label">Texto</label>
+              <input type="text" name="text" value="{{ text }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Modo</label>
+              <select name="mode" class="form-select">
+                <option value="encode" {% if mode == 'encode' %}selected{% endif %}>Encode</option>
+                <option value="decode" {% if mode == 'decode' %}selected{% endif %}>Decode</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-secondary w-100 rounded-pill">Procesar</button>
+            </div>
+          </form>
+
+          {% if error %}
+            <div class="alert alert-danger mt-4 mb-0">{{ error }}</div>
+          {% else %}
+            <div class="mt-4 p-3 bg-light border rounded-4">
+              <div class="small text-uppercase text-secondary">Resultado</div>
+              <div class="mt-2 fw-semibold font-monospace">{{ result }}</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

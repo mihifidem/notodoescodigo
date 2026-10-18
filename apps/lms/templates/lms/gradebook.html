@@ -1,0 +1,41 @@
+{% load i18n %}
+<section class="gradebook" aria-labelledby="gradebook-title">
+  <div class="gradebook-toolbar">
+    <h2 id="gradebook-title">{% trans "Libro de notas" %}</h2>
+    <a class="button button-light button-small" href="?{{ grade_export_query }}"><i class="bi bi-download" aria-hidden="true"></i> {% trans "Exportar CSV" %}</a>
+  </div>
+  <form method="get" class="gradebook-filters">
+    {% if teacher_view %}
+    <div><label for="grade-student">{% trans "Nombre del estudiante" %}</label><input id="grade-student" name="student" type="search" value="{{ grade_student_query }}" placeholder="{% trans 'Buscar estudiantes' %}" maxlength="200"></div>
+    {% endif %}
+    <div><label for="grade-activity">{% trans "Nombres de la actividad" %}</label><input id="grade-activity" name="activity" type="search" value="{{ grade_activity_query }}" placeholder="{% trans 'Buscar actividades' %}" maxlength="200"></div>
+    <div class="gradebook-filter-actions"><button class="button button-light button-small" type="submit"><i class="bi bi-funnel" aria-hidden="true"></i> {% trans "Aplicar filtros" %}</button>{% if grade_student_query or grade_activity_query %}<a href="{% url 'lms:course_area' course_id=course.pk area='grades' %}">{% trans "Limpiar filtros" %}</a>{% endif %}</div>
+  </form>
+  <p class="quiet-note">{% trans "Las pruebas muestran la nota del último intento. El historial y el feedback se conservan debajo. Un guion indica que no hay una nota disponible." %}</p>
+  <p class="quiet-note" data-quiz-live-error role="alert" hidden>{% trans 'No se pudieron actualizar los resultados. La actualización se ha detenido.' %}</p>
+  <div data-quiz-live-region>
+  <div class="gradebook-scroll" tabindex="0" role="region" aria-label="{% trans 'Calificaciones por estudiante y actividad; tabla desplazable' %}">
+    <table class="gradebook-table">
+      <caption class="visually-hidden">{% trans "Libro de calificaciones del curso" %}</caption>
+      <thead><tr>
+        <th scope="col" class="gradebook-student">{% trans "Nombre del estudiante" %}</th>
+        {% for column in gradebook.columns %}
+          <th scope="col">{% if column.url %}<a href="{{ column.url }}">{{ column.title }}</a>{% else %}{{ column.title }}{% endif %}<small>{% trans "De" %} {{ column.max_grade|default_if_none:"—" }}</small></th>
+        {% endfor %}
+      </tr></thead>
+      <tbody>
+        {% for row in gradebook.rows %}
+        <tr>
+          <th scope="row" class="gradebook-student"><span title="{{ row.name }}">{{ row.name }}</span></th>
+          {% for cell in row.cells %}
+          <td><span title="{{ cell.status }}">{% if cell.grade is not None %}{{ cell.grade }}{% else %}—{% endif %}</span><span class="visually-hidden"> · {{ cell.status }}</span></td>
+          {% endfor %}
+        </tr>
+        {% empty %}<tr><td colspan="100">{% trans "No hay estudiantes que coincidan con los filtros." %}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not gradebook.columns %}<p class="quiet-note">{% trans "No hay actividades que coincidan con los filtros." %}</p>{% endif %}
+  {% include 'lms/quiz_results.html' %}
+  </div>
+</section>

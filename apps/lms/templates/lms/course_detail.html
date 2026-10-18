@@ -1,0 +1,200 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+
+{% block title %}{{ course.nombre }} | NoTodoEsCódigo Campus{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'lms/course-home.css' %}?v=20261013">
+{% endblock %}
+{% block content %}
+<div class="course-reference-home">
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Mis aulas" %}</a><span aria-hidden="true">/</span><span aria-current="page">{{ course.nombre }}</span>
+  </nav>
+  {% if preview_mode %}
+    <div class="preview-banner" role="status" aria-live="polite">
+      <strong>{% trans "Vista previa del alumno" %}</strong>
+      <span>{% trans "Muestra la experiencia del curso sin otorgar permisos de edición ni de matrícula." %}</span>
+    </div>
+  {% endif %}
+  <div class="course-home-grid">
+  <div class="course-home-main">
+    <section class="recent-announcements" aria-labelledby="recent-announcements-title">
+      <div class="section-heading"><h2 id="recent-announcements-title">{% trans "Anuncios recientes" %}</h2><a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}">{% trans "Ver todos" %}</a></div>
+      {% for announcement in recent_announcements %}
+      <article class="recent-announcement-row">
+        <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% else %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% endif %}</span>
+        <div class="announcement-excerpt">
+          <h3><a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}#announcement-{{ announcement.pk }}">{{ announcement.title }}</a></h3>
+          <p>{{ announcement.content|striptags|truncatechars:130 }}</p>
+          <small>{{ announcement.author.get_full_name|default:announcement.author.username }}</small>
+        </div>
+        <time datetime="{{ announcement.publish_at|default:announcement.created_at|date:'c' }}">{{ announcement.publish_at|default:announcement.created_at|date:'j M Y, H:i' }}</time>
+      </article>
+      {% empty %}<p class="quiet-note">{% trans "Todavía no hay anuncios publicados." %}</p>{% endfor %}
+    </section>
+  <section class="course-hero course-home-heading">
+    <div class="hero-content">
+      <p class="eyebrow">{% trans "AULA NoTodoEsCódigo" %}</p>
+      <div class="hero-title-row">
+        <h1>{{ course.nombre }}</h1>
+        <span class="status {% if course_archived %}status-draft{% elif course.activo %}status-published{% else %}status-draft{% endif %}">{% if course_archived %}{% trans "Archivado" %}{% elif course.activo %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
+      </div>
+      <p class="hero-summary">{{ course.descripcion|truncatewords:30 }}</p>
+      <div class="teacher-rail" aria-label="{% trans 'Profesores del curso' %}">
+        {% if course_teachers %}
+          <span class="eyebrow">{% trans "DOCENTES" %}</span>
+          <div class="teacher-list">
+            {% for teacher in course_teachers %}
+              <span class="teacher-chip">{{ teacher.get_full_name|default:teacher.username }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="hero-actions">
+        {% if request.user.is_staff %}<a class="button button-danger" href="{% url 'lms:course_delete' course_id=course.pk %}">{% trans "Eliminar curso" %}</a>{% endif %}
+        {% if not teacher_view %}
+          <a class="button button-light" href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}" data-announcement-alert data-announcement-count-url="{% url 'lms:course_announcement_count' course_id=course.pk %}" {% if not announcements_pending_count %}hidden{% endif %}>
+            <i class="bi bi-megaphone" aria-hidden="true"></i>
+            <span data-announcement-label aria-live="polite">{% blocktrans count count=announcements_pending_count|default:0 %}{{ count }} anuncio pendiente{% plural %}{{ count }} anuncios pendientes{% endblocktrans %}</span>
+          </a>
+        {% endif %}
+        {% if membership and membership.status == 'active' or membership and membership.status == 'completed' %}
+          <span class="enrolled-label"><span aria-hidden="true">✓</span> {{ membership.get_role_display }}{% if membership.section %} · {{ membership.section.title }}{% endif %}</span>
+        {% elif can_enroll %}
+          <form method="post" action="{% url 'lms:course_enroll' course_id=course.pk %}">
+            {% csrf_token %}<button class="button button-primary" type="submit">{% trans "Inscribirme en el curso" %}</button>
+          </form>
+        {% endif %}
+        {% if can_edit %}<a class="button button-light" href="{% url 'lms:course_edit' course_id=course.pk %}">{% trans "Editar aula" %}</a>{% endif %}
+        {% if can_edit %}<a class="button button-light" href="{% url 'lms:course_pages' course_id=course.pk %}">{% trans "Páginas del curso" %}</a>{% endif %}
+        {% if can_edit %}<a class="button button-light" href="{% url 'lms:course_announcement_create' course_id=course.pk %}">{% trans "Crear anuncio" %}</a>{% endif %}
+        {% if can_publish and not course.activo %}
+          <form method="post" action="{% url 'lms:course_publish' course_id=course.pk %}">
+            {% csrf_token %}<button class="button button-light" type="submit">{% trans "Publicar aula" %}</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+  </section>
+
+  {% if course.portada or course.imagen %}
+    <img class="course-home-cover" src="{% if course.portada %}{{ course.portada.url }}{% else %}{{ course.imagen.url }}{% endif %}" alt="{{ course.nombre }}">
+  {% endif %}
+  {% if home_page %}
+    <section class="content-panel home-preview-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{% trans "PORTADA DEL CURSO" %}</p>
+          <h2>{{ home_page.title }}</h2>
+        </div>
+      </div>
+      <div class="page-body home-page-body">{% include 'lms/page_body.html' with page=home_page %}</div>
+      <div class="action-row compact">
+        {% if can_edit %}
+          <a class="button button-light" href="{% url 'lms:course_page_detail' course_id=course.pk page_slug=home_page.slug %}">{% trans "Ver página" %}</a>
+        {% endif %}
+        <a class="button button-primary" href="{% url 'lms:course_page_detail' course_id=course.pk page_slug=home_page.slug %}">{% trans "Continuar aprendiendo" %}</a>
+      </div>
+    </section>
+  {% else %}
+    <section class="content-panel home-preview-panel empty-home-state">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{% trans "PORTADA AUTOMÁTICA" %}</p>
+          <h2>{% trans "Bienvenida al curso" %}</h2>
+        </div>
+      </div>
+      <div class="page-body">
+        <p>{{ course.descripcion|default:course.resumen }}</p>
+      </div>
+      <div class="action-row compact">
+        <a class="button button-primary" href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans "Explorar contenido" %}</a>
+      </div>
+    </section>
+  {% endif %}
+  <section class="course-home-summary" aria-labelledby="course-summary-title">
+    <h2 id="course-summary-title">{% trans "Resumen del curso" %}</h2>
+    <div class="table-scroll"><table class="course-summary-table">
+      <thead><tr><th scope="col">{% trans "Fecha" %}</th><th scope="col">{% trans "Detalles" %}</th><th scope="col">{% trans "Entrega" %}</th></tr></thead>
+      <tbody>
+        {% for topic in topics %}<tr><td>—</td><td><a href="{% url 'courses:tema_detail' topic.pk %}"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> {{ topic.titulo }}</a></td><td>—</td></tr>{% endfor %}
+        {% for evaluation in upcoming_evaluations %}<tr><td>{{ evaluation.moment|date:"j M Y" }}</td><td>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</td><td>{{ evaluation.moment|date:"H:i" }}</td></tr>{% endfor %}
+        {% if not topics and not upcoming_evaluations %}<tr><td colspan="3">{% trans "El equipo docente está preparando el contenido del curso." %}</td></tr>{% endif %}
+      </tbody>
+    </table></div>
+  </section>
+  </div>
+  <aside class="course-home-sidebar" aria-label="{% trans 'Herramientas y planificación del curso' %}">
+    <nav class="course-home-tools" aria-label="{% trans 'Acciones del curso' %}">
+      {% if can_edit %}
+        <a href="{% url 'lms:course_edit' course_id=course.pk %}"><i class="bi bi-pencil" aria-hidden="true"></i> {% trans "Editar aula" %}</a>
+        <a href="{% url 'lms:course_pages' course_id=course.pk %}"><i class="bi bi-house" aria-hidden="true"></i> {% trans "Seleccionar página de inicio" %}</a>
+        <a href="{% url 'lms:course_announcement_create' course_id=course.pk %}"><i class="bi bi-megaphone" aria-hidden="true"></i> {% trans "Nuevo anuncio" %}</a>
+      {% endif %}
+      <a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}">{% trans "Notificaciones del curso" %}</a>
+      <a href="{% url 'lms:course_area' course_id=course.pk area='syllabus' %}">{% trans "Programa del curso" %}</a>
+    </nav>
+    <h2>{% trans "Tareas pendientes" %}</h2>
+    {% for evaluation in upcoming_evaluations %}<div class="course-home-task">{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></div>{% empty %}<p class="quiet-note">{% trans "No hay fechas próximas publicadas." %}</p>{% endfor %}
+    {% include 'lms/course_calendar.html' %}
+  </aside>
+  </div>
+  <details class="course-home-progress">
+  <summary>{% trans "Tu recorrido y próximas actividades" %}</summary>
+  <div class="course-context-grid">
+    <div class="course-content-column">
+      <div class="section-heading"><div><p class="eyebrow">{% trans "SIGUIENTE ACTIVIDAD" %}</p><h2>{% trans "Tu aula, paso a paso" %}</h2></div><span class="activity-chip">{% trans "Actividad actual" %}</span></div>
+      <section class="content-panel">
+        {% if not teacher_view and course_steps %}
+          <ol class="student-steps" aria-label="{% trans 'Tu recorrido en el curso' %}">
+            {% for step in course_steps %}<li class="step-{{ step.state }}"><span aria-hidden="true">{% if step.state == 'done' %}✓{% else %}{{ forloop.counter }}{% endif %}</span><div><strong>{{ step.label }}</strong>{% if step.detail %}<small>{{ step.detail }}</small>{% endif %}</div></li>{% endfor %}
+          </ol>
+        {% endif %}
+        {% if current_topic %}
+          <article class="current-activity">
+            <span class="activity-number" aria-hidden="true">{{ current_topic.pk|default:'01' }}</span>
+            <div><p class="eyebrow">{% trans "CONTENIDO DEL CURSO" %}</p><h3>{{ current_topic.titulo }}</h3><p>{{ current_topic.contenido|striptags|truncatewords:36 }}</p><div class="current-activity-actions"><a class="card-link" href="{% url 'courses:tema_detail' current_topic.pk %}">{% trans "Abrir actividad" %} <span aria-hidden="true">→</span></a>{% if current_topic %}<a class="button button-secondary" href="#curso-timeline">{% trans "Ir a la actividad actual" %}</a>{% endif %}</div></div>
+          </article>
+        {% else %}
+          <div class="empty-state empty-state-compact"><h3>{% trans "El contenido se está preparando" %}</h3><p>{% trans "El equipo docente publicará aquí los temas y actividades del aula." %}</p></div>
+        {% endif %}
+        {% if course_timeline %}
+          <ol class="activity-timeline" id="curso-timeline" aria-label="{% trans 'Cronograma del curso' %}">
+            {% for item in course_timeline %}
+              <li class="{% if item.is_current %}is-current{% elif item.is_complete %}is-complete{% endif %}">
+                <span class="timeline-marker" aria-hidden="true">{% if item.is_complete %}✓{% else %}{{ item.index }}{% endif %}</span>
+                <div><p class="eyebrow">{% if item.is_current %}{% trans "ACTIVIDAD ACTUAL" %}{% elif item.is_complete %}{% trans "COMPLETADO" %}{% else %}{% blocktrans with number=item.index %}SIGUIENTE {{ number }}{% endblocktrans %}{% endif %}</p><h3><a href="{% url 'courses:tema_detail' item.topic.pk %}">{{ item.topic.titulo }}</a></h3></div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% elif topics %}
+          <ol class="activity-timeline">
+            {% for topic, progress in topics_with_progress %}
+              <li class="{% if topic == current_topic %}is-current{% elif progress and progress.completado %}is-complete{% endif %}">
+                <span class="timeline-marker" aria-hidden="true">{% if progress and progress.completado %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+                <div><p class="eyebrow">{% if topic == current_topic %}{% trans "ACTIVIDAD ACTUAL" %}{% else %}{% blocktrans with number=forloop.counter %}PASO {{ number }}{% endblocktrans %}{% endif %}</p><h3><a href="{% url 'courses:tema_detail' topic.pk %}">{{ topic.titulo }}</a></h3></div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+      </section>
+    </div>
+    <aside class="upcoming-panel" aria-labelledby="upcoming-title">
+      <div class="section-heading"><div><p class="eyebrow">{% trans "PLANIFICA" %}</p><h2 id="upcoming-title">{% trans "Próximas entregas" %}</h2></div></div>
+      {% if upcoming_evaluations %}
+        <ul class="due-list">
+          {% for evaluation in upcoming_evaluations %}
+            <li><span class="due-icon" aria-hidden="true">◷</span><div><h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3><p>{% if evaluation.is_deadline %}{% trans "Cierra" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p><span class="due-state due-{{ evaluation.state }}">{% if evaluation.published %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span></div></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state empty-state-compact"><p>{% trans "No hay fechas próximas publicadas." %}</p></div>
+      {% endif %}
+      <p class="plan-link"><a href="{% url 'lms:course_area' course_id=course.pk area='syllabus' %}">{% trans "Consultar el programa" %} <span aria-hidden="true">→</span></a></p>
+    </aside>
+  </div>
+  </details>
+</div>
+{% endblock %}

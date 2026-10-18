@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ profile.cv.personal_info.nombre_completo|default:profile.nombre }} — CV Clásico</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ── Traditional / Corporate style ───────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --primary-dark: #0f2440;
+      --accent: #c9973a;
+      --text: #2d3748;
+      --text-light: #718096;
+      --border: #e2e8f0;
+      --bg: #f7fafc;
+      --white: #ffffff;
+      --section-bg: #edf2f7;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Layout: two-column ──────────────────────── */
+    .cv-container {
+      max-width: 960px;
+      margin: 2rem auto 4rem;
+      background: var(--white);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, .1);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 1100px;
+    }
+
+    /* ── Header (full width) ─────────────────────── */
+    .cv-header {
+      grid-column: 1 / -1;
+      background: var(--primary);
+      color: white;
+      padding: 2.5rem 3rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .cv-header__photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      flex-shrink: 0;
+    }
+
+    .cv-header__photo-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .cv-header__info {
+      flex: 1;
+    }
+
+    .cv-header__name {
+      font-family: 'Raleway', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .cv-header__title {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--accent);
+      margin-top: .2rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .cv-header__contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem 1.5rem;
+      margin-top: .9rem;
+      font-size: .82rem;
+      opacity: .9;
+    }
+
+    .cv-header__contact span {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    /* ── Left sidebar ────────────────────────────── */
+    .cv-sidebar {
+      background: var(--primary-dark);
+      color: white;
+      padding: 2rem 1.5rem;
+    }
+
+    .sidebar-section {
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-section__title {
+      font-family: 'Raleway', sans-serif;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(255, 255, 255, .15);
+      padding-bottom: .4rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Skills in sidebar */
+    .skill-bar-item {
+      margin-bottom: .7rem;
+    }
+
+    .skill-bar-item__name {
+      font-size: .82rem;
+      margin-bottom: .2rem;
+    }
+
+    .skill-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 2px;
+    }
+
+    .skill-bar__fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .skill-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+    }
+
+    .skill-tag-sm {
+      background: rgba(255, 255, 255, .12);
+      border-radius: 3px;
+      padding: .15rem .5rem;
+      font-size: .75rem;
+    }
+
+    /* Language in sidebar */
+    .lang-item-sidebar {
+      margin-bottom: .6rem;
+      font-size: .82rem;
+    }
+
+    .lang-item-sidebar__name {
+      font-weight: 600;
+    }
+
+    .lang-item-sidebar__level {
+      color: var(--accent);
+      font-size: .75rem;
+    }
+
+    /* Social in sidebar */
+    .social-item {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      margin-bottom: .5rem;
+      font-size: .8rem;
+    }
+
+    .social-item a {
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .social-item a:hover {
+      color: var(--accent);
+    }
+
+    /* Interest tags */
+    .interest-tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, .1);
+      border-radius: 999px;
+      padding: .15rem .6rem;
+      font-size: .75rem;
+      margin: .15rem .1rem;
+    }
+
+    /* ── Main content ─────────────────────────────── */
+    .cv-main {
+      padding: 2rem 2.5rem;
+    }
+
+    .main-section {
+      margin-bottom: 2rem;
+    }
+
+    .main-section__title {
+      font-family: 'Raleway', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .main-section__title::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    /* Entries */
+    .entry {
+      margin-bottom: 1.3rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--border);
+    }
+
+    .entry:hover {
+      border-left-color: var(--accent);
+    }
+
+    .entry__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: .2rem;
+    }
+
+    .entry__title {
+      font-weight: 600;
+      font-size: .95rem;
+      color: var(--primary);
+    }
+
+    .entry__company {
+      font-size: .88rem;
+      color: var(--text-light);
+    }
+
+    .entry__period {
+      font-size: .78rem;
+      color: white;
+      background: var(--primary);
+      padding: .15rem .6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .entry__body {
+      margin-top: .4rem;
+      font-size: .88rem;
+      color: var(--text);
+    }
+
+    .entry__logros {
+      margin-top: .4rem;
+    }
+
+    .entry__logros li {
+      list-style: none;
+      padding-left: 1rem;
+      position: relative;
+      font-size: .85rem;
+    }
+
+    .entry__logros li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: .6rem;
+      top: .35rem;
+    }
+
+    /* Training badges */
+    .training-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: .6rem;
+    }
+
+    .training-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .6rem .8rem;
+      font-size: .82rem;
+    }
+
+    .training-card__tipo {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .training-card__nombre {
+      font-weight: 600;
+      margin: .1rem 0;
+    }
+
+    .training-card__entidad {
+      color: var(--text-light);
+      font-size: .78rem;
+    }
+
+    /* Projects */
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: .8rem;
+    }
+
+    .proj-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      transition: border-color .2s;
+    }
+
+    .proj-card:hover {
+      border-color: var(--accent);
+    }
+
+    .proj-card__name {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: .3rem;
+    }
+
+    .proj-card__tech {
+      font-size: .75rem;
+      color: var(--text-light);
+      margin-bottom: .3rem;
+    }
+
+    .proj-card__desc {
+      font-size: .82rem;
+    }
+
+    .proj-card__link {
+      font-size: .78rem;
+      margin-top: .4rem;
+      display: block;
+    }
+
+    /* Achievements */
+    .achievement-item {
+      display: flex;
+      gap: .8rem;
+      align-items: flex-start;
+      margin-bottom: .8rem;
+    }
+
+    .achievement-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: .1rem;
+    }
+
+    .achievement-content__title {
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    .achievement-content__meta {
+      font-size: .78rem;
+      color: var(--text-light);
+    }
+
+    /* ── Toolbar ─────────────────────────────────── */
+    .cv-toolbar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: .5rem;
+      z-index: 100;
+    }
+
+    .cv-toolbar a {
+      padding: .45rem 1rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      font-size: .82rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .cv-container {
+        box-shadow: none;
+        margin: 0;
+        max-width: 100%;
+      }
+
+      .cv-toolbar {
+        display: none;
+      }
+
+      .entry:hover {
+        border-left-color: var(--border);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cv-container {
+        grid-template-columns: 1fr;
+      }
+
+      .cv-header {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <!-- Toolbar -->
+  <nav class="cv-toolbar">
+    <a href="{% url 'curriculum_cv_pdf' slug=profile.slug %}" target="_blank">⬇ PDF</a>
+    {% if user.is_authenticated and user == profile.user %}
+    <a href="{% url 'curriculum:profile_list' %}">← Perfiles</a>
+    {% endif %}
+  </nav>
+
+  <div class="cv-container">
+
+    <!-- ── HEADER ──────────────────────────────────── -->
+    <header class="cv-header">
+      {% with pi=profile.cv.personal_info %}
+      {% if pi.foto %}
+      <img src="{{ pi.foto.url }}" alt="{{ pi.nombre_completo }}" class="cv-header__photo">
+      {% else %}
+      <div class="cv-header__photo-placeholder">👤</div>
+      {% endif %}
+      <div class="cv-header__info">
+        <h1 class="cv-header__name">{{ pi.nombre_completo|default:"—" }}</h1>
+        {% if profile.mostrar_perfil_profesional and profile.cv.professional_profile %}
+        <p class="cv-header__title">{{ profile.cv.professional_profile.profesion }}</p>
+        {% endif %}
+        <div class="cv-header__contact">
+          {% if pi.email_profesional1 %}<span>✉ {{ pi.email_profesional1 }}</span>{% endif %}
+          {% if pi.telefono1 %}<span>☎ {{ pi.telefono1 }}</span>{% endif %}
+          {% if pi.ciudad %}<span>📍 {{ pi.ciudad }}{% if pi.pais %}, {{ pi.pais }}{% endif %}</span>{% endif %}
+          {% if pi.disponibilidad %}<span>⏱ {{ pi.get_disponibilidad_display }}</span>{% endif %}
+          {% if pi.carnet_conducir %}<span>🚗 Carnet de conducir</span>{% endif %}
+        </div>
+      </div>
+      {% endwith %}
+    </header>
+
+    <!-- ── SIDEBAR ─────────────────────────────────── -->
+    <aside class="cv-sidebar">
+
+      <!-- Professional summary -->
+      disponible
+      {% if profile.mostrar_perfil_profesional %}
+      {% with pp=profile.cv.professional_profile %}
+      {% if pp and pp.resumen %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Sobre mí</h2>
+        <p style="font-size:.83rem; opacity:.9; line-height:1.6;">{{ pp.resumen }}</p>
+      </div>
+      {% endif %}
+      {% endwith %}
+      {% endif %}
+
+      <!-- Skills -->
+      {% if profile.habilidades.exists %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Habilidades técnicas</h2>
+        {% for s in profile.habilidades.all %}
+        {% if s.tipo == 'hard' %}
+        <div class="skill-bar-item">
+          <div class="skill-bar-item__name">{{ s.nombre }}</div>
+          {% if s.nivel %}
+          <div class="skill-bar">
+            <div class="skill-bar__fill" style="width:{{ s.nivel|floatformat:0 }}0%"></div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div style="margin-top:1rem;">
+          <div class="sidebar-section__title" style="margin-top:.5rem; margin-bottom:.5rem;">Soft skills</div>
+          <div class="skill-tag-list">
+
+            {% for s in profile.habilidades.all %}
+            {% if s.tipo == 'soft' %}
+            <span class="skill-tag-sm">{{ s.nombre }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Languages -->
+      {% if profile.idiomas.exists %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Idiomas</h2>
+        {% for lang in profile.idiomas.all %}
+        <div class="lang-item-sidebar">
+          <div class="lang-item-sidebar__name">{{ lang.idioma }}</div>
+          <div class="lang-item-sidebar__level">{{ lang.get_nivel_display }}{% if lang.certificacion %} · {{
+            lang.certificacion }}{% endif %}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Social networks -->
+      {% if profile.mostrar_redes %}
+      {% with sn=profile.cv.social_networks %}
+      {% if sn %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Redes</h2>
+        {% if sn.linkedin %}<div class="social-item"><span>in</span><a href="{{ sn.linkedin }}" target="_blank"
+            rel="noopener">LinkedIn</a></div>{% endif %}
+        {% if sn.github %}<div class="social-item"><span>⌥</span><a href="{{ sn.github }}" target="_blank"
+            rel="noopener">GitHub</a></div>{% endif %}
+        {% if sn.portfolio %}<div class="social-item"><span>🌐</span><a href="{{ sn.portfolio }}" target="_blank"
+            rel="noopener">Portfolio</a></div>{% endif %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      {% endif %}
+
+      <!-- Interests -->
+      {% if profile.mostrar_intereses and profile.intereses.exists %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Intereses</h2>
+        {% for interes in profile.intereses.all %}
+        <span class="interest-tag">{{ interes.nombre }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Other info -->
+      {% if profile.mostrar_otros %}
+      {% with oi=profile.cv.other_info %}
+      {% if oi %}
+      <div class="sidebar-section">
+        <h2 class="sidebar-section__title">Otros datos</h2>
+        <p style="font-size:.8rem; opacity:.9;">Teletrabajo: <strong>{{ oi.get_teletrabajo_display }}</strong></p>
+        <p style="font-size:.8rem; opacity:.9;">Viajes: <strong>{% if oi.disponibilidad_viajar %}Sí{% else %}No{% endif %}</strong></p>
+        {% if oi.expectativa_salarial %}
+          <p style="font-size:.8rem; opacity:.9;">Salario: <strong>{{oi.expectativa_salarial }}</strong></p>
+          
+          {% endif %}
+
+      </div>
+      {% endif %}
+      {% endwith %}
+      {% endif %}
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ────────────────────────────── -->
+    <main class="cv-main">
+
+      <!-- Work Experience -->
+      {% if profile.experiencias.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Experiencia profesional</h2>
+        {% for exp in profile.experiencias.all %}
+        <div class="entry">
+          <div class="entry__header">
+            <div>
+              <div class="entry__title">{{ exp.puesto }}</div>
+              <div class="entry__company">{{ exp.empresa }}{% if exp.ubicacion %} · {{ exp.ubicacion }}{% endif %}</div>
+            </div>
+            <span class="entry__period">{{ exp.periodo }}</span>
+          </div>
+          {% if exp.descripcion %}
+          <div class="entry__body">{{ exp.descripcion|linebreaksbr }}</div>
+          {% endif %}
+          {% if exp.logros %}
+          <ul class="entry__logros">
+            {% for logro in exp.logros.splitlines %}
+            {% if logro %}<li>{{ logro }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      <!-- Education -->
+      {% if profile.educaciones.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Formación académica</h2>
+        {% for edu in profile.educaciones.all %}
+        <div class="entry">
+          <div class="entry__header">
+            <div>
+              <div class="entry__title">{{ edu.titulo }}</div>
+              <div class="entry__company">{{ edu.centro }}{% if edu.ubicacion %} · {{ edu.ubicacion }}{% endif %}</div>
+            </div>
+            <span class="entry__period">{{ edu.periodo }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      <!-- Complementary Training -->
+      {% if profile.formaciones.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Formación complementaria</h2>
+        <div class="training-grid">
+          {% for formacion in profile.formaciones.all %}
+          <div class="training-card">
+            <div class="training-card__tipo">{{ formacion.get_tipo_display }}</div>
+            <div class="training-card__nombre">{{ formacion.nombre }}</div>
+            {% if formacion.entidad %}<div class="training-card__entidad">{{ formacion.entidad }}</div>{% endif %}
+            {% if formacion.fecha %}<div class="training-card__entidad">{{ formacion.fecha|date:"Y" }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Projects -->
+      {% if profile.proyectos.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Proyectos destacados</h2>
+        <div class="proj-grid">
+          {% for proj in profile.proyectos.all %}
+          <div class="proj-card">
+            <div class="proj-card__name">{{ proj.nombre }}</div>
+            {% if proj.tecnologias %}<div class="proj-card__tech">🛠 {{ proj.tecnologias }}</div>{% endif %}
+            {% if proj.descripcion %}<div class="proj-card__desc">{{ proj.descripcion|truncatechars:120 }}</div>{% endif %}
+            {% if proj.link %}<a href="{{ proj.link }}" class="proj-card__link" target="_blank" rel="noopener">🔗 Ver
+              proyecto</a>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Achievements -->
+      {% if profile.mostrar_logros and profile.logros.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Logros y reconocimientos</h2>
+        {% for logro in profile.logros.all %}
+        <div class="achievement-item">
+          <div class="achievement-icon">
+            {% if logro.tipo == 'premio' %}🏆
+            {% elif logro.tipo == 'merito' %}🎓
+            {% elif logro.tipo == 'evento' %}🎯
+            {% else %}⭐
+            {% endif %}
+          </div>
+          <div class="achievement-content">
+            <div class="achievement-content__title">{{ logro.titulo }}</div>
+            <div class="achievement-content__meta">{{ logro.get_tipo_display }}{% if logro.fecha %} · {{
+              logro.fecha|date:"Y" }}{% endif %}</div>
+            {% if logro.descripcion %}<div style="font-size:.83rem; margin-top:.2rem;">{{ logro.descripcion }}</div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      <!-- Volunteering -->
+      {% if profile.mostrar_voluntariado and profile.voluntariados.exists %}
+      <section class="main-section">
+        <h2 class="main-section__title">Voluntariado</h2>
+        {% for vol in profile.voluntariados.all %}
+        <div class="entry">
+          <div class="entry__header">
+            <div>
+              <div class="entry__title">{{ vol.funcion }}</div>
+              <div class="entry__company">{{ vol.organizacion }}</div>
+            </div>
+          </div>
+          {% if vol.impacto %}<div class="entry__body">{{ vol.impacto }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+    </main>
+  </div>
+
+  <script>
+    if (new URLSearchParams(location.search).get('print') === '1') {
+      window.addEventListener('load', () => window.print());
+    }
+  </script>
+</body>
+
+</html>

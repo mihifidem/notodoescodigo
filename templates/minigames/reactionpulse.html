@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block page_title %}ReactionPulse — Velocidad de Reacción{% endblock %}
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+body{background:#020C12;}
+#page-content{background:#020C12!important;}
+main.flex-grow-1{background:#020C12!important;color:rgba(255,255,255,.85)!important;padding:0!important;}
+
+.mg-wrap{max-width:560px;margin:0 auto;padding:1.5rem 1rem;}
+.mg-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.mg-logo{font-family:'Poppins',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;}
+.mg-logo span{background:linear-gradient(135deg,#06B6D4,#3B82F6);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.mg-back{color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;display:flex;align-items:center;gap:5px;}
+.mg-back:hover{color:#fff;}
+
+.rp-hud{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.hud-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;text-align:center;}
+.hud-n{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#fff;line-height:1;}
+.hud-l{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+
+.rp-dots{display:flex;gap:8px;justify-content:center;margin-bottom:1.25rem;flex-wrap:wrap;}
+.rp-dot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.12);transition:all .2s;}
+.rp-dot.done{background:#06B6D4;}
+.rp-dot.fail{background:#EF4444;}
+.rp-dot.active{background:#fff;animation:dotBlink .5s step-end infinite;}
+@keyframes dotBlink{50%{opacity:.25}}
+
+.rp-arena{
+  width:100%;height:260px;border-radius:24px;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  cursor:pointer;transition:background .12s,box-shadow .12s;
+  margin-bottom:1.5rem;position:relative;overflow:hidden;
+  border:2px solid rgba(255,255,255,.06);
+  user-select:none;-webkit-user-select:none;
+}
+.rp-arena.idle{background:rgba(255,255,255,.04);}
+.rp-arena.waiting{background:linear-gradient(135deg,#7F1D1D,#DC2626);box-shadow:0 0 60px rgba(220,38,38,.3);}
+.rp-arena.react{background:linear-gradient(135deg,#14532D,#16A34A);box-shadow:0 0 70px rgba(22,163,74,.45);animation:arenaGreen .3s ease;}
+.rp-arena.false{background:linear-gradient(135deg,#78350F,#D97706);box-shadow:0 0 40px rgba(217,119,6,.3);}
+.rp-arena.result{background:linear-gradient(135deg,#1E3A5F,#1D4ED8);box-shadow:0 0 40px rgba(29,78,216,.3);}
+@keyframes arenaGreen{0%{transform:scale(.98)}100%{transform:scale(1)}}
+
+.rp-label{font-family:'Poppins',sans-serif;font-size:2.2rem;font-weight:800;color:#fff;letter-spacing:-1px;text-align:center;line-height:1.1;}
+.rp-sub{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.6rem;text-align:center;}
+.rp-ms{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;color:#fff;line-height:1;}
+
+.mg-overlay{position:fixed;inset:0;background:rgba(2,12,18,.93);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(8px);}
+.mg-modal{background:linear-gradient(145deg,#04111A,#020C12);border:1px solid rgba(6,182,212,.18);border-radius:20px;padding:2.5rem;text-align:center;max-width:400px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,.7);}
+.mg-modal-icon{font-size:3.5rem;margin-bottom:1rem;}
+.mg-modal-title{font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:.5rem;}
+.mg-modal-sub{color:rgba(255,255,255,.45);font-size:.85rem;margin-bottom:1.5rem;line-height:1.6;}
+.mg-modal-score{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;color:#06B6D4;line-height:1;margin-bottom:.2rem;}
+.mg-modal-score-lbl{font-size:.65rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1.5rem;}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.result-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;}
+.result-n{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700;color:#fff;}
+.result-l{font-size:.58rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.mg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:12px;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .2s;}
+.mg-btn-primary{background:linear-gradient(135deg,#164E63,#06B6D4);color:#fff;}
+.mg-btn-secondary{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+.mg-btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.mg-btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+  <div class="mg-nav">
+    <div class="mg-logo">⚡ Reaction<span>Pulse</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <div class="rp-hud">
+    <div class="hud-box"><div class="hud-n" id="rpRound">1/10</div><div class="hud-l">Ronda</div></div>
+    <div class="hud-box"><div class="hud-n" id="rpAvg" style="color:#06B6D4;">—</div><div class="hud-l">Prom. ms</div></div>
+    <div class="hud-box"><div class="hud-n" id="rpScore">0</div><div class="hud-l">Puntos</div></div>
+  </div>
+
+  <div class="rp-dots" id="rpDots"></div>
+
+  <div class="rp-arena idle" id="rpArena" onclick="handleClick()">
+    <div class="rp-label" id="rpLabel">Toca para comenzar</div>
+    <div class="rp-sub" id="rpSub">10 rondas · Mide tus reflejos</div>
+  </div>
+</div>
+
+<!-- Start -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">⚡</div>
+    <div class="mg-modal-title">ReactionPulse</div>
+    <div class="mg-modal-sub">Espera a que la pantalla se ponga VERDE y haz clic lo antes posible. 10 rondas. Si haces clic en rojo, ¡falsa salida y pierdes puntos!</div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="initGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🏆</div>
+    <div class="mg-modal-title" id="endTitle">Fin</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos</div>
+    <div class="result-grid">
+      <div class="result-box"><div class="result-n" id="endAvg">—</div><div class="result-l">Prom. ms</div></div>
+      <div class="result-box"><div class="result-n" id="endBest">—</div><div class="result-l">Mejor ms</div></div>
+      <div class="result-box"><div class="result-n" id="endFalse">0</div><div class="result-l">Falsas</div></div>
+    </div>
+    <div class="mg-modal-sub" id="endMsg"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="initGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const ROUNDS=10;
+let round=0,times=[],score=0,falseStarts=0;
+let phase='idle';
+let waitTO=null,reactStart=null;
+
+function buildDots(){
+  const c=document.getElementById('rpDots');
+  c.innerHTML='';
+  for(let i=0;i<ROUNDS;i++){
+    const d=document.createElement('div');
+    d.className='rp-dot';
+    d.id='dot'+i;
+    c.appendChild(d);
+  }
+}
+
+function initGame(){
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  round=0;times=[];score=0;falseStarts=0;phase='idle';
+  buildDots();
+  updateHUD();
+  nextRound();
+}
+
+function nextRound(){
+  if(round>=ROUNDS){endGame();return;}
+  document.getElementById('dot'+round).className='rp-dot active';
+  phase='waiting';
+  setArena('waiting','🔴 ESPERA...','No hagas clic todavía');
+  const delay=1500+Math.random()*3000;
+  waitTO=setTimeout(goGreen,delay);
+}
+
+function goGreen(){
+  phase='react';
+  reactStart=performance.now();
+  setArena('react','🟢 ¡AHORA!','¡Haz clic lo antes posible!');
+}
+
+function handleClick(){
+  if(phase==='idle') return;
+  if(phase==='waiting'){
+    clearTimeout(waitTO);
+    falseStarts++;
+    score=Math.max(0,score-50);
+    times[round]=-1;
+    document.getElementById('dot'+round).className='rp-dot fail';
+    phase='idle';
+    setArena('false','😬 FALSA SALIDA','Espera a que sea verde');
+    round++;
+    updateHUD();
+    setTimeout(()=>{ if(round<ROUNDS) nextRound(); else endGame(); },1300);
+  } else if(phase==='react'){
+    const t=Math.round(performance.now()-reactStart);
+    times[round]=t;
+    const pts=Math.max(0,Math.round((1300-t)*0.13));
+    score+=pts;
+    document.getElementById('dot'+round).className='rp-dot done';
+    phase='idle';
+    setArena('result',t+' ms','+'+pts+' pts');
+    round++;
+    updateHUD();
+    setTimeout(()=>{ if(round<ROUNDS) nextRound(); else endGame(); },1000);
+  }
+}
+
+function setArena(cls,label,sub){
+  const a=document.getElementById('rpArena');
+  a.className='rp-arena '+cls;
+  document.getElementById('rpLabel').textContent=label;
+  document.getElementById('rpSub').textContent=sub||'';
+}
+
+function updateHUD(){
+  document.getElementById('rpRound').textContent=Math.min(round+1,ROUNDS)+'/'+ROUNDS;
+  const valid=times.filter(t=>t>=0);
+  if(valid.length){
+    const avg=Math.round(valid.reduce((s,t)=>s+t,0)/valid.length);
+    document.getElementById('rpAvg').textContent=avg;
+  }
+  document.getElementById('rpScore').textContent=score;
+}
+
+function endGame(){
+  const valid=times.filter(t=>t>=0);
+  const avg=valid.length?Math.round(valid.reduce((s,t)=>s+t,0)/valid.length):9999;
+  const best=valid.length?Math.min(...valid):9999;
+  const msgs=['Sigue entrenando tu tiempo de reacción','Buenos reflejos','¡Reflejos de élite!','¡Velocidad sobrehumana!'];
+  const idx=avg<200?3:avg<280?2:avg<400?1:0;
+  document.getElementById('endIcon').textContent=avg<250?'🏆':avg<350?'⭐':'⚡';
+  document.getElementById('endTitle').textContent=avg<250?'¡Velocidad de élite!':avg<350?'¡Bien hecho!':'Sigue practicando';
+  document.getElementById('endScore').textContent=score.toLocaleString();
+  document.getElementById('endAvg').textContent=avg<9999?avg+'ms':'—';
+  document.getElementById('endBest').textContent=best<9999?best+'ms':'—';
+  document.getElementById('endFalse').textContent=falseStarts;
+  document.getElementById('endMsg').textContent=msgs[idx]+(avg<9999?' · Promedio: '+avg+' ms':'');
+  document.getElementById('endOverlay').style.display='flex';
+}
+</script>
+{% endblock %}

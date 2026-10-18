@@ -1,0 +1,1487 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      CV | {{profile.cv.personal_info.nombre}} {{profile.cv.personal_info.apellidos}}
+    </title>
+    <style>
+      /* =========================================
+            VARIABLES DE COLOR (MODO CLARO)
+        ========================================= */
+      :root {
+        --bg-sidebar: #f9f9f9;
+        --bg-main: #ffffff;
+        --bg-input: #f4f4f4;
+        --bg-hover: #ececec;
+        --bg-button-dark: #000000;
+        --text-primary: #0d0d0d;
+        --text-secondary: #666666;
+        --text-placeholder: #8e8ea0;
+        --text-button-light: #ffffff;
+        --border-light: #e5e5e5;
+        --ai-avatar-bg: #333333;
+      }
+
+      /* =========================================
+            VARIABLES DE COLOR (MODO OSCURO)
+        ========================================= */
+      body.dark-mode {
+        --bg-sidebar: #202123;
+        --bg-main: #343541;
+        --bg-input: #40414f;
+        --bg-hover: #2a2b32;
+        --bg-button-dark: #10a37f;
+        --text-primary: #ececf1;
+        --text-secondary: #c5c5d2;
+        --text-placeholder: #8e8ea0;
+        --text-button-light: #ffffff;
+        --border-light: #4d4d4f;
+        --ai-avatar-bg: #10a37f;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 100%;
+        height: 100vh;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        display: flex;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        overflow: hidden;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      .logo-icon {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        flex-shrink: 0;
+        border-radius: 50%;
+      }
+
+      /* === SIDEBAR === */
+      .sideBar {
+        width: 260px;
+        height: 100%;
+        background-color: var(--bg-sidebar);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-light);
+        transition:
+          transform 0.3s ease,
+          background-color 0.3s ease,
+          width 0.3s ease;
+      }
+
+      body.sidebar-closed .sideBar {
+        display: none;
+      }
+
+      body.sidebar-closed .mobile-menu-btn {
+        display: block;
+      }
+
+      .sidebar-header {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-size: 18px;
+        padding: 5px;
+        border-radius: 5px;
+        transition: color 0.3s ease;
+      }
+
+      .icon-btn:hover {
+        background-color: var(--bg-hover);
+      }
+
+      .new-chat-btn {
+        margin: 0 15px 15px 15px;
+        padding: 10px 15px;
+        background-color: transparent;
+        border: none;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .new-chat-btn:hover {
+        background-color: var(--bg-hover);
+      }
+
+      .nav-section {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 0 10px;
+      }
+
+      .nav-section::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .nav-section::-webkit-scrollbar-thumb {
+        background-color: var(--border-light);
+        border-radius: 10px;
+      }
+
+      .section-title {
+        font-size: 12px;
+        color: var(--text-secondary);
+        padding: 10px;
+        margin-top: 10px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-list {
+        list-style: none;
+        margin-bottom: 20px;
+      }
+
+      .nav-item {
+        padding: 10px;
+        margin-bottom: 2px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-primary);
+      }
+
+      .nav-item:hover,
+      .nav-item.active {
+        background-color: var(--bg-hover);
+      }
+
+      /* === HISTORIAL ESTILOS NUEVOS === */
+      .history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--text-secondary);
+        position: relative; /* Necesario para anclar el dropdown */
+      }
+
+      .history-item span.title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-grow: 1;
+        padding-right: 5px;
+      }
+
+      .history-options-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 0 5px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .history-options-btn:hover {
+        background-color: var(--border-light);
+        color: var(--text-primary);
+      }
+
+      .history-dropdown {
+        display: none;
+        position: absolute;
+        right: 10px;
+        top: 35px;
+        background-color: var(--bg-main);
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 100;
+        overflow: hidden;
+        min-width: 120px;
+      }
+
+      .history-dropdown.show {
+        display: block;
+        animation: fadeIn 0.15s ease forwards;
+      }
+
+      .history-dropdown-item {
+        padding: 10px 15px;
+        color: #ff4d4f;
+        font-size: 13px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .history-dropdown-item:hover {
+        background-color: var(--bg-hover);
+      }
+      /* === FIN HISTORIAL ESTILOS === */
+
+      .user-profile {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid var(--border-light);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        width: 100%;
+      }
+
+      .avatar-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--ai-avatar-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        flex-shrink: 0;
+        transition: background-color 0.3s ease;
+      }
+
+      .user-details {
+        overflow: hidden;
+      }
+
+      .user-details strong {
+        display: block;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .user-details span {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-transform: capitalize;
+      }
+
+      /* === MAIN CONTENT === */
+      .mainContent {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .topNav {
+        height: 60px;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .topNav-left {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 600;
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        margin-right: 15px;
+        color: var(--text-primary);
+      }
+
+      .centerArea {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .welcome-title {
+        font-size: 32px;
+        font-weight: 400;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .chat-container {
+        display: none;
+        flex-grow: 1;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 20px 20px 120px 20px;
+      }
+
+      .chat-container::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-container::-webkit-scrollbar-thumb {
+        background-color: var(--border-light);
+        border-radius: 10px;
+      }
+
+      .chat-message {
+        max-width: 768px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        padding: 15px 0;
+        gap: 15px;
+        line-height: 1.6;
+      }
+
+      .chat-message.user {
+        justify-content: flex-end;
+      }
+
+      .chat-message.user .bubble {
+        background-color: var(--bg-input);
+        padding: 12px 18px;
+        border-radius: 20px;
+        max-width: 70%;
+      }
+
+      .chat-message.ai {
+        justify-content: flex-start;
+      }
+
+      .chat-message.ai .avatar-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+      }
+
+      .chat-message p {
+        white-space: pre-line;
+        margin-top: 5px;
+      }
+
+      /* === CARRUSEL DE PROYECTOS === */
+      .carousel-wrapper {
+        max-width: 768px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 5px 0 20px 47px;
+      }
+
+      .carousel-container {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        scrollbar-width: thin;
+      }
+
+      .carousel-container::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .carousel-container::-webkit-scrollbar-thumb {
+        background-color: var(--border-light);
+        border-radius: 10px;
+      }
+
+      .project-card {
+        min-width: 260px;
+        max-width: 280px;
+        background-color: var(--bg-main);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        transition:
+          border-color 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .project-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .project-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        flex-grow: 1;
+        line-height: 1.4;
+      }
+
+      .project-tech {
+        font-size: 12px;
+        color: var(--text-primary);
+        background-color: var(--bg-hover);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-weight: 500;
+        margin-top: auto;
+        text-align: center;
+        transition: background-color 0.3s ease;
+      }
+
+      .inputArea {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        position: absolute;
+        bottom: 0;
+        background-image: linear-gradient(
+          180deg,
+          transparent 0%,
+          var(--bg-main) 40%
+        );
+      }
+
+      .inputWrapper {
+        width: 100%;
+        max-width: 768px;
+        background-color: var(--bg-input);
+        border-radius: 30px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--border-light);
+        transition:
+          background-color 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      .inputWrapper input {
+        flex-grow: 1;
+        border: none;
+        background: transparent;
+        font-size: 16px;
+        color: var(--text-primary);
+        outline: none;
+        padding: 10px 5px;
+      }
+
+      .send-btn {
+        background-color: var(--bg-button-dark);
+        color: var(--text-button-light);
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      /* === VISTA DEL FORMULARIO DE CONTACTO === */
+      .contact-section {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      
+      .main-contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px; 
+        width: 100%;
+        max-width: 650px; 
+        background-color: var(--bg-input);
+        padding: 40px; 
+        border-radius: 12px;
+        border: 1px solid var(--border-light);
+      }
+      
+      .input-wrapper-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .contact-input {
+        width: 100%;
+        padding: 15px; 
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        font-size: 16px; 
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+      
+      .contact-input:focus {
+        border-color: var(--bg-button-dark);
+      }
+
+      .contact-input.input-error {
+        border-color: #ff4d4f;
+      }
+      
+      .contact-input.input-success {
+        border-color: #52c41a; 
+      }
+
+      .error-msg {
+        color: #ff4d4f;
+        font-size: 13px;
+        display: none;
+        margin-left: 5px;
+      }
+      
+      textarea.contact-input {
+        min-height: 160px; 
+        resize: vertical;
+      }
+      
+      .contact-btn {
+        background-color: var(--bg-button-dark);
+        color: var(--text-button-light);
+        padding: 15px; 
+        font-size: 16px; 
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+        margin-top: 5px;
+      }
+      
+      .contact-btn:active {
+        transform: scale(0.98);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .dynamic-field {
+        animation: fadeIn 0.3s ease forwards;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 1024px) and (min-width: 769px) {
+        .sideBar {
+          width: 220px;
+        }
+
+        .welcome-title {
+          font-size: 28px;
+        }
+
+        .chat-message.user .bubble {
+          max-width: 85%;
+        }
+
+        .chat-container {
+          padding: 20px 15px 120px 15px;
+        }
+
+        .inputWrapper {
+          max-width: 90%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .sideBar {
+          position: absolute;
+          z-index: 1000;
+          transform: translateX(-100%);
+          box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sideBar.show {
+          transform: translateX(0);
+        }
+
+        .welcome-title {
+          font-size: 24px;
+          padding: 0 15px;
+        }
+
+        .chat-container {
+          padding: 15px 10px 100px 10px;
+        }
+
+        .chat-message.user .bubble {
+          max-width: 90%;
+        }
+
+        .inputArea {
+          padding: 10px;
+          bottom: 10px;
+        }
+
+        .carousel-wrapper {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        
+        .main-contact-form {
+          padding: 25px; 
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <aside class="sideBar" id="sideBar">
+      <div class="sidebar-header">
+        <button class="icon-btn" id="logo-btn" title="Volver al inicio">
+          <img class="logo-icon" src="{{ profile.cv.personal_info.foto.url }}" alt="Logo" />
+        </button>
+        <button class="icon-btn" id="close-menu" title="Cerrar menú">☰</button>
+      </div>
+
+      <button class="new-chat-btn" id="btn-new-chat">
+        <span>✏️</span> Nuevo apartado
+      </button>
+
+      <button class="new-chat-btn" id="btn-contact-view" style="margin-top: -5px;">
+        <span>📬</span> Contáctame
+      </button>
+
+      <div class="nav-section">
+        <div class="section-title">Currículum</div>
+        <ul class="nav-list">
+          <li class="nav-item cv-trigger" data-section="info_personal">
+            <span>👤</span> Información personal
+          </li>
+          <li class="nav-item cv-trigger" data-section="perfil">
+            <span>🎯</span> Perfil profesional
+          </li>
+          <li class="nav-item cv-trigger" data-section="experiencia">
+            <span>💼</span> Experiencia laboral
+          </li>
+          <li class="nav-item cv-trigger" data-section="educacion">
+            <span>🎓</span> Educación (Reglada)
+          </li>
+          <li class="nav-item cv-trigger" data-section="cursos">
+            <span>📜</span> Educación complementaria
+          </li>
+          <li class="nav-item cv-trigger" data-section="skills">
+            <span>🛠️</span> Skills
+          </li>
+          <li class="nav-item cv-trigger" data-section="idiomas">
+            <span>🌍</span> Idiomas
+          </li>
+          <li class="nav-item cv-trigger" data-section="proyectos">
+            <span>🚀</span> Proyectos
+          </li>
+          <li class="nav-item cv-trigger" data-section="logros">
+            <span>🏆</span> Logros
+          </li>
+          <li class="nav-item cv-trigger" data-section="voluntariados">
+            <span>🤝</span> Voluntariados
+          </li>
+          <li class="nav-item cv-trigger" data-section="redes">
+            <span>🌐</span> Redes Sociales
+          </li>
+          <li class="nav-item cv-trigger" data-section="hobbies">
+            <span>⚽</span> Intereses / Hobbies
+          </li>
+          <li class="nav-item cv-trigger" data-section="adicional">
+            <span>➕</span> Información adicional
+          </li>
+        </ul>
+
+        <!-- SECCIÓN DE HISTORIAL LOCAL (OCULTA POR DEFECTO SI ESTÁ VACÍA) -->
+        <div class="section-title" id="dynamic-history-title" style="display: none;">Historial de chats</div>
+        <ul class="nav-list" id="dynamic-history-list" style="display: none;">
+            <!-- Los chats locales se cargarán aquí dinámicamente -->
+        </ul>
+      </div>
+
+      <div class="user-profile">
+        <div class="user-info">
+          {% if profile.cv.personal_info.foto %}
+          <div class="avatar-circle">
+            <img src="{{profile.cv.personal_info.foto.url}}" alt="imagen perfil" class="logo-icon" />
+          </div>
+          {% else %}
+          <div class="avatar-circle">
+            {{profile.cv.personal_info.nombre|slice:":1"}}{{profile.cv.personal_info.apellidos|slice:":1"}}
+          </div>
+          {% endif %}
+          <div class="user-details">
+            <strong>{{profile.cv.personal_info.nombre}} {{profile.cv.personal_info.apellidos}}</strong>
+            <span id="current-section-label"></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="mainContent">
+      <nav class="topNav">
+        <div class="topNav-left">
+          <button class="mobile-menu-btn" id="open-menu" title="Abrir menú">☰</button>
+          <strong>{{profile.cv.profesional_profile.cv}}</strong>
+        </div>
+        <div class="topNav-right">
+          <button class="icon-btn" id="theme-toggle" title="Cambiar tema">🌙</button>
+        </div>
+      </nav>
+
+      <section class="centerArea" id="welcomeScreen">
+        <h1 class="welcome-title">¿Qué quieres saber sobre mi perfil?</h1>
+      </section>
+
+      <section class="chat-container" id="chatContainer"></section>
+
+      <section class="contact-section" id="contactSection" style="display: none;">
+        <h2 style="margin-bottom: 10px; font-weight: 500; font-size: 28px;">Formulario de contacto</h2>
+        <form class="main-contact-form" id="mainContactForm">
+          
+          <div class="input-wrapper-contact">
+            <select class="contact-input" id="frm_tipo" name="tipo_contacto">
+              <option value="" disabled selected>¿Particular o Empresa?</option>
+              <option value="particular">Soy un particular</option>
+              <option value="empresa">Soy una empresa</option>
+            </select>
+            <span class="error-msg" id="err_tipo">Por favor, selecciona una opción.</span>
+          </div>
+
+          <div class="input-wrapper-contact">
+            <input type="text" class="contact-input" id="frm_nombre" name="nombre" placeholder="Tu nombre / Persona de contacto">
+            <span class="error-msg" id="err_nombre">Ingresa un nombre válido (mín. 2 letras, solo letras y espacios).</span>
+          </div>
+
+          <div class="input-wrapper-contact dynamic-field" id="wrap_empresa_nombre" style="display: none;">
+            <input type="text" class="contact-input" id="frm_empresa_nombre" name="empresa_nombre" placeholder="Nombre de la empresa">
+            <span class="error-msg" id="err_empresa_nombre">Ingresa un nombre de empresa válido.</span>
+          </div>
+
+          <div class="input-wrapper-contact dynamic-field" id="wrap_empresa_cargo" style="display: none;">
+            <input type="text" class="contact-input" id="frm_empresa_cargo" name="empresa_cargo" placeholder="Tu cargo (Ej: RRHH, Tech Lead...)">
+            <span class="error-msg" id="err_empresa_cargo">Ingresa un cargo válido (mín. 2 letras).</span>
+          </div>
+
+          <div class="input-wrapper-contact">
+            <input type="text" inputmode="email" class="contact-input" id="frm_email" name="email" placeholder="Tu correo electrónico">
+            <span class="error-msg" id="err_email">Ingresa un correo electrónico válido (ej: nombre@dominio.com).</span>
+          </div>
+
+          <div class="input-wrapper-contact">
+            <textarea class="contact-input" id="frm_mensaje" name="mensaje" placeholder="¿En qué te puedo ayudar?"></textarea>
+            <span class="error-msg" id="err_mensaje">El mensaje debe tener al menos 10 caracteres.</span>
+          </div>
+
+          <button type="submit" class="contact-btn">Enviar mensaje</button>
+        </form>
+      </section>
+
+      <section class="inputArea" id="inputArea">
+        <div class="inputWrapper">
+          <button class="icon-btn" style="font-size: 20px">＋</button>
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Pregunta sobre mi experiencia..."
+          />
+          <button class="send-btn" id="sendBtn">➤</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // === GESTOR DEL HISTORIAL LOCAL ===
+      class ChatHistoryManager {
+        constructor() {
+          this.storageKey = 'cv_chat_history';
+          this.chats = this.loadChats();
+        }
+
+        loadChats() {
+          const saved = localStorage.getItem(this.storageKey);
+          return saved ? JSON.parse(saved) : [];
+        }
+
+        saveChats() {
+          localStorage.setItem(this.storageKey, JSON.stringify(this.chats));
+        }
+
+        addOrUpdateChat(id, title, messages) {
+          const existingIndex = this.chats.findIndex(c => c.id === id);
+          if (existingIndex > -1) {
+            this.chats[existingIndex].messages = messages;
+          } else {
+            this.chats.unshift({ id, title, messages }); 
+          }
+          this.saveChats();
+          renderDynamicHistory(); 
+        }
+
+        getChatById(id) {
+          return this.chats.find(c => c.id === id);
+        }
+
+        // NUEVO: Función para eliminar chats
+        deleteChat(id) {
+          this.chats = this.chats.filter(c => c.id !== id);
+          this.saveChats();
+          renderDynamicHistory();
+          
+          // Si eliminamos el chat que estamos viendo, limpiamos la pantalla
+          if (currentCustomChatId === id) {
+              document.getElementById("btn-new-chat").click();
+          }
+        }
+      }
+
+      const chatManager = new ChatHistoryManager();
+      let currentCustomChatId = null; 
+      let currentCustomMessages = []; 
+
+
+      // === 1. OBJETO DATOS DEL CURRÍCULUM ===
+      const cvData = {
+        info_personal: {
+          question: `¿Podrías darme tu información personal y datos básicos?`,
+          answer: `¡Hola! Soy {{profile.cv.personal_info.nombre}} {{profile.cv.personal_info.apellidos}} estos son mis datos:
+                {% if profile.cv.personal_info.fecha_nacimiento %}
+                • <strong>📅Fecha nacimiento:</strong> {{profile.cv.personal_info.fecha_nacimiento}} {% endif %}
+                • <strong>📍Ubicación:</strong> {{profile.cv.personal_info.ciudad}}, {{profile.cv.personal_info.pais}}{% if profile.cv.personal_info.codigo_postal%}, {{profile.cv.personal_info.codigo_postal}}{% endif %}
+                • <strong>📱Teléfono:</strong> {{profile.cv.personal_info.telefono1}} {% if profile.cv.personal_info.telefono2 %}
+                • <strong>📞Telefono 2:</strong> {{profile.cv.personal_info.telefono2}} {% endif %}
+                • <strong>✉️Email:</strong> {{profile.cv.personal_info.email_profesional1}} {% if profile.cv.personal_info.email_profesional2 %}
+                • <strong>✉️Email 2:</strong> {{profile.cv.personal_info.email_profesional2}} {% endif %} {% if profile.cv.personal_info.nacionalidad %}
+                • <strong>🏙️Nacionalidad:</strong> {{profile.cv.personal_info.nacionalidad}} {% endif %} {% if profile.cv.personal_info.carnet_conducir is not None %}
+                • <strong>🚗Carnet de conducir:</strong> {{ profile.cv.personal_info.carnet_conducir|yesno:"Si,No" }} {% endif %}
+                • <strong>⌚️Disponibilidad:</strong> {{profile.cv.personal_info.disponibilidad}}
+                `,
+        },
+        perfil: {
+          question: `Háblame sobre tu perfil profesional.`,
+          answer: `Soy {{profile.cv.professional_profile.profesion}}
+                {% if profile.cv.professional_profile.objetivo %}
+                • <strong>Objetivo:</strong> {{profile.cv.professional_profile.objetivo}}{% endif %}
+                
+                • <strong>Resumen:</strong> {{profile.cv.professional_profile.resumen}}`,
+        },
+        experiencia: {
+          question: `Cuéntame sobre tu experiencia laboral.`,
+              answer: `{% for experiencia in profile.experiencias.all %} 💼 <strong>Puesto: {{experiencia.puesto}}</strong>
+                {% if experiencia.empresa %} empresa -> {{experiencia.empresa}}{% endif %}
+                {% if experiencia.ubicacion %} ubicación -> {{experiencia.ubicacion}} {% endif %}
+                {% if experiencia.periodo %} periodo -> {{experiencia.periodo}} {% endif %}
+                {% if experiencia.descripcion %} Descripción -> {{experiencia.descripcion}} {% endif %}
+                {% if experiencia.logros %} Logros -> {{experiencia.logros}} {% endif %}
+                {% endfor %}
+                `,
+        },
+        educacion: {
+          question: `¿Cuál es tu formación académica reglada?`,
+          answer: `{% for estudio in profile.educaciones.all %}
+          • <strong>🧑🏻‍🏫 Titulo: {{estudio.titulo}} </strong>
+          {% if estudio.centro %} Centro -> {{estudio.centro}} {% endif %}
+          {% if estudio.ubicacion %} Ubicación -> {{estudio.ubicacion}} {% endif %}
+          Fecha inicio -> {{estudio.fecha_inicio}}
+          {% if estudio.fecha_fin %} Fecha fin -> {{estudio.fecha_fin}} {% endif %}
+          En curso: {{estudio.en_curso|yesno:"Si,No"}}
+          {% endfor %}
+          `,
+        },
+        cursos: {
+          question: `¿Qué formación complementaria o no reglada tienes?`,
+          answer: `{% for curso in profile.formaciones.all %}
+          • <strong>📚 Tipo: {{curso.tipo}} | {{curso.nombre}}</strong>
+          {% if curso.entidad %} Entidad -> {{curso.entidad}} {% endif %}
+          {% if curso.fecha %} Fecha -> {{curso.fecha}} {% endif %}
+          {% if curso.descripcion %} Descripcion -> {{curso.descripcion}} {% endif %}
+          {% endfor %}
+          `,
+        },
+        skills: {
+          question: `¿Cuáles son tus habilidades técnicas principales (Skills)?`,
+          answer: `¡Claro! Aquí tienes mis habilidades divididas por tipo:
+          
+          <strong>🛠️ Hard Skills</strong>{% for skill in profile.proyectos.all %}{% if skill.tipo == 'Tecnica' %}
+          • <strong>{{skill.nombre}} </strong>
+          {% if skill.categoria %}Categoria -> {{skill.categoria}} {% endif %}
+          {% if skill.nivel %}Nivel -> {% if skill.nivel == 1 %}★☆☆☆☆{% elif skill.nivel == 2 %}★★☆☆☆{% elif skill.nivel == 3 %}★★★☆☆{% elif skill.nivel == 4 %}★★★★☆{% elif skill.nivel == 5 %}★★★★★{% endif %}{% endif %}{% endif %}{% endfor %}
+
+          <br><strong>🤝 Soft Skills</strong>{% for skill in profile.habilidades.all %}{% if skill.tipo == 'SoftSkill' %}
+          • <strong>{{skill.nombre}} </strong>
+          {% if skill.categoria %}Categoria -> {{skill.categoria}} {% endif %}
+          {% if skill.nivel %}Nivel -> {% if skill.nivel == 1 %}★☆☆☆☆{% elif skill.nivel == 2 %}★★☆☆☆{% elif skill.nivel == 3 %}★★★☆☆{% elif skill.nivel == 4 %}★★★★☆{% elif skill.nivel == 5 %}★★★★★{% endif %}{% endif %}{% endif %}{% endfor %}
+          `,
+        },
+        idiomas: {
+          question: `¿Qué idiomas dominas?`,
+          answer: `{% for idioma in profile.idiomas.all %}
+          •<strong>🌏 {{idioma.idioma}}</strong> | {{idioma.nivel}}
+          {% if idioma.certificacion %} Certificación -> {{idioma.certificacion}} {% endif %}
+          {% endfor %}`,
+        },
+        proyectos: {
+          question: `¿Cuáles han sido tus últimos proyectos?`,
+          answer: `¡Claro! He desarrollado varias aplicaciones. Puedes deslizar hacia los lados para ver mis proyectos destacados:`,
+          dbData: [
+            {% for proyecto in profile.cv.projects.all %}
+            {
+              nombre: "{{ proyecto.nombre|escapejs }}",
+              descripcion: "{% if proyecto.descripcion %}{{proyecto.descripcion|escapejs}}{% endif %}",
+              tecnologias: "{% if proyecto.tecnologias %}{{proyecto.tecnologias|escapejs}}{% endif %}",
+              link: "{% if proyecto.link %}{{proyecto.link|escapejs}}{% endif %}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ]
+        },
+        logros: {
+          question: `¿Puedes destacar algún logro importante?`,
+          answer: `{% for logro in profile.logros.all %}
+          • <strong>🏆 {{logro.titulo}} </strong>| {{logro.tipo}}
+          {% if logro.descripcion %} Descripción -> {{logro.descripcion}} {% endif %}
+          {% if logro.fecha %} Fecha -> {{logro.fecha}} {% endif %}
+          {% endfor %}`,
+        },
+        voluntariados: {
+          question: `¿Tienes experiencia en voluntariados?`,
+          answer: `{% for voluntariado in profile.voluntariados.all %}
+          •<strong>🗺️ {{voluntariado.funcion}} | {{voluntariado.organizacion}} </strong>
+          {% if voluntariado.impacto %} Impacto -> {{voluntariado.impacto}} {% endif %}
+          {% if voluntariado.fecha_inicio %} Fecha inicio -> {{voluntariado.fecha_inicio}} {% endif %}
+          {% if voluntariado.fecha_fin %} Fecha fin -> {{voluntariado.fecha_fin}} {% endif %}
+          En curso -> {{voluntariado.en_curso|yesno:"Si,No"}}
+          {% endfor %}`,
+        },
+        redes: {
+          question: `¿Dónde puedo encontrar tus redes sociales profesionales?`,
+          answer: `{% if profile.cv.social_network.linkedin %}• Linkedin: {{profile.cv.social_network.linkedin}}{% endif %}
+          {% if profile.cv.social_network.github %}• github: {{profile.cv.social_network.github}}{% endif %}
+          {% if profile.cv.social_network.portfolio %}• portfolio: {{profile.cv.social_network.portfolio}}{% endif %}
+          {% if profile.cv.social_network.twitter %}• twitter: {{profile.cv.social_network.twitter}}{% endif %}
+          {% if profile.cv.social_network.otras %}• otras: {{profile.cv.social_network.otras}}{% endif %}
+          `,
+        },
+        hobbies: {
+          question: `¿Cuáles son tus intereses y hobbies fuera del trabajo?`,
+          answer: `Estos son mis hobbies:{% for interes in profile.cv.interests.all %}
+          • <strong>{{interes.nombre}}</strong>
+          {% endfor %}`,
+        },
+        adicional: {
+          question: `¿Hay alguna información adicional que debamos saber?`,
+          answer: `• Disponibilidad para viajar: {{profile.cv.other_info.disponibilidad_viajar|yesno:"Si,No"}}
+          • Teletrabajo: {{profile.cv.other_info.teletrabajo}}
+          {% if profile.cv.other_info.expectativa_salarial %} • Expectativa salarial: {{profile.cv.other_info.expectativa_salarial}}{% endif %}
+          {% if profile.cv.other_info.notas %} • Notas: {{profile.cv.other_info.notas}} {% endif %}`,
+        },
+      };
+
+      // LÓGICA DE LA INTERFAZ
+      const welcomeScreen = document.getElementById("welcomeScreen");
+      const chatContainer = document.getElementById("chatContainer");
+      const chatInput = document.getElementById("chatInput");
+      const currentSectionLabel = document.getElementById("current-section-label");
+      let isTyping = false;
+
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      themeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        themeToggleBtn.innerText = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+      });
+
+      // RENDERIZAR HISTORIAL DINÁMICO (CON OPCIONES DE BORRADO)
+      function renderDynamicHistory() {
+        const list = document.getElementById('dynamic-history-list');
+        const title = document.getElementById('dynamic-history-title');
+        list.innerHTML = ''; 
+
+        if (chatManager.chats.length === 0) {
+            list.style.display = 'none';
+            title.style.display = 'none';
+            return;
+        }
+
+        list.style.display = 'block';
+        title.style.display = 'block';
+
+        chatManager.chats.forEach(chat => {
+            const li = document.createElement('li');
+            li.className = 'nav-item history-item'; // Quitamos history-local-trigger de la clase principal
+            
+            // 1. Título del chat (El que es clicable para abrir)
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'title';
+            titleSpan.innerText = chat.title;
+            titleSpan.style.cursor = 'pointer';
+            
+            titleSpan.addEventListener('click', () => {
+                if (isTyping) return;
+                setActiveItem(li);
+                loadCustomChat(chat.id);
+            });
+
+            // 2. Botón de opciones (los 3 puntos)
+            const optionsBtn = document.createElement('button');
+            optionsBtn.className = 'history-options-btn';
+            optionsBtn.innerHTML = '⋮';
+            
+            // 3. Menú desplegable oculto
+            const dropdown = document.createElement('div');
+            dropdown.className = 'history-dropdown';
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'history-dropdown-item';
+            deleteBtn.innerHTML = '🗑️ Eliminar';
+            
+            dropdown.appendChild(deleteBtn);
+            
+            // Evento para mostrar/ocultar el dropdown
+            optionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita que se disparen otros clics
+                
+                // Cierra otros dropdowns que estén abiertos
+                document.querySelectorAll('.history-dropdown').forEach(d => {
+                    if(d !== dropdown) d.classList.remove('show');
+                });
+                
+                dropdown.classList.toggle('show');
+            });
+            
+            // Evento para borrar el chat
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                chatManager.deleteChat(chat.id);
+            });
+            
+            li.appendChild(titleSpan);
+            li.appendChild(optionsBtn);
+            li.appendChild(dropdown);
+            
+            list.appendChild(li);
+        });
+      }
+      
+      // Llamada inicial
+      renderDynamicHistory();
+
+      // Cierra todos los dropdowns si haces clic en cualquier otra parte de la pantalla
+      document.addEventListener('click', () => {
+          document.querySelectorAll('.history-dropdown').forEach(d => d.classList.remove('show'));
+      });
+
+      function loadCustomChat(id) {
+        document.getElementById("contactSection").style.display = "none";
+        document.getElementById("inputArea").style.display = "flex";
+        welcomeScreen.style.display = "none";
+        chatContainer.style.display = "flex";
+        chatContainer.innerHTML = "";
+        
+        currentCustomChatId = id; 
+        const chat = chatManager.getChatById(id);
+        currentCustomMessages = chat.messages; 
+        
+        chat.messages.forEach(msg => {
+            appendMessage(msg.sender, msg.text);
+        });
+        
+        chatInput.removeAttribute("readonly");
+      }
+
+      // EVENTO PARA NUEVO APARTADO / CHAT LIMPIO
+      document.getElementById("btn-new-chat").addEventListener("click", () => {
+        if (isTyping) return;
+        
+        currentCustomChatId = null; 
+        currentCustomMessages = [];
+
+        document.getElementById("contactSection").style.display = "none";
+        document.getElementById("inputArea").style.display = "flex";
+
+        welcomeScreen.style.display = "flex";
+        chatContainer.style.display = "none";
+        chatContainer.innerHTML = ""; 
+        chatInput.value = "";
+        
+        chatInput.removeAttribute("readonly");
+        currentSectionLabel.innerText = "Nuevo apartado";
+        document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+        
+        if (window.innerWidth <= 1024) {
+          document.getElementById("sideBar").classList.remove("show");
+        }
+      });
+
+      // EVENTO PARA MOSTRAR EL FORMULARIO DE CONTACTO
+      document.getElementById("btn-contact-view").addEventListener("click", () => {
+        if (isTyping) return;
+        
+        currentCustomChatId = null; 
+
+        welcomeScreen.style.display = "none";
+        chatContainer.style.display = "none";
+        document.getElementById("inputArea").style.display = "none"; 
+        document.getElementById("contactSection").style.display = "flex";
+        
+        document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+        currentSectionLabel.innerText = "Contacto";
+        
+        if (window.innerWidth <= 1024) {
+          document.getElementById("sideBar").classList.remove("show");
+        }
+      });
+
+      function setActiveItem(clickedItem) {
+        document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+        clickedItem.classList.add("active");
+        let textoLimpio = clickedItem.innerText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27FF]|\s+/g, " ").trim();
+        // Evita que copie el icono de "eliminar" o "3 puntos" en el título
+        textoLimpio = textoLimpio.replace('⋮', '').replace('🗑️ Eliminar', '').trim();
+        currentSectionLabel.innerText = textoLimpio;
+      }
+
+      function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `chat-message ${sender}`;
+        messageDiv.innerHTML =
+          sender === "user"
+            ? `<div class="bubble">${text}</div>` : 
+              `<div class="avatar-circle">{{profile.cv.personal_info.nombre | slice:":1"}}{{profile.cv.personal_info.apellidos | slice:":1"}}</div><div><strong>{{profile.cv.personal_info.nombre}}</strong><p>${text}</p></div>`;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      function appendCarousel(projects) {
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "carousel-wrapper";
+        const carouselDiv = document.createElement("div");
+        carouselDiv.className = "carousel-container";
+
+        projects.forEach((proj) => {
+          const card = document.createElement("div");
+          card.className = "project-card";
+          
+          card.innerHTML = `
+                    <div class="project-title">${proj.nombre}</div>
+                    <div class="project-desc">${proj.descripcion}</div>
+                    ${proj.link ? `<a href="${proj.link}" target="_blank" style="font-size: 13px; color: var(--bg-button-dark); text-decoration: none; font-weight: 600; margin-top: 5px;">Ver proyecto ➔</a>` : ''}
+                    <div class="project-tech">${proj.tecnologias}</div>
+                `;
+          carouselDiv.appendChild(card);
+        });
+
+        wrapperDiv.appendChild(carouselDiv);
+        chatContainer.appendChild(wrapperDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      function escribirTexto(data, delay = 40) {
+        let i = 0;
+        let textoPregunta = data.question;
+        let textoRespuesta = data.answer;
+
+        currentCustomChatId = null; 
+
+        document.getElementById("contactSection").style.display = "none";
+        document.getElementById("inputArea").style.display = "flex";
+        
+        chatInput.setAttribute("readonly", true);
+
+        welcomeScreen.style.display = "none";
+        chatContainer.style.display = "flex";
+        chatContainer.innerHTML = "";
+        chatInput.value = "";
+
+        function escribir() {
+          if (i < textoPregunta.length) {
+            chatInput.value += textoPregunta[i];
+            i++;
+            setTimeout(escribir, delay);
+          } else {
+            setTimeout(() => {
+              chatInput.value = "";
+              appendMessage("user", textoPregunta);
+              setTimeout(() => {
+                appendMessage("ai", textoRespuesta);
+
+                if (
+                  data.dbData &&
+                  Array.isArray(data.dbData) &&
+                  data.dbData.length > 0 &&
+                  data.dbData[0].tecnologias !== undefined
+                ) {
+                  appendCarousel(data.dbData);
+                }
+
+                isTyping = false;
+                chatInput.removeAttribute("readonly");
+              }, 800);
+            }, 500);
+          }
+        }
+        escribir();
+      }
+
+      document.querySelectorAll(".cv-trigger").forEach((item) => {
+        item.addEventListener("click", function () {
+          if (isTyping) return;
+          isTyping = true;
+          setActiveItem(this);
+          const section = this.getAttribute("data-section");
+          const data = cvData[section];
+          if (data) escribirTexto(data);
+        });
+      });
+
+      document.getElementById("logo-btn").addEventListener("click", () => {
+        if (isTyping) return;
+        
+        currentCustomChatId = null; 
+
+        document.getElementById("contactSection").style.display = "none";
+        document.getElementById("inputArea").style.display = "flex";
+
+        welcomeScreen.style.display = "flex";
+        chatContainer.style.display = "none";
+        chatContainer.innerHTML = "";
+        chatInput.value = "";
+        
+        chatInput.removeAttribute("readonly"); 
+        
+        currentSectionLabel.innerText = "sección";
+        document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+      });
+
+      // === LÓGICA PARA CHAT MANUAL DEL USUARIO ===
+      function handleUserMessage() {
+        const text = chatInput.value.trim();
+        if (!text || isTyping) return; 
+
+        if (welcomeScreen.style.display !== "none" || (!currentCustomChatId && document.querySelectorAll('.chat-message').length === 0)) {
+            welcomeScreen.style.display = "none";
+            chatContainer.style.display = "flex";
+            currentCustomChatId = 'chat_' + Date.now();
+            currentCustomMessages = [];
+            currentSectionLabel.innerText = "Nuevo chat";
+            
+            document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+        }
+
+        appendMessage("user", text);
+        chatInput.value = "";
+        chatInput.setAttribute("readonly", true);
+        isTyping = true;
+
+        if (currentCustomChatId) {
+            currentCustomMessages.push({sender: 'user', text: text});
+            let title = currentCustomMessages[0].text;
+            if (title.length > 25) title = title.substring(0, 25) + '...';
+            chatManager.addOrUpdateChat(currentCustomChatId, title, currentCustomMessages);
+        }
+
+        setTimeout(() => {
+          const aiText = "Próximamente...";
+          appendMessage("ai", aiText);
+          
+          if (currentCustomChatId) {
+              currentCustomMessages.push({sender: 'ai', text: aiText});
+              let title = currentCustomMessages[0].text;
+              if (title.length > 25) title = title.substring(0, 25) + '...';
+              chatManager.addOrUpdateChat(currentCustomChatId, title, currentCustomMessages);
+          }
+
+          isTyping = false;
+          chatInput.removeAttribute("readonly"); 
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 600); 
+      }
+
+      document.getElementById("sendBtn").addEventListener("click", handleUserMessage);
+
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          handleUserMessage();
+        }
+      });
+
+      // === VALIDACIÓN DEL FORMULARIO CON REGEX ===
+      const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,60}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const mensajeRegex = /^[\s\S]{10,1000}$/; 
+      const empresaNombreRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\.,&'-]{2,100}$/;
+      const empresaCargoRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\.-]{2,60}$/;
+
+      const tipoInput = document.getElementById("frm_tipo");
+      const nombreInput = document.getElementById("frm_nombre");
+      const emailInput = document.getElementById("frm_email");
+      const mensajeInput = document.getElementById("frm_mensaje");
+      
+      const wrapEmpresaNombre = document.getElementById("wrap_empresa_nombre");
+      const wrapEmpresaCargo = document.getElementById("wrap_empresa_cargo");
+      const empresaNombreInput = document.getElementById("frm_empresa_nombre");
+      const empresaCargoInput = document.getElementById("frm_empresa_cargo");
+
+      const errTipo = document.getElementById("err_tipo");
+      const errNombre = document.getElementById("err_nombre");
+      const errEmail = document.getElementById("err_email");
+      const errMensaje = document.getElementById("err_mensaje");
+      const errEmpresaNombre = document.getElementById("err_empresa_nombre");
+      const errEmpresaCargo = document.getElementById("err_empresa_cargo");
+
+      function validateField(inputElement, errorElement, regex) {
+        const value = inputElement.value.trim();
+        let isValid = false;
+
+        if (regex) {
+            isValid = regex.test(value);
+        } else {
+            isValid = value !== ""; 
+        }
+
+        if (isValid) {
+            inputElement.classList.remove("input-error");
+            inputElement.classList.add("input-success");
+            errorElement.style.display = "none";
+        } else {
+            inputElement.classList.remove("input-success");
+            inputElement.classList.add("input-error");
+            errorElement.style.display = "block";
+        }
+        return isValid;
+      }
+
+      tipoInput.addEventListener('change', () => {
+        validateField(tipoInput, errTipo, null);
+        
+        if (tipoInput.value === 'empresa') {
+            wrapEmpresaNombre.style.display = 'flex';
+            wrapEmpresaCargo.style.display = 'flex';
+        } else {
+            wrapEmpresaNombre.style.display = 'none';
+            wrapEmpresaCargo.style.display = 'none';
+            
+            empresaNombreInput.value = '';
+            empresaCargoInput.value = '';
+            empresaNombreInput.classList.remove("input-error", "input-success");
+            empresaCargoInput.classList.remove("input-error", "input-success");
+            errEmpresaNombre.style.display = "none";
+            errEmpresaCargo.style.display = "none";
+        }
+      });
+
+      nombreInput.addEventListener('input', () => validateField(nombreInput, errNombre, nombreRegex));
+      emailInput.addEventListener('input', () => validateField(emailInput, errEmail, emailRegex));
+      mensajeInput.addEventListener('input', () => validateField(mensajeInput, errMensaje, mensajeRegex));
+      empresaNombreInput.addEventListener('input', () => validateField(empresaNombreInput, errEmpresaNombre, empresaNombreRegex));
+      empresaCargoInput.addEventListener('input', () => validateField(empresaCargoInput, errEmpresaCargo, empresaCargoRegex));
+
+      document.getElementById("mainContactForm").addEventListener("submit", function (e) {
+        e.preventDefault(); 
+        
+        const isTipoValid = validateField(tipoInput, errTipo, null);
+        const isNombreValid = validateField(nombreInput, errNombre, nombreRegex);
+        const isEmailValid = validateField(emailInput, errEmail, emailRegex);
+        const isMensajeValid = validateField(mensajeInput, errMensaje, mensajeRegex);
+        
+        let isEmpresaValid = true;
+        
+        if (tipoInput.value === 'empresa') {
+            const isEmpresaNombreValid = validateField(empresaNombreInput, errEmpresaNombre, empresaNombreRegex);
+            const isEmpresaCargoValid = validateField(empresaCargoInput, errEmpresaCargo, empresaCargoRegex);
+            isEmpresaValid = isEmpresaNombreValid && isEmpresaCargoValid;
+        }
+
+        if (isTipoValid && isNombreValid && isEmailValid && isMensajeValid && isEmpresaValid) {
+            this.innerHTML = '<div style="text-align:center; padding: 20px; font-size: 18px; font-weight: bold; color: var(--text-primary);">✅ ¡Mensaje enviado correctamente!<br><br><span style="font-size: 14px; font-weight: normal;">Me pondré en contacto contigo muy pronto.</span></div>';
+        }
+      });
+
+      // === MENÚ MÓVIL ===
+      const sideBar = document.getElementById("sideBar");
+      const openMenuBtn = document.getElementById("open-menu");
+      const closeMenuBtn = document.getElementById("close-menu");
+
+      openMenuBtn.addEventListener("click", () => {
+        if (window.innerWidth <= 1024) {
+          sideBar.classList.add("show");
+        } else {
+          document.body.classList.remove("sidebar-closed");
+        }
+      });
+
+      closeMenuBtn.addEventListener("click", () => {
+        if (window.innerWidth <= 1024) {
+          sideBar.classList.remove("show");
+        } else {
+          document.body.classList.add("sidebar-closed");
+        }
+      });
+
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          if (window.innerWidth <= 1024) {
+            sideBar.classList.remove("show");
+          }
+        });
+      });
+      // TODO 
+    </script>
+  </body>
+</html>

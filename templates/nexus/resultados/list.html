@@ -1,0 +1,110 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Perfiles DNA – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="nexus-heading fw-bold mb-1" style="color:#1B3C59;">Perfiles Nexus DNA</h2>
+    <div class="d-flex gap-4 small text-muted">
+      <span><i class="bi bi-people me-1"></i>{{ profiles.count }} perfiles</span>
+      {% if avg_score %}<span><i class="bi bi-graph-up me-1"></i>Score medio: <strong>{{ avg_score }}</strong></span>{% endif %}
+      {% if max_score %}<span><i class="bi bi-trophy me-1"></i>Top: <strong>{{ max_score }}</strong></span>{% endif %}
+      {% if exceptional %}<span><i class="bi bi-star-fill text-warning me-1"></i><strong>{{ exceptional }}</strong> Exceptional</span>{% endif %}
+    </div>
+  </div>
+  <a href="{% url 'nexus:profile_create' %}" class="nx-btn-primary btn">
+    <i class="bi bi-plus-lg me-1"></i>Nuevo Perfil
+  </a>
+</div>
+
+{% if profiles %}
+<div class="nx-card overflow-hidden">
+  <table class="table nx-table mb-0 align-middle">
+    <thead>
+      <tr>
+        <th>Candidato</th>
+        <th>Nexus Score</th>
+        <th>Nivel</th>
+        <th>Arquetipo Principal</th>
+        <th>Leadership</th>
+        <th>Innovation</th>
+        <th>Tech</th>
+        <th>Fiabilidad</th>
+        <th style="width:120px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in profiles %}
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                 style="width:36px;height:36px;background:linear-gradient(135deg,#1B3C59,#234d72);font-size:.75rem;flex-shrink:0;">
+              {{ p.user.get_full_name|default:p.user.username|first|upper }}
+            </div>
+            <div>
+              <div class="fw-semibold small">{{ p.user.get_full_name|default:p.user.username }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ p.user.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <span class="nexus-heading fw-bold" style="font-size:1.3rem;color:#1B3C59;">{{ p.nexus_score }}</span>
+            <div style="width:50px;">
+              <div class="nx-progress-bar bg-light">
+                <div class="h-100 rounded" style="width:{{ p.score_gauge_percent }}%;background:linear-gradient(90deg,#1B3C59,#00C4FF);"></div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge bg-{{ p.level_class }}">{{ p.level }}</span></td>
+        <td class="small">{{ p.primary_archetype|default:"—" }}</td>
+        <td>
+          {% if p.leadership_score %}
+            <span class="small fw-semibold" style="color:#DC2626;">{{ p.leadership_score }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if p.innovation_score %}
+            <span class="small fw-semibold" style="color:#8B5CF6;">{{ p.innovation_score }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if p.technology_score %}
+            <span class="small fw-semibold" style="color:#06B6D4;">{{ p.technology_score }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if p.reliability %}
+            <span class="small">{{ p.reliability }}%</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'nexus:profile_detail' p.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'nexus:profile_edit' p.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'nexus:profile_delete' p.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="nx-card p-5 text-center text-muted">
+  <i class="bi bi-person-badge fs-1 mb-3 d-block opacity-25"></i>
+  <p class="mb-3">No hay perfiles DNA registrados.</p>
+  <a href="{% url 'nexus:profile_create' %}" class="nx-btn-primary btn btn-sm">
+    <i class="bi bi-plus me-1"></i>Crear perfil DNA
+  </a>
+</div>
+{% endif %}
+{% endblock %}

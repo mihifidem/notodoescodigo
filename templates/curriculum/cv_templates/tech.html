@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ profile.cv.personal_info.nombre_completo|default:profile.nombre }} — CV Tech</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ── VS Code inspired dark theme ─────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #1e1e1e;
+      --bg2: #252526;
+      --bg3: #2d2d2d;
+      --sidebar: #252526;
+      --sidebar-active: #37373d;
+      --border: #3d3d3d;
+      --text: #d4d4d4;
+      --text-dim: #858585;
+      --accent: #569cd6;
+      /* blue — keywords */
+      --green: #4ec9b0;
+      /* types / classes */
+      --yellow: #dcdcaa;
+      /* functions */
+      --orange: #ce9178;
+      /* strings */
+      --purple: #c586c0;
+      /* keywords */
+      --red: #f44747;
+      --comment: #6a9955;
+      --line-h: 1.6;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--text);
+      line-height: var(--line-h);
+      font-size: 14px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── App chrome ──────────────────────────────── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .titlebar {
+      background: #323233;
+      padding: .35rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: .78rem;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
+    }
+
+    .titlebar__dots {
+      display: flex;
+      gap: .4rem;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .dot--red {
+      background: #ff5f57;
+    }
+
+    .dot--yellow {
+      background: #ffbd2e;
+    }
+
+    .dot--green {
+      background: #28c941;
+    }
+
+    .titlebar__file {
+      color: var(--text);
+      font-size: .82rem;
+    }
+
+    .titlebar__breadcrumb {
+      color: var(--text-dim);
+      font-size: .78rem;
+    }
+
+    /* ── Main layout ─────────────────────────────── */
+    .editor {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ── Activity bar (far left) ─────────────────── */
+    .activity-bar {
+      width: 48px;
+      background: #333333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: .5rem;
+      gap: .6rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .activity-btn {
+      width: 36px;
+      height: 36px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+
+    .activity-btn.active {
+      color: var(--text);
+      border-left: 2px solid var(--accent);
+    }
+
+    /* ── Sidebar / file explorer ─────────────────── */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: .5rem 0;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar__title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: .4rem .8rem;
+      margin-bottom: .2rem;
+    }
+
+    .sidebar__item {
+      display: block;
+      padding: .15rem .8rem .15rem 1.4rem;
+      font-size: .82rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar__item:hover {
+      background: var(--sidebar-active);
+      color: var(--text);
+    }
+
+    .sidebar__item.active {
+      background: var(--sidebar-active);
+      color: var(--text);
+    }
+
+    .sidebar__item::before {
+      content: "📄 ";
+      font-size: .75rem;
+    }
+
+    .sidebar__folder {
+      padding: .3rem .8rem .15rem;
+      font-size: .78rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sidebar__folder::before {
+      content: "▾ ";
+    }
+
+    /* ── Editor pane ─────────────────────────────── */
+    .editor-pane {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* ── Tab bar ─────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: .4rem 1.2rem;
+      font-size: .82rem;
+      border-right: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .tab.active {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .tab__icon {
+      font-size: .8rem;
+    }
+
+    /* ── Code content ────────────────────────────── */
+    .code-content {
+      padding: 1.5rem 2rem 3rem;
+      counter-reset: line;
+    }
+
+    .code-block {
+      position: relative;
+    }
+
+    .line {
+      display: flex;
+      min-height: 1.4em;
+      counter-increment: line;
+    }
+
+    .line::before {
+      content: counter(line);
+      min-width: 40px;
+      text-align: right;
+      padding-right: 1.5rem;
+      color: #5a5a5a;
+      font-size: .8rem;
+      user-select: none;
+      flex-shrink: 0;
+      padding-top: .05em;
+    }
+
+    .ln {
+      flex: 1;
+    }
+
+    /* ── Syntax tokens ───────────────────────────── */
+    .kw {
+      color: var(--purple);
+    }
+
+    /* keyword */
+    .kw2 {
+      color: var(--accent);
+    }
+
+    /* type keyword */
+    .fn {
+      color: var(--yellow);
+    }
+
+    /* function */
+    .str {
+      color: var(--orange);
+    }
+
+    /* string */
+    .cls {
+      color: var(--green);
+    }
+
+    /* class / type */
+    .cm {
+      color: var(--comment);
+    }
+
+    /* comment */
+    .num {
+      color: #b5cea8;
+    }
+
+    /* number */
+    .op {
+      color: var(--text-dim);
+    }
+
+    /* operator */
+    .prop {
+      color: #9cdcfe;
+    }
+
+    /* property */
+    .val {
+      color: var(--text);
+    }
+
+    /* ── Section headers ─────────────────────────── */
+    .section-comment {
+      color: var(--comment);
+      font-style: italic;
+      margin: 1.5rem 0 .3rem;
+      display: flex;
+    }
+
+    /* ── Status bar ──────────────────────────────── */
+    .statusbar {
+      background: #007acc;
+      padding: .2rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: .75rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ── Toolbar ─────────────────────────────────── */
+    .cv-toolbar {
+      position: fixed;
+      top: .5rem;
+      right: 1rem;
+      display: flex;
+      gap: .5rem;
+      z-index: 200;
+    }
+
+    .cv-toolbar a {
+      padding: .35rem .9rem;
+      background: #007acc;
+      color: #fff;
+      border-radius: 3px;
+      font-size: .78rem;
+      font-family: inherit;
+    }
+
+    @media print {
+
+      .cv-toolbar,
+      .activity-bar,
+      .sidebar,
+      .tabs,
+      .titlebar {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+        color: #111;
+      }
+
+      .editor-pane {
+        overflow: visible;
+      }
+
+      .kw {
+        color: #7b2d8b;
+      }
+
+      .str {
+        color: #a31515;
+      }
+
+      .cls {
+        color: #008080;
+      }
+
+      .cm {
+        color: #008000;
+      }
+
+      .prop {
+        color: #0070c1;
+      }
+
+      .kw2 {
+        color: #0000ff;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .activity-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- Title bar -->
+    <div class="titlebar">
+      <div class="titlebar__dots">
+        <div class="dot dot--red"></div>
+        <div class="dot dot--yellow"></div>
+        <div class="dot dot--green"></div>
+      </div>
+      <span class="titlebar__breadcrumb">📁 opentowork.es › {{ profile.slug }}</span>
+      <span class="titlebar__file">curriculum.json</span>
+    </div>
+
+    <!-- Toolbar -->
+    <nav class="cv-toolbar">
+      <a href="{% url 'curriculum_cv_pdf' slug=profile.slug %}" target="_blank">⬇ PDF</a>
+      {% if user.is_authenticated and user == profile.user %}
+      <a href="{% url 'curriculum:profile_list' %}">← Perfiles</a>
+      {% endif %}
+    </nav>
+
+    <div class="editor">
+
+      <!-- Activity bar -->
+      <div class="activity-bar">
+        <button class="activity-btn active" title="Explorador">📁</button>
+        <button class="activity-btn" title="Buscar">🔍</button>
+        <button class="activity-btn" title="Git">🌿</button>
+      </div>
+
+      <!-- Sidebar file explorer -->
+      <nav class="sidebar" aria-label="Secciones del CV">
+        <div class="sidebar__title">EXPLORADOR</div>
+        <div class="sidebar__folder">curriculum/</div>
+        {% with pi=profile.cv.personal_info %}
+        {% if pi %}<a class="sidebar__item active" href="#personal">datos_personales.json</a>{% endif %}
+        {% if profile.mostrar_perfil_profesional %}<a class="sidebar__item" href="#perfil">perfil_profesional.json</a>{%
+        endif %}
+        {% if profile.experiencias.exists %}<a class="sidebar__item" href="#exp">experiencia.json</a>{% endif %}
+        {% if profile.educaciones.exists %}<a class="sidebar__item" href="#edu">educacion.json</a>{% endif %}
+        {% if profile.formaciones.exists %}<a class="sidebar__item" href="#form">formacion_extra.json</a>{% endif %}
+        {% if profile.habilidades.exists %}<a class="sidebar__item" href="#skills">skills.json</a>{% endif %}
+        {% if profile.idiomas.exists %}<a class="sidebar__item" href="#langs">idiomas.json</a>{% endif %}
+        {% if profile.proyectos.exists %}<a class="sidebar__item" href="#proj">proyectos.json</a>{% endif %}
+        {% if profile.mostrar_logros and profile.logros.exists %}<a class="sidebar__item"
+          href="#logros">logros.json</a>{% endif %}
+        {% if profile.mostrar_voluntariado and profile.voluntariados.exists %}<a class="sidebar__item"
+          href="#vol">voluntariado.json</a>{% endif %}
+        {% if profile.mostrar_redes %}<a class="sidebar__item" href="#redes">redes.json</a>{% endif %}
+        {% if profile.mostrar_intereses and profile.intereses.exists %}<a class="sidebar__item"
+          href="#interests">intereses.json</a>{% endif %}
+      </nav>
+
+      <!-- Editor pane -->
+      <div class="editor-pane">
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <div class="tab active"><span class="tab__icon">📋</span>curriculum.json</div>
+          <div class="tab"><span class="tab__icon">📄</span>README.md</div>
+        </div>
+
+        <!-- Code content -->
+        <div class="code-content">
+          <div class="code-block">
+
+            <!-- Opening brace -->
+            <div class="line"><span class="ln"><span class="op">{</span></span></div>
+
+            <!-- Personal Info -->
+            {% with pi=profile.cv.personal_info %}
+
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="section-comment cm">// ── Datos personales
+                  ──────────────────────</span></span></div>
+            <div id="personal" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"nombre"</span><span
+                  class="op">:</span> <span class="str">"{{ pi.nombre_completo }}"</span><span
+                  class="op">,</span></span></div>
+            {% if pi.email_profesional1 %}<div class="line"><span class="ln">&nbsp;&nbsp;<span
+                  class="prop">"email"</span><span class="op">:</span> <span class="str">"{{ pi.email_profesional1
+                  }}"</span><span class="op">,</span></span></div>{% endif %}
+            {% if pi.email_profesional2 %}<div class="line"><span class="ln">&nbsp;&nbsp;<span
+                  class="prop">"email_2"</span><span class="op">:</span> <span class="str">"{{ pi.email_profesional2
+                  }}"</span><span class="op">,</span></span></div>{% endif %}
+            {% if pi.telefono1 %}<div class="line"><span class="ln">&nbsp;&nbsp;<span
+                  class="prop">"telefono"</span><span class="op">:</span> <span class="str">"{{ pi.telefono1
+                  }}"</span><span class="op">,</span></span></div>{% endif %}
+            {% if pi.ciudad %}<div class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"ubicacion"</span><span
+                  class="op">:</span> <span class="str">"{{ pi.ciudad }}, {{ pi.pais }}"</span><span
+                  class="op">,</span></span></div>{% endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"disponibilidad"</span><span
+                  class="op">:</span> <span class="str">"{{ pi.get_disponibilidad_display }}"</span><span
+                  class="op">,</span></span></div>
+            {% endwith %}
+
+            <!-- Professional profile -->
+            {% if profile.mostrar_perfil_profesional %}
+            {% with pp=profile.cv.professional_profile %}
+            {% if pp %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="cm">// ── Perfil profesional
+                  ─────────────────────</span></span></div>
+            <div id="perfil" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"profesion"</span><span
+                  class="op">:</span> <span class="str">"{{ pp.profesion }}"</span><span class="op">,</span></span>
+            </div>
+            {% if pp.objetivo %}<div class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"objetivo"</span><span class="op">:</span> <span class="str">"{{ pp.objetivo }}"</span><span class="op">,</span></span></div>{% endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"resumen"</span><span class="op">:</span> <span class="str">"{{ pp.resumen|truncatechars:200 }}"</span><span class="op">,</span></span></div>
+            {% endif %}
+
+            <!-- Work experience -->
+            {% if profile.experiencias.exists %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="cm">// ── Experiencia laboral
+                  ─────────────────────</span></span></div>
+            <div id="exp" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"experiencia"</span><span
+                  class="op">:</span> <span class="op">[</span></span></div>
+            {% for exp in profile.experiencias.all %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">{</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"puesto"</span><span class="op">:</span> <span class="str">"{{ exp.puesto }}"</span><span
+                  class="op">,</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"empresa"</span><span class="op">:</span> <span class="str">"{{ exp.empresa
+                  }}"</span><span class="op">,</span></span></div>
+            {% if exp.ubicacion %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"ubicacion"</span><span class="op">:</span> <span class="str">"{{ exp.ubicacion
+                  }}"</span><span class="op">,</span></span></div>{% endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"periodo"</span><span class="op">:</span> <span class="str">"{{ exp.periodo
+                  }}"</span><span class="op">,</span></span></div>
+            {% if exp.descripcion %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"descripcion"</span><span class="op">:</span> <span class="str">"{{
+                  exp.descripcion|truncatechars:150 }}"</span><span class="op">,</span></span></div>{% endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">}</span>{% if not forloop.last %}<span class="op">,</span>{% endif %}</span></div>
+            {% endfor %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="op">],</span></span></div>
+            {% endif %}
+
+            <!-- Education -->
+            {% if profile.educaciones.exists %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="cm">// ── Formación académica
+                  ─────────────────────</span></span></div>
+            <div id="edu" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"educacion"</span><span
+                  class="op">:</span> <span class="op">[</span></span></div>
+            {% for edu in profile.educaciones.all %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">{</span> <span class="prop">"titulo"</span><span class="op">:</span> <span class="str">"{{ edu.titulo }}"</span><span class="op">,</span> <span class="prop">"centro"</span><span class="op">:</span> <span class="str">{{ edu.centro }}"</span><span class="op">,</span> <span class="prop">"periodo"</span><span class="op">:</span> <span class="str">"{{ edu.periodo }}"</span> <span class="op">}</span>{% if not forloop.last %}<span class="op">,</span>{% endif %}</span></div>
+            {% endfor %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="op">],</span></span></div>
+            {% endif %}
+
+            <!-- Skills -->
+            {% if profile.habilidades.exists %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="cm">// ── Habilidades
+                  ─────────────────────────────</span></span></div>
+            <div id="skills" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"skills"</span><span
+                  class="op">:</span> <span class="op">{</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">"hard"</span><span
+                  class="op">:</span> <span class="op">[</span>{% for s in profile.habilidades.all %}{% if s.tipo ==
+                'hard' %}<span class="str">"{{ s.nombre }}"</span>{% if not forloop.last %}<span class="op">, </span>{%
+                endif %}{% endif %}{% endfor %}<span class="op">],</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">"soft"</span><span
+                  class="op">:</span> <span class="op">[</span>{% for s in profile.habilidades.all %}{% if s.tipo ==
+                'soft' %}<span class="str">"{{ s.nombre }}"</span>{% if not forloop.last %}<span class="op">, </span>{%
+                endif %}{% endif %}{% endfor %}<span class="op">]</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="op">},</span></span></div>
+            {% endif %}
+
+            <!-- Languages -->
+            {% if profile.idiomas.exists %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div id="langs" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"idiomas"</span><span
+                  class="op">:</span> <span class="op">[</span>{% for lang in profile.idiomas.all %}<span
+                  class="op">{</span><span class="prop">"idioma"</span><span class="op">:</span><span class="str">"{{
+                  lang.idioma }}"</span><span class="op">,</span><span class="prop">"nivel"</span><span class="op">:</span><span class="str">"{{ lang.get_nivel_display }}"</span><span class="op">}</span>{% if not forloop.last %}<span class="op">,</span>{% endif %}{% endfor %}<span class="op">],</span></span>
+            </div>
+            {% endif %}
+
+            <!-- Projects -->
+            {% if profile.proyectos.exists %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="cm">// ── Proyectos
+                  ────────────────────────────────</span></span></div>
+            <div id="proj" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"proyectos"</span><span
+                  class="op">:</span> <span class="op">[</span></span></div>
+            {% for proj in profile.proyectos.all %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">{</span></span></div>
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"nombre"</span><span class="op">:</span> <span class="str">"{{ proj.nombre
+                  }}"</span><span class="op">,</span></span></div>
+            {% if proj.tecnologias %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"tech"</span><span class="op">:</span> <span class="str">"{{ proj.tecnologias
+                  }}"</span><span class="op">,</span></span></div>{% endif %}
+            {% if proj.link %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"url"</span><span class="op">:</span> <span class="str">"<a href="{{ proj.link }}"
+                    target="_blank" rel="noopener">{{ proj.link }}</a>"</span><span class="op">,</span></span></div>{%
+            endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span class="op">}</span>{% if not forloop.last
+                %}<span class="op">,</span>{% endif %}</span></div>
+            {% endfor %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="op">],</span></span></div>
+            {% endif %}
+
+            <!-- Social networks -->
+            {% if profile.mostrar_redes %}
+            {% with sn=profile.cv.social_networks %}
+            {% if sn %}
+            <div class="line"><span class="ln">&nbsp;</span></div>
+            <div id="redes" class="line"><span class="ln">&nbsp;&nbsp;<span class="prop">"links"</span><span
+                  class="op">:</span> <span class="op">{</span></span></div>
+            {% if sn.linkedin %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"linkedin"</span><span class="op">:</span> <span class="str">"<a href="{{ sn.linkedin }}"
+                    target="_blank" rel="noopener">{{ sn.linkedin }}</a>"</span><span class="op">,</span></span></div>{%
+            endif %}
+            {% if sn.github %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"github"</span><span class="op">:</span> <span class="str">"<a href="{{ sn.github }}"
+                    target="_blank" rel="noopener">{{ sn.github }}</a>"</span><span class="op">,</span></span></div>{%
+            endif %}
+            {% if sn.portfolio %}<div class="line"><span class="ln">&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  class="prop">"portfolio"</span><span class="op">:</span> <span class="str">"<a
+                    href="{{ sn.portfolio }}" target="_blank" rel="noopener">{{ sn.portfolio }}</a>"</span></span></div>
+            {% endif %}
+            <div class="line"><span class="ln">&nbsp;&nbsp;<span class="op">},</span></span></div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Closing brace -->
+            <div class="line"><span class="ln"><span class="op">}</span></span></div>
+
+          </div><!-- /code-block -->
+        </div><!-- /code-content -->
+      </div><!-- /editor-pane -->
+    </div><!-- /editor -->
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span>🌿 main</span>
+      <span>⚡ OpenToWork</span>
+      <span>JSON</span>
+      <span>UTF-8</span>
+      <span style="margin-left:auto;">{{ profile.nombre }}</span>
+    </div>
+
+  </div><!-- /app -->
+
+  <script>
+    // Highlight active sidebar item on scroll
+    document.querySelectorAll('.sidebar__item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar__item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+    if (new URLSearchParams(location.search).get('print') === '1') {
+      window.addEventListener('load', () => window.print());
+    }
+  </script>
+</body>
+
+</html>

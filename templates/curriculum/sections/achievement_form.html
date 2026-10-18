@@ -1,0 +1,4 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar logro{% else %}<i class="bi bi-trophy me-2 text-primary"></i>Nuevo logro{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:achievement_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:achievement_list' %}{% endblock %}

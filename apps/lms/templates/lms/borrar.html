@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masterclass: Python Moderno & Desarrollo Eficiente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0d1117;
+      --card-bg: rgba(22, 27, 34, 0.85);
+      --border-color: rgba(48, 54, 61, 0.7);
+      --py-blue: #3876ab;
+      --py-blue-light: #4b92db;
+      --py-yellow: #ffd343;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent-glow: rgba(56, 118, 171, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(56, 118, 171, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(255, 211, 67, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HEADER / HERO */
+    header {
+      padding: 80px 0 50px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(56, 118, 171, 0.2);
+      border: 1px solid var(--py-blue);
+      border-radius: 50px;
+      color: var(--py-blue-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--py-yellow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 36px;
+    }
+
+    /* CODE SNIPPET HIGHLIGHT */
+    .terminal-box {
+      background: #161b22;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      max-width: 620px;
+      margin: 0 auto 50px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .terminal-header {
+      background: #0d1117;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .terminal-title {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: 'Fira Code', monospace;
+      margin-left: 10px;
+    }
+
+    .terminal-body {
+      padding: 18px 22px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: #79c0ff;
+    }
+
+    .code-comment { color: #8b949e; }
+    .code-keyword { color: #ff7b72; }
+    .code-string { color: #a5d6ff; }
+    .code-yellow { color: var(--py-yellow); }
+
+    /* GRID / SECCIONES */
+    .section-title {
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 26px;
+      background: var(--py-yellow);
+      border-radius: 3px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 24px;
+      margin-bottom: 70px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 26px;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--py-blue-light);
+      box-shadow: 0 10px 24px var(--accent-glow);
+    }
+
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .topic-list {
+      list-style: none;
+    }
+
+    .topic-list li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 0.9rem;
+      color: #c9d1d9;
+      margin-bottom: 8px;
+    }
+
+    .topic-list li::before {
+      content: '▹';
+      position: absolute;
+      left: 0;
+      color: var(--py-yellow);
+    }
+
+    /* DETALLES DE LA CLASE */
+    .info-bar {
+      background: linear-gradient(90deg, rgba(56, 118, 171, 0.2), rgba(255, 211, 67, 0.1));
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    .info-item h4 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .info-item p {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* CTA FOOTER */
+    .cta-box {
+      text-align: center;
+      padding: 50px 30px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin-top: 40px;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 34px;
+      background: linear-gradient(135deg, var(--py-blue), #2b5b84);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 18px rgba(56, 118, 171, 0.4);
+    }
+
+    .cta-btn:hover {
+      background: linear-gradient(135deg, var(--py-blue-light), var(--py-blue));
+      box-shadow: 0 6px 22px rgba(56, 118, 171, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      header { padding: 50px 0 30px; }
+      .terminal-box { margin: 0 10px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- HERO -->
+    <header>
+      <span class="badge">Especialización Práctica</span>
+      <h1>Dominio de Python</h1>
+      <p class="hero-subtitle">
+        Aprende desde los fundamentos sintácticos y estructuras avanzadas hasta la construcción de lógica modular, automatización y buenas prácticas de ingeniería de software.
+      </p>
+
+      <!-- TERMINAL PREVIEW -->
+      <div class="terminal-box">
+        <div class="terminal-header">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="terminal-title">main.py</span>
+        </div>
+        <div class="terminal-body">
+          <p><span class="code-comment"># Bienvenido a la sesión</span></p>
+          <p><span class="code-keyword">def</span> <span class="code-yellow">aprender_python</span>(estudiante):</p>
+          <p>&nbsp;&nbsp;skills = [<span class="code-string">"Clean Code"</span>, <span class="code-string">"POO"</span>, <span class="code-string">"Automatización"</span>]</p>
+          <p>&nbsp;&nbsp;<span class="code-keyword">return</span> f<span class="code-string">"{estudiante} está listo para construir proyectos reales."</span></p>
+          <br>
+          <p><span class="code-comment">&gt;&gt;&gt; Ejecutando entorno interactivo...</span></p>
+        </div>
+      </div>
+    </header>
+
+    <!-- METRICAS / DATOS DE LA CLASE -->
+    <div class="info-bar">
+      <div class="info-item">
+        <h4>Modalidad</h4>
+        <p>En directo / Online</p>
+      </div>
+      <div class="info-item">
+        <h4>Enfoque</h4>
+        <p>100% Práctico</p>
+      </div>
+      <div class="info-item">
+        <h4>Nivel</h4>
+        <p>Iniciación a Intermedio</p>
+      </div>
+      <div class="info-item">
+        <h4>Requisitos</h4>
+        <p>Ganas de programar</p>
+      </div>
+    </div>
+
+    <!-- TEMARIO / BLOQUES -->
+    <section>
+      <h2 class="section-title">Contenido del Curso</h2>
+      <div class="cards-grid">
+        <div class="card">
+          <h3>01. Fundamentos & Lógica</h3>
+          <p>Bases esenciales para escribir código limpio, idiomático y estructurado.</p>
+          <ul class="topic-list">
+            <li>Tipos de datos dinámicos y colecciones (listas, tuplas, dicts, sets)</li>
+            <li>Estructuras de control, comprensiones y generadores</li>
+            <li>Funciones, ámbitos (scoping) y lambdas</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>02. Programación Orientada a Objetos</h3>
+          <p>Modelado de aplicaciones robustas bajo principios de arquitectura modular.</p>
+          <ul class="topic-list">
+            <li>Clases, encapsulamiento, herencia y polimorfismo</li>
+            <li>Métodos mágicos (*dunder methods*) y sobrecarga</li>
+            <li>Manejo robusto de excepciones y gestión de contextos (<code>with</code>)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>03. Ecosistema & Proyectos</h3>
+          <p>Herramientas indispensables para el desarrollo en entornos profesionales.</p>
+          <ul class="topic-list">
+            <li>Gestión de paquetes y entornos virtuales (<code>venv</code>, <code>pip</code>)</li>
+            <li>Lectura/escritura de archivos (JSON, CSV) y llamadas a APIs</li>
+            <li>Proyecto guiado: automatización y script interactivo final</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- METODOLOGÍA -->
+    <section>
+      <h2 class="section-title">Metodología de Aprendizaje</h2>
+      <div class="cards-grid">
+        <div class="card">
+          <h3>💻 Live Coding</h3>
+          <p>Construcción de código paso a paso en cada sesión para entender la lógica de ejecución y depuración de errores en tiempo real.</p>
+        </div>
+        <div class="card">
+          <h3>🧪 Retos y Ejercicios</h3>
+          <p>Prácticas directas al finalizar cada bloque para consolidar la sintaxis y resolver problemas algorítmicos concretos.</p>
+        </div>
+        <div class="card">
+          <h3>📦 Repositorio de Recursos</h3>
+          <p>Acceso a todos los apuntes, *notebooks* comentados, guías de referencia rápida y soluciones de los ejercicios en Git.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LLAMADA A LA ACCIÓN -->
+    <div class="cta-box">
+      <h2>¿Listo para empezar a escribir código?</h2>
+      <p style="color: var(--text-muted); margin-top: 8px;">
+        Reserva tu plaza o accede al material didáctico para la próxima sesión.
+      </p>
+      <a href="#inscribirme" class="cta-btn">Inscribirme a la Clase</a>
+    </div>
+
+  </div>
+
+</body>
+</html>

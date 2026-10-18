@@ -1,0 +1,60 @@
+.lms-theme .course-content-page .area-main { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.lms-theme .module-list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.lms-theme .module-list-toolbar h1 { font-size: 22px; margin: 0; }
+.lms-theme .module-list-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+.lms-theme .module-list-controls .button { font-size: 12px; padding: 7px 10px; min-height: 32px; }
+.lms-theme .learning-module { margin: 28px 0; }
+.lms-theme .learning-module-heading { display: flex; align-items: center; justify-content: space-between; background: #70e6f4; color: #142852; min-height: 48px; padding: 0 10px; gap: 10px; }
+.lms-theme .learning-module-heading h2 { margin: 0; font-size: 13px; min-width: 0; flex: 1; }
+.lms-theme .learning-module-heading h2 button { display: flex; align-items: center; gap: 9px; background: none; color: inherit; border: 0; text-align: left; font-size: 13px; font-weight: 600; padding: 14px 0; width: 100%; cursor: pointer; }
+.lms-theme [data-module-toggle][aria-expanded="true"] > i { transform: rotate(90deg); }
+.lms-theme .learning-module-tools { display: flex; align-items: center; gap: 9px; }
+.lms-theme .module-state { font-size: 11px; white-space: nowrap; }
+.lms-theme .module-icon-action { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; min-height: 30px; color: inherit; text-decoration: none; }
+.lms-theme .learning-module-body { border: 1px solid var(--lms-border); border-top: 0; background: var(--lms-surface); }
+.lms-theme .learning-module-body[hidden] { display: none; }
+.lms-theme .formative-unit { margin: 12px; border: 1px solid var(--lms-border); }
+.lms-theme .formative-unit-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; background: var(--lms-bg); }
+.lms-theme .formative-unit-heading h3 { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.lms-theme .formative-unit-heading .learning-module-tools { flex-wrap: wrap; font-size: 12px; }
+.lms-theme .formative-unit-description { padding: 0 12px; font-size: 12px; overflow-wrap: anywhere; }
+.lms-theme .learning-content-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 47px; border-bottom: 1px solid var(--lms-border); border-left: 3px solid transparent; font-size: 12px; }
+.lms-theme .learning-content-row.is-published { border-left-color: #159447; }
+.lms-theme .content-kind { color: #27916b; font-size: 16px; }
+.lms-theme .learning-content-title { min-width: 0; flex: 1; }
+.lms-theme .learning-content-title a { font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.lms-theme .learning-content-title small { display: block; font-size: 11px; margin-top: 3px; color: var(--lms-muted); }
+.lms-theme .content-status { color: #159447; font-size: 15px; }
+.lms-theme .content-status:has(.bi-circle), .lms-theme .is-locked .content-status { color: var(--lms-muted); }
+.lms-theme .module-schedule, .lms-theme .module-lock-message, .lms-theme .module-empty, .lms-theme .module-open-link { padding: 10px 14px; margin: 0; font-size: 12px; }
+.lms-theme .learning-content-title .module-lock-message { padding: 0; }
+.lms-theme .module-open-link { text-align: right; }
+.lms-theme .content-complete-button { padding: 6px 8px; border: 1px solid var(--lms-border); border-radius: 3px; background: var(--lms-bg); color: var(--lms-text); font-size: 11px; cursor: pointer; }
+.lms-theme .module-action-menu { position: relative; }
+.lms-theme .module-action-menu summary { list-style: none; cursor: pointer; padding: 8px; }
+.lms-theme .module-action-menu summary::-webkit-details-marker { display: none; }
+.lms-theme .module-action-menu > div { position: absolute; right: 0; top: 100%; width: 220px; background: var(--lms-surface); color: var(--lms-text); border: 1px solid var(--lms-border); box-shadow: 0 4px 14px #0002; z-index: 5; padding: 8px; }
+.lms-theme .module-action-menu a, .lms-theme .module-action-menu button { display: block; padding: 8px; text-decoration: none; font-size: 12px; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+.lms-theme .module-content-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; width: 390px; max-width: 100vw; height: 100dvh; max-height: 100dvh; padding: 0; border: 0; background: var(--lms-surface); color: var(--lms-text); box-shadow: -4px 0 20px #0003; }
+.lms-theme .module-content-drawer::backdrop { background: #0002; }
+.lms-theme .module-content-drawer > header { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid var(--lms-border); }
+.lms-theme .module-content-drawer h2 { font-size: 20px; margin: 0; }
+.lms-theme .module-content-drawer > header button { border: 0; background: none; color: inherit; font-size: 25px; cursor: pointer; padding: 4px 8px; }
+.lms-theme .module-panel-form { padding: 20px; font-size: 12px; }
+.lms-theme .module-panel-field { margin-bottom: 16px; }
+.lms-theme .module-panel-form label { display: block; font-weight: 600; margin-bottom: 6px; }
+.lms-theme .module-panel-form :is(select, input:not([type="hidden"]):not([type="checkbox"])) { width: 100%; padding: 7px; background: var(--lms-surface); color: var(--lms-text); border: 1px solid var(--lms-border); border-radius: 3px; font-size: 12px; }
+.lms-theme .module-panel-form small { display: block; margin-top: 5px; }
+.lms-theme .module-panel-field > div:has(input[type="checkbox"]) { max-height: 200px; overflow-y: auto; }
+.lms-theme .module-panel-field label:has(input[type="checkbox"]) { font-weight: 400; padding: 5px 0; }
+.lms-theme .module-panel-form footer { position: sticky; bottom: 0; margin: 20px -20px -20px; padding: 12px; background: var(--lms-bg); display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--lms-border); }
+.lms-theme .module-panel-form footer .button { font-size: 12px; padding: 7px 10px; }
+.lms-theme [data-drawer-error] { margin: 16px 20px; color: var(--lms-text); }
+@media (max-width: 600px) {
+  .lms-theme .module-list-toolbar { align-items: start; flex-direction: column; }
+  .lms-theme .learning-module-heading { align-items: start; }
+  .lms-theme .learning-module-heading { flex-wrap: wrap; }
+  .lms-theme .learning-module-heading > .learning-module-tools { flex-wrap: wrap; }
+  .lms-theme .module-state { white-space: normal; }
+  .lms-theme .learning-content-row { gap: 7px; }
+}

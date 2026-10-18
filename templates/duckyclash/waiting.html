@@ -1,0 +1,49 @@
+{% extends 'duckyclash/base.html' %}
+{% load static %}
+{% block title %}Sala de espera · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4" data-clash-waiting data-state-url="{% url 'duckyclash:waiting_state' duel.pk %}">
+    <h1 class="h3">Sala de espera · Duelo #{{ duel.pk }}</h1>
+    <section class="waiting-duck-showcase" aria-label="Personajes de la sala de espera" data-waiting-ducks>
+        {% for player in players %}
+        <article class="waiting-player">
+            <div class="waiting-duck">
+                {% if forloop.first %}
+                <img class="waiting-duck-source" src="{% static 'duckyarenas/DAR_personajes/DAR_PRE1_V.gif' %}" alt="Animación de {{ player.user.get_username }}">
+                {% else %}
+                <img class="waiting-duck-source" src="{% static 'duckyarenas/DAR_personajes/DAR_PRE2_V.gif' %}" alt="Animación de {{ player.user.get_username }}">
+                {% endif %}
+                <span>Jugador {{ forloop.counter }}</span>
+            </div>
+            <div class="waiting-player-details">
+                {% if player.user.avatar %}
+                <img src="{{ player.user.avatar.url }}" width="48" height="48" class="rounded-circle mb-2 waiting-player-avatar" alt="Avatar de {{ player.user.get_username }}">
+                {% else %}
+                <div class="rounded-circle mb-2 waiting-player-initial" aria-label="Avatar de {{ player.user.get_username }}">{{ player.user.username|first|upper }}</div>
+                {% endif %}
+                {% include 'duckyclash/player_summary.html' %}
+            </div>
+        </article>
+        {% endfor %}
+        <p data-waiting-duck-status role="status" aria-live="polite"></p>
+    </section>
+    <div class="waiting-duel-summary">
+        {% include 'duckyclash/duel_summary.html' with hide_players=True %}
+    </div>
+    <div id="waiting-countdown" class="alert alert-info"{% if not opens_at or can_ring %} hidden{% endif %}>
+        <span class="d-block">Reto confirmado. Apertura del Ring en:</span>
+        <span id="waiting-countdown-clock" role="timer" aria-live="off" class="fs-3 fw-bold"
+              data-opens-at="{{ opens_at|date:'c' }}" data-server-time="{{ server_time|date:'c' }}">Calculando tiempo restante…</span>
+        <span class="d-block small">Cuenta atrás informativa. Solo el servidor autoriza la entrada.</span>
+        <noscript>Activa JavaScript para ver la cuenta atrás; la fecha de apertura aparece arriba. Usa «Actualizar sala» cuando llegue la hora.</noscript>
+    </div>
+    <p id="waiting-status" role="status" aria-live="polite">{% if can_ring %}La hora ha llegado y las reservas están verificadas.{% elif is_terminal %}El combate ha terminado o está cancelado.{% else %}Esperando la fecha acordada y dos reservas confirmadas.{% endif %}</p>
+    <p>Entrar no inicia el combate: ambos jugadores deberán pulsar «Estoy listo» en el Ring.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a id="waiting-ring" role="link" aria-describedby="waiting-status" class="btn btn-primary{% if not can_ring %} disabled{% endif %}" {% if can_ring %}href="{% url 'duckyclash:ring' duel.pk %}"{% else %}aria-disabled="true" tabindex="-1"{% endif %} data-ring-url="{% url 'duckyclash:ring' duel.pk %}">Entrar al Ring</a>
+        <a class="btn btn-outline-primary" href="{% url 'duckyclash:results' duel.pk %}" id="waiting-results"{% if not is_terminal %} hidden{% endif %}>Ver resultados</a>
+        <a class="btn btn-outline-secondary" href="{% url 'duckyclash:waiting' duel.pk %}">Actualizar sala</a>
+    </div>
+    <p class="small mt-3">Las reservas se actualizan recargando la sala. Sin integración bancaria confirmada, el Ring permanece bloqueado.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Tutor IA — MihiTraining{% endblock %}
+{% block page_title %}Tutor IA{% endblock %}
+
+{% block content %}
+<div class="row g-4" style="height:calc(100vh - 180px);">
+
+  <!-- Sidebar: conversation history -->
+  <div class="col-12 col-md-3 d-none d-md-flex flex-column">
+    <div class="card border-0 shadow-sm flex-grow-1 overflow-auto">
+      <div class="card-header bg-white fw-semibold small">
+        <i class="bi bi-chat-dots me-2 text-primary"></i>Conversaciones
+      </div>
+      <div class="card-body p-2">
+        <a href="{% url 'ai_tutor:chat' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+          <i class="bi bi-plus me-1"></i>Nueva conversación
+        </a>
+        {% for conv in historial_convs %}
+        <a href="{% url 'ai_tutor:chat_conv' conv_id=conv.pk %}"
+           class="d-block p-2 rounded text-decoration-none text-dark mb-1 small
+                  {% if conversacion and conversacion.pk == conv.pk %}bg-primary text-white{% else %}hover-bg{% endif %}">
+          <i class="bi bi-chat me-1"></i>{{ conv.titulo|truncatechars:28|default:'Conversación' }}
+          <div class="text-muted mt-1" style="font-size:.65rem;">{{ conv.actualizada_en|date:"d M H:i" }}</div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    {% if recomendaciones %}
+    <div class="card border-0 shadow-sm mt-3">
+      <div class="card-header bg-white fw-semibold small">
+        <i class="bi bi-lightbulb me-2 text-warning"></i>Próximos temas
+      </div>
+      <ul class="list-group list-group-flush small">
+        {% for tema in recomendaciones %}
+        <li class="list-group-item py-2">
+          <a href="{% url 'courses:tema_detail' pk=tema.pk %}" class="text-decoration-none">{{ tema.titulo }}</a>
+          <div class="text-muted" style="font-size:.7rem;">{{ tema.curso.nombre }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Chat area -->
+  <div class="col-12 col-md-9 d-flex flex-column" style="height:100%;">
+    <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column">
+      <!-- Messages -->
+      <div class="card-body flex-grow-1 overflow-auto p-4" id="chatMessages" style="max-height:55vh;">
+        <div class="text-center text-muted small mb-4">
+          <i class="bi bi-robot display-4 d-block text-primary opacity-50 mb-2"></i>
+          Hola <strong>{{ request.user.first_name|default:request.user.username }}</strong>, soy tu tutor IA. ¿En qué puedo ayudarte hoy?
+        </div>
+        {% if conversacion %}
+          {% for msg in conversacion.mensajes.all %}
+          <div class="d-flex {% if msg.rol == 'user' %}justify-content-end{% endif %} mb-3">
+            {% if msg.rol != 'user' %}
+              <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width:32px;height:32px;">
+                <i class="bi bi-robot text-white small"></i>
+              </div>
+            {% endif %}
+            <div class="p-3 rounded-3 {% if msg.rol == 'user' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}"
+                 style="max-width:75%;white-space:pre-wrap;">{{ msg.contenido }}</div>
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Input -->
+      <div class="card-footer bg-white border-top p-3">
+        <div class="input-group">
+          <textarea id="msgInput" class="form-control" rows="2" placeholder="Escribe tu pregunta al tutor IA..."
+                    style="resize:none;" onkeydown="handleKey(event)"></textarea>
+          <button class="btn btn-primary px-4" id="sendBtn" onclick="enviarMensaje()">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+        <div class="text-muted small mt-1">Presiona <kbd>Ctrl+Enter</kbd> para enviar</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let convId = {{ conversacion.pk|default:'null' }};
+
+function handleKey(e) {
+  if (e.ctrlKey && e.key === 'Enter') enviarMensaje();
+}
+
+async function enviarMensaje() {
+  const input = document.getElementById('msgInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  input.disabled = true;
+
+  appendMsg('user', msg);
+  input.value = '';
+
+  const thinkingBubble = appendMsg('assistant', '...');
+
+  try {
+    const resp = await fetch('{% url "ai_tutor:enviar" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ mensaje: msg, conversacion_id: convId }),
+    });
+    const data = await resp.json();
+    convId = data.conversacion_id;
+    thinkingBubble.textContent = data.respuesta || data.error;
+  } catch (err) {
+    thinkingBubble.textContent = 'Error al contactar al tutor. Inténtalo de nuevo.';
+  } finally {
+    btn.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+function appendMsg(rol, texto) {
+  const container = document.getElementById('chatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = `d-flex ${rol === 'user' ? 'justify-content-end' : ''} mb-3`;
+
+  if (rol !== 'user') {
+    const avatar = document.createElement('div');
+    avatar.className = 'rounded-circle bg-primary d-flex align-items-center justify-content-center me-2 flex-shrink-0';
+    avatar.style = 'width:32px;height:32px;';
+    avatar.innerHTML = '<i class="bi bi-robot text-white small"></i>';
+    wrap.appendChild(avatar);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = `p-3 rounded-3 ${rol === 'user' ? 'bg-primary text-white' : 'bg-light text-dark'}`;
+  bubble.style = 'max-width:75%;white-space:pre-wrap;';
+  bubble.textContent = texto;
+  wrap.appendChild(bubble);
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+  return bubble;
+}
+
+function getCookie(name) {
+  return document.cookie.split('; ').find(r => r.startsWith(name + '='))?.split('=')[1] || '';
+}
+
+// Scroll to bottom on load
+document.getElementById('chatMessages').scrollTop = 99999;
+</script>
+{% endblock %}

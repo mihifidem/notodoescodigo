@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Generador de sombras{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 shadow-tool-wrap">
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Shadow Generator</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Ajusta cada valor para controlar la dirección, el desenfoque y la intensidad de la sombra. El preview cambia al instante.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#shadowInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3" id="shadowForm">
+            <div class="col-md-2"><label class="form-label">Offset X</label><input type="number" name="offset_x" id="offset_x" value="{{ request.GET.offset_x|default:'0' }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">Offset Y</label><input type="number" name="offset_y" id="offset_y" value="{{ request.GET.offset_y|default:'12' }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">Blur</label><input type="number" name="blur" id="blur" value="{{ request.GET.blur|default:'18' }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">Spread</label><input type="number" name="spread" id="spread" value="{{ request.GET.spread|default:'0' }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">Color</label><input type="color" name="color" id="color" value="{{ request.GET.color|default:'#0f172a' }}" class="form-control form-control-color"></div>
+            <div class="col-md-2"><label class="form-label">Opacidad</label><input type="number" step="0.01" name="opacity" id="opacity" value="{{ request.GET.opacity|default:'0.18' }}" class="form-control"></div>
+            <div class="col-12"><button type="button" id="resetShadowBtn" class="btn btn-primary rounded-pill">Reset</button></div>
+          </form>
+
+          <div id="shadowPreview" class="mt-4 p-5 rounded-4 border border-light bg-white mx-auto" style="width: 280px; min-height: 180px; box-shadow: {{ shadow_css }}; display:flex; align-items:center; justify-content:center; font-weight:700;">
+            Caja con sombra
+          </div>
+
+          <pre class="mt-4 mb-0 p-3 bg-dark text-light rounded-4"><code id="shadowCode">box-shadow: {{ shadow_css }};</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="shadowInstructionsModal" tabindex="-1" aria-labelledby="shadowInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="shadowInstructionsModalLabel">Instrucciones del Shadow Generator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Usa <strong>Offset X</strong> e <strong>Offset Y</strong> para mover la sombra en horizontal y vertical.</li>
+          <li><strong>Blur</strong> controla la suavidad del borde de la sombra.</li>
+          <li><strong>Spread</strong> aumenta o reduce el tamaño de la sombra alrededor del elemento.</li>
+          <li>Selecciona un color y ajusta la <strong>opacidad</strong> para conseguir el nivel exacto de profundidad.</li>
+          <li>Pulsa <strong>Reset</strong> para volver a la configuración inicial y empezar otra prueba.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Consejo: para sombras suaves usa blur alto y offset pequeño; para sombras marcadas usa blur bajo y spread medio.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .shadow-tool-wrap,
+  [data-bs-theme="dark"] .shadow-tool-wrap .form-label,
+  [data-bs-theme="dark"] .shadow-tool-wrap .form-control,
+  [data-bs-theme="dark"] .shadow-tool-wrap .btn,
+  [data-bs-theme="dark"] .shadow-tool-wrap #shadowPreview,
+  [data-bs-theme="dark"] .shadow-tool-wrap pre,
+  [data-bs-theme="dark"] .shadow-tool-wrap code {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .shadow-tool-wrap .form-control {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('shadowForm');
+    const preview = document.getElementById('shadowPreview');
+    const code = document.getElementById('shadowCode');
+    const inputs = ['offset_x', 'offset_y', 'blur', 'spread', 'color', 'opacity'];
+
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '').trim();
+      const normalized = clean.length === 3
+        ? clean.split('').map((char) => char + char).join('')
+        : clean;
+      const value = parseInt(normalized, 16);
+      return {
+        r: (value >> 16) & 255,
+        g: (value >> 8) & 255,
+        b: value & 255,
+      };
+    }
+
+    function updateShadow() {
+      const offsetX = Number(document.getElementById('offset_x').value || 0);
+      const offsetY = Number(document.getElementById('offset_y').value || 12);
+      const blur = Number(document.getElementById('blur').value || 18);
+      const spread = Number(document.getElementById('spread').value || 0);
+      const color = document.getElementById('color').value || '#0f172a';
+      const opacity = Number(document.getElementById('opacity').value || 0.18);
+
+      const rgb = hexToRgb(color);
+      const rgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.min(Math.max(opacity, 0), 1)})`;
+      const shadowValue = `${offsetX}px ${offsetY}px ${blur}px ${spread}px ${rgba}`;
+
+      preview.style.setProperty('box-shadow', shadowValue, 'important');
+      code.textContent = `box-shadow: ${shadowValue};`;
+    }
+
+    inputs.forEach((field) => {
+      const input = document.getElementById(field);
+      if (input) {
+        input.addEventListener('input', updateShadow);
+        input.addEventListener('change', updateShadow);
+      }
+    });
+
+    const resetBtn = document.getElementById('resetShadowBtn');
+    const defaults = {
+      offset_x: '0',
+      offset_y: '12',
+      blur: '18',
+      spread: '0',
+      color: '#0f172a',
+      opacity: '0.18'
+    };
+
+    resetBtn.addEventListener('click', function () {
+      Object.entries(defaults).forEach(([key, value]) => {
+        const input = document.getElementById(key);
+        if (input) {
+          input.value = value;
+        }
+      });
+      updateShadow();
+    });
+
+    updateShadow();
+  });
+</script>
+{% endblock %}

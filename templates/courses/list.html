@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Cursos — MihiTraining{% endblock %}
+{% block page_title %}Catálogo de Cursos{% endblock %}
+
+{% block content %}
+{% if sin_aula %}
+<div class="alert alert-warning">
+  Tu usuario no tiene un aula asignada. Así no podrás ver cursos disponibles para inscribirte.
+</div>
+{% endif %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+  {% for curso in cursos %}
+  <div class="col">
+    <div class="card border-0 shadow-sm h-100">
+      {% if curso.imagen %}
+        <img src="{{ curso.imagen.url }}" class="card-img-top" style="height:160px;object-fit:cover;" alt="{{ curso.nombre }}">
+      {% else %}
+        <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height:160px;">
+          <i class="bi bi-book display-4 text-primary opacity-50"></i>
+        </div>
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title fw-bold">{{ curso.nombre }}</h5>
+        <p class="card-text text-muted small flex-grow-1">{{ curso.descripcion|truncatewords:20 }}</p>
+        <div class="small mb-2">
+          {% if curso.tipo_curso %}
+            <span class="badge bg-info-subtle text-info-emphasis border">{{ curso.tipo_curso.nombre }}</span>
+          {% endif %}
+          <span class="badge bg-secondary-subtle text-secondary-emphasis border ms-1">
+            <i class="bi bi-clock me-1"></i>{{ curso.horas_duracion }} h
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+          <span><i class="bi bi-list-task me-1"></i>{{ curso.total_temas }} temas</span>
+          <span><i class="bi bi-people me-1"></i>{{ curso.total_inscritos }} inscritos</span>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-top-0 d-flex gap-2">
+        <a href="{% url 'courses:detail' pk=curso.pk %}" class="btn btn-outline-primary btn-sm flex-fill">Ver curso</a>
+        {% if curso.id not in ids_inscritos %}
+          <form method="post" action="{% url 'courses:inscribirse' pk=curso.pk %}" class="flex-fill">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-sm w-100">Inscribirme</button>
+          </form>
+        {% else %}
+          <span class="btn btn-success btn-sm flex-fill disabled">Inscrito ✓</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">No hay cursos disponibles en este momento.</div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

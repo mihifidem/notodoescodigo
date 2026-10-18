@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block page_title %}NexusMind — Memoria{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+body { background: #0A1628; }
+#page-content { background: #0A1628 !important; }
+main.flex-grow-1 { background: #0A1628 !important; color: rgba(255,255,255,.85) !important; padding: 0 !important; }
+.mg-wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+/* Header */
+.mg-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+.mg-logo { font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; }
+.mg-logo span { background:linear-gradient(135deg,#3B82F6,#7C3AED); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.mg-back { color:rgba(255,255,255,.5); text-decoration:none; font-size:.8rem; display:flex; align-items:center; gap:5px; transition:color .2s; }
+.mg-back:hover { color:#fff; }
+
+/* HUD */
+.mg-hud { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.25rem; }
+.hud-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px; text-align:center; }
+.hud-n { font-family:'JetBrains Mono',monospace; font-size:1.5rem; font-weight:600; color:#fff; line-height:1; }
+.hud-n.pulse { animation:pulse .3s ease; }
+.hud-l { font-size:.65rem; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+#hudTimer.danger { color:#EF4444 !important; animation:blink .5s step-end infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+@keyframes blink { 50%{opacity:.3} }
+
+/* Level selector */
+.mg-levels { display:flex; gap:8px; margin-bottom:1rem; }
+.lvl-btn { flex:1; padding:8px; border-radius:10px; border:1.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:rgba(255,255,255,.6); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .2s; }
+.lvl-btn.active, .lvl-btn:hover { border-color:#3B82F6; background:rgba(59,130,246,.1); color:#fff; }
+
+/* Board */
+.mg-board { display:grid; gap:10px; }
+.mg-board.g4 { grid-template-columns:repeat(4,1fr); }
+.mg-board.g5 { grid-template-columns:repeat(5,1fr); }
+.mg-board.g6 { grid-template-columns:repeat(6,1fr); }
+
+.card-wrap { perspective: 600px; aspect-ratio:1; cursor:pointer; }
+.card-inner {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  border-radius:12px;
+}
+.card-wrap.flipped .card-inner { transform:rotateY(180deg); }
+.card-wrap.matched .card-inner { transform:rotateY(180deg); }
+.card-wrap.matched .card-front { border-color:#22C55E !important; box-shadow:0 0 0 2px #22C55E,0 4px 20px rgba(34,197,94,.3); }
+.card-wrap.shake { animation:shake .4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.card-front, .card-back {
+  position:absolute; inset:0; border-radius:12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  backface-visibility:hidden;
+}
+.card-back {
+  background:linear-gradient(135deg,#1E3A8A,#1E40AF);
+  border:1.5px solid rgba(59,130,246,.3);
+}
+.card-back-pattern {
+  font-size:1.8rem; opacity:.3;
+}
+.card-front {
+  background:linear-gradient(135deg,#0F2D40,#1B4560);
+  border:1.5px solid rgba(0,196,255,.25);
+  transform:rotateY(180deg);
+  gap:4px;
+}
+.card-emoji { font-size:2rem; line-height:1; }
+.card-label { font-size:.58rem; font-weight:700; color:rgba(255,255,255,.7); text-align:center; letter-spacing:.5px; text-transform:uppercase; padding:0 4px; }
+
+/* Start/End overlays */
+.mg-overlay {
+  position:fixed; inset:0; background:rgba(10,22,40,.92);
+  display:flex; align-items:center; justify-content:center;
+  z-index:999; backdrop-filter:blur(6px);
+}
+.mg-modal {
+  background:linear-gradient(145deg,#0E2235,#0A1628);
+  border:1px solid rgba(0,196,255,.18); border-radius:20px;
+  padding:2.5rem; text-align:center; max-width:380px; width:90%;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+.mg-modal-icon { font-size:3.5rem; margin-bottom:1rem; }
+.mg-modal-title { font-family:'Poppins',sans-serif; font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+.mg-modal-sub { color:rgba(255,255,255,.5); font-size:.85rem; margin-bottom:1.5rem; }
+.mg-modal-score { font-family:'JetBrains Mono',monospace; font-size:2.8rem; font-weight:700; color:#00C4FF; line-height:1; margin-bottom:.25rem; }
+.mg-modal-score-lbl { font-size:.7rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:1.5rem; }
+.stars { font-size:2rem; letter-spacing:4px; margin-bottom:1.5rem; }
+.mg-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 28px; border-radius:12px; font-weight:700; font-size:.9rem;
+  border:none; cursor:pointer; transition:all .2s;
+}
+.mg-btn-primary { background:linear-gradient(135deg,#1E3A8A,#3B82F6); color:#fff; }
+.mg-btn-secondary { background:rgba(255,255,255,.08); color:rgba(255,255,255,.7); }
+.mg-btn:hover { filter:brightness(1.1); transform:translateY(-2px); }
+.mg-btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+
+  <div class="mg-nav">
+    <div class="mg-logo">🧠 Nexus<span>Mind</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <!-- HUD -->
+  <div class="mg-hud">
+    <div class="hud-box">
+      <div class="hud-n" id="hudTimer">90</div>
+      <div class="hud-l">Segundos</div>
+    </div>
+    <div class="hud-box">
+      <div class="hud-n" id="hudMoves">0</div>
+      <div class="hud-l">Movimientos</div>
+    </div>
+    <div class="hud-box">
+      <div class="hud-n" id="hudPairs">0/8</div>
+      <div class="hud-l">Parejas</div>
+    </div>
+  </div>
+
+  <!-- Level buttons -->
+  <div class="mg-levels">
+    <button class="lvl-btn active" onclick="setLevel(1,this)">🟢 Fácil (4×4)</button>
+    <button class="lvl-btn" onclick="setLevel(2,this)">🟡 Medio (4×5)</button>
+    <button class="lvl-btn" onclick="setLevel(3,this)">🔴 Difícil (5×6)</button>
+  </div>
+
+  <!-- Board -->
+  <div class="mg-board g4" id="board"></div>
+
+</div>
+
+<!-- Start overlay -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">🧠</div>
+    <div class="mg-modal-title">NexusMind</div>
+    <div class="mg-modal-sub">Empareja todas las tarjetas de habilidades antes de que expire el tiempo. Memoria + velocidad.</div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End overlay -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🏆</div>
+    <div class="mg-modal-title" id="endTitle">¡Completado!</div>
+    <div class="stars" id="endStars">⭐⭐⭐</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos</div>
+    <div class="mg-modal-sub" id="endSub"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const CARDS_DATA = [
+  { emoji:'🎯', label:'Decisión' },   { emoji:'⚙️', label:'Ejecución' },
+  { emoji:'🤝', label:'Equipo' },     { emoji:'💡', label:'Innovación' },
+  { emoji:'📊', label:'Análisis' },   { emoji:'🚀', label:'Iniciativa' },
+  { emoji:'🛡️', label:'Resiliencia' },{ emoji:'🔄', label:'Adaptación' },
+  { emoji:'🏆', label:'Logro' },      { emoji:'🧭', label:'Visión' },
+  { emoji:'⚡', label:'Energía' },    { emoji:'🎪', label:'Creatividad' },
+  { emoji:'🌟', label:'Liderazgo' },  { emoji:'🔥', label:'Pasión' },
+  { emoji:'🧩', label:'Estrategia' },
+];
+
+const LEVELS = {
+  1: { pairs:8,  cols:4, time:90,  label:'g4' },
+  2: { pairs:10, cols:5, time:75,  label:'g5' },
+  3: { pairs:15, cols:6, time:60,  label:'g6' },
+};
+
+let level = 1, timer = 90, timerInt = null;
+let flipped = [], matched = 0, moves = 0, pairs = 8;
+let canFlip = false;
+
+function setLevel(l, btn) {
+  level = l;
+  document.querySelectorAll('.lvl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  document.getElementById('startOverlay').style.display = 'none';
+  document.getElementById('endOverlay').style.display = 'none';
+  clearInterval(timerInt);
+
+  const cfg = LEVELS[level];
+  pairs = cfg.pairs;
+  timer = cfg.time;
+  moves = 0; matched = 0; flipped = [];
+
+  document.getElementById('hudTimer').textContent = timer;
+  document.getElementById('hudTimer').className = 'hud-n';
+  document.getElementById('hudMoves').textContent = '0';
+  document.getElementById('hudPairs').textContent = '0/' + pairs;
+
+  const board = document.getElementById('board');
+  board.className = 'mg-board ' + cfg.label;
+
+  const pool = shuffle(CARDS_DATA).slice(0, pairs);
+  const deck = shuffle([...pool, ...pool]);
+
+  board.innerHTML = '';
+  deck.forEach((card, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap';
+    wrap.dataset.key = pool.indexOf(card);
+    wrap.innerHTML = `
+      <div class="card-inner">
+        <div class="card-back"><div class="card-back-pattern">✦</div></div>
+        <div class="card-front">
+          <div class="card-emoji">${card.emoji}</div>
+          <div class="card-label">${card.label}</div>
+        </div>
+      </div>`;
+    wrap.addEventListener('click', () => flipCard(wrap));
+    board.appendChild(wrap);
+  });
+
+  canFlip = true;
+  timerInt = setInterval(tick, 1000);
+}
+
+function tick() {
+  timer--;
+  const el = document.getElementById('hudTimer');
+  el.textContent = timer;
+  if (timer <= 10) el.id = 'hudTimer', el.classList.add('danger'), el.id = 'hudTimer';
+  el.className = 'hud-n' + (timer <= 10 ? ' danger' : '');
+  if (timer <= 0) endGame(false);
+}
+
+function flipCard(wrap) {
+  if (!canFlip) return;
+  if (wrap.classList.contains('flipped') || wrap.classList.contains('matched')) return;
+  if (flipped.length >= 2) return;
+
+  wrap.classList.add('flipped');
+  flipped.push(wrap);
+
+  if (flipped.length === 2) {
+    canFlip = false;
+    moves++;
+    const el = document.getElementById('hudMoves');
+    el.textContent = moves;
+    el.classList.add('pulse');
+    setTimeout(() => el.classList.remove('pulse'), 300);
+
+    const [a, b] = flipped;
+    if (a.dataset.key === b.dataset.key) {
+      a.classList.add('matched'); b.classList.add('matched');
+      matched++;
+      document.getElementById('hudPairs').textContent = matched + '/' + pairs;
+      flipped = [];
+      canFlip = true;
+      if (matched === pairs) setTimeout(() => endGame(true), 400);
+    } else {
+      setTimeout(() => {
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        a.classList.add('shake'); b.classList.add('shake');
+        setTimeout(() => { a.classList.remove('shake'); b.classList.remove('shake'); }, 400);
+        flipped = []; canFlip = true;
+      }, 900);
+    }
+  }
+}
+
+function endGame(won) {
+  clearInterval(timerInt);
+  canFlip = false;
+
+  const timeLeft = timer;
+  const base = won ? 1000 : 200;
+  const timeBonus = won ? timeLeft * 8 : 0;
+  const moveBonus = won ? Math.max(0, 300 - moves * 10) : 0;
+  const score = base + timeBonus + moveBonus;
+
+  let stars = '⭐';
+  if (won) {
+    if (moves <= pairs + 4 && timeLeft > 40) stars = '⭐⭐⭐';
+    else if (moves <= pairs + 8 && timeLeft > 20) stars = '⭐⭐';
+    else stars = '⭐';
+  }
+
+  document.getElementById('endIcon').textContent = won ? '🏆' : '⏰';
+  document.getElementById('endTitle').textContent = won ? '¡Completado!' : '¡Tiempo!';
+  document.getElementById('endStars').textContent = stars;
+  document.getElementById('endScore').textContent = score.toLocaleString();
+  document.getElementById('endSub').textContent = won
+    ? `${moves} movimientos · ${timeLeft}s restantes · ¡Bien hecho!`
+    : `Faltan ${pairs - matched} parejas · Inténtalo de nuevo`;
+  document.getElementById('endOverlay').style.display = 'flex';
+}
+
+// Auto-start on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const board = document.getElementById('board');
+  // Render placeholder cards while overlay is shown
+  board.innerHTML = '';
+});
+</script>
+{% endblock %}

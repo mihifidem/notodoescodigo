@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Hash tools{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-dark text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Hash tools</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Texto</label>
+              <textarea name="text" rows="6" class="form-control" placeholder="Escribe el contenido a hashear...">{{ text }}</textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Algoritmo</label>
+              <select name="algorithm" class="form-select">
+                {% for item in supported %}
+                  <option value="{{ item }}" {% if algorithm == item %}selected{% endif %}>{{ item|upper }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-8 d-flex align-items-end">
+              <button type="submit" class="btn btn-dark rounded-pill px-4">Generar hash</button>
+            </div>
+          </form>
+
+          <div class="mt-4 border rounded-4 p-4 bg-light">
+            <div class="small text-uppercase text-secondary mb-2">Resultado</div>
+            <div class="fw-bold fs-5 text-break">{{ hash_value }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

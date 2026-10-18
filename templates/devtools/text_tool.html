@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Text tools{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-warning text-dark py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Text tools</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-dark btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Texto</label>
+              <textarea name="text" rows="4" class="form-control">{{ text }}</textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Acción</label>
+              <select name="operation" class="form-select">
+                <option value="lower" {% if operation == 'lower' %}selected{% endif %}>Minúsculas</option>
+                <option value="upper" {% if operation == 'upper' %}selected{% endif %}>Mayúsculas</option>
+                <option value="title" {% if operation == 'title' %}selected{% endif %}>Title Case</option>
+                <option value="trim" {% if operation == 'trim' %}selected{% endif %}>Trim</option>
+                <option value="compact" {% if operation == 'compact' %}selected{% endif %}>Compactar espacios</option>
+                <option value="slug" {% if operation == 'slug' %}selected{% endif %}>Slug</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-warning rounded-pill text-dark">Aplicar</button>
+            </div>
+          </form>
+
+          <div class="mt-4 p-3 bg-light border rounded-4">
+            <div class="small text-uppercase text-secondary">Resultado</div>
+            <div class="mt-2 fw-semibold">{{ result }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

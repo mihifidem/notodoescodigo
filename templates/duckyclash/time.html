@@ -1,0 +1,2 @@
+{% load tz %}
+<time datetime="{% timezone 'UTC' %}{{ value|date:'c' }}{% endtimezone %}" data-local-time>{{ value|localtime|date:"d/m/Y H:i T" }}</time>

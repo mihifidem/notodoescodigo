@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width:900px;">
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'curriculum:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="h4 mb-0 fw-bold">{% block list_title %}Sección{% endblock %}</h1>
+    </div>
+    <a href="{% block create_url %}#{% endblock %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-circle me-1"></i>Añadir
+    </a>
+  </div>
+
+  {% block list_content %}{% endblock %}
+
+</div>
+{% endblock %}

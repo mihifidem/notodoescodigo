@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Generador de botones{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Button Generator</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Esta miniapp te ayuda a probar estilos de botón en segundos y copiar el resultado final.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#buttonInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form id="buttonForm" method="get" class="row g-3">
+            <div class="col-md-3"><label class="form-label">Texto</label><input type="text" name="text" value="{{ text|default:'Botón' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Background</label><input type="color" name="bg" value="{{ bg|default:'#2563eb' }}" class="form-control form-control-color" title="Selecciona el color de fondo"></div>
+            <div class="col-md-3"><label class="form-label">Color</label><input type="color" name="color" value="{{ color|default:'#ffffff' }}" class="form-control form-control-color" title="Selecciona el color del texto"></div>
+            <div class="col-md-3"><label class="form-label">Radius</label><input type="number" name="radius" value="{{ radius|default:'12' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Padding X</label><input type="number" name="padding_x" value="{{ padding_x|default:'20' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Padding Y</label><input type="number" name="padding_y" value="{{ padding_y|default:'12' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Ancho</label><input type="number" name="width" value="{{ width|default:'180' }}" class="form-control" min="80" step="1"></div>
+            <div class="col-md-3"><label class="form-label">Alto</label><input type="number" name="height" value="{{ height|default:'48' }}" class="form-control" min="24" step="1"></div>
+            <div class="col-md-3">
+              <label class="form-label">Sombra</label>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="shadow_enabled" {% if shadow_enabled %}checked{% endif %}>
+                <label class="form-check-label">Activar</label>
+              </div>
+            </div>
+            <div class="col-md-3"><label class="form-label">X</label><input type="number" name="shadow_x" value="{{ shadow_x|default:'0' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Y</label><input type="number" name="shadow_y" value="{{ shadow_y|default:'12' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Blur</label><input type="number" name="shadow_blur" value="{{ shadow_blur|default:'24' }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Color sombra</label><input type="color" name="shadow_color" value="{{ shadow_color|default:'#0f172a' }}" class="form-control form-control-color" title="Selecciona el color de la sombra"></div>
+            <div class="col-md-6 d-flex align-items-end">
+              <button type="button" id="buttonResetBtn" class="btn btn-outline-secondary w-100 rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div class="mt-4 p-4 rounded-4 bg-light border">
+            <button id="buttonPreview" style="background: {{ bg }}; color: {{ color }}; border: none; border-radius: {{ radius }}px; padding: {{ padding_y }}px {{ padding_x }}px; width: {{ width|default:'180' }}px; height: {{ height|default:'48' }}px; font-weight: 600; box-shadow: {% if shadow_enabled %}{{ shadow_x|default:'0' }} {{ shadow_y|default:'12' }}px {{ shadow_blur|default:'24' }}px {{ shadow_color|default:'#0f172a' }}{% else %}none{% endif %};">
+              {{ text }}
+            </button>
+          </div>
+
+          <pre class="mt-4 mb-0 p-3 bg-dark text-light rounded-4"><code id="buttonSnippetCode">{{ snippet }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="buttonInstructionsModal" tabindex="-1" aria-labelledby="buttonInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="buttonInstructionsModalLabel">Instrucciones del Button Generator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Escribe el texto que quieres mostrar en el botón.</li>
+          <li>Usa el selector de color para definir el fondo y el color del texto.</li>
+          <li>Ajusta el radio para controlar la redondez de las esquinas.</li>
+          <li>Configura el padding horizontal y vertical para cambiar el tamaño interno del botón.</li>
+          <li>Define el ancho y alto para controlar la dimensión final del componente.</li>
+          <li>Activa la sombra y ajusta sus desplazamientos para dar más profundidad visual al botón.</li>
+          <li>Haz clic en <strong>Generar</strong> para ver el resultado en tiempo real.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Consejo: usa contrastes claros entre fondo y texto para mantener el botón legible y accesible.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('buttonForm');
+    const preview = document.getElementById('buttonPreview');
+    const snippetCode = document.getElementById('buttonSnippetCode');
+    const resetBtn = document.getElementById('buttonResetBtn');
+
+    function resetButtonDefaults() {
+      const fields = [
+        ['text', 'Botón'],
+        ['bg', '#2563eb'],
+        ['color', '#ffffff'],
+        ['radius', '12'],
+        ['padding_x', '20'],
+        ['padding_y', '12'],
+        ['width', '180'],
+        ['height', '48'],
+        ['shadow_x', '0'],
+        ['shadow_y', '12'],
+        ['shadow_blur', '24'],
+        ['shadow_color', '#0f172a'],
+      ];
+
+      fields.forEach(function ([name, value]) {
+        const input = form.querySelector(`[name="${name}"]`);
+        if (input) {
+          input.value = value;
+          if (name === 'shadow_color') {
+            input.value = '#0f172a';
+          }
+        }
+      });
+
+      const shadowSwitch = form.querySelector('[name="shadow_enabled"]');
+      if (shadowSwitch) {
+        shadowSwitch.checked = true;
+      }
+    }
+
+    function updatePreview() {
+      if (!form || !preview || !snippetCode) return;
+
+      const formData = new FormData(form);
+      const text = formData.get('text') || 'Botón';
+      const bg = formData.get('bg') || '#2563eb';
+      const color = formData.get('color') || '#ffffff';
+      const radius = formData.get('radius') || '12';
+      const paddingX = formData.get('padding_x') || '20';
+      const paddingY = formData.get('padding_y') || '12';
+      const width = formData.get('width') || '180';
+      const height = formData.get('height') || '48';
+      const shadowEnabled = formData.get('shadow_enabled') === 'on';
+      const shadowX = formData.get('shadow_x') || '0';
+      const shadowY = formData.get('shadow_y') || '12';
+      const shadowBlur = formData.get('shadow_blur') || '24';
+      const shadowColor = formData.get('shadow_color') || '#0f172a';
+      const boxShadow = shadowEnabled
+        ? `${shadowX}px ${shadowY}px ${shadowBlur}px ${shadowColor}`
+        : 'none';
+
+      preview.textContent = text;
+      preview.style.background = bg;
+      preview.style.color = color;
+      preview.style.borderRadius = `${radius}px`;
+      preview.style.padding = `${paddingY}px ${paddingX}px`;
+      preview.style.width = `${width}px`;
+      preview.style.height = `${height}px`;
+      preview.style.boxShadow = boxShadow;
+
+      const snippet = [
+        `background: ${bg};`,
+        `color: ${color};`,
+        'border: none;',
+        `border-radius: ${radius}px;`,
+        `padding: ${paddingY}px ${paddingX}px;`,
+        `width: ${width}px;`,
+        `height: ${height}px;`,
+        `box-shadow: ${boxShadow};`,
+        'font-weight: 600;'
+      ].join('\n');
+
+      snippetCode.textContent = snippet;
+    }
+
+    [
+      'input',
+      'change'
+    ].forEach(function (eventName) {
+      form.addEventListener(eventName, function () {
+        updatePreview();
+      });
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      updatePreview();
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        resetButtonDefaults();
+        updatePreview();
+      });
+    }
+
+    updatePreview();
+  });
+</script>
+{% endblock %}

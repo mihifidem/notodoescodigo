@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Estimador de tamaño{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden size-tool-wrap">
+        <div class="card-header bg-info text-dark py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Size Estimator</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-dark btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-info fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Calcula un tamaño aproximado de imagen o visual según ancho, alto, escala y densidad. Es útil para estimar archivos, pantallas y recursos antes de entregarlos al diseño o al front-end.
+              </p>
+              <div class="mt-3 small text-secondary">
+                <strong>Escala:</strong> multiplica el tamaño estimado para simular una versión ampliada o reducida del recurso.<br>
+                <strong>Densidad (DPI):</strong> indica la resolución visual del medio: 100-150 dpi suele ser más típico para pantallas, 200-300 dpi para impresión y 300+ dpi para trabajos más detallados o imprenta.
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline-info rounded-pill" data-bs-toggle="modal" data-bs-target="#sizeEstimatorInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <div class="alert alert-info rounded-4 mb-4">
+            <strong>Valores por defecto:</strong> ancho 1440, alto 900, escala 1, densidad 200 dpi (2x).
+          </div>
+
+          <form method="get" class="row g-3 align-items-end" id="sizeEstimatorForm">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Ancho</label>
+              <input type="number" name="width" value="{{ width|default:'1440' }}" class="form-control form-control-lg">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Alto</label>
+              <input type="number" name="height" value="{{ height|default:'900' }}" class="form-control form-control-lg">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Escala</label>
+              <input type="number" step="0.1" name="scale" value="{{ scale|default:'1' }}" class="form-control form-control-lg">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Densidad (DPI)</label>
+              <select name="density" class="form-select form-select-lg">
+                <option value="1" {% if density == 1 %}selected{% endif %}>100 dpi (monitor)</option>
+                <option value="1.5" {% if density == 1.5 %}selected{% endif %}>150 dpi</option>
+                <option value="2" {% if density == 2 %}selected{% endif %}>200 dpi (web / pantalla)</option>
+                <option value="3" {% if density == 3 %}selected{% endif %}>300 dpi (impresión)</option>
+                <option value="4" {% if density == 4 %}selected{% endif %}>600 dpi (imprenta / detalle)</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-info btn-lg w-100 rounded-pill">Estimar</button>
+            </div>
+          </form>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">Tamaño estimado</div><div class="fw-bold fs-3 mt-2">{{ estimated_mb }} MB</div></div></div>
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">Resolución</div><div class="fw-bold mt-2">{{ width }} × {{ height }}</div></div></div>
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">Escala</div><div class="fw-bold mt-2">{{ scale }}x</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="sizeEstimatorInstructionsModal" tabindex="-1" aria-labelledby="sizeEstimatorInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="sizeEstimatorInstructionsModalLabel">Instrucciones del Size Estimator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Introduce el ancho y el alto de la imagen o pantalla que quieres estimar.</li>
+          <li><strong>Escala</strong> indica cómo se amplía o reduce el recurso; por ejemplo, 1x es tamaño real, 2x lo duplica.</li>
+          <li><strong>Densidad (DPI)</strong> representa la resolución visual del medio: 100-150 dpi suele servir para pantallas, 200-300 dpi para impresión y 300+ dpi para trabajos más detallados o imprenta.</li>
+          <li>Si un campo queda vacío, la aplicación usa un valor por defecto para evitar errores.</li>
+          <li>La herramienta te devuelve un tamaño estimado para planificar carga, exportación y rendimiento.</li>
+        </ol>
+        <div class="alert alert-info mb-0 rounded-4">
+          Consejo: si vas a trabajar con imágenes para web, conviene mantener pantallas y activos dentro de tamaños razonables para evitar peso innecesario.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .size-tool-wrap,
+  [data-bs-theme="dark"] .size-tool-wrap .form-label,
+  [data-bs-theme="dark"] .size-tool-wrap .form-control,
+  [data-bs-theme="dark"] .size-tool-wrap .card-body,
+  [data-bs-theme="dark"] .size-tool-wrap .border,
+  [data-bs-theme="dark"] .size-tool-wrap .small,
+  [data-bs-theme="dark"] .size-tool-wrap .fw-bold,
+  [data-bs-theme="dark"] .size-tool-wrap .alert {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .size-tool-wrap .form-control,
+  [data-bs-theme="dark"] .size-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .size-tool-wrap .border,
+  [data-bs-theme="dark"] .size-tool-wrap .alert {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+</style>
+{% endblock %}

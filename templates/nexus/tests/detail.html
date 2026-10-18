@@ -1,0 +1,113 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ assessment.title }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ assessment.title }}</h2>
+      <span class="badge bg-{{ assessment.status_class }}">{{ assessment.get_status_display }}</span>
+    </div>
+    {% if assessment.description %}
+    <p class="text-muted mb-0">{{ assessment.description }}</p>
+    {% endif %}
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'nexus:assessment_edit' assessment.pk %}" class="nx-btn-primary btn btn-sm">
+      <i class="bi bi-pencil me-1"></i>Editar
+    </a>
+    <a href="{% url 'nexus:assessment_delete' assessment.pk %}" class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-trash me-1"></i>Eliminar
+    </a>
+    <a href="{% url 'nexus:assessment_list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Modules included -->
+  <div class="col-md-5">
+    <div class="nx-card p-4 h-100">
+      <div class="nx-section-title mb-3">Módulos incluidos ({{ modules.count }})</div>
+      {% if modules %}
+      <div class="d-flex flex-column gap-2">
+        {% for mod in modules %}
+        <a href="{% url 'nexus:module_detail' mod.pk %}" class="text-decoration-none">
+          <div class="d-flex align-items-center gap-3 p-2 rounded border" style="border-color:{{ mod.layer_color }}30!important;">
+            <div class="rounded" style="width:6px;height:36px;background:{{ mod.layer_color }};flex-shrink:0;"></div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small" style="color:{{ mod.layer_color }};">{{ mod.name }}</div>
+              <div class="text-muted" style="font-size:.72rem;">{{ mod.get_layer_display }} · {{ mod.weight_percent }}</div>
+            </div>
+            <span class="badge bg-light text-dark" style="font-size:.65rem;">{{ mod.question_count }} Q</span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-muted small fst-italic">Sin módulos asignados.</div>
+      {% endif %}
+      <div class="mt-3 pt-3 border-top small">
+        <div class="d-flex justify-content-between text-muted">
+          <span>Creado por</span>
+          <strong>{{ assessment.created_by|default:"—" }}</strong>
+        </div>
+        <div class="d-flex justify-content-between text-muted mt-1">
+          <span>Fecha creación</span>
+          <strong>{{ assessment.created_at|date:"d/m/Y H:i" }}</strong>
+        </div>
+        <div class="d-flex justify-content-between text-muted mt-1">
+          <span>Última modificación</span>
+          <strong>{{ assessment.updated_at|date:"d/m/Y H:i" }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions -->
+  <div class="col-md-7">
+    <div class="nx-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="nx-section-title">Sesiones ({{ assessment.session_count }})</div>
+      </div>
+      {% if sessions %}
+      <table class="table table-sm nx-table mb-0">
+        <thead>
+          <tr>
+            <th>Candidato</th>
+            <th>Estado</th>
+            <th>Fiabilidad</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sessions %}
+          <tr>
+            <td>
+              <div class="fw-semibold small">{{ s.candidate.get_full_name|default:s.candidate.username }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ s.candidate.email }}</div>
+            </td>
+            <td><span class="badge bg-{{ s.status_class }}" style="font-size:.7rem;">{{ s.get_status_display }}</span></td>
+            <td>
+              {% if s.reliability_score %}
+                <span class="fw-semibold small">{{ s.reliability_score }}%</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ s.created_at|date:"d/m/Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="text-center py-4 text-muted small">
+        <i class="bi bi-people fs-2 mb-2 d-block opacity-25"></i>
+        No hay sesiones para este assessment.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

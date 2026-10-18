@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% block title %}Mis Resultados — Tests y Evaluaciones{% endblock %}
+{% block page_title %}Mis Resultados{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  {# ── KPI Cards ─────────────────────────────────────────────────────────── #}
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-primary">{{ eval_stats.total }}</div>
+        <div class="small text-muted">Evaluaciones realizadas</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold {% if eval_stats.media_pct >= 50 %}text-success{% else %}text-danger{% endif %}">
+          {{ eval_stats.media_pct }}%
+        </div>
+        <div class="small text-muted">Nota media</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-success">{{ eval_stats.aprobadas }}</div>
+        <div class="small text-muted">Aprobadas</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 shadow-sm text-center h-100">
+      <div class="card-body py-3">
+        {% if dna_profile %}
+          <div class="fs-2 fw-bold text-purple" style="color:#7C3AED;">{{ dna_profile.nexus_score }}</div>
+          <div class="small text-muted">Nexus Score</div>
+        {% else %}
+          <div class="fs-2 fw-bold text-secondary">—</div>
+          <div class="small text-muted">Nexus Score</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# ── Evaluaciones IA ───────────────────────────────────────────────────── #}
+  {% if eval_history %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-clipboard-check text-primary"></i> Evaluaciones corregidas por IA
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-12 col-lg-7">
+            <canvas id="evalChart" style="max-height:320px;"></canvas>
+          </div>
+          <div class="col-12 col-lg-5">
+            <div class="d-flex justify-content-between mb-2 small text-muted">
+              <span><span class="badge" style="background:rgba(25,135,84,0.85);">&nbsp;</span> Aprobada ≥50%</span>
+              <span><span class="badge" style="background:rgba(220,53,69,0.85);">&nbsp;</span> Reprobada</span>
+            </div>
+            <div class="table-responsive" style="max-height:290px;overflow-y:auto;">
+              <table class="table table-sm table-hover align-middle mb-0" style="font-size:.82rem;">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th>Evaluación</th>
+                    <th class="text-center">Nota</th>
+                    <th class="text-center">%</th>
+                    <th class="text-center">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for e in eval_history %}
+                  <tr>
+                    <td>
+                      <span class="d-inline-block text-truncate" style="max-width:160px;" title="{{ e.titulo }}">{{ e.titulo }}</span>
+                      <div class="text-muted" style="font-size:.72rem;">{{ e.tipo }}</div>
+                    </td>
+                    <td class="text-center fw-semibold {% if e.aprobado %}text-success{% else %}text-danger{% endif %}">
+                      {{ e.puntuacion }}/{{ e.max_puntuacion }}
+                    </td>
+                    <td class="text-center">
+                      <span class="badge rounded-pill {% if e.aprobado %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ e.porcentaje }}%
+                      </span>
+                    </td>
+                    <td class="text-center text-muted">{{ e.fecha|date:"d/m/y" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-clipboard-check text-primary"></i> Evaluaciones corregidas por IA
+      </div>
+      <div class="card-body text-muted text-center py-4">
+        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+        Todavía no tienes evaluaciones corregidas.
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Nexus Assessments ─────────────────────────────────────────────────── #}
+  {% if nexus_sessions %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-diagram-3 text-purple" style="color:#7C3AED;"></i> Nexus — Resultados por módulo
+        <span class="badge bg-secondary ms-auto">{{ nexus_latest_session.assessment.title|truncatechars:30 }}</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-12 col-lg-8">
+            <canvas id="nexusModuleChart" style="max-height:380px;"></canvas>
+          </div>
+          <div class="col-12 col-lg-4">
+            {% if dna_profile %}
+            <div class="p-3 rounded-3 mb-3" style="background:#f8f3ff;">
+              <div class="fw-semibold mb-1" style="color:#7C3AED;">Perfil ADN Talent</div>
+              <div class="display-6 fw-bold" style="color:#7C3AED;">{{ dna_profile.nexus_score }}</div>
+              <div class="small text-muted">{{ dna_profile.level }}</div>
+              {% if dna_profile.primary_archetype %}
+              <div class="mt-2">
+                <span class="badge" style="background:#7C3AED;">{{ dna_profile.primary_archetype }}</span>
+                {% if dna_profile.secondary_archetype %}
+                <span class="badge bg-secondary ms-1">{{ dna_profile.secondary_archetype }}</span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            <canvas id="dnaRadarChart" style="max-height:220px;"></canvas>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Sessions history #}
+        {% if nexus_sessions|length > 1 %}
+        <hr class="my-3">
+        <div class="small fw-semibold text-muted mb-2">Historial de sesiones</div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" style="font-size:.82rem;">
+            <thead class="table-light">
+              <tr>
+                <th>Assessment</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Completado</th>
+                <th class="text-center">Fiabilidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in nexus_sessions %}
+              <tr {% if forloop.first %}class="table-success"{% endif %}>
+                <td>{{ s.assessment.title }}</td>
+                <td class="text-center"><span class="badge bg-{{ s.status_class }}">{{ s.get_status_display }}</span></td>
+                <td class="text-center text-muted">{{ s.completed_at|date:"d/m/Y H:i"|default:"—" }}</td>
+                <td class="text-center">{% if s.reliability_score %}{{ s.reliability_score }}%{% else %}—{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-diagram-3" style="color:#7C3AED;"></i> Nexus — Assessments de talento
+      </div>
+      <div class="card-body text-muted text-center py-4">
+        <i class="bi bi-person-bounding-box fs-3 d-block mb-2"></i>
+        Todavía no has completado ningún assessment Nexus.
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Quizzes de cursos ─────────────────────────────────────────────────── #}
+  <div class="col-12 col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-bar-chart me-2 text-primary"></i>Progreso por Curso
+      </div>
+      <div class="card-body">
+        {% if progreso_cursos %}
+          {% for item in progreso_cursos %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <a href="{% url 'courses:detail' pk=item.curso.pk %}" class="fw-semibold text-decoration-none">{{ item.curso.nombre }}</a>
+              <span class="badge {% if item.completado %}bg-success{% else %}bg-secondary{% endif %}">
+                {{ item.completados }}/{{ item.total }} temas
+              </span>
+            </div>
+            <div class="progress" style="height:10px;">
+              <div class="progress-bar {% if item.completado %}bg-success{% else %}bg-primary{% endif %}"
+                   role="progressbar" style="width:{{ item.porcentaje }}%;"></div>
+            </div>
+            <small class="text-muted">{{ item.porcentaje }}% completado
+              {% if item.completado %}<span class="text-success ms-2">✓ Completado</span>{% endif %}
+            </small>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">No estás inscrito en ningún curso todavía.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-patch-question me-2 text-info"></i>Últimos Quizzes
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for res in resultados_quiz %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="small fw-semibold">{{ res.quiz.titulo|truncatechars:28 }}</div>
+            <div class="text-muted" style="font-size:.72rem;">{{ res.fecha|date:"d M H:i" }}</div>
+          </div>
+          <span class="badge {% if res.aprobado %}bg-success{% else %}bg-danger{% endif %}">
+            {{ res.porcentaje }}%
+          </span>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted small">Sin resultados de quiz aún.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  {# ── Actividad reciente ────────────────────────────────────────────────── #}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-activity me-2 text-success"></i>Historial de Actividad
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for act in actividades %}
+          <li class="list-group-item d-flex align-items-center gap-3 py-2">
+            <span class="badge bg-secondary-subtle text-secondary rounded-pill small">{{ act.get_tipo_display }}</span>
+            <span class="small flex-grow-1">{{ act.descripcion }}</span>
+            {% if act.puntos_ganados %}<span class="badge bg-warning text-dark">+{{ act.puntos_ganados }}</span>{% endif %}
+            <span class="text-muted small">{{ act.timestamp|timesince }}</span>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-muted small p-4 text-center">Sin actividad registrada.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+  Chart.defaults.font.size = 12;
+
+  {% if eval_history %}
+  (function () {
+    const labels = {{ eval_labels_json|safe }};
+    const scores = {{ eval_scores_json|safe }};
+    const colors = {{ eval_colors_json|safe }};
+
+    new Chart(document.getElementById('evalChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Puntuación (%)',
+          data: scores,
+          backgroundColor: colors,
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        indexAxis: labels.length > 6 ? 'y' : 'x',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed[labels.length > 6 ? 'x' : 'y']}% sobre la puntuación máxima`,
+            },
+          },
+        },
+        scales: {
+          x: { max: labels.length > 6 ? 100 : undefined, grid: { display: false } },
+          y: { max: labels.length > 6 ? undefined : 100, beginAtZero: true },
+        },
+      },
+    });
+  })();
+  {% endif %}
+
+  {% if nexus_sessions %}
+  (function () {
+    const modLabels = {{ nexus_module_labels_json|safe }};
+    const modScores = {{ nexus_module_scores_json|safe }};
+    const modColors = {{ nexus_module_colors_json|safe }};
+
+    new Chart(document.getElementById('nexusModuleChart'), {
+      type: 'bar',
+      data: {
+        labels: modLabels,
+        datasets: [{
+          label: 'Puntuación por módulo',
+          data: modScores,
+          backgroundColor: modColors.map(c => c + 'cc'),
+          borderColor: modColors,
+          borderWidth: 1.5,
+          borderRadius: 4,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        indexAxis: modLabels.length > 8 ? 'y' : 'x',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed[modLabels.length > 8 ? 'x' : 'y'].toFixed(1)} / 100`,
+            },
+          },
+        },
+        scales: {
+          x: { max: modLabels.length > 8 ? 100 : undefined, grid: { color: '#f0f0f0' } },
+          y: { max: modLabels.length > 8 ? undefined : 100, beginAtZero: true, grid: { color: '#f0f0f0' } },
+        },
+      },
+    });
+  })();
+  {% endif %}
+
+  {% if dna_profile %}
+  (function () {
+    const indices = {{ dna_indices_json|safe }};
+    const labels = ['Liderazgo','Innovación','Tecnología','Futuro','Carrera','Ejecutivo','Motivación','Cognitivo','Emocional'];
+
+    new Chart(document.getElementById('dnaRadarChart'), {
+      type: 'radar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Índices Master',
+          data: indices,
+          backgroundColor: 'rgba(124,58,237,0.15)',
+          borderColor: '#7C3AED',
+          pointBackgroundColor: '#7C3AED',
+          pointRadius: 4,
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            min: 0,
+            max: 100,
+            ticks: { display: false, stepSize: 25 },
+            grid: { color: '#e0d7fa' },
+            angleLines: { color: '#e0d7fa' },
+            pointLabels: { font: { size: 10 } },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.r.toFixed(1)} / 100`,
+            },
+          },
+        },
+      },
+    });
+  })();
+  {% endif %}
+</script>
+{% endblock %}

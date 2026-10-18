@@ -1,0 +1,41 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+
+{% block title %}{% if file_asset %}{% trans 'Editar archivo' %}{% else %}{% trans 'Subir archivo' %}{% endif %} | {{ course.nombre }}{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans 'Mis aulas' %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='files' %}">{% trans 'Archivos' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% if file_asset %}{% trans 'Editar' %}{% else %}{% trans 'Subir' %}{% endif %}</span>
+  </nav>
+
+  <section class="form-panel">
+    <h1>{% if file_asset %}{% trans 'Editar archivo' %}{% else %}{% trans 'Subir archivo al curso' %}{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data" class="stacked-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block{% if field.field.widget.input_type == 'checkbox' %} checkbox-field{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            {{ field }}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          {% endif %}
+          {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+          {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="action-row">
+        <button type="submit" class="button button-primary">{% if file_asset %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Subir archivo' %}{% endif %}</button>
+        <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='files' %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

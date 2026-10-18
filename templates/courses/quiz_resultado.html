@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Resultado del Quiz{% endblock %}
+{% block page_title %}Resultado del Quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <!-- Result hero -->
+    <div class="card border-0 shadow-sm mb-4 {% if resultado.aprobado %}border-success{% else %}border-warning{% endif %}" style="border-width:2px!important;">
+      <div class="card-body text-center py-5">
+        {% if resultado.aprobado %}
+          <div class="display-1 mb-2">🎉</div>
+          <h2 class="text-success fw-bold">¡Aprobado!</h2>
+          <p class="text-muted">Has ganado {{ quiz.puntos_bonus }} puntos extra.</p>
+        {% else %}
+          <div class="display-1 mb-2">💪</div>
+          <h2 class="text-warning fw-bold">¡Sigue intentando!</h2>
+          <p class="text-muted">Necesitas al menos {{ quiz.porcentaje_aprobacion }}% para aprobar.</p>
+        {% endif %}
+        <div class="display-5 fw-bold my-3">
+          {{ resultado.puntuacion }} / {{ resultado.total_preguntas }}
+          <span class="fs-4 text-muted">({{ resultado.porcentaje }}%)</span>
+        </div>
+        <div class="small text-muted mb-2">
+          <i class="bi bi-clock-history me-1"></i>Tiempo empleado: {{ resultado.tiempo_empleado }} s
+        </div>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <a href="{% url 'courses:tema_detail' pk=quiz.tema.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver al tema
+          </a>
+          <a href="{% url 'courses:quiz' pk=quiz.pk %}" class="btn btn-primary">
+            <i class="bi bi-arrow-repeat me-1"></i>Repetir quiz
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed feedback -->
+    <h5 class="fw-bold mb-3">Revisión de respuestas</h5>
+    {% for item in detalle %}
+    <div class="card border-0 shadow-sm mb-3 {% if item.acerto %}border-start border-success border-3{% else %}border-start border-danger border-3{% endif %}">
+      <div class="card-body">
+        <p class="fw-semibold mb-2">{{ forloop.counter }}. {{ item.pregunta }}</p>
+        {% if item.acerto %}
+          <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Correcto</span>
+        {% else %}
+          <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Incorrecto</span>
+          <div class="small mt-2 text-muted">
+            Tu respuesta: <span class="text-danger">{{ item.elegida|default:'—' }}</span><br>
+            Respuesta correcta: <span class="text-success fw-semibold">{{ item.correcta|default:'—' }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

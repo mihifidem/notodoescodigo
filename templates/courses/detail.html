@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}{{ curso.nombre }} — MihiTraining{% endblock %}
+{% block page_title %}{{ curso.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Course info -->
+  <div class="col-12 col-lg-8">
+    {% if curso.imagen %}
+      <img src="{{ curso.imagen.url }}" class="img-fluid rounded mb-4" style="max-height:280px;width:100%;object-fit:cover;" alt="{{ curso.nombre }}">
+    {% endif %}
+    <p class="course-intro-text">{{ curso.descripcion }}</p>
+
+    <!-- Progress bar if enrolled -->
+    {% if inscripcion %}
+    <div class="card border-0 bg-primary bg-opacity-10 p-3 mb-4">
+      <div class="d-flex justify-content-between small mb-1">
+        <span><strong>Tu progreso</strong></span>
+        <span>{{ temas_completados }} / {{ total_temas }} temas</span>
+      </div>
+      <div class="progress" style="height:10px;">
+        <div class="progress-bar bg-success" style="width:{{ porcentaje_progreso }}%;"></div>
+      </div>
+      {% if inscripcion.completado %}
+        <div class="mt-2 text-success small fw-semibold"><i class="bi bi-patch-check-fill me-1"></i>Curso completado — <a href="{% url 'certifications:list' %}">Ver certificado</a></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <form method="post" action="{% url 'courses:inscribirse' pk=curso.pk %}" class="mb-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-plus-circle me-2"></i>Inscribirme en este curso</button>
+    </form>
+    {% endif %}
+
+    <!-- Topics list -->
+    <h5 class="fw-bold mb-3">Temario ({{ total_temas }} temas)</h5>
+    <div class="list-group shadow-sm">
+      {% for tema, progreso in temas_con_progreso %}
+      <a href="{% if inscripcion %}{% url 'courses:tema_detail' pk=tema.pk %}{% else %}#{% endif %}"
+         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center
+                {% if not inscripcion %}opacity-50{% endif %}
+                {% if progreso and progreso.completado %}list-group-item-success{% endif %}">
+        <span>
+          {% if progreso and progreso.completado %}
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+          {% else %}
+            <i class="bi bi-circle text-muted me-2"></i>
+          {% endif %}
+          {{ forloop.counter }}. {{ tema.titulo }}
+        </span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-warning text-dark"><i class="bi bi-star me-1"></i>{{ tema.puntos_otorgados }} pts</span>
+          {% if tema.quiz %}
+            <span class="badge bg-info text-dark"><i class="bi bi-patch-question me-1"></i>Quiz</span>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if hay_quizzes_curso %}
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-white border-bottom fw-semibold">
+        <span><i class="bi bi-patch-question-fill me-2 text-primary"></i>Quizzes del curso</span>
+      </div>
+      <div class="card-body">
+        <div class="list-group list-group-flush">
+          {% for item in quizzes_curso %}
+          <div class="list-group-item px-0">
+            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+              <div>
+                <div class="fw-semibold">{{ item.tema.titulo }}</div>
+                <div class="small text-muted">{{ item.quiz.titulo }}</div>
+              </div>
+              <span class="badge {% if item.csv_existe %}bg-success-subtle text-success-emphasis border{% else %}bg-danger-subtle text-danger-emphasis border{% endif %}">
+                {% if item.csv_existe %}CSV disponible{% else %}CSV no encontrado{% endif %}
+              </span>
+            </div>
+            <div class="small text-muted mt-2">
+              <strong>Archivo:</strong> {{ item.csv_filename|default:'Sin archivo asignado' }}
+              {% if item.csv_existe %}
+                <span class="mx-2">•</span>
+                <strong>Preguntas:</strong> {{ item.preguntas_cargadas }}
+              {% endif %}
+            </div>
+            <div class="mt-2">
+              <a href="{% url 'courses:quiz' pk=item.quiz.pk %}" class="btn btn-sm btn-info">Abrir quiz</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Course evaluations grouped by scope -->
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-white border-bottom fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clipboard-check me-2 text-primary"></i>Evaluaciones del curso</span>
+        <a href="{% url 'evaluations:list' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+      </div>
+      <div class="card-body">
+        {% if evaluaciones_total %}
+        <div class="row g-3">
+          <div class="col-12 col-xl-4">
+            <h6 class="small text-uppercase text-muted fw-bold mb-2">UD (Unidad Didáctica)</h6>
+            {% if evaluaciones_ud %}
+              <div class="list-group list-group-flush">
+                {% for ev in evaluaciones_ud %}
+                <a href="{% url 'evaluations:detail' ev.pk %}" class="list-group-item list-group-item-action px-0 d-flex justify-content-between align-items-start">
+                  <span class="small fw-semibold">{{ ev.titulo }}</span>
+                  {% if ev.esta_abierta %}
+                    <span class="badge bg-success">Abierta</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Cerrada</span>
+                  {% endif %}
+                </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted small mb-0">Sin evaluaciones UD.</p>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <h6 class="small text-uppercase text-muted fw-bold mb-2">UF (Unidad Formativa)</h6>
+            {% if evaluaciones_uf %}
+              <div class="list-group list-group-flush">
+                {% for ev in evaluaciones_uf %}
+                <a href="{% url 'evaluations:detail' ev.pk %}" class="list-group-item list-group-item-action px-0 d-flex justify-content-between align-items-start">
+                  <span class="small fw-semibold">{{ ev.titulo }}</span>
+                  {% if ev.esta_abierta %}
+                    <span class="badge bg-success">Abierta</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Cerrada</span>
+                  {% endif %}
+                </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted small mb-0">Sin evaluaciones UF.</p>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <h6 class="small text-uppercase text-muted fw-bold mb-2">MF (Módulo Formativo)</h6>
+            {% if evaluaciones_mf %}
+              <div class="list-group list-group-flush">
+                {% for ev in evaluaciones_mf %}
+                <a href="{% url 'evaluations:detail' ev.pk %}" class="list-group-item list-group-item-action px-0 d-flex justify-content-between align-items-start">
+                  <span class="small fw-semibold">{{ ev.titulo }}</span>
+                  {% if ev.esta_abierta %}
+                    <span class="badge bg-success">Abierta</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Cerrada</span>
+                  {% endif %}
+                </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted small mb-0">Sin evaluaciones MF.</p>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <p class="text-muted small mb-0">No hay evaluaciones publicadas para este curso en tu aula.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar info -->
+  <div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">Información del curso</h6>
+        <ul class="list-unstyled small text-muted">
+          {% if curso.tipo_curso %}
+          <li class="mb-2"><i class="bi bi-tag me-2 text-secondary"></i>Tipo: {{ curso.tipo_curso.nombre }}</li>
+          {% endif %}
+          <li class="mb-2"><i class="bi bi-clock me-2 text-warning"></i>Duración: {{ curso.horas_duracion }} horas</li>
+          <li class="mb-2"><i class="bi bi-calendar me-2 text-primary"></i>Inicio: {{ curso.fecha_inicio|date:"d M Y" }}</li>
+          {% if curso.fecha_fin %}
+          <li class="mb-2"><i class="bi bi-calendar-check me-2 text-success"></i>Fin: {{ curso.fecha_fin|date:"d M Y" }}</li>
+          {% endif %}
+          <li class="mb-2"><i class="bi bi-list-task me-2 text-info"></i>{{ total_temas }} temas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

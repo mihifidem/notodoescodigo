@@ -1,0 +1,5 @@
+{% load i18n %}
+<form id="module-create-form" method="post" action="{% url 'lms:course_module_create' course_id=course.pk %}" data-lms-validation-url="{% url 'lms:form_field_validate' form_type='module' %}" data-course-id="{{ course.pk }}" data-validation-failure-message="{% trans 'No se pudo validar el campo. Vuelve a intentarlo.' %}" data-create-failure-message="{% trans 'No se pudo crear el módulo. Vuelve a intentarlo.' %}" data-create-option-label="{% trans 'Crear nuevo módulo…' %}">
+  {% csrf_token %}
+  <input type="hidden" name="return_to" value="{{ return_to }}">
+</form>

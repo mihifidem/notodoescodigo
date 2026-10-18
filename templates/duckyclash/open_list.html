@@ -1,0 +1,57 @@
+{% extends 'duckyclash/base.html' %}
+{% load static %}
+{% block title %}Retos Abiertos · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3">Retos Abiertos</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary" href="{% url 'duckyclash:open_create' %}">Publicar reto</a>
+            <a class="btn btn-outline-primary" href="{% url 'duckyclash:home' %}">Mis retos</a>
+        </div>
+    </div>
+    <div class="alert alert-info">Aceptación directa de las condiciones. Consultar saldo no reserva monedas. Tras aceptar se reservan las apuestas de ambos jugadores; el duelo solo se confirma cuando ambas reservas están verificadas.</div>
+    <p id="open-sync-status" role="status" aria-live="polite" tabindex="-1">El estado se comprueba automáticamente; el contador es informativo.</p>
+    <a class="btn btn-outline-secondary mb-3" href="?{{ request.GET.urlencode }}">Actualizar panel</a>
+    <form method="get" class="card card-body mb-4">
+        <div class="row g-3">
+            {% for field in filter_form %}<div class="col-md-4">
+                {{ field.label_tag }}{{ field }}{{ field.errors }}
+            </div>{% endfor %}
+        </div>
+        <div class="mt-3"><button class="btn btn-outline-primary" type="submit">Filtrar</button> <a href="{% url 'duckyclash:open_list' %}">Limpiar filtros</a></div>
+    </form>
+    <p class="small">El filtro de fecha usa la zona del sitio ({{ filter_time_zone }}). Los horarios mostrados se adaptan a tu zona local.</p>
+    <div class="row g-3" id="open-panel" data-state-url="{% url 'duckyclash:open_state' %}">
+        {% for card in cards %}
+        <div class="col-md-6 col-xl-4" data-open-card data-challenge-id="{{ card.challenge.pk }}">
+            <article class="card h-100"><div class="card-body d-flex flex-column">
+                <h2 class="h5">Reto de {{ card.challenge.creator.get_username }}</h2>
+                <p>{{ card.offer.category }}{% if card.offer.subcategory %} / {{ card.offer.subcategory }}{% endif %}</p>
+                <p>Inicio: {% include 'duckyclash/time.html' with value=card.offer.scheduled_at %}</p>
+                <p><strong>{{ card.offer.stake }} DuckyCoins por jugador</strong></p>
+                <p>Paisaje: {{ card.offer.landscape }}</p>
+                <p>Vence: {% include 'duckyclash/time.html' with value=card.challenge.expires_at %}</p>
+                <p>Tiempo restante (informativo): <span data-open-countdown data-seconds="{{ card.remaining }}">{{ card.remaining }} segundos</span></p>
+                <a class="mb-3" href="{% url 'duckyclash:challenge_detail' card.challenge.pk %}">Ver condiciones</a>
+                {% if card.challenge.creator_id != request.user.pk %}
+                <form method="post" action="{% url 'duckyclash:open_accept' card.challenge.pk %}" class="mt-auto" data-clash-confirm="¿Aceptar este reto por {{ card.offer.stake }} DuckyCoins por jugador?">
+                    {% csrf_token %}
+                    <input type="hidden" name="version" value="{{ card.offer.version }}">
+                    <input type="hidden" name="revision" value="{{ card.challenge.revision }}">
+                    <button type="submit" class="btn btn-primary w-100">Aceptar</button>
+                </form>
+                {% else %}<p class="mt-auto text-body-secondary">Es tu reto. No puedes aceptarlo.</p>{% endif %}
+            </div></article>
+        </div>
+        {% empty %}<p>No hay retos abiertos disponibles con estos filtros.</p>{% endfor %}
+    </div>
+    <p id="open-live-empty" class="border rounded p-3" hidden>No quedan retos disponibles en esta página. Actualiza el panel para buscar nuevos retos.</p>
+    {% if page_obj.has_other_pages %}<nav aria-label="Páginas de retos" class="mt-4 d-flex gap-3">
+        {% if page_obj.has_previous %}<a href="?{{ filters }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+        <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?{{ filters }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+    </nav>{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}{{ block.super }}<script src="{% static 'duckyclash/open_challenges.js' %}" defer></script>{% endblock %}

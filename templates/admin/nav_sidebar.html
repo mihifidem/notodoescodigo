@@ -1,0 +1,79 @@
+{% load i18n %}
+{% url 'admin:evaluations_evaluacion_changelist' as ev_list %}
+{% url 'admin:evaluations_evaluacion_add' as ev_add %}
+{% url 'admin:evaluations_tipoexamen_changelist' as tipos %}
+{% url 'admin:evaluations_tipoexamen_add' as tipos_add %}
+{% url 'admin:evaluations_rubricaevaluacion_changelist' as rubricas %}
+{% url 'admin:evaluations_entregaevaluacion_changelist' as entregas %}
+{% url 'admin:evaluations_correccionevaluacion_changelist' as correcciones %}
+{% url 'admin:evaluations_eventocorreccion_changelist' as auditoria %}
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
+<nav class="sticky" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
+  <input type="search" id="nav-filter"
+         placeholder="{% translate 'Start typing to filter…' %}"
+         aria-label="{% translate 'Filter navigation items' %}">
+  {% include 'admin/app_list.html' with app_list=available_apps show_changelinks=False %}
+
+  {% if ev_list %}
+  <div class="module" id="evaluations-quicklinks">
+    <style>
+      #evaluations-quicklinks caption a { color: #fff; }
+      #evaluations-quicklinks .ql-actions { display: grid; gap: 6px; padding: 8px 10px; }
+      #evaluations-quicklinks .ql-btn {
+        display: block; width: 100%; box-sizing: border-box;
+        padding: 7px 10px; font-size: 12px; border-radius: 4px;
+        text-align: center; font-weight: 600; text-decoration: none;
+        background: #157347; color: #fff;
+      }
+      #evaluations-quicklinks .ql-btn:hover { background: #1a9059; }
+      #evaluations-quicklinks .ql-btn.warn { background: #7d4e00; }
+      #evaluations-quicklinks .ql-btn.warn:hover { background: #a06500; }
+      #evaluations-quicklinks .warn-link { color: #e8a838; font-weight: 600; }
+    </style>
+    <table>
+      <caption>
+        <a href="{{ ev_list }}" class="section">🤖 Corrección IA</a>
+      </caption>
+      <tr>
+        <td colspan="2">
+          <div class="ql-actions">
+            <a class="ql-btn" href="{{ ev_add }}">➕ Crear evaluación</a>
+            <a class="ql-btn warn" href="{{ entregas }}?estado__exact=REVISION_DOCENTE">⚠️ Pendientes revisión</a>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ ev_list }}">📋 Evaluaciones</a></th>
+        <td><a href="{{ ev_add }}" class="addlink">Añadir</a></td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ tipos }}">🏷️ Tipos de examen</a></th>
+        <td><a href="{{ tipos_add }}" class="addlink">Añadir</a></td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ rubricas }}">📐 Rúbricas</a></th>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ entregas }}">📤 Entregas</a></th>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <th scope="row">
+          <a href="{{ entregas }}?estado__exact=REVISION_DOCENTE" class="warn-link">⚠️ Pendientes</a>
+        </th>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ correcciones }}">🤖 Correcciones IA</a></th>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <th scope="row"><a href="{{ auditoria }}">📜 Auditoría</a></th>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+  </div>
+  {% endif %}
+
+</nav>

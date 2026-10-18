@@ -1,0 +1,853 @@
+{% extends 'base.html' %}
+
+{% block title %}Mini herramientas dev{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row align-items-center mb-4 g-3">
+    <div class="col-lg-8">
+      <span class="badge rounded-pill bg-dark text-white px-3 py-2 mb-3">Dev Toolkit</span>
+      <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.04em;">Miniapps para desarrolladores web</h1>
+      <p class="lead text-secondary mb-0">
+        Herramientas rápidas para conversiones, diseño, CSS, accesibilidad y productividad sin salir del flujo de trabajo.
+      </p>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <a href="{% url 'devtools:medidas' %}" class="btn btn-dark btn-lg rounded-pill px-4 shadow-sm">
+        <i class="bi bi-arrows-angle-expand me-2"></i>Probar conversor
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-body-tertiary border rounded-4 p-3 p-md-4 mb-4 shadow-sm" style="border-color: rgba(15, 23, 42, 0.08) !important;">
+    <div class="row g-3 align-items-center">
+      <div class="col-xl-8">
+        <div class="d-flex flex-wrap gap-2" id="categoryFilters">
+          <button type="button" class="btn btn-sm rounded-pill btn-dark" data-filter="all">Todas</button>
+          <button type="button" class="btn btn-sm rounded-pill btn-outline-dark" data-filter="medidas">Medidas</button>
+          <button type="button" class="btn btn-sm rounded-pill btn-outline-dark" data-filter="diseño">Diseño</button>
+          <button type="button" class="btn btn-sm rounded-pill btn-outline-dark" data-filter="css">CSS</button>
+          <button type="button" class="btn btn-sm rounded-pill btn-outline-dark" data-filter="accesibilidad">Accesibilidad</button>
+          <button type="button" class="btn btn-sm rounded-pill btn-outline-dark" data-filter="productividad">Productividad</button>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="input-group shadow-sm rounded-pill overflow-hidden border-0 bg-white">
+          <span class="input-group-text bg-white border-0 text-secondary"><i class="bi bi-search"></i></span>
+          <input id="toolSearch" type="search" class="form-control border-0 bg-white" placeholder="Buscar herramienta" aria-label="Buscar herramienta" style="box-shadow: none;" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4" id="toolGrid">
+    <div class="col-md-6 col-xl-4 tool-card" data-category="medidas" data-name="conversor universal medidas cocina" data-tags="peso volumen longitud tiempo cocina frontend">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-info-subtle text-info rounded-pill px-3">Medidas</span>
+            <i class="bi bi-rulers fs-3 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Conversor universal</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Pesa, volumen, longitudes y tiempo. Incluye equivalencias de cocina y frontend.
+          </p>
+          <a href="{% url 'devtools:medidas' %}" class="btn btn-outline-primary rounded-pill mt-auto">Abrir herramienta</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="analizador de color color" data-tags="hex rgb hsl palette color">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-dark-subtle text-dark rounded-pill px-3">Color</span>
+            <i class="bi bi-palette fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Analizador de color</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Convierte HEX, RGB y HSL para diseñar paletas más consistentes.
+          </p>
+          <a href="{% url 'devtools:colores' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="css" data-name="sombra css" data-tags="shadow box shadow css">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-primary-subtle text-primary rounded-pill px-3">CSS</span>
+            <i class="bi bi-paint-bucket fs-3 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Sombra + CSS</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera shadows, espaciado, snippets y tips de diseño para UI limpia.
+          </p>
+          <a href="{% url 'devtools:sombras' %}" class="btn btn-outline-primary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="accesibilidad" data-name="analizador de contraste adobe" data-tags="contrast analyzer adobe color accessibility">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-success-subtle text-success rounded-pill px-3">Color</span>
+            <i class="bi bi-eyedropper fs-3 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Analizador de contraste WCAG</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Evalúa relación entre colores, comprueba AA/AAA y prueba combinaciones de texto con fondo.
+          </p>
+          <a href="{% url 'devtools:analizador_contraste' %}" class="btn btn-outline-success rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="espaciado spacing" data-tags="spacing margin padding system">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-warning-subtle text-warning rounded-pill px-3">Sistema</span>
+            <i class="bi bi-grid-3x3-gap fs-3 text-warning"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Espaciado</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Escala de spacing y valores secos para un sistema de diseño consistente.
+          </p>
+          <a href="{% url 'devtools:espaciado' %}" class="btn btn-outline-warning rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="slugify url seo" data-tags="slug seo url clean">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-secondary-subtle text-secondary rounded-pill px-3">URLs</span>
+            <i class="bi bi-link-45deg fs-3 text-secondary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Slugify</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Crea slugs limpios para URLs, SEO y contenidos en segundos.
+          </p>
+          <a href="{% url 'devtools:slugify' %}" class="btn btn-outline-secondary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="estimador de tamaño responsive" data-tags="responsive size layout screen">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-info-subtle text-info rounded-pill px-3">Render</span>
+            <i class="bi bi-aspect-ratio fs-3 text-info"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Estimador de tamaño</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Calcula tamaño visual aproximado de pantallas y assets para diseño responsive.
+          </p>
+          <a href="{% url 'devtools:tamanos' %}" class="btn btn-outline-info rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="css" data-name="css snippet" data-tags="css snippet card">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-dark-subtle text-dark rounded-pill px-3">Snippet</span>
+            <i class="bi bi-code-square fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">CSS snippet</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera un bloque de estilo listo para usar con color, padding y border radius.
+          </p>
+          <a href="{% url 'devtools:css' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="px rem conversion" data-tags="rem px typography scale">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-primary-subtle text-primary rounded-pill px-3">PX</span>
+            <i class="bi bi-arrows-expand fs-3 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">PX ↔ REM</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Convierte tamaños para mantener una escala tipográfica consistente.
+          </p>
+          <a href="{% url 'devtools:rem' %}" class="btn btn-outline-primary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="boton generator" data-tags="button ui component">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-success-subtle text-success rounded-pill px-3">UI</span>
+            <i class="bi bi-bootstrap-reboot fs-3 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Generador de botones</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Prueba colores, radius y padding para componentes reutilizables.
+          </p>
+          <a href="{% url 'devtools:botones' %}" class="btn btn-outline-success rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="layout calculator grid" data-tags="grid layout columns responsive">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-info-subtle text-info rounded-pill px-3">Grid</span>
+            <i class="bi bi-layout-three-columns fs-3 text-info"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Calculadora de layout</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Estima columnas y anchos de grid para un diseño más preciso y escalable.
+          </p>
+          <a href="{% url 'devtools:layout' %}" class="btn btn-outline-info rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="json formatter api" data-tags="json api formatter debug">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-dark-subtle text-dark rounded-pill px-3">JSON</span>
+            <i class="bi bi-braces fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">JSON formatter</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Formatea y valida payloads JSON para APIs, configs y debugging.
+          </p>
+          <a href="{% url 'devtools:json' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="base64 encode decode" data-tags="base64 encode decode token auth">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-secondary-subtle text-secondary rounded-pill px-3">Encode</span>
+            <i class="bi bi-file-earmark-code fs-3 text-secondary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Base64</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Codifica o decodifica datos para tokens, autenticación y transferencias rápidas.
+          </p>
+          <a href="{% url 'devtools:base64' %}" class="btn btn-outline-secondary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="text tools texto" data-tags="text lower upper slug trim">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-warning-subtle text-warning rounded-pill px-3">Text</span>
+            <i class="bi bi-type fs-3 text-warning"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Text tools</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Convierte textos para URL, formato, limpieza y normalización de contenido.
+          </p>
+          <a href="{% url 'devtools:texto' %}" class="btn btn-outline-warning rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="css" data-name="css variables tokens" data-tags="css variables tokens design system">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-primary-subtle text-primary rounded-pill px-3">CSS</span>
+            <i class="bi bi-braces fs-3 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">CSS variables</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera tokens rápidos para paleta, radio y spacing en design systems.
+          </p>
+          <a href="{% url 'devtools:css_vars' %}" class="btn btn-outline-primary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="breakpoints responsive" data-tags="breakpoints media queries responsive">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-info-subtle text-info rounded-pill px-3">Layout</span>
+            <i class="bi bi-layout-text-window fs-3 text-info"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Breakpoints</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Calcula y prepara media queries para responsive design sin salir del editor.
+          </p>
+          <a href="{% url 'devtools:breakpoints' %}" class="btn btn-outline-info rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="metadata image seo" data-tags="seo metadata image html alt">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-success-subtle text-success rounded-pill px-3">SEO</span>
+            <i class="bi bi-card-image fs-3 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Metadata image</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Prepara atributos HTML para imágenes con width, height y loading.
+          </p>
+          <a href="{% url 'devtools:metadata_img' %}" class="btn btn-outline-success rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="qr preview" data-tags="qr code mobile">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-dark-subtle text-dark rounded-pill px-3">QR</span>
+            <i class="bi bi-qr-code-scan fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">QR preview</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera una vista rápida de código QR para enlaces y acceso móvil.
+          </p>
+          <a href="{% url 'devtools:qr' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="url shortener link" data-tags="link short url share">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-secondary-subtle text-secondary rounded-pill px-3">Link</span>
+            <i class="bi bi-link-45deg fs-3 text-secondary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">URL shortener</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Crea versiones cortas de enlaces para compartir, probar o documentar.
+          </p>
+          <a href="{% url 'devtools:url_shortener' %}" class="btn btn-outline-secondary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="gradientes color" data-tags="gradient color background design">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-danger-subtle text-danger rounded-pill px-3">Gradient</span>
+            <i class="bi bi-palette2 fs-3 text-danger"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Gradientes</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera transiciones suaves para fondos, banners y UI moderna.
+          </p>
+          <a href="{% url 'devtools:gradientes' %}" class="btn btn-outline-danger rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="tipografia typography" data-tags="typography font size scale">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-light text-dark rounded-pill px-3">Type</span>
+            <i class="bi bi-type-h1 fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Tipografía</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Escala tipográfica con tamaños, proporciones y jerarquía visual.
+          </p>
+          <a href="{% url 'devtools:tipografia' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="paleta color" data-tags="palette color brand swatches">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-secondary-subtle text-secondary rounded-pill px-3">Palette</span>
+            <i class="bi bi-palette fs-3 text-secondary"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Paleta</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera combinaciones de color para temas, branding y estados visuales.
+          </p>
+          <a href="{% url 'devtools:paleta' %}" class="btn btn-outline-secondary rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="diseño" data-name="bordes radius" data-tags="border radius corners ui">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-light text-dark rounded-pill px-3">Radius</span>
+            <i class="bi bi-square fs-3 text-dark"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Bordes</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Ajusta radio, suavidad y formato de esquinas para componentes UI.
+          </p>
+          <a href="{% url 'devtools:bordes' %}" class="btn btn-outline-dark rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="contador de texto word count" data-tags="text count words lines read time">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-success-subtle text-success rounded-pill px-3">Text</span>
+            <i class="bi bi-file-text fs-3 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Contador de texto</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Analiza caracteres, palabras, líneas y tiempo de lectura para contenido web.
+          </p>
+          <a href="{% url 'devtools:text_counter' %}" class="btn btn-outline-success rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 tool-card" data-category="productividad" data-name="hash sha256 md5" data-tags="hash checksum md5 sha256 secure">
+      <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden tool-card-inner">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge text-bg-danger-subtle text-danger rounded-pill px-3">Hash</span>
+            <i class="bi bi-fingerprint fs-3 text-danger"></i>
+          </div>
+          <h5 class="card-title fw-bold fs-4 mb-2">Hash tools</h5>
+          <p class="card-text text-secondary mb-3 flex-grow-1">
+            Genera hashes MD5, SHA1, SHA256 y SHA512 para verificar contenido y integridad.
+          </p>
+          <a href="{% url 'devtools:hash' %}" class="btn btn-outline-danger rounded-pill mt-auto">Abrir</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool-card-inner {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 300px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+  }
+  .tool-card-inner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(15, 23, 42, 0.06) !important;
+  }
+  .tool-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1.25rem 1.25rem 1rem;
+  }
+  .tool-card .card-title {
+    margin-bottom: 0;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    font-size: 1.15rem;
+  }
+  .tool-card .card-text {
+    margin-bottom: 0;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, 0.7) !important;
+    font-size: 0.96rem;
+  }
+  .tool-card .btn-outline-primary,
+  .tool-card .btn-outline-dark,
+  .tool-card .btn-outline-success,
+  .tool-card .btn-outline-warning,
+  .tool-card .btn-outline-secondary,
+  .tool-card .btn-outline-info,
+  .tool-card .btn-outline-danger {
+    align-self: flex-start;
+    min-width: 7.5rem;
+    font-weight: 600;
+    border-width: 1px;
+    border-radius: 999px;
+    background: #fff;
+  }
+  .tool-card[hidden] {
+    display: none !important;
+  }
+  .miniapp-vote {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .miniapp-vote .vote-btn {
+    min-width: 0;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    transition: all 0.2s ease;
+    box-shadow: none;
+    background: #f6f8fa;
+  }
+  .miniapp-vote .vote-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.6rem rgba(15, 23, 42, 0.08);
+  }
+  .miniapp-vote .vote-btn[value="like"] {
+    background: #fff;
+    border-color: rgba(34, 197, 94, 0.8);
+    color: #16a34a;
+  }
+  .miniapp-vote .vote-btn[value="dislike"] {
+    background: #fff;
+    border-color: rgba(239, 68, 68, 0.8);
+    color: #dc2626;
+  }
+  .miniapp-vote .vote-btn.is-active {
+    box-shadow: 0 0 0 0.18rem rgba(15, 23, 42, 0.04), 0 0.3rem 0.7rem rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+    filter: saturate(1.1);
+  }
+  @keyframes votePulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
+  .miniapp-vote .vote-btn.vote-pulse,
+  .miniapp-vote .vote-status.vote-pulse,
+  .miniapp-vote .vote-count.vote-pulse {
+    animation: votePulse 0.28s ease;
+  }
+  .miniapp-vote .vote-status {
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.25rem 0.55rem;
+    letter-spacing: 0.01em;
+  }
+  .miniapp-vote .vote-count {
+    font-size: 0.7rem;
+    padding: 0.28rem 0.55rem;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  .miniapp-vote .vote-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+</style>
+
+{{ tool_votes|json_script:'tool-votes-data' }}
+{{ user_votes|json_script:'user-votes-data' }}
+{{ tool_configs|json_script:'tool-configs-data' }}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const filters = document.querySelectorAll('[data-filter]');
+    const cards = document.querySelectorAll('.tool-card');
+    const searchInput = document.getElementById('toolSearch');
+    const toolVotes = JSON.parse(document.getElementById('tool-votes-data').textContent || '{}');
+    const userVotes = JSON.parse(document.getElementById('user-votes-data').textContent || '{}');
+    const toolConfigs = JSON.parse(document.getElementById('tool-configs-data').textContent || '[]');
+    const toolConfigMap = Object.fromEntries((toolConfigs || []).map((tool) => [tool.slug, tool]));
+    const canVote = {{ request.user.is_authenticated|yesno:'true,false' }};
+    const isStaff = {{ request.user.is_staff|yesno:'true,false' }};
+    const isSuperuser = {{ request.user.is_superuser|yesno:'true,false' }};
+    const canManage = isStaff || isSuperuser;
+    const userRole = '{{ request.user.role|default:"anon" }}';
+    let activeFilter = 'all';
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+      return '';
+    }
+
+    function getToolSlugFromCard(card) {
+      const openLink = card.querySelector('a[href*="/devtools/"]');
+      if (!openLink) return null;
+      const url = new URL(openLink.href, window.location.origin);
+      const segments = url.pathname.replace(/^\/devtools\//, '').replace(/\/+$/, '').split('/');
+      const slug = segments[0] || null;
+      return slug ? slug.replace(/-/g, '_') : null;
+    }
+
+    function renderAdminControls() {
+      if (!isStaff && !isSuperuser) return;
+
+      cards.forEach((card) => {
+        const slug = getToolSlugFromCard(card);
+        if (!slug || !toolConfigMap[slug]) return;
+
+        const cardBody = card.querySelector('.card-body');
+        if (!cardBody) return;
+
+        const existing = card.querySelector('.devtool-admin-form');
+        if (existing) existing.remove();
+
+        const config = toolConfigMap[slug];
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = `/devtools/admin/${slug}/toggle/`;
+        form.className = 'devtool-admin-form d-flex flex-wrap gap-2 mb-2';
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = getCookie('csrftoken');
+
+        const activeLabel = document.createElement('label');
+        activeLabel.className = 'form-check-label small text-secondary';
+        activeLabel.innerHTML = `<input type="checkbox" name="is_active" ${config.is_active ? 'checked' : ''}> activo`;
+
+        const privateLabel = document.createElement('label');
+        privateLabel.className = 'form-check-label small text-secondary';
+        privateLabel.innerHTML = `<input type="checkbox" name="is_private" ${config.is_private ? 'checked' : ''}> privado`;
+
+        form.appendChild(csrfInput);
+        form.appendChild(activeLabel);
+        form.appendChild(privateLabel);
+        cardBody.appendChild(form);
+      });
+    }
+
+    function applyToolVisibility() {
+      cards.forEach((card) => {
+        const slug = getToolSlugFromCard(card);
+        if (!slug) return;
+
+        const config = toolConfigMap[slug];
+        const isActiveForUser = !!config && config.is_active;
+        const isPrivateForUser = !!config && config.is_private && !canManage && userRole !== 'premium' && userRole !== 'alumno';
+        const shouldShow = canManage || (isActiveForUser && !isPrivateForUser);
+
+        if (!shouldShow) {
+          card.hidden = true;
+          return;
+        }
+
+        card.hidden = false;
+      });
+    }
+
+    function renderVoteControls() {
+      cards.forEach((card) => {
+        const slug = getToolSlugFromCard(card);
+        if (!slug) return;
+
+        const cardBody = card.querySelector('.card-body');
+        const existing = card.querySelector('.miniapp-vote');
+        if (existing) existing.remove();
+
+        const data = toolVotes[slug] || { likes: 0, dislikes: 0 };
+        const voteState = userVotes[slug];
+        const form = document.createElement('div');
+        form.className = 'miniapp-vote d-flex align-items-center justify-content-between gap-2 flex-wrap';
+
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.className = 'vote-actions';
+
+        const formEl = document.createElement('form');
+        formEl.method = 'post';
+        formEl.action = `/devtools/votar/${slug}/`;
+        formEl.className = 'vote-actions';
+        formEl.addEventListener('submit', function (event) {
+          event.preventDefault();
+          if (!canVote) return;
+
+          const selectedVote = event.submitter ? event.submitter.value : 'like';
+          const submitData = new FormData(formEl);
+          submitData.set('vote', selectedVote);
+
+          fetch(formEl.action, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: submitData,
+            credentials: 'same-origin',
+          })
+            .then((response) => response.json())
+            .then((payload) => {
+              const previousVote = userVotes[slug];
+              const nextVote = payload.vote || selectedVote;
+              const nextData = {
+                likes: Number(payload.likes || data.likes || 0),
+                dislikes: Number(payload.dislikes || data.dislikes || 0),
+              };
+
+              if (previousVote === 'like' && nextVote !== 'like') {
+                nextData.likes = Math.max(0, nextData.likes - 1);
+              }
+              if (previousVote === 'dislike' && nextVote !== 'dislike') {
+                nextData.dislikes = Math.max(0, nextData.dislikes - 1);
+              }
+
+              userVotes[slug] = nextVote;
+              toolVotes[slug] = nextData;
+              const updatedVoteState = userVotes[slug];
+              const status = form.querySelector('.vote-status');
+              const count = form.querySelector('.vote-count');
+              const likeBtn = formEl.querySelector('button[value="like"]');
+              const dislikeBtn = formEl.querySelector('button[value="dislike"]');
+
+              likeBtn.classList.toggle('is-active', updatedVoteState === 'like');
+              dislikeBtn.classList.toggle('is-active', updatedVoteState === 'dislike');
+              likeBtn.disabled = !canVote;
+              dislikeBtn.disabled = !canVote;
+
+              const pulseElements = [likeBtn, dislikeBtn, count];
+              pulseElements.forEach((element) => {
+                if (!element) return;
+                element.classList.remove('vote-pulse');
+                void element.offsetWidth;
+                element.classList.add('vote-pulse');
+                setTimeout(() => element.classList.remove('vote-pulse'), 320);
+              });
+
+              if (status) status.remove();
+              const newStatus = document.createElement('span');
+              newStatus.className = `vote-status ${updatedVoteState === 'like' ? 'text-bg-success' : 'text-bg-danger'} text-white`;
+              newStatus.textContent = `Tu voto: ${updatedVoteState === 'like' ? 'Me gusta' : 'No me gusta'}`;
+              buttonsWrapper.appendChild(newStatus);
+              newStatus.classList.remove('vote-pulse');
+              void newStatus.offsetWidth;
+              newStatus.classList.add('vote-pulse');
+              setTimeout(() => newStatus.classList.remove('vote-pulse'), 320);
+
+              if (count) {
+                count.innerHTML = `<span title="Me gusta">${nextData.likes || 0} <i class="bi bi-hand-thumbs-up"></i></span> · <span title="No me gusta">${nextData.dislikes || 0} <i class="bi bi-hand-thumbs-down"></i></span>`;
+              }
+            })
+            .catch(() => {
+              window.location.reload();
+            });
+        });
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = getCookie('csrftoken');
+
+        const likeBtn = document.createElement('button');
+        likeBtn.type = 'submit';
+        likeBtn.name = 'vote';
+        likeBtn.value = 'like';
+        likeBtn.className = `btn btn-success vote-btn${voteState === 'like' ? ' is-active' : ''}`;
+        likeBtn.disabled = !canVote;
+        likeBtn.title = 'Me gusta';
+        likeBtn.setAttribute('aria-label', 'Me gusta');
+        likeBtn.innerHTML = '<i class="bi bi-hand-thumbs-up"></i>';
+
+        const dislikeBtn = document.createElement('button');
+        dislikeBtn.type = 'submit';
+        dislikeBtn.name = 'vote';
+        dislikeBtn.value = 'dislike';
+        dislikeBtn.className = `btn btn-danger vote-btn${voteState === 'dislike' ? ' is-active' : ''}`;
+        dislikeBtn.disabled = !canVote;
+        dislikeBtn.title = 'No me gusta';
+        dislikeBtn.setAttribute('aria-label', 'No me gusta');
+        dislikeBtn.innerHTML = '<i class="bi bi-hand-thumbs-down"></i>';
+
+        formEl.appendChild(csrfInput);
+        formEl.appendChild(likeBtn);
+        formEl.appendChild(dislikeBtn);
+        buttonsWrapper.appendChild(formEl);
+
+        if (voteState) {
+          const status = document.createElement('span');
+          status.className = `vote-status ${voteState === 'like' ? 'text-bg-success' : 'text-bg-danger'} text-white`;
+          status.textContent = `Tu voto: ${voteState === 'like' ? 'Me gusta' : 'No me gusta'}`;
+          buttonsWrapper.appendChild(status);
+        }
+
+        const count = document.createElement('span');
+        count.className = 'badge text-bg-light text-dark rounded-pill vote-count';
+        count.innerHTML = `<span title="Me gusta">${data.likes || 0} <i class="bi bi-hand-thumbs-up"></i></span> · <span title="No me gusta">${data.dislikes || 0} <i class="bi bi-hand-thumbs-down"></i></span>`;
+
+        form.appendChild(buttonsWrapper);
+        form.appendChild(count);
+
+        if (cardBody) {
+          cardBody.appendChild(form);
+        } else {
+          card.appendChild(form);
+        }
+      });
+    }
+
+    function applyFilters() {
+      const query = (searchInput.value || '').trim().toLowerCase();
+
+      cards.forEach((card) => {
+        const category = card.dataset.category || 'all';
+        const text = (card.dataset.name || '').toLowerCase() + ' ' + (card.dataset.tags || '').toLowerCase();
+        const matchesCategory = activeFilter === 'all' || category === activeFilter;
+        const matchesQuery = !query || text.includes(query);
+        card.hidden = !(matchesCategory && matchesQuery);
+      });
+    }
+
+    filters.forEach((button) => {
+      button.addEventListener('click', function () {
+        activeFilter = this.dataset.filter;
+
+        filters.forEach((btn) => {
+          const isActive = btn === this;
+          btn.classList.toggle('btn-primary', isActive);
+          btn.classList.toggle('btn-outline-primary', !isActive);
+        });
+
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.devtool-admin-form').forEach(function (form) {
+      form.addEventListener('change', function () {
+        form.submit();
+      });
+    });
+
+    renderAdminControls();
+    document.querySelectorAll('.devtool-admin-form').forEach(function (form) {
+      form.addEventListener('change', function () {
+        form.submit();
+      });
+    });
+
+    applyToolVisibility();
+    renderVoteControls();
+    applyFilters();
+  });
+</script>
+{% endblock %}

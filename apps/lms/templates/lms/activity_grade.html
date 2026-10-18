@@ -1,0 +1,27 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Evaluar entrega' %} | {{ activity.title }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{% trans 'Evaluar entrega' %}: {{ activity.title }}</h1>
+    {% if activity.reference_code %}<p>{% trans 'Referencia' %}: {{ activity.reference_code }}</p>{% endif %}
+    <p>{{ submission.user.get_full_name|default:submission.user.username }} · {% trans 'Versión' %} {{ submission.version }}</p>
+    <div>{{ submission.text_answer|linebreaks }}</div>
+    {% for attachment in submission.attachments.all %}
+      <a href="{% url 'lms:course_activity_attachment' course_id=course.pk activity_id=activity.pk attachment_id=attachment.pk %}">{{ attachment.file_name }}</a>
+    {% endfor %}
+    <p>{% trans 'Puntuación máxima' %}: {{ activity.points }}</p>
+    {% if activity.feedback_at %}<p>{% trans 'Publicación del feedback' %}: {{ activity.feedback_at|date:'j M Y, H:i' }}</p>{% endif %}
+    <form method="post" class="stacked-form">
+      {% csrf_token %}{{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+          {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button class="button button-primary" type="submit">{% trans 'Guardar evaluación' %}</button>
+      <a class="button button-secondary" href="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}">{% trans 'Cancelar' %}</a>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% load i18n %}
+<details class="forum-notifications" data-forum-notifications data-course-id="{{ course.pk }}" data-count-url="{% url 'lms:course_forum_notifications' course_id=course.pk %}">
+  <summary><i class="bi bi-bell" aria-hidden="true"></i> {% trans 'Avisos del foro' %} <span class="count-pill" data-forum-count aria-live="polite">0</span></summary>
+  <p class="quiet-note" data-forum-notification-error hidden role="status">{% trans 'No se pudieron actualizar los avisos. Se volverá a intentar.' %}</p>
+  <ul data-forum-notice-list></ul>
+</details>

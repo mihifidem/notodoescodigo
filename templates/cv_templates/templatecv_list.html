@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Templates de CV</h2>
+<a href="{% url 'cv_templates:create' %}">Crear nuevo template</a>
+<table>
+    <tr>
+        <th>Nombre</th><th>Archivo</th><th>Acciones</th>
+    </tr>
+    {% for t in templates %}
+    <tr>
+        <td>{{ t.nombre }}</td>
+        <td>{{ t.archivo }}</td>
+        <td>
+            <a href="{% url 'cv_templates:update' t.pk %}">Editar</a> |
+            <a href="{% url 'cv_templates:delete' t.pk %}">Eliminar</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

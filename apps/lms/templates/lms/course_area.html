@@ -1,0 +1,468 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+{% block head %}
+  {{ block.super }}
+  {% if teacher_view and area_key == 'content' %}
+    <link rel="stylesheet" href="{% static 'lms/modules.css' %}">
+    <script src="{% static 'lms/modules.js' %}" defer></script>
+  {% endif %}
+  {% if area_key == 'people' and can_send_people_notification %}
+    <script src="{% static 'lms/people.js' %}" defer></script>
+  {% endif %}
+  {% if area_key == 'content' %}<script src="{% static 'lms/course-content.js' %}" defer></script>{% endif %}
+{% endblock %}
+{% block title %}{{ area_title }} · {{ course.nombre }} | NoTodoEsCódigo Campus{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  {% if area_key == 'announcements' %}<link rel="stylesheet" href="{% static 'lms/course-home.css' %}?v=20261013">{% endif %}
+  {% if area_key == 'grades' %}<link rel="stylesheet" href="{% static 'lms/gradebook.css' %}?v=20261013">{% endif %}
+  {% if area_key == 'people' or area_key == 'files' %}<link rel="stylesheet" href="{% static 'lms/course-directories.css' %}?v=20261013">{% endif %}
+  {% if area_key == 'settings' %}<link rel="stylesheet" href="{% static 'lms/course-settings.css' %}">{% endif %}
+  {% if area_key == 'content' %}<link rel="stylesheet" href="{% static 'lms/course-content.css' %}">{% endif %}
+{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Mis aulas" %}</a><span aria-hidden="true">/</span><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ area_title }}</span></nav>
+  <div class="course-context-grid{% if area_key == 'grades' or area_key == 'people' or area_key == 'files' or area_key == 'settings' or area_key == 'content' %} course-context-grid-full{% endif %}{% if area_key == 'announcements' %} course-announcements-page{% endif %}{% if area_key == 'content' %} course-content-page{% endif %}">
+    <section class="content-panel area-main">
+      {% if area_key != 'settings' and area_key != 'content' %}
+      <div class="page-heading"><div><p class="eyebrow">{{ course.nombre }}</p><h1>{{ area_title }}</h1><p class="lede">{{ area_message }}</p></div>{% if teacher_view and area_key != 'people' and area_key != 'quizzes' and area_key != 'files' %}<a class="button button-secondary" href="{% url 'lms:course_edit' course_id=course.pk %}">{% trans "Editar aula" %}</a>{% endif %}</div>
+      {% if teacher_view and area_key != 'content' and area_key != 'people' and area_key != 'grades' %}
+        <div class="action-row compact">
+          {% if area_key == 'announcements' %}<a class="button button-primary" href="{% url 'lms:course_announcement_create' course_id=course.pk %}">{% trans "Crear anuncio" %}</a>{% endif %}
+          {% if area_key == 'discussion' %}
+            <a class="button button-primary" href="{% url 'lms:course_forum_create' course_id=course.pk %}">{% trans 'Crear foro' %}</a>
+          {% elif area_key == 'item-bank' %}
+            <a class="button button-primary" href="{% url 'lms:knowledge_create' course_id=course.pk %}">{% trans 'Crear banco' %}</a>
+          {% elif area_key == 'quizzes' %}
+            <a class="button button-primary" href="{% url 'lms:quiz_create' course_id=course.pk %}">{% trans 'Crear prueba objetiva' %}</a>
+          {% elif area_key == 'activities' %}
+            <a class="button button-primary" href="{% url 'lms:course_activity_create' course_id=course.pk %}">{% trans 'Crear actividad' %}</a>
+          {% elif area_key == 'files' %}
+            <a class="button button-primary" href="{% url 'lms:course_file_create' course_id=course.pk %}{% if file_folder %}?folder={{ file_folder|urlencode }}{% endif %}"><i class="bi bi-upload" aria-hidden="true"></i> {% trans 'Cargar archivo' %}</a>
+          {% else %}
+            <a class="button button-secondary" href="{% url 'lms:course_pages' course_id=course.pk %}">{% trans "Ver páginas" %}</a>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% endif %}
+      {% if area_key == 'content' %}
+        <section aria-label="{% trans 'Contenidos del curso' %}">
+          <div class="module-list-toolbar">
+            <h1>{% trans 'Contenidos' %}</h1>
+            <div class="module-list-controls">
+              <button type="button" class="button button-light" data-modules-collapse hidden>{% trans 'Ocultar todo' %}</button>
+              <button type="button" class="button button-light" data-modules-expand hidden>{% trans 'Mostrar todo' %}</button>
+              {% if teacher_view %}<a class="button button-secondary" href="{% url 'lms:course_preview' course_id=course.pk %}">{% trans 'Ver como estudiante' %}</a>{% endif %}
+            </div>
+          </div>
+          {% if teacher_view %}
+            {% include 'lms/module_create_panel.html' with create_label=_('Crear módulo') %}
+            {% include 'lms/module_create_form.html' with return_to='content' %}
+          {% endif %}
+        {% include 'lms/module_contents_list.html' %}
+        {% if teacher_view %}
+          <dialog class="module-content-drawer" data-content-drawer aria-labelledby="content-drawer-title" data-load-error="{% trans 'No se pudo cargar el formulario. Inténtalo de nuevo.' %}" data-save-error="{% trans 'No se pudo guardar el contenido.' %}" data-session-error="{% trans 'La sesión ha caducado. Inicia sesión y vuelve a intentarlo.' %}" data-permission-error="{% trans 'No se autorizó el guardado (HTTP 403). Comprueba tus permisos o recarga la página para renovar la sesión.' %}" data-network-error="{% trans 'No se pudo conectar con el servidor. Comprueba la conexión e inténtalo de nuevo.' %}">
+            <header><h2 id="content-drawer-title">{% trans 'Añadir contenido' %}</h2><button type="button" data-drawer-close aria-label="{% trans 'Cerrar panel' %}">×</button></header>
+            <p data-drawer-error role="alert" hidden></p>
+            <div data-drawer-body></div>
+          </dialog>
+        {% endif %}
+        </section>
+      {% elif area_key == 'activities' or area_key == 'quizzes' %}
+        {% if area_key == 'activities' %}
+          <section aria-labelledby="learning-activities-title">
+            <h2 id="learning-activities-title">{% trans 'Actividades de aprendizaje' %}</h2>
+            <p data-quiz-live-error role="status" hidden>{% trans 'No se pueden actualizar las actividades. Se reintentará automáticamente.' %}</p>
+            <div data-quiz-live-region aria-live="polite">
+            {% for activity in learning_activities %}
+              <article class="content-panel activity-card">
+                <div class="page-card-header">
+                  <span class="status {% if activity.status == 'open' %}status-published{% else %}status-draft{% endif %}">{{ activity.get_status_display }}</span>
+                  <span class="tag">{{ activity.display_state }}</span>
+                  {% if activity.solution_visible %}<span class="tag">{% trans 'Solución disponible' %}</span>{% endif %}
+                  {% if activity.evaluation_visible %}<span class="tag">{% trans 'Evaluada' %}</span>{% endif %}
+                  {% if activity.module %}<span class="tag">{{ activity.module.titulo }}</span>{% endif %}
+                </div>
+                <h3>{{ activity.title }}</h3>
+                {% if activity.reference_code %}<p class="quiet-note">{% trans 'Referencia' %}: {{ activity.reference_code }}</p>{% endif %}
+                {% if activity.description %}<div class="prose">{{ activity.safe_description|safe|linebreaksbr }}</div>{% endif %}
+                {% if activity.instructions %}<div class="prose">{{ activity.safe_instructions|safe|linebreaksbr }}</div>{% endif %}
+                <div class="meta-row">
+                  {% if activity.starts_at %}<span>{% trans 'Inicio' %}: {{ activity.starts_at|date:'j M Y, H:i' }}</span>{% endif %}
+                  {% if activity.due_at %}<span>{% trans 'Entrega' %}: {{ activity.due_at|date:'j M Y, H:i' }}</span>{% endif %}
+                  {% if activity.is_evaluable %}<span>{{ activity.points }} {% trans 'puntos' %}</span>{% endif %}
+                </div>
+                <a class="button button-primary" href="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}">{% if teacher_view %}{% trans 'Ver entregas' %}{% else %}{% trans 'Abrir actividad y entregar' %}{% endif %}</a>
+                {% if not teacher_view %}
+                  <p>{% if activity.evaluation_visible %}{% trans 'Tu nota' %}: {{ activity.student_submission.grade }} / {{ activity.points }}{% elif activity.student_submission %}{% trans 'Entregada, pendiente de evaluación' %}{% else %}{% trans 'Sin entregar' %}{% endif %}</p>
+                {% endif %}
+                {% if teacher_view %}
+                  <div class="action-row compact">
+                    <a class="button button-secondary" href="{% url 'lms:course_activity_edit' course_id=course.pk activity_id=activity.pk %}">{% trans 'Editar actividad' %}</a>
+                    <form method="post" action="{% url 'lms:course_activity_delete' course_id=course.pk activity_id=activity.pk %}" onsubmit="return confirm('{% trans '¿Seguro que quieres eliminar esta actividad?' %}');">
+                      {% csrf_token %}
+                      <button class="button button-danger" type="submit">{% trans 'Eliminar actividad' %}</button>
+                    </form>
+                  </div>
+                {% endif %}
+              </article>
+            {% empty %}
+              <div class="empty-state empty-state-compact"><p>{% trans 'Todavía no hay actividades de aprendizaje en este curso.' %}</p></div>
+            {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+        {% if area_key == 'quizzes' %}
+          <h2>{% trans 'Pruebas del curso' %}</h2>
+          <p data-quiz-live-error role="status" hidden>{% trans 'No se pueden actualizar los estados de las pruebas. Se reintentará automáticamente.' %}</p>
+          <ul class="due-list" data-quiz-live-region aria-live="polite">
+            <li><h3>{% trans 'Prácticas · entrega y evaluación manual' %}</h3></li>
+            {% for activity in practical_activities %}
+              <li>
+                <div>
+                  <h3><a href="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}">{{ activity.title }}</a></h3>
+                  <p>{% trans 'Práctica' %} · {{ activity.get_status_display }} · {{ activity.points }} {% trans 'puntos' %}</p>
+                  {% if activity.due_at %}<p>{% trans 'Entrega' %}: {{ activity.due_at|date:'d/m/Y H:i' }}</p>{% endif %}
+                  <a class="button button-secondary" href="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}">{% if teacher_view %}{% trans 'Ver entregas y evaluar' %}{% else %}{% trans 'Abrir práctica y entregar' %}{% endif %}</a>
+                  {% if teacher_view %}<a class="button button-secondary" href="{% url 'lms:course_activity_edit' course_id=course.pk activity_id=activity.pk %}?from=quizzes">{% trans 'Editar práctica' %}</a>{% endif %}
+                </div>
+              </li>
+            {% empty %}<li>{% trans 'Todavía no hay prácticas disponibles.' %}</li>{% endfor %}
+            <li><h3>{% trans 'Pruebas objetivas · tipo test' %}</h3></li>
+            {% for quiz in lms_quizzes %}
+              <li>
+                <div class="quiz-list-content">
+                  <h3><a href="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}">{{ quiz.title }}</a></h3>
+                  {% include 'lms/quiz_summary.html' %}
+                  {% if quiz.has_attempt_history %}
+                    <a class="button button-secondary" href="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}#quiz-attempt-history" aria-label="{% trans 'Estadísticas de la prueba' %}" title="{% trans 'Estadísticas de la prueba' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> {% trans 'Estadísticas' %}</a>
+                  {% endif %}
+                  <div class="action-row">{% for phase in quiz.phase_labels %}<span class="status">{{ phase }}</span>{% endfor %}</div>
+                  {% if quiz.solutions_visible %}
+                    <a class="button button-secondary" href="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}#quiz-solutions" aria-label="{% trans 'Ver preguntas y soluciones' %}" title="{% trans 'Ver preguntas y soluciones' %}"><i class="bi bi-check2-square" aria-hidden="true"></i> {% trans 'Soluciones' %}</a>
+                  {% endif %}
+                  <details class="content-accordion-item" data-quiz-info="{{ quiz.pk }}">
+                    <summary>{% trans 'Información de la prueba' %}</summary>
+                    <div class="content-accordion-body">
+                      <p>{{ quiz.question_count }} {% trans 'preguntas' %} · {% trans 'Duración (minutos)' %}: {{ quiz.duration_minutes }} · {% trans 'Intentos permitidos' %}: {{ quiz.max_attempts }}</p>
+                      <div class="prose">{{ quiz.description|linebreaks }}</div>
+                      {% include 'lms/quiz_dates.html' %}
+                    </div>
+                  </details>
+                </div>
+                {% if teacher_view %}
+                  <div class="action-row">
+                    {% if not quiz.attempt_count and quiz.status == 'draft' or not quiz.attempt_count and quiz.status == 'published' %}
+                      <a class="button button-secondary" href="{% url 'lms:quiz_edit' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Editar prueba' %}</a>
+                    {% endif %}
+                    <a class="button button-danger" href="{% url 'lms:quiz_delete' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Eliminar prueba' %}</a>
+                    {% if quiz.can_reopen %}<a class="button button-secondary" href="{% url 'lms:quiz_reopen' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Reabrir prueba' %}</a>{% endif %}
+                  </div>
+                {% endif %}
+              </li>
+            {% empty %}<li>{% trans 'Todavía no hay pruebas disponibles.' %}</li>{% endfor %}
+          </ul>
+          <h2>{% trans 'Evaluaciones existentes' %}</h2>
+        {% endif %}
+        {% if course_evaluations %}<ul class="due-list">{% for evaluation in course_evaluations %}<li><span class="due-icon" aria-hidden="true">◷</span><div><h2>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h2><p>{% if evaluation.is_deadline %}{% trans "Cierra" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M Y, H:i" }}</time></p><span class="due-state due-{{ evaluation.state }}">{% if evaluation.published %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span></div></li>{% endfor %}</ul>{% elif area_key == 'quizzes' %}<div class="empty-state empty-state-compact"><p>{% trans "No hay actividades próximas publicadas." %}</p></div>{% endif %}
+      {% elif area_key == 'grades' %}
+        {% include 'lms/gradebook.html' %}
+      {% elif area_key == 'syllabus' %}
+        {% if course_syllabus %}
+          <div class="prose">
+            <h2>{{ course_syllabus.title }}</h2>
+            {% if course_syllabus.overview %}<p>{{ course_syllabus.overview|linebreaks }}</p>{% endif %}
+          </div>
+          <div class="syllabus-grid">
+            <section>
+              <h3>{% trans "Objetivos" %}</h3>
+              <p>{{ course_syllabus.objectives|linebreaksbr }}</p>
+            </section>
+            <section>
+              <h3>{% trans "Metodología" %}</h3>
+              <p>{{ course_syllabus.methodology|linebreaksbr }}</p>
+            </section>
+            <section>
+              <h3>{% trans "Competencias" %}</h3>
+              <p>{{ course_syllabus.competencies|linebreaksbr }}</p>
+            </section>
+            <section>
+              <h3>{% trans "Criterios de evaluación" %}</h3>
+              <p>{{ course_syllabus.evaluation_criteria|linebreaksbr }}</p>
+            </section>
+            <section>
+              <h3>{% trans "Bibliografía" %}</h3>
+              <p>{{ course_syllabus.bibliography|linebreaksbr }}</p>
+            </section>
+            <section>
+              <h3>{% trans "Docente y horas" %}</h3>
+              <p>{{ course_syllabus.teacher_name|default:course.creado_por.get_full_name|default:'Curso' }} · {{ course_syllabus.estimated_hours }} {% trans "horas" %}</p>
+            </section>
+          </div>
+        {% endif %}
+        {% if syllabus_units %}
+          <h2>{% trans "Unidades del curso" %}</h2>
+          <ol class="activity-timeline">
+            {% for unit in syllabus_units %}
+              <li>
+                <span class="timeline-marker" aria-hidden="true">{{ unit.index }}</span>
+                <div>
+                  <h3>{{ unit.title }}</h3>
+                  <p>{{ unit.content|striptags|truncatewords:32 }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+      {% elif area_key == 'announcements' %}
+        <p data-quiz-live-error role="alert" hidden>{% trans 'No se pudieron actualizar los anuncios. La actualización se ha detenido.' %}</p>
+        <div data-quiz-live-region>
+        {% if announcements %}
+          {% for announcement in announcements %}
+            <details id="announcement-{{ announcement.pk }}" data-quiz-info="announcement-{{ announcement.pk }}" class="announcement-item tech-announcement-card content-accordion-item{% if announcement.pk in pending_announcement_ids %} announcement-pending{% endif %}"{% if not teacher_view and announcement.pk in pending_announcement_ids %} data-announcement-read-url="{% url 'lms:course_announcement_read' course_id=course.pk announcement_id=announcement.pk %}"{% endif %}>
+              <summary class="announcement-header">
+                <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% else %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% endif %}</span>
+                <div class="announcement-excerpt">
+                  <p class="eyebrow">{% if announcement.is_pinned %}{% trans "FIJADO" %}{% else %}{% trans "AVISO" %}{% endif %}</p>
+                  <h2>{{ announcement.title }}</h2>
+                  <p class="announcement-preview">{{ announcement.content|striptags|truncatechars:130 }}</p>
+                  <p class="quiet-note">{{ announcement.author.get_full_name|default:announcement.author.username }}</p>
+                </div>
+                <div class="announcement-status-wrap">
+                  {% if teacher_view and announcement.reading_state %}
+                    <span class="receipt-chip" data-announcement-reading-count="{{ announcement.pk }}" {% if not announcement.reading_state.pending %}hidden{% endif %}>{{ announcement.reading_state.pending }} {% trans 'alumnos pendientes de leer' %}</span>
+                  {% endif %}
+                  {% if announcement.pk in pending_announcement_ids %}
+                    <span class="receipt-chip" data-announcement-pending>{% trans 'Pendiente de leer' %}</span>
+                  {% endif %}
+                  {% if not teacher_view and announcement.requires_acknowledgement and announcement.pk not in acknowledged_announcement_ids %}
+                    <span class="receipt-chip">{% trans 'Pendiente de confirmar' %}</span>
+                  {% endif %}
+                  <span class="announcement-status-badge status-{{ announcement.status }}">{{ announcement.get_status_display }}</span>
+                  <time datetime="{{ announcement.publish_at|default:announcement.created_at|date:'c' }}">{{ announcement.publish_at|default:announcement.created_at|date:'j M Y, H:i' }}</time>
+                </div>
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+              </summary>
+              <div class="announcement-body">
+              {% if not teacher_view and announcement.pk in pending_announcement_ids %}
+                <form hidden data-announcement-read-token>{% csrf_token %}</form>
+                <p data-announcement-read-error role="alert" hidden>{% trans 'No se pudo marcar este anuncio como leído. Cierra y abre el anuncio para reintentarlo.' %}</p>
+              {% endif %}
+              <div class="prose">{{ announcement.content|safe }}</div>
+              {% if teacher_view and announcement.reading_state %}
+                <p class="quiet-note" data-announcement-reading-summary="{{ announcement.pk }}">
+                  {% blocktrans with read=announcement.reading_state.read total=announcement.reading_state.total %}Lectura: {{ read }} de {{ total }} alumnos.{% endblocktrans %}
+                </p>
+              {% endif %}
+              {% if announcement.has_audio and announcement.audio_url %}
+                <audio controls preload="none" class="announcement-audio">
+                  <source src="{{ announcement.audio_url }}" type="audio/mpeg">
+                </audio>
+              {% endif %}
+              <div class="announcement-meta">
+                {% if announcement.allow_comments %}<span>{% trans "Comentarios activos" %}</span>{% endif %}
+                {% if announcement.allow_likes %}<span>{% trans "Reacciones activas" %}</span>{% endif %}
+                {% if announcement.expire_at %}<span>{% trans "Caduca" %} {{ announcement.expire_at|date:'j M Y, H:i' }}</span>{% endif %}
+                {% if announcement.requires_acknowledgement %}<span class="receipt-chip">{% trans "Acuse de lectura" %}</span>{% endif %}
+              </div>
+
+              {% if announcement.requires_acknowledgement and not teacher_view %}
+                <div class="receipt-tip-panel">
+                  <div class="receipt-tip-header">
+                    <span class="receipt-dot" aria-hidden="true"></span>
+                    <strong>{% trans "Confirmación de lectura" %}</strong>
+                  </div>
+                  <p>{% trans "Este profesor solicita que confirmes que has leído el aviso para dejar constancia de la notificación." %}</p>
+                  {% if announcement.pk in acknowledged_announcement_ids %}
+                    <div class="receipt-confirmed" role="status">
+                      <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                      <span>{% trans "Leído y confirmado" %}</span>
+                    </div>
+                  {% else %}
+                    <form method="post" action="{% url 'lms:course_announcement_acknowledge' course_id=course.pk announcement_id=announcement.pk %}" class="acknowledgement-form">
+                      {% csrf_token %}
+                      <label class="receipt-checkbox">
+                        <input type="checkbox" name="acknowledged" value="on" required>
+                        <span>{% trans "He leído este anuncio y lo confirmo." %}</span>
+                      </label>
+                      <button type="submit" class="button button-primary button-small">{% trans "Confirmar lectura" %}</button>
+                    </form>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              {% if announcement.requires_acknowledgement and teacher_view %}
+                <div class="receipt-teacher-panel">
+                  <details class="receipt-details">
+                    <summary>
+                      <span>{% trans "Confirmaciones de lectura" %}</span>
+                      <span class="receipt-summary-count">{{ announcement.acknowledgements.count }}</span>
+                    </summary>
+                    {% if announcement.acknowledgements.all %}
+                      <ul class="receipt-confirmation-list">
+                        {% for acknowledgement in announcement.acknowledgements.all %}
+                          {% if acknowledgement.acknowledged_at %}
+                            <li>
+                              <div class="receipt-user-name">{{ acknowledgement.user.get_full_name|default:acknowledgement.user.username }}</div>
+                              <time>{{ acknowledgement.acknowledged_at|date:'d/m/Y H:i' }}</time>
+                            </li>
+                          {% endif %}
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <p class="quiet-note">{% trans "Todavía no hay confirmaciones de lectura en este anuncio." %}</p>
+                    {% endif %}
+                  </details>
+                </div>
+              {% endif %}
+
+              {% if announcement.allow_comments %}
+                <div class="announcement-comments">
+                  <h3>{% trans "Comentarios" %}</h3>
+                  {% if announcement.comments.all %}
+                    <ul class="comment-list">
+                      {% for comment in announcement.comments.all %}
+                        <li class="comment-item">
+                          <div class="comment-meta">
+                            <div class="comment-meta-main">
+                              <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                              <time>{{ comment.created_at|date:'j M Y, H:i' }}</time>
+                            </div>
+                            {% if comment.author == request.user or teacher_view %}
+                              <form method="post" action="{% url 'lms:course_announcement_comment_delete' course_id=course.pk comment_id=comment.pk %}" class="inline-form comment-delete-form">
+                                {% csrf_token %}
+                                <button
+                                  type="submit"
+                                  class="comment-delete-trigger"
+                                  aria-label="{% trans 'Eliminar comentario' %}"
+                                  title="{% trans 'Eliminar comentario' %}"
+                                  onclick="return confirm('{% trans "¿Seguro que quieres borrar este comentario?" %}')"
+                                >
+                                  <i class="bi bi-trash3-fill" aria-hidden="true"></i>
+                                </button>
+                              </form>
+                            {% endif %}
+                          </div>
+                          <p>{{ comment.content|linebreaksbr }}</p>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p class="quiet-note">{% trans "Aún no hay comentarios en este anuncio." %}</p>
+                  {% endif %}
+                  {% if teacher_view or is_course_member %}
+                    <form method="post" action="{% url 'lms:course_announcement_comment' course_id=course.pk announcement_id=announcement.pk %}" class="comment-form">
+                      {% csrf_token %}
+                      <textarea name="content" rows="3" required placeholder="{% trans 'Escribe un comentario...' %}"></textarea>
+                      <button type="submit" class="button button-primary button-small">{% trans "Comentar" %}</button>
+                    </form>
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if teacher_view %}
+                <div class="announcement-actions">
+                  <a class="button button-secondary button-small" href="{% url 'lms:course_announcement_edit' course_id=course.pk announcement_id=announcement.pk %}">{% trans "Editar" %}</a>
+                  <form method="post" action="{% url 'lms:course_announcement_delete' course_id=course.pk announcement_id=announcement.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-danger button-small" onclick="return confirm('{% trans "¿Seguro que quieres borrar este anuncio?" %}')">{% trans "Borrar" %}</button>
+                  </form>
+                </div>
+              {% endif %}
+              </div>
+            </details>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state empty-state-compact"><h2>{% trans "Sin avisos publicados" %}</h2><p>{% trans "Cuando el docente publique un anuncio para este curso aparecerá aquí." %}</p></div>
+        {% endif %}
+        </div>
+      {% elif area_key == 'files' %}
+        {% include 'lms/file_directory.html' %}
+      {% elif area_key == 'discussion' %}
+        {% for topic in discussion_topics %}
+          <details class="content-accordion-item">
+            <summary><span>{{ topic.title }}</span><i class="bi bi-chevron-down" aria-hidden="true"></i></summary>
+            <div class="content-accordion-body">
+              <p class="quiet-note">{{ topic.author.get_full_name|default:topic.author.username }} · {{ topic.published_at|default:topic.created_at|date:'j M Y, H:i' }}</p>
+              <div class="prose">{{ topic.content|safe }}</div>
+              <a class="button button-primary" href="{% url 'lms:course_forum_detail' course_id=course.pk forum_id=topic.pk %}">{% trans 'Entrar al foro' %}</a>
+              {% if teacher_view %}<a class="button button-secondary" href="{% url 'lms:course_forum_edit' course_id=course.pk forum_id=topic.pk %}">{% trans 'Editar foro' %}</a>{% endif %}
+              {% if topic.can_start_query %}
+                <a class="button button-secondary" href="{% url 'lms:course_forum_detail' course_id=course.pk forum_id=topic.pk %}#forum-new-query">{% trans 'Abrir hilo / Nueva consulta' %}</a>
+              {% endif %}
+            </div>
+          </details>
+        {% empty %}
+          <div class="empty-state empty-state-compact"><p>{% trans 'Todavía no hay foros disponibles en este curso.' %}</p></div>
+        {% endfor %}
+      {% elif area_key == 'item-bank' %}
+        <div class="card-grid">
+          {% for bank in question_banks %}
+            <article class="content-panel">
+              <h2>{{ bank.title }}</h2>
+              {% if bank.import_errors or bank.review_count %}<p class="form-error">{% trans 'Revisar CSV' %}{% if bank.review_count %} · {{ bank.review_count }} {% trans 'preguntas pendientes de corrección' %}{% endif %}</p>{% endif %}
+              <p>{{ bank.description }}</p>
+              <p class="quiet-note">{{ bank.get_status_display }} · {% blocktrans count total=bank.question_count %}{{ total }} pregunta{% plural %}{{ total }} preguntas{% endblocktrans %}</p>
+              <a class="button button-primary" href="{% url 'lms:knowledge_bank' course_id=course.pk bank_id=bank.pk %}">{% trans 'Abrir banco' %}</a>
+              <a class="button button-danger" href="{% url 'lms:knowledge_delete' course_id=course.pk bank_id=bank.pk %}">{% trans 'Eliminar banco' %}</a>
+            </article>
+          {% empty %}
+            <p class="empty-state">{% trans 'Crea un banco e importa tu CSV o añade preguntas manualmente.' %}</p>
+          {% endfor %}
+        </div>
+      {% elif area_key == 'people' %}
+        {% include 'lms/people_directory.html' %}
+        {% if can_send_people_notification %}
+          <details class="content-accordion-item" {% if people_notification_form.errors %}open{% endif %}>
+            <summary><span>{% trans 'Enviar notificación' %}</span><i class="bi bi-chevron-down" aria-hidden="true"></i></summary>
+            <div class="content-accordion-body">
+              <p class="quiet-note">{% trans 'Se enviará mediante las notificaciones de la plataforma y quedará guardada en este curso.' %}</p>
+              <form method="post" class="stacked-form" id="people-notification-form">
+                {% csrf_token %}
+                {{ people_notification_form.non_field_errors }}
+                {% for error in people_notification_form.recipients.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                {% for error in people_notification_form.send_all.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                {% for field in people_notification_form %}
+                  {% if field.name != 'recipients' and field.name != 'send_all' %}
+                  <div class="field-block">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                  </div>
+                  {% endif %}
+                {% endfor %}
+                <button class="button button-primary" type="submit">{% trans 'Enviar notificación' %}</button>
+              </form>
+            </div>
+          </details>
+        {% endif %}
+        <h2 class="section-subhead">{% trans 'Notificaciones de Personas' %}</h2>
+        {% for notice in people_notification_history %}
+          <details class="content-accordion-item"{% if not can_send_people_notification %} data-notification-event="{{ notice.pk }}"{% endif %}>
+            <summary><span>{{ notice.title }}</span><time datetime="{{ notice.created_at|date:'c' }}">{{ notice.created_at|date:'j M Y, H:i' }}</time></summary>
+            <div class="content-accordion-body">
+              <p class="quiet-note">{{ notice.actor.get_full_name|default:notice.actor.username }}</p>
+              <div class="prose">{{ notice.message|linebreaks }}</div>
+            </div>
+          </details>
+        {% empty %}
+          <p class="quiet-note">{% trans 'No hay notificaciones enviadas desde Personas.' %}</p>
+        {% endfor %}
+      {% elif area_key == 'competencies' %}
+        {% include 'lms/module_badges.html' %}
+      {% elif area_key == 'settings' %}
+        {% include 'lms/course_settings.html' %}
+      {% elif area_key == 'home' %}
+        <a class="button button-secondary" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Volver al inicio del aula" %}</a>
+      {% else %}
+        <div class="empty-state empty-state-compact"><span class="empty-icon" aria-hidden="true">◌</span><h2>{% trans "Esta sección aún no está habilitada" %}</h2><p>{{ area_message }} {% trans "La navegación se mantiene disponible, pero todavía no hay una función publicada aquí." %}</p></div>
+      {% endif %}
+    </section>
+    {% if area_key != 'grades' and area_key != 'people' and area_key != 'files' and area_key != 'settings' and area_key != 'content' %}
+    <aside class="upcoming-panel">
+      <div class="section-heading"><div><p class="eyebrow">{% trans "FECHAS" %}</p><h2>{% trans "Próximas entregas" %}</h2></div></div>
+      {% if upcoming_evaluations %}<ul class="due-list">{% for evaluation in upcoming_evaluations %}<li><span class="due-icon" aria-hidden="true">◷</span><div><h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3><p>{% if evaluation.is_deadline %}{% trans "Cierre" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p></div></li>{% endfor %}</ul>{% else %}<p class="quiet-note">{% trans "No hay fechas próximas." %}</p>{% endif %}
+      {% if area_key == 'announcements' %}{% include 'lms/course_calendar.html' %}{% endif %}
+    </aside>
+    {% endif %}
+  </div>
+{% endblock %}

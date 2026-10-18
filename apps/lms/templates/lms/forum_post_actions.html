@@ -1,0 +1,8 @@
+{% load i18n %}
+<div class="action-row">
+  <a class="button button-secondary button-small" href="{% url 'lms:course_forum_post_edit' course_id=course.pk forum_id=forum.pk post_id=post.pk %}">{% trans 'Editar' %}</a>
+  <form method="post" action="{% url 'lms:course_forum_post_delete' course_id=course.pk forum_id=forum.pk post_id=post.pk %}" onsubmit="return confirm('{% trans '¿Eliminar esta publicación?' %}');">
+    {% csrf_token %}
+    <button type="submit" class="button button-danger button-small">{% trans 'Borrar' %}</button>
+  </form>
+</div>

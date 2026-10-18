@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}Nexus 2026{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .nx-heading { font-family:'Poppins',sans-serif; }
+
+  /* Hero */
+  .nx-hero {
+    background: linear-gradient(135deg,#1B3C59 0%,#0f2540 100%);
+    border-radius: 16px; color: #fff; padding: 2rem 2.5rem;
+    position: relative; overflow: hidden;
+  }
+  .nx-hero::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%2300C4FF' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+
+  /* Test card */
+  .test-card {
+    border: 1px solid #E5E7EB; border-radius: 14px;
+    background: #fff; transition: transform .15s, box-shadow .15s;
+    display: flex; flex-direction: column; height: 100%;
+    overflow: hidden;
+  }
+  .test-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.1); }
+
+  .test-card-top {
+    padding: 1.1rem 1.25rem .75rem;
+    border-left: 5px solid #CBD5E1;
+    flex-grow: 1;
+  }
+  .test-card-top.completado { border-left-color: #22C55E; }
+  .test-card-top.en_progreso { border-left-color: #F59E0B; }
+  .test-card-top.pendiente  { border-left-color: #CBD5E1; }
+
+  .test-card-footer {
+    padding: .75rem 1.25rem;
+    border-top: 1px solid #F3F4F6;
+    display: flex; gap: .5rem; flex-wrap: wrap; align-items: center;
+    background: #F9FAFB;
+  }
+
+  /* Recurso pills */
+  .recurso-pill {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .65rem; font-weight: 600; padding: .15rem .5rem;
+    border-radius: 20px; border: 1px solid currentColor; opacity: .8;
+  }
+
+  /* Stats strip */
+  .stat-chip {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .72rem; color: #6B7280;
+  }
+
+  /* Info link */
+  .info-link {
+    font-size: .75rem; color: #6B7280; text-decoration: none;
+    display: inline-flex; align-items: center; gap: .25rem;
+  }
+  .info-link:hover { color: #1B3C59; }
+
+  .nx-btn-primary { background:linear-gradient(135deg,#1B3C59,#234d72); color:#fff; border:0; border-radius:8px; font-weight:600; }
+  .nx-btn-primary:hover { opacity:.88; color:#fff; }
+  .nx-btn-cyan { background:linear-gradient(135deg,#0090cc,#00C4FF); color:#fff; border:0; border-radius:8px; font-weight:600; }
+  .nx-btn-cyan:hover { opacity:.88; color:#fff; }
+
+  /* Tier badges */
+  .tier-essential { background:#dcfce7; color:#15803d; font-size:.62rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; letter-spacing:.04em; text-transform:uppercase; }
+  .tier-advanced  { background:#dbeafe; color:#1d4ed8; font-size:.62rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; letter-spacing:.04em; text-transform:uppercase; }
+  .tier-premium   { background:#fef3c7; color:#b45309; font-size:.62rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; letter-spacing:.04em; text-transform:uppercase; }
+  .test-card.bloqueado { opacity:.7; }
+  .test-card.bloqueado .test-card-top { border-left-color:#CBD5E1 !important; }
+  .lock-overlay { display:flex; align-items:center; gap:.4rem; color:#9CA3AF; font-size:.78rem; font-weight:600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+
+  <!-- Hero -->
+  <div class="nx-hero mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8" style="position:relative;z-index:1;">
+        <div style="color:#00C4FF;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;">
+          <i class="bi bi-cpu me-1"></i>Plataforma de Assessment Profesional
+        </div>
+        <h1 class="nx-heading fw-bold mb-1" style="font-size:1.9rem;">
+          Nexus <span style="color:#00C4FF;">2026</span>
+        </h1>
+        <p class="mb-3" style="color:rgba(255,255,255,.7);width:100%;max-width:100%;line-height:1.7;font-size:1rem;">
+          Descubre tu perfil profesional de forma integral. Nexus te ayuda a comprender quién eres en el ámbito profesional, qué talentos ya desarrollas, en qué áreas puedes crecer y cómo tus competencias se conectan con tus metas de carrera. Completa los assessments para obtener tu Nexus DNA Score, identificar tus fortalezas, reconocer tus oportunidades de mejora y mapear tus habilidades en un panorama claro y accionable para avanzar con propósito.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          {% if mi_dna %}
+          <a href="{% url 'nexus:student_my_dna' %}" class="nx-btn-cyan btn btn-sm">
+            <i class="bi bi-person-badge me-1"></i>Mi perfil DNA · {{ mi_dna.nexus_score|floatformat:0 }}
+          </a>
+          {% endif %}
+          <span class="btn btn-sm" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);cursor:default;">
+            <i class="bi bi-clipboard2-check me-1"></i>{{ tests_enriquecidos|length }} assessments disponibles
+          </span>
+        </div>
+      </div>
+      {% if mi_dna %}
+      <div class="col-md-4 text-end d-none d-md-block" style="position:relative;z-index:1;">
+        <div class="nx-heading fw-bold" style="font-size:3.5rem;color:#00C4FF;line-height:1;">
+          {{ mi_dna.nexus_score|floatformat:0 }}
+        </div>
+        <div style="color:rgba(255,255,255,.5);font-size:.8rem;">Nexus DNA Score</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem;">{{ mi_dna.primary_archetype|default:"" }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Grid de tests -->
+  {% if tests_enriquecidos %}
+  <div class="row g-3">
+    {% for item in tests_enriquecidos %}
+    {% with t=item.test %}
+
+    <div class="col-sm-6 col-lg-4">
+      <div class="test-card{% if not item.accesible %} bloqueado{% endif %}">
+
+        <!-- Top section -->
+        <div class="test-card-top
+          {% if not item.accesible %}pendiente
+          {% elif item.en_progreso %}en_progreso
+          {% elif item.ultima_completada %}completado
+          {% else %}pendiente{% endif %}">
+
+          <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+            <div>
+              <h6 class="nx-heading fw-bold mb-0" style="color:#1B3C59;font-size:.9rem;line-height:1.3;">
+                {{ t.nombre }}
+              </h6>
+            </div>
+            {% if not item.accesible %}
+              <span class="badge bg-light text-muted border flex-shrink-0"><i class="bi bi-lock me-1"></i>Bloqueado</span>
+            {% elif item.en_progreso %}
+              <span class="badge bg-warning text-dark flex-shrink-0"><i class="bi bi-hourglass-split me-1"></i>En progreso</span>
+            {% elif item.ultima_completada %}
+              <span class="badge bg-success flex-shrink-0"><i class="bi bi-check-circle me-1"></i>Completado</span>
+            {% else %}
+              <span class="badge bg-light text-muted border flex-shrink-0">Pendiente</span>
+            {% endif %}
+          </div>
+
+          {% if t.descripcion %}
+          <p class="text-muted mb-2" style="font-size:.78rem;line-height:1.5;">{{ t.descripcion|truncatewords:18 }}</p>
+          {% endif %}
+
+          <!-- Stats -->
+          <div class="d-flex flex-wrap gap-3 mb-2">
+            {% if item.num_completadas %}
+            <span class="stat-chip">
+              <i class="bi bi-check-circle text-success"></i>
+              {{ item.num_completadas }}x completado
+            </span>
+            {% endif %}
+            {% if item.ultima_completada and item.ultima_completada.nexus_score %}
+            <span class="stat-chip">
+              <i class="bi bi-speedometer2" style="color:#1B3C59;"></i>
+              Score: <strong>{{ item.ultima_completada.nexus_score|floatformat:0 }}</strong>
+            </span>
+            {% endif %}
+            {% if item.ultima_completada %}
+            <span class="stat-chip">
+              <i class="bi bi-calendar3"></i>
+              {{ item.ultima_completada.completado_en|date:"d/m/Y" }}
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Recursos disponibles (pills) -->
+          {% with recursos=t.recursos.all %}
+          {% if recursos %}
+          <div class="d-flex flex-wrap gap-1 mt-2">
+            {% for r in recursos %}
+            {% if r.activo %}
+            <span class="recurso-pill" style="color:{{ r.color }};border-color:{{ r.color }};">
+              <i class="bi {{ r.icono }}" style="font-size:.6rem;"></i>
+              {{ r.get_tipo_display }}
+            </span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
+
+        </div>
+
+        <!-- Footer acciones -->
+        <div class="test-card-footer">
+          <!-- Info link -->
+          <a href="{% url 'nexus:test_info' t.pk %}" class="info-link me-auto">
+            <i class="bi bi-info-circle"></i>Ver info y recursos
+          </a>
+
+          {% if not item.accesible %}
+            {% if t.nivel_acceso == 'premium' %}
+            <span class="lock-overlay">
+              <i class="bi bi-lock-fill text-warning"></i>Membresía Premium
+            </span>
+            {% else %}
+            <span class="lock-overlay">
+              <i class="bi bi-lock-fill"></i>Requiere login
+            </span>
+            {% endif %}
+          {% elif item.en_progreso %}
+          <a href="{% url 'nexus:student_take' t.pk %}"
+             class="btn btn-sm nx-btn-primary px-3">
+            <i class="bi bi-play-fill me-1"></i>Continuar
+          </a>
+          {% elif item.ultima_completada %}
+          <a href="{% url 'nexus:student_results' item.ultima_completada.pk %}"
+             class="btn btn-sm btn-outline-success fw-semibold" title="Ver último resultado">
+            <i class="bi bi-bar-chart-line"></i>
+          </a>
+          <a href="{% url 'nexus:student_history' t.pk %}"
+             class="btn btn-sm btn-outline-secondary fw-semibold" title="Ver historial y borrar intentos">
+            <i class="bi bi-clock-history"></i>
+          </a>
+          <a href="{% url 'nexus:student_take' t.pk %}"
+             class="btn btn-sm nx-btn-primary px-3">
+            <i class="bi bi-arrow-repeat me-1"></i>Repetir
+          </a>
+          {% else %}
+          <a href="{% url 'nexus:student_take' t.pk %}"
+             class="btn btn-sm nx-btn-primary px-3">
+            <i class="bi bi-play-fill me-1"></i>Iniciar
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card border-0 shadow-sm p-5 text-center text-muted" style="border-radius:14px;">
+    <i class="bi bi-clipboard2 fs-1 mb-3 d-block opacity-25"></i>
+    <p class="fw-semibold mb-0">No hay assessments disponibles en este momento.</p>
+    <p class="small mb-0">Consulta más tarde con tu administrador.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

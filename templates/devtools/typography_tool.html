@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Tipografía{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Typography Scale</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3" id="typographyForm">
+            <div class="col-md-4"><label class="form-label">Base</label><input type="number" step="0.1" name="base" id="base" value="{{ base|default:'16' }}" class="form-control"></div>
+            <div class="col-md-4"><label class="form-label">Ratio</label><input type="number" step="0.05" name="ratio" id="ratio" value="{{ ratio|default:'1.25' }}" class="form-control"></div>
+            <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-dark w-100 rounded-pill">Calcular</button></div>
+          </form>
+
+          <div class="mt-4 row g-3" id="typographyScale">
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">xs</div>
+                <div class="fw-bold mt-2 scale-item" data-label="xs" style="font-size: {{ steps.xs }}px;">{{ steps.xs }}px</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">sm</div>
+                <div class="fw-bold mt-2 scale-item" data-label="sm" style="font-size: {{ steps.sm }}px;">{{ steps.sm }}px</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">base</div>
+                <div class="fw-bold mt-2 scale-item" data-label="base" style="font-size: {{ steps.base }}px;">{{ steps.base }}px</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">lg</div>
+                <div class="fw-bold mt-2 scale-item" data-label="lg" style="font-size: {{ steps.lg }}px;">{{ steps.lg }}px</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">xl</div>
+                <div class="fw-bold mt-2 scale-item" data-label="xl" style="font-size: {{ steps.xl }}px;">{{ steps.xl }}px</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="small text-uppercase text-secondary">2xl</div>
+                <div class="fw-bold mt-2 scale-item" data-label="2xl" style="font-size: {{ steps.2xl }}px;">{{ steps.2xl }}px</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('typographyForm');
+    const baseInput = document.getElementById('base');
+    const ratioInput = document.getElementById('ratio');
+    const scaleItems = document.querySelectorAll('.scale-item');
+
+    function calculateScale() {
+      const base = parseFloat(baseInput.value || 16);
+      const ratio = parseFloat(ratioInput.value || 1.25);
+      const values = {
+        xs: +(base / ratio / ratio).toFixed(2),
+        sm: +(base / ratio).toFixed(2),
+        base: +base.toFixed(2),
+        lg: +(base * ratio).toFixed(2),
+        xl: +(base * ratio * ratio).toFixed(2),
+        '2xl': +(base * ratio * ratio * ratio).toFixed(2),
+      };
+
+      scaleItems.forEach((item) => {
+        const label = item.dataset.label;
+        const size = values[label];
+        item.style.fontSize = size + 'px';
+        item.textContent = size + 'px';
+      });
+    }
+
+    [baseInput, ratioInput].forEach((input) => {
+      input.addEventListener('input', calculateScale);
+      input.addEventListener('change', calculateScale);
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      calculateScale();
+    });
+
+    calculateScale();
+  });
+</script>
+{% endblock %}

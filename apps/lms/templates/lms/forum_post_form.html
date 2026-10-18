@@ -1,0 +1,9 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Editar publicación' %} | {{ forum.title }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{% trans 'Editar publicación' %}</h1>
+    {% include 'lms/forum_post_fields.html' with submit_label=_('Guardar cambios') %}
+  </section>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+{% block head %}
+  {{ block.super }}
+  <script src="{% static 'lms/knowledge-selection.js' %}" defer></script>
+{% endblock %}
+{% block title %}{{ bank.title }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs"><a href="{% url 'lms:course_area' course_id=course.pk area='item-bank' %}">{% trans 'Base del conocimiento' %}</a><span>/</span>{{ bank.title }}</nav>
+  <section class="content-panel">
+    <h1>{{ bank.title }}</h1><p>{{ bank.description }}</p>
+    {% if bank.import_errors or review_count %}
+      <div class="form-error" role="alert">
+        <strong>{% trans 'Revisar CSV' %}</strong>
+        {% if review_count %}<p>{% blocktrans count total=review_count %}{{ total }} pregunta pendiente de corrección. No se puede publicar hasta corregirla.{% plural %}{{ total }} preguntas pendientes de corrección. No se pueden publicar hasta corregirlas.{% endblocktrans %}</p>{% endif %}
+        {% if bank.import_errors %}<ul>{% for error in bank.import_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    {% endif %}
+    <div class="action-row">
+      <a class="button button-secondary" href="{% url 'lms:knowledge_edit' course_id=course.pk bank_id=bank.pk %}">{% trans 'Editar banco' %}</a>
+      <a class="button button-danger" href="{% url 'lms:knowledge_delete' course_id=course.pk bank_id=bank.pk %}">{% trans 'Eliminar banco' %}</a>
+      {% if bank.status != 'archived' %}
+        <a class="button button-primary" href="{% url 'lms:knowledge_question_create' course_id=course.pk bank_id=bank.pk %}">{% trans 'Crear pregunta' %}</a>
+        <a class="button button-secondary" href="{% url 'lms:knowledge_import' course_id=course.pk bank_id=bank.pk %}">{% trans 'Importar CSV' %}</a>
+      {% endif %}
+      <a class="button button-secondary" href="{% url 'lms:knowledge_export' course_id=course.pk bank_id=bank.pk %}">{% trans 'Exportar CSV' %}</a>
+      <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='item-bank' %}">{% trans 'Cancelar' %}</a>
+    </div>
+    <form method="get" class="action-row">
+      <label>{% trans 'Buscar' %}<input name="q" value="{{ search }}"></label>
+      <label>{% trans 'Estado' %}<select name="status"><option value="">{% trans 'Todos' %}</option>{% for value,label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <label>{% trans 'Dificultad' %}<select name="difficulty"><option value="">{% trans 'Todas' %}</option><option value="1" {% if difficulty == '1' %}selected{% endif %}>{% trans 'Básica' %}</option><option value="2" {% if difficulty == '2' %}selected{% endif %}>{% trans 'Media' %}</option><option value="3" {% if difficulty == '3' %}selected{% endif %}>{% trans 'Avanzada' %}</option></select></label>
+      <button class="button button-secondary" type="submit">{% trans 'Filtrar' %}</button>
+    </form>
+    {% if bank.status != 'archived' %}
+      <form id="publish-questions-form" method="post" action="{% url 'lms:knowledge_publish_questions' course_id=course.pk bank_id=bank.pk %}" class="action-row">
+        {% csrf_token %}
+        <label><input type="checkbox" data-question-select-all> {% trans 'Seleccionar todas las preguntas en borrador mostradas' %}</label>
+        <button class="button button-primary" type="submit" data-publish-questions>{% trans 'Publicar seleccionadas' %}</button>
+      </form>
+    {% endif %}
+    {% for question in questions %}
+      {% if bank.status != 'archived' and question.status == 'draft' and not question.current_version.metadata.csv_review %}
+        <label><input type="checkbox" name="questions" value="{{ question.pk }}" form="publish-questions-form" data-question-select> {% trans 'Seleccionar pregunta' %} #{{ question.pk }} · {{ question.title }}</label>
+      {% endif %}
+      <details class="content-accordion-item">
+        <summary><span>#{{ question.pk }} · {{ question.title }}</span><span>{% if question.current_version.metadata.csv_review %}{% trans 'Revisar' %} · {% endif %}{{ question.get_status_display }}</span></summary>
+        <div class="content-accordion-body">
+          {% with review=question.current_version.metadata.csv_review %}
+            {% if review %}
+              <div class="form-error" role="alert"><strong>{% trans 'Revisar' %} · {% trans 'Fila' %} {{ review.row }}</strong><ul>{% for error in review.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                {% if review.extra_columns %}<p>{% trans 'Columnas adicionales' %}: {{ review.extra_columns|join:'; ' }}</p>{% endif %}
+              </div>
+            {% endif %}
+          {% endwith %}
+          <div class="prose">{{ question.display_prompt }}</div>
+          <ol type="A">{% for option in question.current_version.options %}<li>{{ option }}</li>{% endfor %}</ol>
+          <p><strong>{% trans 'Respuesta correcta' %}:</strong> {{ question.current_version.correct_answers|join:', ' }}</p>
+          <p>{{ question.current_version.explanation }}</p>
+          <p class="quiet-note">{% trans 'Versión' %} {{ question.current_version.version_number }} · {{ question.points }} {% trans 'puntos' %} · {{ question.created_by.get_full_name|default:question.created_by.username }}</p>
+          {% if bank.status != 'archived' %}
+            <div class="action-row">
+              <a class="button button-secondary" href="{% url 'lms:knowledge_question_edit' course_id=course.pk bank_id=bank.pk question_id=question.pk %}">{% trans 'Editar' %}</a>
+              <form method="post" action="{% url 'lms:knowledge_question_action' course_id=course.pk bank_id=bank.pk question_id=question.pk %}">
+                {% csrf_token %}
+                <button class="button button-secondary" name="action" value="duplicate">{% trans 'Duplicar' %}</button>
+                <button class="button button-secondary" name="action" value="archive">{% trans 'Archivar' %}</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </details>
+    {% empty %}<p class="empty-state">{% trans 'No hay preguntas que coincidan.' %}</p>{% endfor %}
+  </section>
+{% endblock %}

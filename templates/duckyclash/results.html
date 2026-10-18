@@ -1,0 +1,23 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Resultados · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Resultados · Duelo #{{ duel.pk }}</h1>
+    <section class="card card-body mb-4" aria-labelledby="result-title">
+        <h2 id="result-title" class="h4">{% if resolution %}{% if resolution.is_draw %}Empate{% else %}Victoria de {{ resolution.winner.get_username }}{% endif %}{% elif is_terminal %}Sin resultado deportivo{% else %}El combate todavía no ha terminado{% endif %}</h2>
+        {% if resolution %}<p>{{ resolution.reason }}</p>{% endif %}
+        {% if duel.status == 'finished' %}<p>Liquidación bancaria confirmada por el servidor.</p>{% elif duel.status == 'canceled' %}<p>Cancelación conciliada; no se asigna un ganador.</p>{% else %}<p>Las operaciones económicas no están finalizadas. Esta pantalla no confirma pagos ni devoluciones pendientes.</p>{% endif %}
+    </section>
+    {% include 'duckyclash/duel_summary.html' %}
+    <h2 class="h5">Operaciones económicas</h2>
+    <ul class="list-group mb-4">
+        {% for operation in operations %}<li class="list-group-item">{{ operation.get_kind_display }}{% if operation.player %} · {{ operation.player.get_username }}{% endif %}: {{ operation.get_status_display }} · {{ operation.amount }} DuckyCoins</li>
+        {% empty %}<li class="list-group-item">No hay operaciones registradas.</li>{% endfor %}
+    </ul>
+    <div class="d-flex flex-wrap gap-2">
+        {% if not is_terminal %}<a class="btn btn-outline-primary" href="{% url 'duckyclash:waiting' duel.pk %}">Volver a la sala</a>{% endif %}
+        <a class="btn btn-primary" href="{% url 'duckyclash:duel_list' %}">Mis duelos</a>
+        <a class="btn btn-outline-primary" href="{% url 'duckyclash:create' %}">Crear otro reto</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block page_title %}{{ informe.get_tipo_display }} — {{ informe.sesion.test.nombre }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .informe-container {
+    max-width: 980px;
+    margin: 0 auto;
+    line-height: 1.8;
+    font-size: .95rem;
+    color: #1e293b;
+  }
+  .informe-container h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1B3C59;
+    margin: 0 0 0.8rem;
+    padding-bottom: .45rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .informe-container strong { color: #0f172a; }
+  .informe-container p,
+  .informe-container li {
+    color: #334155;
+  }
+  .informe-container ul,
+  .informe-container ol {
+    padding-left: 1.2rem;
+  }
+  .informe-container .report-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+  <div class="d-flex align-items-center gap-3 mb-4 no-print">
+    <a href="{% url 'nexus:student_results' informe.sesion.pk %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h2 class="fw-bold mb-0" style="font-family:'Poppins',sans-serif;color:#1B3C59;">
+        <i class="bi {{ informe.icono }} me-2"></i>{{ informe.get_tipo_display }}
+      </h2>
+      <span class="text-muted small">
+        {{ informe.sesion.test.nombre }} · Generado {{ informe.creado_en|date:"d/m/Y H:i" }}
+      </span>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-3">
+      <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+        <span class="badge bg-{{ estado_pago_clase }}-subtle text-{{ estado_pago_clase }}-emphasis px-3 py-2 rounded-pill fw-semibold">
+          {{ estado_pago_label }}
+        </span>
+        {% if ultimo_pago %}
+          <small class="text-muted">
+            {% if ultimo_pago.esta_pagado %}Pago confirmado{% else %}Pendiente de pago{% endif %}
+          </small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <div class="informe-container">
+        {{ informe.contenido_html|safe }}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-3 no-print">
+    <a href="{% url 'nexus:student_results' informe.sesion.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Volver a resultados
+    </a>
+    <button type="button" class="btn btn-sm" style="background:linear-gradient(135deg,#1B3C59,#0EA5E9);color:#fff;border-radius:8px;font-weight:600;" onclick="window.print()">
+      <i class="bi bi-printer me-1"></i>Exportar PDF
+    </button>
+    <form method="post" action="{% url 'nexus:delete_informe' informe.pk %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que quieres borrar este informe guardado?');">
+        <i class="bi bi-trash me-1"></i>Borrar informe
+      </button>
+    </form>
+    <a href="{% url 'nexus:student_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-grid me-1"></i>Mis tests
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+</script>
+<style>
+@media print {
+  .no-print { display: none !important; }
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .card { box-shadow: none !important; border: none !important; }
+  .informe-container {
+    max-width: none !important;
+    font-size: 12pt !important;
+    line-height: 1.7 !important;
+    color: #111827 !important;
+  }
+  .informe-container h3 {
+    page-break-after: avoid;
+    break-inside: avoid;
+  }
+}
+</style>
+{% endblock %}

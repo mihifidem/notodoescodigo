@@ -1,0 +1,106 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ page_title }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'nexus:module_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ page_title }}</h2>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="nx-card p-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <!-- Code -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Código <span class="text-danger">*</span></label>
+            {{ form.code }}
+            {% if form.code.errors %}<div class="text-danger small mt-1">{{ form.code.errors }}</div>{% endif %}
+            <div class="form-text">Identificador único, e.g. <code>IDENTITY_MAP</code></div>
+          </div>
+          <!-- Name -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Nombre <span class="text-danger">*</span></label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+          </div>
+          <!-- Layer -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Capa / Layer <span class="text-danger">*</span></label>
+            {{ form.layer }}
+            {% if form.layer.errors %}<div class="text-danger small mt-1">{{ form.layer.errors }}</div>{% endif %}
+          </div>
+          <!-- Weight -->
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Peso (0–1) <span class="text-danger">*</span></label>
+            {{ form.weight }}
+            {% if form.weight.errors %}<div class="text-danger small mt-1">{{ form.weight.errors }}</div>{% endif %}
+            <div class="form-text">Ej: 0.08 = 8%</div>
+          </div>
+          <!-- Order -->
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Orden</label>
+            {{ form.order }}
+          </div>
+          <!-- Description -->
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Descripción</label>
+            {{ form.description }}
+          </div>
+          <!-- Color + Active -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Color</label>
+            <div class="d-flex align-items-center gap-2">
+              {{ form.color }}
+              <span class="small text-muted">Color del módulo en dashboard</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small d-block">Estado</label>
+            <div class="form-check form-switch mt-2">
+              {{ form.active }}
+              <label class="form-check-label" for="{{ form.active.id_for_label }}">Módulo activo</label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{% url 'nexus:module_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="nx-btn-primary btn">
+            <i class="bi bi-check-lg me-1"></i>{{ action }} Módulo
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Layer weights reference -->
+    <div class="nx-card p-3 mt-3">
+      <div class="nx-section-title mb-2" style="font-size:.9rem;">Referencia de pesos oficiales</div>
+      <div class="row g-2 small text-muted">
+        <div class="col-md-4">
+          <div class="fw-semibold" style="color:#2563EB;">Foundation (22%)</div>
+          <div>IdentityMap 8% · CoreValues 6% · Cognitype 8%</div>
+        </div>
+        <div class="col-md-4">
+          <div class="fw-semibold" style="color:#7C3AED;">Talent Intelligence (25%)</div>
+          <div>DriveSync 5% · ConflictSync 4% · CultureSync 4% · DecisionCore 6% · TechMind 6%</div>
+        </div>
+        <div class="col-md-4">
+          <div class="fw-semibold" style="color:#DC2626;">Human Intelligence (53%)</div>
+          <div>LearnSync 5% · EmotionSync 5% · BehaviorMatrix 7% · LeadershipSync 7% · y más…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

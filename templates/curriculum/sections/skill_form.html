@@ -1,0 +1,27 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar habilidad{% else %}<i class="bi bi-lightning-charge me-2 text-primary"></i>Nueva habilidad{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:skill_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:skill_list' %}{% endblock %}
+
+{% block extra_js %}
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const tipoField = document.getElementById('id_tipo');
+		const categoriaField = document.getElementById('id_categoria');
+		if (!tipoField || !categoriaField) return;
+		const allOptions = Array.from(categoriaField.options);
+		function filterCategorias() {
+			const tipo = tipoField.value;
+			categoriaField.innerHTML = '';
+			let filtered = allOptions.filter(opt =>
+				tipo === 'soft' ? opt.value.startsWith('s_') || opt.value === '' :
+				tipo === 'hard' ? opt.value.startsWith('h_') || opt.value === '' : true
+			);
+			filtered.forEach(opt => categoriaField.appendChild(opt.cloneNode(true)));
+		}
+		tipoField.addEventListener('change', filterCategorias);
+		// Filtrar al cargar si ya hay valor
+		filterCategorias();
+	});
+</script>
+{% endblock %}

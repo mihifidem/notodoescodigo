@@ -1,0 +1,6 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}
+  {% if object %}Editar experiencia{% else %}<i class="bi bi-building me-2 text-primary"></i>Nueva experiencia laboral{% endif %}
+{% endblock %}
+{% block back_url %}{% url 'curriculum:work_experience_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:work_experience_list' %}{% endblock %}

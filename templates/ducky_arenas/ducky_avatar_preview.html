@@ -1,0 +1,31 @@
+{% if profile %}
+<div class="card shadow-sm border-0 h-100">
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            <div class="rounded-circle bg-primary bg-opacity-10 px-3 py-2 me-3 fw-bold text-primary">
+                {{ profile.nickname|slice:':2'|upper }}
+            </div>
+            <div>
+                <h5 class="mb-0">{{ profile.nickname }}</h5>
+                <small class="text-muted">{{ profile.get_avatarType_display }}</small>
+            </div>
+        </div>
+
+        <div class="row g-2 text-center small">
+            <div class="col-4"><div class="bg-light rounded p-2"><strong>{{ profile.level }}</strong><br>Lvl</div></div>
+            <div class="col-4"><div class="bg-light rounded p-2"><strong>{{ profile.rating }}</strong><br>Rating</div></div>
+            <div class="col-4"><div class="bg-light rounded p-2"><strong>{{ power|default:0 }}</strong><br>Power</div></div>
+        </div>
+
+        <div class="mt-3">
+            <div class="d-flex justify-content-between text-muted small mb-1">
+                <span>XP</span>
+                <span>{{ profile.xp }} XP</span>
+            </div>
+            <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ profile.xp|default:0 }}%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

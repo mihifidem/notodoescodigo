@@ -1,0 +1,23 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Eliminar curso' %} | {{ course.nombre }}{% endblock %}
+{% block content %}
+<section class="form-panel">
+  <p class="eyebrow">{% trans 'ADMINISTRACIÓN' %}</p>
+  <h1>{% trans 'Eliminar curso' %}: {{ course.nombre }}</h1>
+  <div class="form-errors" role="alert">
+    {% trans 'Esta acción es irreversible. Se eliminarán el curso, sus módulos, páginas, actividades, pruebas, entregas, notas, anuncios e inscripciones. Las cuentas de los alumnos se conservan.' %}
+  </div>
+  {% if deletion_error %}<p class="form-errors" role="alert">{{ deletion_error }}</p>{% endif %}
+  <form method="post" class="stacked-form">
+    {% csrf_token %}
+    <label for="course-name">{% trans 'Escribe el nombre exacto del curso para confirmar' %}</label>
+    <input id="course-name" name="course_name" required autocomplete="off">
+    <label><input type="checkbox" name="confirm" value="delete" required> {% trans 'Confirmo que quiero eliminar definitivamente este curso y sus datos.' %}</label>
+    <div class="form-actions">
+      <button type="submit" class="button button-danger">{% trans 'Eliminar definitivamente' %}</button>
+      <a class="button button-secondary" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans 'Cancelar' %}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

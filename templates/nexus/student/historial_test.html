@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block page_title %}Historial — {{ test.nombre }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .nx-heading { font-family:'Poppins',sans-serif; }
+
+  .session-row {
+    border:1px solid #E5E7EB; border-radius:14px; background:#fff;
+    transition:box-shadow .15s;
+  }
+  .session-row:hover { box-shadow:0 4px 20px rgba(0,0,0,.08); }
+
+  .attempt-num {
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,#1B3C59,#234d72);
+    color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .score-pill {
+    background:linear-gradient(135deg,#0090cc,#00C4FF);
+    color:#fff; border-radius:20px; padding:.28rem 1rem;
+    font-weight:700; font-size:.9rem; white-space:nowrap;
+  }
+
+  /* Version badge */
+  .ver-essential { background:#dcfce7; color:#15803d; }
+  .ver-advanced  { background:#dbeafe; color:#1d4ed8; }
+  .ver-premium   { background:#fef3c7; color:#b45309; }
+  .ver-badge {
+    font-size:.65rem; font-weight:700; padding:.2rem .6rem;
+    border-radius:99px; letter-spacing:.05em; text-transform:uppercase;
+  }
+
+  /* Metric chips strip */
+  .meta-strip { display:flex; flex-wrap:wrap; gap:.5rem; font-size:.72rem; }
+  .meta-chip {
+    display:inline-flex; align-items:center; gap:.3rem;
+    background:#F8FAFC; border:1px solid #E2E8F0;
+    border-radius:8px; padding:.25rem .6rem; color:#374151;
+  }
+  .meta-chip strong { color:#1B3C59; }
+
+  /* Validation section */
+  .val-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.5rem; }
+  .val-cell {
+    border:1px solid #E5E7EB; border-radius:10px; padding:.5rem .7rem;
+    background:#FAFBFC; text-align:center;
+  }
+  .val-cell .val-num { font-size:1.25rem; font-weight:700; line-height:1.1; }
+  .val-cell .val-lbl { font-size:.62rem; color:#6B7280; text-transform:uppercase; letter-spacing:.05em; margin-top:.1rem; }
+  .val-cell .val-tag { font-size:.6rem; font-weight:700; padding:.1rem .4rem; border-radius:99px; margin-top:.2rem; display:inline-block; }
+
+  /* Dimension mini-bars */
+  .dim-row { display:flex; align-items:center; gap:.5rem; font-size:.72rem; }
+  .dim-bar-wrap { flex:1; background:#F3F4F6; border-radius:99px; height:6px; }
+  .dim-bar { height:6px; border-radius:99px; }
+  .dim-lbl { min-width:130px; color:#374151; }
+  .dim-val { min-width:26px; text-align:right; font-weight:700; color:#1B3C59; }
+
+  /* Flag pills */
+  .flag-pill {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-size:.66rem; padding:.2rem .6rem; border-radius:99px;
+    background:#FFF7ED; border:1px solid #FED7AA; color:#92400E;
+  }
+
+  /* Collapse toggle */
+  .detail-toggle { cursor:pointer; user-select:none; }
+  .detail-toggle:hover { opacity:.8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'nexus:student_list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="nx-heading fw-bold mb-0" style="color:#1B3C59;">
+        <i class="bi bi-clock-history me-2" style="color:#00C4FF;"></i>Historial de intentos
+      </h4>
+      <p class="text-muted small mb-0">{{ test.nombre }}</p>
+    </div>
+    <div class="ms-auto">
+      <a href="{% url 'nexus:student_take' test.pk %}"
+         class="btn btn-sm fw-semibold"
+         style="background:linear-gradient(135deg,#1B3C59,#234d72);color:#fff;border-radius:8px;">
+        <i class="bi bi-arrow-repeat me-1"></i>Realizar de nuevo
+      </a>
+    </div>
+  </div>
+
+  {% if sesiones %}
+
+  <!-- Resumen rápido -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="p-3 rounded-3 border text-center bg-white">
+        <div class="fw-bold" style="font-size:1.8rem;color:#1B3C59;">{{ sesiones|length }}</div>
+        <div class="text-muted small">Intentos</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 rounded-3 border text-center bg-white">
+        <div class="fw-bold" style="font-size:1.8rem;color:#22C55E;">
+          {% if mejor_sesion %}{{ mejor_sesion.nexus_score|floatformat:0 }}{% else %}—{% endif %}
+        </div>
+        <div class="text-muted small">Mejor score</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 rounded-3 border text-center bg-white">
+        <div class="fw-bold" style="font-size:1.8rem;color:#00C4FF;">
+          {% if sesiones.0.nexus_score %}{{ sesiones.0.nexus_score|floatformat:0 }}{% else %}—{% endif %}
+        </div>
+        <div class="text-muted small">Último score</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 rounded-3 border text-center bg-white">
+        <div class="fw-bold" style="font-size:1.8rem;color:#7C3AED;">
+          {{ sesiones.0.completado_en|date:"d/m/Y" }}
+        </div>
+        <div class="text-muted small">Último intento</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de sesiones -->
+  <div class="d-flex flex-column gap-3">
+    {% for sesion in sesiones %}
+    {% with r=sesion.resultados_json %}
+    <div class="session-row p-4">
+
+      <!-- ── Fila principal ── -->
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="attempt-num">{{ forloop.revcounter }}</div>
+
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <span class="fw-semibold" style="color:#1B3C59;">Intento #{{ forloop.revcounter }}</span>
+
+            {% if forloop.first %}
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:.7rem;">Más reciente</span>
+            {% endif %}
+
+            <!-- Variante del test -->
+            {% if sesion.version_test %}
+              {% if sesion.version_test == 'essential' %}
+              <span class="ver-badge ver-essential"><i class="bi bi-unlock me-1"></i>Essential</span>
+              {% elif sesion.version_test == 'advanced' %}
+              <span class="ver-badge ver-advanced"><i class="bi bi-person me-1"></i>Advanced</span>
+              {% elif sesion.version_test == 'premium' %}
+              <span class="ver-badge ver-premium"><i class="bi bi-star-fill me-1"></i>Premium</span>
+              {% endif %}
+            {% elif r.version %}
+              <span class="ver-badge ver-{{ r.version }}">{{ r.version|capfirst }}</span>
+            {% endif %}
+
+            {% if sesion.guardado_en_cv %}
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:.7rem;">
+              <i class="bi bi-file-earmark-person me-1"></i>Guardado en CV
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Meta strip: fecha · tiempo · preguntas -->
+          <div class="meta-strip mt-1">
+            <span class="meta-chip">
+              <i class="bi bi-calendar3" style="color:#6B7280;"></i>
+              {{ sesion.completado_en|date:"d/m/Y H:i" }}
+            </span>
+
+            <!-- Tiempo transcurrido -->
+            {% if r.tiempo_total_seg %}
+            <span class="meta-chip">
+              <i class="bi bi-stopwatch" style="color:#7C3AED;"></i>
+              <strong>
+                {% if r.tiempo_total_seg >= 3600 %}
+                  {{ r.tiempo_total_seg|divisibleby:3600|yesno:",," }}{% widthratio r.tiempo_total_seg 3600 1 %}h
+                  {% widthratio r.tiempo_total_seg|add:0 60 1 %}min
+                {% elif r.tiempo_total_seg >= 60 %}
+                  {% widthratio r.tiempo_total_seg 60 1 %}min {{ r.tiempo_total_seg|add:"0"|slugify }}s
+                {% else %}
+                  {{ r.tiempo_total_seg }}s
+                {% endif %}
+              </strong>&nbsp;duración
+            </span>
+            {% elif sesion.iniciado_en and sesion.completado_en %}
+            <span class="meta-chip">
+              <i class="bi bi-stopwatch" style="color:#7C3AED;"></i>
+              <strong>{{ sesion.completado_en|timeuntil:sesion.iniciado_en }}</strong>&nbsp;duración
+            </span>
+            {% endif %}
+
+            <!-- Preguntas respondidas -->
+            {% if r.total_preguntas %}
+            <span class="meta-chip">
+              <i class="bi bi-list-check" style="color:#0090cc;"></i>
+              <strong>{{ r.total_preguntas }}</strong>&nbsp;preguntas
+              {% if r.num_likert %}<span class="text-muted">({{ r.num_likert }} valoración{% if r.num_abcd %} · {{ r.num_abcd }} escenarios{% endif %})</span>{% endif %}
+            </span>
+            {% endif %}
+
+            {% if r.tiempo_promedio_seg %}
+            <span class="meta-chip">
+              <i class="bi bi-clock" style="color:#6B7280;"></i>
+              <strong>{{ r.tiempo_promedio_seg }}s</strong>&nbsp;/pregunta
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if sesion.nexus_score %}
+        <div class="score-pill">{{ sesion.nexus_score|floatformat:0 }} pts</div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+          <a href="{% url 'nexus:student_results' sesion.pk %}"
+             class="btn btn-sm btn-outline-success fw-semibold">
+            <i class="bi bi-bar-chart-line me-1"></i>Ver
+          </a>
+          <a href="{% url 'nexus:student_delete_session' sesion.pk %}"
+             class="btn btn-sm btn-outline-danger" title="Borrar este intento">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Detalle expandible ── -->
+      {% if r %}
+      <div class="mt-3 pt-3 border-top">
+
+        <!-- Validación psicométrica -->
+        {% if r.speed_score or r.pattern_score or r.mirror_score or r.reliability %}
+        <div class="mb-3">
+          <div class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;">
+            <i class="bi bi-shield-check me-1" style="color:#7C3AED;"></i>Validación psicométrica
+          </div>
+          <div class="val-grid">
+            {% if r.reliability %}
+            <div class="val-cell">
+              <div class="val-num" style="color:
+                {% if r.reliability >= 85 %}#22C55E{% elif r.reliability >= 70 %}#84CC16{% elif r.reliability >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.reliability }}
+              </div>
+              <div class="val-lbl">Fiabilidad global</div>
+              <span class="val-tag" style="background:
+                {% if r.reliability >= 85 %}#dcfce7;color:#15803d{% elif r.reliability >= 70 %}#ecfccb;color:#365314{% elif r.reliability >= 60 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.reliability >= 85 %}Excelente{% elif r.reliability >= 70 %}Buena{% elif r.reliability >= 60 %}Aceptable{% else %}Baja{% endif %}
+              </span>
+            </div>
+            {% endif %}
+            {% if r.speed_score is not None %}
+            <div class="val-cell">
+              <div class="val-num" style="color:
+                {% if r.speed_score >= 85 %}#22C55E{% elif r.speed_score >= 70 %}#84CC16{% elif r.speed_score >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.speed_score }}
+              </div>
+              <div class="val-lbl">Velocidad</div>
+              <span class="val-tag" style="background:
+                {% if r.speed_score >= 85 %}#dcfce7;color:#15803d{% elif r.speed_score >= 70 %}#ecfccb;color:#365314{% elif r.speed_score >= 60 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.speed_score >= 85 %}Excelente{% elif r.speed_score >= 70 %}Buena{% elif r.speed_score >= 60 %}Normal{% else %}Muy rápido{% endif %}
+              </span>
+            </div>
+            {% endif %}
+            {% if r.pattern_score is not None %}
+            <div class="val-cell">
+              <div class="val-num" style="color:
+                {% if r.pattern_score >= 85 %}#22C55E{% elif r.pattern_score >= 70 %}#84CC16{% elif r.pattern_score >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.pattern_score }}
+              </div>
+              <div class="val-lbl">Consistencia</div>
+              <span class="val-tag" style="background:
+                {% if r.pattern_score >= 85 %}#dcfce7;color:#15803d{% elif r.pattern_score >= 70 %}#ecfccb;color:#365314{% elif r.pattern_score >= 60 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.pattern_score >= 85 %}Alta{% elif r.pattern_score >= 70 %}Buena{% elif r.pattern_score >= 60 %}Moderada{% else %}Baja{% endif %}
+              </span>
+            </div>
+            {% endif %}
+            {% if r.mirror_score is not None %}
+            <div class="val-cell">
+              <div class="val-num" style="color:
+                {% if r.mirror_score >= 85 %}#22C55E{% elif r.mirror_score >= 70 %}#84CC16{% elif r.mirror_score >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.mirror_score }}
+              </div>
+              <div class="val-lbl">Coherencia</div>
+              <span class="val-tag" style="background:
+                {% if r.mirror_score >= 85 %}#dcfce7;color:#15803d{% elif r.mirror_score >= 70 %}#ecfccb;color:#365314{% elif r.mirror_score >= 60 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.mirror_score >= 85 %}Alta{% elif r.mirror_score >= 70 %}Buena{% elif r.mirror_score >= 60 %}Moderada{% else %}Baja{% endif %}
+              </span>
+            </div>
+            {% endif %}
+            {% if r.fast_count is not None %}
+            <div class="val-cell">
+              <div class="val-num" style="color:{% if r.fast_count <= 2 %}#22C55E{% elif r.fast_count <= 5 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.fast_count }}
+              </div>
+              <div class="val-lbl">Respuestas rápidas</div>
+              <span class="val-tag" style="background:{% if r.fast_count <= 2 %}#dcfce7;color:#15803d{% elif r.fast_count <= 5 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.fast_count <= 2 %}Normal{% elif r.fast_count <= 5 %}Revisar{% else %}Alto{% endif %}
+              </span>
+            </div>
+            {% endif %}
+            {% if r.dominancia is not None %}
+            <div class="val-cell">
+              <div class="val-num" style="color:{% if r.dominancia <= 40 %}#22C55E{% elif r.dominancia <= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ r.dominancia }}%
+              </div>
+              <div class="val-lbl">Dominancia</div>
+              <span class="val-tag" style="background:{% if r.dominancia <= 40 %}#dcfce7;color:#15803d{% elif r.dominancia <= 60 %}#fef3c7;color:#92400e{% else %}#fee2e2;color:#991b1b{% endif %};">
+                {% if r.dominancia <= 40 %}Variado{% elif r.dominancia <= 60 %}Moderado{% else %}Sesgado{% endif %}
+              </span>
+            </div>
+            {% endif %}
+          </div>
+
+          {% if r.flags_psico %}
+          <div class="mt-2 d-flex flex-wrap gap-1">
+            {% for flag in r.flags_psico %}
+            <span class="flag-pill"><i class="bi bi-exclamation-triangle-fill"></i>{{ flag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Dimensiones -->
+        {% if r.dimensiones %}
+        <div>
+          <div class="text-muted fw-semibold mb-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;">
+            <i class="bi bi-bar-chart-line me-1" style="color:#0090cc;"></i>Resultados por dimensión
+          </div>
+          <div class="d-flex flex-column gap-1">
+            {% for dim in r.dimensiones %}
+            <div class="dim-row">
+              <span class="dim-lbl">{{ dim.label }}</span>
+              <div class="dim-bar-wrap">
+                <div class="dim-bar" style="width:{{ dim.score }}%;background:{{ dim.color }};"></div>
+              </div>
+              <span class="dim-val">{{ dim.score }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endif %}
+
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card border-0 shadow-sm p-5 text-center text-muted" style="border-radius:14px;">
+    <i class="bi bi-clipboard2 fs-1 mb-3 d-block opacity-25"></i>
+    <p class="fw-semibold mb-1">Aún no has completado este test.</p>
+    <a href="{% url 'nexus:student_take' test.pk %}" class="btn btn-sm mt-2"
+       style="background:#1B3C59;color:#fff;border-radius:8px;font-weight:600;">
+      <i class="bi bi-play-fill me-1"></i>Iniciar test
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

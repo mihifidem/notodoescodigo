@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Insignias — MihiTraining{% endblock %}
+{% block page_title %}Insignias{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    {% if user.is_staff %}
+      <h5 class="fw-bold mb-0">Todas las insignias</h5>
+      <small class="text-muted">
+        {{ total_insignias }} insignia{{ total_insignias|pluralize }}
+        {% if filtro_tipo_curso_id or filtro_curso_id %}<span class="badge bg-info text-dark ms-1">filtradas</span>{% endif %}
+      </small>
+    {% else %}
+      <h5 class="fw-bold mb-0">Tus insignias</h5>
+      <small class="text-muted">{{ total_obtenidas }} de {{ total_insignias }} desbloqueadas</small>
+    {% endif %}
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    {% if user.is_staff %}
+      <a href="{% url 'gamification:crear_insignia' %}" class="btn btn-sm btn-primary">
+        <i class="bi bi-patch-plus me-1"></i> Nueva insignia
+      </a>
+    {% else %}
+      <div class="progress" style="width:200px;height:12px;">
+        {% widthratio total_obtenidas total_insignias 100 as pct %}
+        <div class="progress-bar bg-warning" style="width:{{ pct }}%;"></div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if user.is_staff %}
+<form method="get" class="mb-4 p-3 bg-light rounded border">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-auto">
+      <label class="form-label small fw-semibold mb-1">Tipo de curso</label>
+      <select name="tipo_curso" class="form-select form-select-sm">
+        <option value="">Todos los tipos</option>
+        {% for tc in tipos_curso %}
+          <option value="{{ tc.id }}" {% if filtro_tipo_curso_id == tc.id|stringformat:"s" %}selected{% endif %}>{{ tc.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-auto">
+      <label class="form-label small fw-semibold mb-1">Curso</label>
+      <select name="curso" class="form-select form-select-sm">
+        <option value="">Todos los cursos</option>
+        {% for c in cursos %}
+          <option value="{{ c.id }}" {% if filtro_curso_id == c.id|stringformat:"s" %}selected{% endif %}>
+            {{ c.nombre }}{% if c.tipo_curso %} — {{ c.tipo_curso.nombre }}{% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-auto">
+      <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+      <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+    </div>
+  </div>
+</form>
+{% endif %}
+
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+  {% if insignias_con_estado %}
+    {% for insignia, obtenida in insignias_con_estado %}
+  <div class="col">
+    <div class="card border-0 shadow-sm text-center p-3 h-100 insignia-card {% if not obtenida %}insignia-bloqueada{% endif %}">
+      {% if insignia.imagen %}
+        <img src="{{ insignia.imagen.url }}" class="rounded-circle mx-auto mb-2 insignia-avatar {% if not obtenida %}grayscale{% endif %}" width="148" height="148" style="object-fit:cover;" alt="{{ insignia.nombre }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+        <div class="rounded-circle align-items-center justify-content-center mx-auto mb-2 insignia-fallback {% if obtenida %}bg-primary{% else %}bg-secondary{% endif %}" style="width:148px;height:148px;display:none;">
+          <i class="bi bi-award text-white fs-1"></i>
+        </div>
+      {% else %}
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-2
+                    {% if obtenida %}bg-primary{% else %}bg-secondary{% endif %}"
+             style="width:148px;height:148px;">
+           <i class="bi bi-award text-white fs-1"></i>
+        </div>
+      {% endif %}
+      <div class="fw-semibold small">{{ insignia.nombre }}</div>
+      <div class="text-muted" style="font-size:.72rem;">{{ insignia.descripcion|truncatewords:12 }}</div>
+      {% if obtenida %}
+        <span class="badge bg-success mt-2">✓ Desbloqueada</span>
+      {% else %}
+        <span class="badge bg-secondary mt-2">Bloqueada</span>
+      {% endif %}
+    </div>
+  </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-award fs-1 d-block mb-3 opacity-50"></i>
+        {% if user.is_staff %}
+          <p class="mb-0">No hay insignias que coincidan con los filtros seleccionados.</p>
+        {% else %}
+          <p class="mb-0">Aún no estás inscrito en ningún curso.<br>
+            <a href="{% url 'courses:list' %}" class="text-decoration-none">Explora el catálogo</a> para descubrir insignias disponibles.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .grayscale { filter: grayscale(100%); }
+
+  .insignia-card {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .insignia-avatar {
+    border: 2px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .insignia-bloqueada {
+    opacity: 0.78;
+  }
+
+  [data-bs-theme="dark"] .insignia-card {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.24);
+  }
+
+  [data-bs-theme="dark"] .insignia-avatar {
+    border-color: rgba(148, 163, 184, 0.35);
+  }
+
+  [data-bs-theme="dark"] .insignia-bloqueada {
+    opacity: 0.9;
+  }
+
+  .insignia-fallback {
+    border: 2px solid rgba(15, 23, 42, 0.08);
+  }
+
+  [data-bs-theme="dark"] .insignia-fallback {
+    border-color: rgba(148, 163, 184, 0.35);
+  }
+</style>
+{% endblock %}

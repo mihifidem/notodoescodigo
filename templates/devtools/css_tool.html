@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Generador CSS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden css-tool-wrap">
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">CSS Snippet Generator</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Qué hace</div>
+              <p class="mb-0 text-secondary">
+                Genera un bloque CSS reutilizable para una tarjeta, botón o panel con color base, radio y padding. Es útil para prototipos rápidos, componentes UI y estilos de inicio de proyecto.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#cssInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end" id="cssForm">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Color inicio</label>
+              <input id="cssStartColorInput" type="color" name="start_color" value="{{ start_color|default:'#2563eb' }}" class="form-control form-control-color form-control-lg w-100" title="Elige el color inicial del gradiente">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Color final</label>
+              <input id="cssEndColorInput" type="color" name="end_color" value="{{ end_color|default:'#1d4ed8' }}" class="form-control form-control-color form-control-lg w-100" title="Elige el color final del gradiente">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Texto</label>
+              <input id="cssTextColorInput" type="color" name="text_color" value="{{ text_color|default:'#ffffff' }}" class="form-control form-control-color form-control-lg w-100" title="Elige el color del texto">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Radius</label>
+              <input id="cssRadiusInput" type="number" name="radius" value="{{ radius|default:'16' }}" class="form-control form-control-lg" min="0" step="1">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Padding</label>
+              <input id="cssPaddingInput" type="number" name="padding" value="{{ padding|default:'16' }}" class="form-control form-control-lg" min="0" step="1">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Tamaño</label>
+              <input id="cssFontSizeInput" type="number" name="font_size" value="{{ font_size|default:'16' }}" class="form-control form-control-lg" min="8" step="1">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Generar</button>
+            </div>
+          </form>
+
+          <div class="mt-4 mb-3">
+            <button type="button" id="resetCssBtn" class="btn btn-outline-secondary rounded-pill">Reset</button>
+          </div>
+
+          <div class="row g-4 mt-2 align-items-stretch">
+            <div class="col-lg-5">
+              <div class="border rounded-4 p-3 h-100 bg-light">
+                <div class="small text-uppercase text-secondary mb-2">Vista previa</div>
+                <div id="cssPreview" class="preview-card d-flex align-items-center justify-content-center fw-bold rounded-4" style="background: linear-gradient(135deg, {{ start_color|default:'#2563eb' }}, {{ end_color|default:'#1d4ed8' }}); border-radius: {{ radius|default:'16' }}px; padding: {{ padding|default:'16' }}px; min-height: 180px; box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18); color: {{ text_color|default:'#ffffff' }}; font-size: {{ font_size|default:'16' }}px;">
+                  Preview
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="border rounded-4 p-3 h-100 bg-dark-subtle">
+                <div class="small text-uppercase text-secondary mb-2">CSS generado</div>
+                <pre class="mb-0 p-3 bg-dark text-light rounded-4 overflow-auto"><code id="cssSnippetCode">{{ snippet }}</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 alert alert-info rounded-4 mb-0">
+            <strong>Ejemplo:</strong> Si eliges azul, radio 20 y padding 24, el bloque generado te sirve para una tarjeta de producto o módulo de contenido con estilo moderno.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cssInstructionsModal" tabindex="-1" aria-labelledby="cssInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="cssInstructionsModalLabel">Instrucciones del CSS Snippet Generator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Elige un color base para definir la identidad visual del componente.</li>
+          <li>Configura el radio para controlar la redondez de las esquinas.</li>
+          <li>Ajusta el padding para definir la separación interna del contenido.</li>
+          <li>Genera el snippet y copia el CSS directamente a tu proyecto.</li>
+          <li>Pulsa <strong>Reset</strong> para volver a los valores iniciales.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Ejemplo básico: <code>background: linear-gradient(...); border-radius: 20px; padding: 24px;</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .css-tool-wrap,
+  [data-bs-theme="dark"] .css-tool-wrap .form-label,
+  [data-bs-theme="dark"] .css-tool-wrap .small,
+  [data-bs-theme="dark"] .css-tool-wrap .alert,
+  [data-bs-theme="dark"] .css-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .css-tool-wrap .border,
+  [data-bs-theme="dark"] .css-tool-wrap .preview-card {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .css-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .css-tool-wrap .border,
+  [data-bs-theme="dark"] .css-tool-wrap .bg-dark-subtle {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+
+  [data-bs-theme="dark"] .css-tool-wrap .form-control,
+  [data-bs-theme="dark"] .css-tool-wrap .form-control-color {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('cssForm');
+    const resetBtn = document.getElementById('resetCssBtn');
+    const startColorInput = document.getElementById('cssStartColorInput');
+    const endColorInput = document.getElementById('cssEndColorInput');
+    const textColorInput = document.getElementById('cssTextColorInput');
+    const radiusInput = document.getElementById('cssRadiusInput');
+    const paddingInput = document.getElementById('cssPaddingInput');
+    const fontSizeInput = document.getElementById('cssFontSizeInput');
+    const preview = document.getElementById('cssPreview');
+    const snippetCode = document.getElementById('cssSnippetCode');
+
+    function renderCssSnippet() {
+      const startColor = startColorInput ? (startColorInput.value || '#2563eb') : '#2563eb';
+      const endColor = endColorInput ? (endColorInput.value || '#1d4ed8') : '#1d4ed8';
+      const textColor = textColorInput ? (textColorInput.value || '#ffffff') : '#ffffff';
+      const radius = radiusInput ? (radiusInput.value || 16) : 16;
+      const padding = paddingInput ? (paddingInput.value || 16) : 16;
+      const fontSize = fontSizeInput ? (fontSizeInput.value || 16) : 16;
+      const snippet = `background: linear-gradient(135deg, ${startColor}, ${endColor});\nborder-radius: ${radius}px;\npadding: ${padding}px;\ncolor: ${textColor};\nfont-size: ${fontSize}px;\nbox-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);`;
+
+      if (preview) {
+        preview.style.background = `linear-gradient(135deg, ${startColor}, ${endColor})`;
+        preview.style.borderRadius = `${radius}px`;
+        preview.style.padding = `${padding}px`;
+        preview.style.color = textColor;
+        preview.style.fontSize = `${fontSize}px`;
+      }
+
+      if (snippetCode) {
+        snippetCode.textContent = snippet;
+      }
+    }
+
+    [startColorInput, endColorInput, textColorInput, radiusInput, paddingInput, fontSizeInput].forEach(function (input) {
+      if (input) {
+        input.addEventListener('input', renderCssSnippet);
+        input.addEventListener('change', renderCssSnippet);
+      }
+    });
+
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        renderCssSnippet();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        if (startColorInput) startColorInput.value = '#2563eb';
+        if (endColorInput) endColorInput.value = '#1d4ed8';
+        if (textColorInput) textColorInput.value = '#ffffff';
+        if (radiusInput) radiusInput.value = 16;
+        if (paddingInput) paddingInput.value = 16;
+        if (fontSizeInput) fontSizeInput.value = 16;
+        renderCssSnippet();
+      });
+    }
+
+    renderCssSnippet();
+  });
+</script>
+{% endblock %}

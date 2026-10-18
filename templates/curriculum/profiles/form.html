@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} — CV{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:700px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="h4 mb-0 fw-bold"><i class="bi bi-sliders me-2 text-primary"></i>{{ action }}</h1>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom fw-semibold">Información del perfil</div>
+    <div class="card-body p-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+          {{ form.nombre }}
+          {% if form.nombre.errors %}<div class="invalid-feedback d-block">{{ form.nombre.errors }}</div>{% endif %}
+          <div class="form-text">Nombre descriptivo para identificar este perfil (ej: «Desarrollador Frontend»).</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.slug.id_for_label }}">
+            URL pública <span class="text-muted fw-normal">— opentowork.es/<strong id="slug_preview">{{ form.slug.value|default:'...' }}</strong></span>
+          </label>
+          {{ form.slug }}
+          {% if form.slug.errors %}<div class="invalid-feedback d-block">{{ form.slug.errors }}</div>{% endif %}
+          <div class="form-text">Solo letras, números, guiones y guiones bajos. Sin espacios.</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.templatecv.id_for_label }}">{{ form.templatecv.label }}</label>
+          {{ form.templatecv }}
+          {% if form.templatecv.errors %}<div class="invalid-feedback d-block">{{ form.templatecv.errors }}</div>{% endif %}
+          <div class="form-text">Elige un template personalizado de la lista.</div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6 d-flex align-items-center gap-3 pt-4">
+            <div class="form-check">
+              {{ form.is_public }}
+              <label class="form-check-label" for="{{ form.is_public.id_for_label }}">Perfil público</label>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Secciones visibles</h6>
+        <div class="row g-2">
+          {% for field in form %}
+          {% if 'mostrar' in field.name %}
+          <div class="col-sm-6">
+            <div class="form-check">
+              {{ field }}
+              <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar y continuar</button>
+          <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Template preview -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom fw-semibold">Vista previa de plantillas</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="border rounded p-2 text-center">
+            <div class="bg-white border-bottom mb-2 p-1" style="font-size:.7rem; color:#6b7280; font-family:Georgia,serif;">
+              <strong style="color:#1a1a2e;">Ada Lovelace</strong><br>
+              <small>Desarrolladora</small>
+            </div>
+            <div class="text-muted" style="font-size:.65rem;">MINIMALISTA</div>
+            <small class="text-muted d-block">(Tipografía serif, limpio)</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-2 text-center bg-dark text-light">
+            <div class="mb-2 p-1" style="font-size:.65rem; font-family:monospace; color:#4ec9b0;">
+              <span style="color:#c586c0;">const</span> <span style="color:#9cdcfe;">dev</span> = {<br>
+              &nbsp;&nbsp;<span style="color:#ce9178;">"name"</span>: <span style="color:#ce9178;">"Ada"</span><br>
+              }
+            </div>
+            <div class="text-muted" style="font-size:.65rem;">TECH (VSCode)</div>
+            <small class="text-muted d-block">(Dark, monoespaciada)</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded overflow-hidden p-0 text-center">
+            <div class="p-2" style="background:#1a365d; color:#fff; font-size:.7rem; font-family:'Raleway',sans-serif;">
+              <strong>Ada Lovelace</strong><br>
+              <small style="color:#c9973a;">DESARROLLADORA</small>
+            </div>
+            <div class="p-2 d-flex gap-1 justify-content-center" style="font-size:.65rem; color:#6b7280;">
+              <div style="background:#1a365d; width:35%; height:30px;"></div>
+              <div style="flex:1; height:30px; background:#f7fafc;"></div>
+            </div>
+            <div class="text-muted pb-1" style="font-size:.65rem;">CLÁSICO</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Live slug preview
+  const slugInput = document.getElementById('{{ form.slug.id_for_label }}');
+  const preview = document.getElementById('slug_preview');
+  if (slugInput && preview) {
+    slugInput.addEventListener('input', () => { preview.textContent = slugInput.value || '…'; });
+  }
+  // Auto-slug from nombre
+  const nombreInput = document.getElementById('{{ form.nombre.id_for_label }}');
+  if (nombreInput && slugInput) {
+    nombreInput.addEventListener('input', () => {
+      if (!slugInput.dataset.touched) {
+        slugInput.value = nombreInput.value
+          .toLowerCase()
+          .replace(/\s+/g, '_')
+          .replace(/[^a-z0-9_\-]/g, '')
+          .slice(0, 100);
+        preview.textContent = slugInput.value || '…';
+      }
+    });
+    slugInput.addEventListener('input', () => { slugInput.dataset.touched = '1'; });
+  }
+</script>
+{% endblock %}

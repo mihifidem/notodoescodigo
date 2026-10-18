@@ -1,0 +1,101 @@
+<section class="battle-challenges mb-4" aria-labelledby="challenges-title">
+    <div class="alert alert-info">
+        <strong>Negociación de retos.</strong> La apuesta indica DuckyCoins por jugador.
+        Aceptar acuerda las condiciones, pero no reserva saldo ni inicia el combate.
+        El Ring y la liquidación bancaria todavía no están disponibles.
+    </div>
+    {% if action_errors %}
+    <div class="alert alert-danger" role="alert">
+        <strong>No se pudo actualizar el reto.</strong>
+        {% for field, errors in action_errors.items %}{{ errors }}{% endfor %}
+    </div>
+    {% endif %}
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card bg-dark text-light border-secondary h-100">
+                <div class="card-body">
+                    <h2 class="h5">Crear reto</h2>
+                    <form method="post" action="{% url 'ducky_arenas:battle' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="create">
+                        {{ challenge_form.non_field_errors }}
+                        {% for field in challenge_form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="small mt-1">{{ field.help_text }}</div>{% endif %}
+                            <div class="text-warning">{{ field.errors }}</div>
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary w-100">Publicar reto</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                <h2 id="challenges-title" class="h5 mb-0">Retos disponibles y mis retos</h2>
+                <a class="btn btn-outline-info btn-sm" href="{% url 'ducky_arenas:battle' %}">Actualizar</a>
+            </div>
+            {% for challenge in challenges_page %}
+            <article class="card bg-dark text-light border-secondary mb-3" aria-labelledby="challenge-{{ challenge.pk }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                        <h3 id="challenge-{{ challenge.pk }}" class="h6">
+                            Reto #{{ challenge.pk }} · {% if challenge.is_public %}Público{% else %}Directo{% endif %}
+                        </h3>
+                        <span class="badge bg-secondary">{{ challenge.display_status }}</span>
+                    </div>
+                    <p class="mb-2">
+                        {{ challenge.creator.username }} contra
+                        {% if challenge.opponent %}{{ challenge.opponent.username }}{% else %}rival por confirmar{% endif %}
+                    </p>
+                    <dl class="row small mb-2">
+                        <dt class="col-sm-5">Apuesta por jugador</dt><dd class="col-sm-7">{{ challenge.stake }} DuckyCoins</dd>
+                        <dt class="col-sm-5">Última propuesta</dt><dd class="col-sm-7">{{ challenge.proposed_by.username }}</dd>
+                        <dt class="col-sm-5">Caducidad</dt><dd class="col-sm-7"><time datetime="{{ challenge.expires_at|date:'c' }}">{{ challenge.expires_at|date:'d/m/Y H:i T' }}</time></dd>
+                    </dl>
+                    {% if challenge.can_respond %}
+                    <form method="post" action="{% url 'ducky_arenas:battle' %}" class="d-flex flex-wrap gap-2 mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="challenge_id" value="{{ challenge.pk }}">
+                        <input type="hidden" name="revision" value="{{ challenge.revision }}">
+                        <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">Aceptar {{ challenge.stake }} DuckyCoins</button>
+                        {% if challenge.can_decline %}<button type="submit" name="action" value="decline" class="btn btn-outline-warning btn-sm">Rechazar</button>{% endif %}
+                    </form>
+                    <form method="post" action="{% url 'ducky_arenas:battle' %}" class="mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="counter">
+                        <input type="hidden" name="challenge_id" value="{{ challenge.pk }}">
+                        <input type="hidden" name="revision" value="{{ challenge.revision }}">
+                        <label for="counter-{{ challenge.pk }}" class="form-label small">Nueva apuesta por jugador (DuckyCoins)</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <input type="number" name="stake" id="counter-{{ challenge.pk }}" min="0" max="1000000" step="1" required class="form-control w-auto"{% if challenge.pk|stringformat:'s' == action_values.challenge_id %} value="{{ action_values.stake }}"{% endif %}>
+                            <button type="submit" class="btn btn-outline-info btn-sm">Contraproponer</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                    {% if challenge.can_cancel %}
+                    <form method="post" action="{% url 'ducky_arenas:battle' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="cancel">
+                        <input type="hidden" name="challenge_id" value="{{ challenge.pk }}">
+                        <input type="hidden" name="revision" value="{{ challenge.revision }}">
+                        <button type="submit" class="btn btn-outline-light btn-sm">Cancelar reto</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <p>No hay retos disponibles. Crea uno público o invita a otro jugador.</p>
+            {% endfor %}
+            {% if challenges_page.has_other_pages %}
+            <nav class="d-flex gap-3" aria-label="Páginas de retos">
+                {% if challenges_page.has_previous %}<a class="btn btn-outline-info btn-sm" href="?page={{ challenges_page.previous_page_number }}">Anterior</a>{% endif %}
+                <span>{{ challenges_page.number }} / {{ challenges_page.paginator.num_pages }}</span>
+                {% if challenges_page.has_next %}<a class="btn btn-outline-info btn-sm" href="?page={{ challenges_page.next_page_number }}">Siguiente</a>{% endif %}
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</section>

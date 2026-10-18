@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}JSON Formatter{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">JSON formatter</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Qué hace</div>
+              <p class="mb-0 text-secondary">
+                Formatea y ordena JSON para que sea más legible, fácil de revisar y más sencillo de depurar.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#jsonInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form id="jsonForm" method="get" class="row g-3">
+            <div class="col-12">
+              <label class="form-label">JSON</label>
+              <textarea id="jsonInput" name="json_input" rows="12" class="form-control font-monospace">{{ json_input }}</textarea>
+            </div>
+            <div class="col-12 d-flex gap-2 flex-wrap">
+              <button type="submit" class="btn btn-dark rounded-pill">Formatear</button>
+              <button type="button" id="jsonResetBtn" class="btn btn-outline-secondary rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div id="jsonErrorBox" class="alert alert-danger mt-4 mb-0 d-none"></div>
+          <pre id="jsonOutputBox" class="mt-4 mb-0 p-3 bg-dark text-light rounded-4 overflow-auto"><code id="jsonPrettyOutput">{{ pretty_json|default:'{}' }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="jsonInstructionsModal" tabindex="-1" aria-labelledby="jsonInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="jsonInstructionsModalLabel">Instrucciones del JSON Formatter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Pega el JSON que quieras revisar o depurar.</li>
+          <li>La herramienta intenta ordenarlo y dejarlo legible.</li>
+          <li>Si el contenido no es válido, mostrará el error exacto.</li>
+          <li>Usa <strong>Reset</strong> para limpiar el editor y volver a empezar.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Consejo: un JSON bien formateado ayuda a detectar errores de estructura, claves duplicadas o payloads incompletos.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('jsonForm');
+    const resetBtn = document.getElementById('jsonResetBtn');
+    const jsonInput = document.getElementById('jsonInput');
+    const jsonOutput = document.getElementById('jsonPrettyOutput');
+    const jsonErrorBox = document.getElementById('jsonErrorBox');
+    const jsonOutputBox = document.getElementById('jsonOutputBox');
+
+    function renderJsonPreview() {
+      if (!jsonInput || !jsonOutput || !jsonErrorBox || !jsonOutputBox) return;
+
+      const value = jsonInput.value.trim();
+
+      if (!value) {
+        jsonOutput.textContent = '{}';
+        jsonErrorBox.classList.add('d-none');
+        jsonErrorBox.textContent = '';
+        jsonOutputBox.classList.remove('d-none');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(value);
+        jsonOutput.textContent = JSON.stringify(parsed, null, 2);
+        jsonErrorBox.classList.add('d-none');
+        jsonErrorBox.textContent = '';
+        jsonOutputBox.classList.remove('d-none');
+      } catch (error) {
+        jsonErrorBox.textContent = error.message;
+        jsonErrorBox.classList.remove('d-none');
+        jsonOutputBox.classList.add('d-none');
+      }
+    }
+
+    if (resetBtn && jsonInput) {
+      resetBtn.addEventListener('click', function () {
+        jsonInput.value = '';
+        renderJsonPreview();
+        jsonInput.focus();
+      });
+    }
+
+    if (jsonInput) {
+      jsonInput.addEventListener('input', renderJsonPreview);
+      jsonInput.addEventListener('keyup', renderJsonPreview);
+    }
+
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        renderJsonPreview();
+      });
+    }
+
+    renderJsonPreview();
+  });
+</script>
+{% endblock %}

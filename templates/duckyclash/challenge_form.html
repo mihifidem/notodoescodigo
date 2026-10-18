@@ -1,0 +1,45 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Enviar reto privado · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <h1 class="h3">Enviar reto privado</h1>
+        <a href="{% url 'duckyclash:home' %}" class="btn btn-outline-primary">Mis retos</a>
+    </div>
+    <div class="alert alert-info">Se consulta el saldo para validar la apuesta. Publicar no reserva DuckyCoins. Con el proveedor local, las DuckyCoins son tus puntos canjeables: tras aceptar se descuenta la apuesta de ambos jugadores. El ganador recibe el bote completo; una cancelación válida o empate devuelve las reservas. El acumulado histórico no cambia.</div>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card"><div class="card-body">
+                <h2 class="h5">Buscar rival</h2>
+                <form method="get" action="{% url 'duckyclash:challenge_create' %}">
+                    {{ search_form.as_p }}
+                    <button class="btn btn-outline-primary" type="submit">Buscar</button>
+                </form>
+                {% if search_form.is_bound and not search_form.errors %}
+                <ul class="list-group mt-3">
+                    {% for player in players %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+                        <span>{{ player.get_username }}</span>
+                        <a href="{% url 'duckyclash:challenge_create' %}?opponent={{ player.get_username|urlencode }}" class="btn btn-sm btn-outline-primary">Elegir</a>
+                    </li>
+                    {% empty %}<li class="list-group-item">No hay jugadores disponibles con ese nombre.</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div></div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card"><div class="card-body">
+                <h2 class="h5">Condiciones del reto</h2>
+                <p class="text-body-secondary">Fecha y hora en {{ form.time_zone }}. El plazo no se amplía con las contrapropuestas y termina antes del duelo.</p>
+                <form method="post" enctype="multipart/form-data" action="{% url 'duckyclash:challenge_create' %}" data-clash-confirm="¿Enviar este reto con las condiciones indicadas? No se reservarán monedas al enviarlo.">
+                    {% csrf_token %}
+                    {% include 'duckyclash/form_errors.html' %}
+                    {{ form.as_p }}
+                    {% include 'duckyclash/catalog_fields.html' %}
+                    <button type="submit" class="btn btn-primary">Enviar reto privado</button>
+                </form>
+            </div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

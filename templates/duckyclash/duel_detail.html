@@ -1,0 +1,13 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Duelo #{{ duel.pk }} · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Detalle del duelo #{{ duel.pk }}</h1>
+    {% include 'duckyclash/duel_summary.html' %}
+    <p>El resultado deportivo y la liquidación son procesos distintos. Solo el servidor confirma las operaciones bancarias.</p>
+    <div class="d-flex flex-wrap gap-2">
+        {% if is_terminal %}<a class="btn btn-primary" href="{% url 'duckyclash:results' duel.pk %}">Ver resultados</a>{% else %}<a class="btn btn-primary" href="{% url 'duckyclash:waiting' duel.pk %}">Abrir sala de espera</a>{% endif %}
+        <a class="btn btn-outline-primary" href="{% url 'duckyclash:duel_list' %}">Mis duelos</a>
+    </div>
+</div>
+{% endblock %}

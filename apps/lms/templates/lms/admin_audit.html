@@ -1,0 +1,41 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Auditoría LMS" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:admin_dashboard' %}">{% trans "Administración" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Auditoría" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "AUDITORÍA" %}</p>
+      <h1>{% trans "Registro de eventos del LMS" %}</h1>
+    </div>
+  </section>
+
+  <nav class="section-tabs" aria-label="{% trans 'Secciones de administración' %}">
+    {% for item in admin_nav %}
+      <a class="tab-link {% if request.path == item.url %}is-active{% endif %}" href="{{ item.url }}">{{ item.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="content-panel">
+    {% if events %}
+      <ul class="stack-list audit-list">
+        {% for event in events %}
+          <li>
+            <strong>{{ event.get_action_display }}</strong>
+            <span>{% if event.actor %}{{ event.actor.get_full_name|default:event.actor.username }}{% else %}{% trans "Sistema" %}{% endif %}</span>
+            <small>{{ event.created_at|date:'d/m/Y H:i' }}{% if event.course %} · {{ event.course.nombre }}{% endif %}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>{% trans "No se han registrado eventos de auditoría." %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

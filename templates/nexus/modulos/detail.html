@@ -1,0 +1,147 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}{{ module.name }} – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <div class="rounded-3 d-flex align-items-center justify-content-center"
+         style="width:56px;height:56px;background:{{ module.layer_color }};color:#fff;font-size:1.4rem;flex-shrink:0;">
+      <i class="bi bi-hexagon"></i>
+    </div>
+    <div>
+      <h2 class="nexus-heading fw-bold mb-0" style="color:#1B3C59;">{{ module.name }}</h2>
+      <div class="d-flex align-items-center gap-2 mt-1">
+        <code class="text-muted small">{{ module.code }}</code>
+        <span class="nx-layer-badge"
+          style="{% if module.layer == 'FOUNDATION' %}background:#EFF6FF;color:#2563EB;
+                 {% elif module.layer == 'TALENT' %}background:#F5F3FF;color:#7C3AED;
+                 {% else %}background:#FFF5F5;color:#DC2626;{% endif %}">
+          {{ module.get_layer_display }}
+        </span>
+        {% if module.active %}
+          <span class="badge bg-success-subtle text-success">Activo</span>
+        {% else %}
+          <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'nexus:module_edit' module.pk %}" class="nx-btn-primary btn btn-sm">
+      <i class="bi bi-pencil me-1"></i>Editar
+    </a>
+    <a href="{% url 'nexus:module_delete' module.pk %}" class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-trash me-1"></i>Eliminar
+    </a>
+    <a href="{% url 'nexus:module_list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Module Info -->
+  <div class="col-md-4">
+    <div class="nx-card p-4 h-100">
+      <div class="nx-section-title mb-3">Información</div>
+      {% if module.description %}
+        <p class="text-muted small mb-4">{{ module.description }}</p>
+      {% endif %}
+      <dl class="row g-2 small mb-0">
+        <dt class="col-6 text-muted">Peso</dt>
+        <dd class="col-6 fw-bold" style="color:#1B3C59;">{{ module.weight_percent }}</dd>
+        <dt class="col-6 text-muted">Capa</dt>
+        <dd class="col-6">{{ module.get_layer_display }}</dd>
+        <dt class="col-6 text-muted">Preguntas</dt>
+        <dd class="col-6 fw-bold">{{ module.question_count }}</dd>
+        <dt class="col-6 text-muted">Color</dt>
+        <dd class="col-6 d-flex align-items-center gap-2">
+          <span class="rounded-circle border" style="width:16px;height:16px;background:{{ module.color }};display:inline-block;"></span>
+          {{ module.color }}
+        </dd>
+        <dt class="col-6 text-muted">Orden</dt>
+        <dd class="col-6">{{ module.order }}</dd>
+      </dl>
+      <!-- Weight bar -->
+      <div class="mt-3">
+        <div class="d-flex justify-content-between small text-muted mb-1">
+          <span>Contribución al Nexus Score</span>
+          <span>{{ module.weight_percent }}</span>
+        </div>
+        <div class="nx-progress-bar bg-light" style="height:10px;">
+          <div class="h-100 rounded" style="width:{{ module.weight_percent }};background:{{ module.layer_color }};"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div class="col-md-8">
+    <div class="nx-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="nx-section-title">Preguntas ({{ questions|length }})</div>
+        <a href="{% url 'nexus:question_create' module.pk %}" class="nx-btn-primary btn btn-sm">
+          <i class="bi bi-plus me-1"></i>Nueva pregunta
+        </a>
+      </div>
+
+      {% if questions %}
+      <div class="accordion" id="questionsAccordion">
+        {% for q in questions %}
+        <div class="accordion-item border mb-2 rounded-2 overflow-hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed py-2 px-3" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#q{{ q.pk }}">
+              <div class="d-flex align-items-center gap-3 w-100 me-3">
+                <span class="badge" style="background:{{ module.layer_color }};min-width:28px;">{{ q.order }}</span>
+                <span class="flex-grow-1 text-truncate" style="font-size:.88rem;">{{ q.text }}</span>
+                <span class="badge bg-light text-muted border" style="font-size:.65rem;">{{ q.get_question_type_display }}</span>
+                <span class="badge bg-light text-muted border" style="font-size:.65rem;">{{ q.option_count }} ops</span>
+                {% if not q.active %}<span class="badge bg-secondary">Inactiva</span>{% endif %}
+              </div>
+            </button>
+          </h2>
+          <div id="q{{ q.pk }}" class="accordion-collapse collapse">
+            <div class="accordion-body py-2 px-3">
+              <p class="mb-2 text-muted small">{{ q.text }}</p>
+              {% if q.options.all %}
+              <div class="row g-1 mb-2">
+                {% for opt in q.options.all %}
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center gap-2 p-2 rounded bg-light">
+                    <span class="badge" style="background:{{ module.layer_color }};min-width:40px;text-align:center;">{{ opt.value }}</span>
+                    <span class="small">{{ opt.text }}</span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="text-muted small fst-italic mb-2">Sin opciones definidas</p>
+              {% endif %}
+              <div class="d-flex gap-2">
+                <a href="{% url 'nexus:question_edit' module.pk q.pk %}" class="btn btn-xs btn-outline-primary btn-sm">
+                  <i class="bi bi-pencil me-1"></i>Editar
+                </a>
+                <a href="{% url 'nexus:question_delete' module.pk q.pk %}" class="btn btn-xs btn-outline-danger btn-sm">
+                  <i class="bi bi-trash me-1"></i>Eliminar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-question-circle fs-2 mb-2 d-block opacity-25"></i>
+        <p class="mb-3 small">No hay preguntas en este módulo.</p>
+        <a href="{% url 'nexus:question_create' module.pk %}" class="nx-btn-primary btn btn-sm">
+          <i class="bi bi-plus me-1"></i>Añadir primera pregunta
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

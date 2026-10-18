@@ -1,0 +1,47 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Historial DuckyClash{% endblock %}
+{% block clash_content %}
+<section class="container py-4">
+    <h1 class="h3">Historial de combates de {{ profile.nickname }}</h1>
+    <p>Solo tus duelos de Clash. Los resultados también actualizan las estadísticas del perfil de Arenas existente; no se copia el saldo bancario.</p>
+    <form method="get" class="d-flex flex-wrap gap-2 mb-3">
+        <label for="history-category">Categoría</label>
+        <select name="category" id="history-category" class="form-select w-auto">
+            <option value="">Todas</option>
+            {% for pk, name in categories %}<option value="{{ pk }}"{% if selected_category == pk|stringformat:'s' %} selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-primary">Filtrar</button>
+    </form>
+    {% if filter_error %}<p role="alert" class="text-danger">{{ filter_error }}</p>{% endif %}
+    <div class="card card-body mb-3">
+        <h2 class="h5">Totales del filtro</h2>
+        <p>Victorias: {{ totals.wins }} · Derrotas: {{ totals.losses }} · Empates: {{ totals.draws }}</p>
+        <p>Preguntas respondidas: {{ totals.answered }} · Aciertos: {{ totals.correct }} · Objetos: {{ totals.items }}</p>
+        <p>Daño causado: {{ totals.damage_caused }} · Recibido: {{ totals.damage_received }}</p>
+        <p>DuckyCoins ganadas netas: {{ totals.coins_won }} · Perdidas: {{ totals.coins_lost }} · Procesos económicos pendientes: {{ totals.pending_money }}</p>
+        <p class="small mb-0">Los aciertos solo incluyen rondas resueltas; una respuesta activa no revela su validez. Una reserva no es una pérdida. Solo las liquidaciones confirmadas suman dinero ganado/perdido; devoluciones y cancelaciones completadas tienen neto cero.</p>
+    </div>
+    <h2 class="h5">Desglose por categoría</h2>
+    <div class="row g-3 mb-4">
+        {% for category in breakdown %}
+        <div class="col-md-6"><div class="card card-body h-100">
+            <h3 class="h6">{{ category.name }}</h3>
+            <p>V/D/E: {{ category.stats.wins }}/{{ category.stats.losses }}/{{ category.stats.draws }}</p>
+            <p>Respondidas/aciertos: {{ category.stats.answered }}/{{ category.stats.correct }} · Objetos: {{ category.stats.items }}</p>
+            <p>Daño causado/recibido: {{ category.stats.damage_caused }}/{{ category.stats.damage_received }}</p>
+            <p class="mb-0">DuckyCoins ganadas/perdidas: {{ category.stats.coins_won }}/{{ category.stats.coins_lost }}</p>
+        </div></div>
+        {% empty %}<p>No hay combates en esta categoría.</p>{% endfor %}
+    </div>
+    <h2 class="h5">Combates</h2>
+    {% for row in rows %}
+    <article class="card card-body mb-3">
+        <h3 class="h6"><a href="{% url 'duckyclash:duel_detail' row.duel.pk %}">Duelo #{{ row.duel.pk }}</a> · {{ row.outcome }}</h3>
+        <p>{{ row.duel.agreement.offer.category.nombre }} · {% include 'duckyclash/time.html' with value=row.duel.agreement.offer.scheduled_at %}</p>
+        <p>Respondidas/aciertos: {{ row.answered }}/{{ row.correct }} · Daño causado/recibido: {{ row.damage_caused }}/{{ row.damage_received }} · Objetos: {{ row.items }}</p>
+        <p class="mb-0">Neto DuckyCoins: {% if row.net_coins is None %}pendiente de confirmación{% else %}{{ row.net_coins }}{% endif %}</p>
+    </article>
+    {% empty %}<p>Todavía no tienes combates registrados.</p>{% endfor %}
+    {% include 'duckyclash/pagination.html' %}
+</section>
+{% endblock %}

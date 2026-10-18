@@ -1,0 +1,107 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+<style>
+  .evaluaciones-ia-module {
+    background: #1a4731;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .evaluaciones-ia-module h2 {
+    background: #0c3522;
+    color: #fff;
+    font-size: 14px;
+    margin: 0;
+    padding: 10px 14px;
+    letter-spacing: .5px;
+  }
+  .evaluaciones-ia-module .ia-body {
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .evaluaciones-ia-module .ia-btn {
+    display: block;
+    background: #157347;
+    color: #fff;
+    text-align: center;
+    padding: 9px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .evaluaciones-ia-module .ia-btn:hover {
+    background: #1a9059;
+    color: #fff;
+  }
+  .evaluaciones-ia-module .ia-btn.warn {
+    background: #7d4e00;
+  }
+  .evaluaciones-ia-module .ia-btn.warn:hover {
+    background: #a06500;
+  }
+  .evaluaciones-ia-module .ia-links {
+    padding: 6px 14px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+  .evaluaciones-ia-module .ia-links a {
+    color: #9de0bc;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .evaluaciones-ia-module .ia-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<h1>{% translate 'Site administration' %}</h1>
+
+{# ── Módulo de acceso rápido Corrección IA ── #}
+{% url 'admin:evaluations_evaluacion_changelist' as url_eval_list %}
+{% url 'admin:evaluations_evaluacion_add' as url_eval_add %}
+{% url 'admin:evaluations_tipoexamen_changelist' as url_tipos %}
+{% url 'admin:evaluations_rubricaevaluacion_changelist' as url_rubricas %}
+{% url 'admin:evaluations_entregaevaluacion_changelist' as url_entregas %}
+{% url 'admin:evaluations_correccionevaluacion_changelist' as url_correcciones %}
+{% url 'admin:evaluations_eventocorreccion_changelist' as url_auditoria %}
+
+{% if url_eval_list %}
+<div class="evaluaciones-ia-module module">
+  <h2>🤖 Corrección Automática de Exámenes por IA</h2>
+  <div class="ia-body">
+    <a class="ia-btn" href="{{ url_eval_add }}">➕ Crear nueva evaluación</a>
+    <a class="ia-btn warn" href="{{ url_entregas }}?estado__exact=REVISION_DOCENTE">⚠️ Pendientes de revisión</a>
+  </div>
+  <div class="ia-links">
+    <a href="{{ url_eval_list }}">📋 Evaluaciones</a>
+    <a href="{{ url_tipos }}">🏷️ Tipos de examen</a>
+    <a href="{{ url_rubricas }}">📐 Rúbricas</a>
+    <a href="{{ url_entregas }}">📤 Entregas</a>
+    <a href="{{ url_correcciones }}">🤖 Correcciones IA</a>
+    <a href="{{ url_auditoria }}">📜 Auditoría</a>
+  </div>
+</div>
+{% endif %}
+
+{% block dashboard_app_list %}
+{% include "admin/app_list.html" %}
+{% endblock %}
+{% endblock %}

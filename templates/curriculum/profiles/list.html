@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Mis perfiles de CV{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:960px;">
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'curriculum:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="h4 mb-0 fw-bold"><i class="bi bi-collection me-2 text-primary"></i>Mis perfiles de CV</h1>
+    </div>
+    <a href="{% url 'curriculum:profile_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>Nuevo perfil
+    </a>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if profiles %}
+  <div class="row g-4">
+    {% for profile in profiles %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="fw-bold mb-0">{{ profile.nombre }}</h5>
+            {% if profile.is_public %}
+            <span class="badge bg-success-subtle text-success">Público</span>
+            {% else %}
+            <span class="badge bg-secondary-subtle text-secondary">Privado</span>
+            {% endif %}
+          </div>
+          <p class="text-muted small mb-1">
+            <i class="bi bi-link-45deg"></i>
+            <code>opentowork.es/{{ profile.slug }}</code>
+          </p>
+          <div class="d-flex gap-1 flex-wrap mt-2">
+            <span class="badge bg-primary-subtle text-primary">{{ profile.get_template_display }}</span>
+            <span class="badge bg-light text-dark border">{{ profile.experiencias.count }} exp.</span>
+            <span class="badge bg-light text-dark border">{{ profile.habilidades.count }} skills</span>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+          <div class="d-grid gap-2">
+            <div class="d-flex gap-2">
+              <a href="{{ profile.get_absolute_url }}" target="_blank" class="btn btn-sm btn-success flex-fill">
+                <i class="bi bi-eye me-1"></i>Ver
+              </a>
+              <a href="{% url 'curriculum_cv_pdf' slug=profile.slug %}" target="_blank" class="btn btn-sm btn-outline-danger flex-fill">
+                <i class="bi bi-filetype-pdf me-1"></i>PDF
+              </a>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{% url 'curriculum:profile_edit' pk=profile.pk %}" class="btn btn-sm btn-outline-secondary flex-fill">
+                <i class="bi bi-pencil me-1"></i>Ajustes
+              </a>
+              <a href="{% url 'curriculum:profile_edit_items' pk=profile.pk %}" class="btn btn-sm btn-outline-primary flex-fill">
+                <i class="bi bi-list-check me-1"></i>Contenido
+              </a>
+              <form method="post" action="{% url 'curriculum:profile_delete' pk=profile.pk %}"
+                    onsubmit="return confirm('¿Eliminar el perfil «{{ profile.nombre }}»?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-file-earmark-person" style="font-size:4rem;"></i>
+    <h5 class="mt-3">Aún no tienes perfiles</h5>
+    <p>Crea un perfil para publicar tu CV con una URL personalizada</p>
+    <a href="{% url 'curriculum:profile_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>Crear mi primer perfil
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

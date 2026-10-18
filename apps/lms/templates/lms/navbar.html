@@ -1,0 +1,32 @@
+{% load i18n %}
+<nav class="course-nav-panel" aria-label="{% trans 'Navegación del curso' %}" data-announcement-count-url="{% url 'lms:course_announcement_count' course_id=course.pk %}" data-announcement-count-kind="{% if teacher_view %}students{% else %}announcements{% endif %}">
+  {% with route_nav_key=request.resolver_match.kwargs.area|default:'home' %}
+  {% with current_nav_key=area_key|default:route_nav_key %}
+    {% for key,label,icon in course_areas %}
+      {% if teacher_view or key in student_area_keys %}
+        <a
+          class="course-nav-link {% if key == current_nav_key %}is-active{% endif %}"
+          {% if key == 'home' %}
+            href="{% url 'lms:course_detail' course_id=course.pk %}"
+          {% elif key == 'pages' %}
+            href="{% url 'lms:course_pages' course_id=course.pk %}"
+          {% else %}
+            href="{% url 'lms:course_area' course_id=course.pk area=key %}"
+          {% endif %}
+          {% if key == current_nav_key %}aria-current="page"{% endif %}
+          aria-label="{{ label }}"
+          {% if key == 'announcements' %}data-announcement-nav-link{% endif %}
+        >
+          <span class="nav-icon" aria-hidden="true">
+            <i class="bi {{ icon }}"></i>
+          </span>
+          <small class="nav-label" aria-hidden="true">{{ label }}</small>
+          {% for area,count in course_notification_counts.items %}{% if area == key %}
+            <span data-notification-area-count="{{ key }}" class="nav-count" {% if not count %}hidden{% endif %} aria-live="polite" aria-label="{% if key == 'announcements' and teacher_view %}{% trans 'Alumnos con anuncios pendientes' %}{% else %}{% trans 'Avisos pendientes' %}{% endif %}: {{ count }}">{{ count }}</span>
+          {% endif %}{% endfor %}
+        </a>
+      {% endif %}
+    {% endfor %}
+  {% endwith %}
+  {% endwith %}
+</nav>

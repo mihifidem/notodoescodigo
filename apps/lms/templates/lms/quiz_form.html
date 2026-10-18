@@ -1,0 +1,50 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+{% block head %}
+  {{ block.super }}
+  <script src="{% static 'lms/quiz-form.js' %}" defer></script>
+{% endblock %}
+{% block title %}{{ heading }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{{ heading }}</h1>
+    <p>{% trans 'Elige un único banco publicado para esta prueba. Todas las preguntas deben pertenecer a ese banco. La nota es sobre 10 y cada acierto vale 10 dividido entre el número de preguntas.' %}</p>
+    <p class="quiet-note">{% trans 'Prueba objetiva tipo test. Los alumnos pueden realizarla durante su plazo de apertura. Configura cuánto resta cada fallo y cada respuesta en blanco; 0 significa sin penalización.' %}</p>
+    <form method="post" class="stacked-form">
+      {% csrf_token %}
+      {% if form.errors %}
+        <div class="content-panel" role="alert" tabindex="-1" id="quiz-form-errors">
+          <h2>{% trans 'La prueba no se ha guardado' %}</h2>
+          <p>{% trans 'Revisa los siguientes errores. Los datos introducidos se conservan.' %}</p>
+          <ul>
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            {% for field in form %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ field.label }}</a>: {{ error }}</li>{% endfor %}{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      {% if not form.fields.selected_questions.queryset.exists %}
+        <p role="status">{% trans 'No hay preguntas publicadas disponibles. Publica un banco y sus preguntas antes de crear la prueba. Las preguntas importadas desde CSV se guardan inicialmente como borradores.' %}</p>
+        <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='item-bank' %}">{% trans 'Abrir Base del conocimiento' %}</a>
+      {% endif %}
+      {% for field in form %}
+        {% if field.name == 'selected_questions' %}
+          <details class="field-block content-accordion-item" data-manual-questions {% if form.selection.value != 'manual' %}hidden{% else %}open{% endif %}>
+            <summary>{% trans 'Selección manual de preguntas' %}</summary>
+            {{ field.label_tag }}{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}
+          </details>
+        {% else %}
+          <div class="field-block" {% if field.name == 'difficulty' %}data-random-questions {% if form.selection.value != 'random' %}hidden{% endif %}{% endif %}>{{ field.label_tag }}{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}</div>
+          {% if field.name == 'bank' %}
+            <div class="field-block">
+              <p class="quiet-note">{% trans 'Solo puedes elegir un banco publicado por prueba. Los bancos y sus preguntas se gestionan desde Base del conocimiento.' %}</p>
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      <div class="action-row">
+        <button type="submit" class="button button-primary">{% if quiz.status == 'published' %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Guardar borrador' %}{% endif %}</button>
+        <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='quizzes' %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

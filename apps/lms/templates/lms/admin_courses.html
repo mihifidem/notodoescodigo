@@ -1,0 +1,86 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Cursos LMS" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:admin_dashboard' %}">{% trans "Administración" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Cursos" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "CATÁLOGO GLOBAL" %}</p>
+      <h1>{% trans "Cursos de la plataforma" %}</h1>
+    </div>
+    <form class="toolbar-search" method="get">
+      <input type="search" name="q" value="{{ query }}" placeholder="{% trans 'Buscar por nombre, código o resumen' %}">
+      <select name="status">
+        <option value="">{% trans "Todos los estados" %}</option>
+        <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>{% trans "Borrador" %}</option>
+        <option value="published" {% if status_filter == 'published' %}selected{% endif %}>{% trans "Publicado" %}</option>
+        <option value="archived" {% if status_filter == 'archived' %}selected{% endif %}>{% trans "Archivado" %}</option>
+      </select>
+      <button class="button button-primary" type="submit">{% trans "Filtrar" %}</button>
+    </form>
+  </section>
+
+  <nav class="section-tabs" aria-label="{% trans 'Secciones de administración' %}">
+    {% for item in admin_nav %}
+      <a class="tab-link {% if request.path == item.url %}is-active{% endif %}" href="{{ item.url }}">{{ item.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="content-panel">
+    {% if courses %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{% trans "Curso" %}</th>
+              <th>{% trans "Estado" %}</th>
+              <th>{% trans "Profesores" %}</th>
+              <th>{% trans "Alumnos" %}</th>
+              <th>{% trans "Acciones" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in courses %}
+              {% with course=item.course %}
+                <tr>
+                  <td>
+                    <strong>{{ course.nombre }}</strong><br>
+                    <small>{{ course.codigo|default:'Sin código' }}</small>
+                  </td>
+                  <td>{{ course.get_status_display }} {% if course.activo %}<span class="tag success">{% trans "Visible" %}</span>{% else %}<span class="tag muted">{% trans "Oculto" %}</span>{% endif %}</td>
+                  <td>{{ item.teacher_count }}</td>
+                  <td>{{ item.student_count }}</td>
+                  <td>
+                    <div class="inline-actions">
+                      <a class="button button-small button-secondary" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Ver" %}</a>
+                      {% if request.user.is_staff %}<a class="button button-small button-danger" href="{% url 'lms:course_delete' course_id=course.pk %}">{% trans 'Eliminar' %}</a>{% endif %}
+                      <form method="post" action="{% url 'lms:admin_course_toggle' course_id=course.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="publish">
+                        <button class="button button-small button-primary" type="submit">{% trans "Publicar" %}</button>
+                      </form>
+                      <form method="post" action="{% url 'lms:admin_course_toggle' course_id=course.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="archive">
+                        <button class="button button-small button-secondary" type="submit">{% trans "Archivar" %}</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>{% trans "No hay cursos que coincidan con los filtros actuales." %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

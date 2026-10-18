@@ -1,0 +1,61 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+
+{% block head %}
+  {{ block.super }}
+  <script src="{% static 'lms/prose-editor.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'lms/modules.css' %}">
+  <script src="{% static 'lms/modules.js' %}" defer></script>
+  {{ form.media }}
+  <link rel="stylesheet" href="{% static 'lms/prose-editor.css' %}">
+{% endblock %}
+
+{% block title %}{% if activity %}{% trans 'Editar actividad' %}{% else %}{% trans 'Crear actividad' %}{% endif %} | {{ course.nombre }}{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans 'Mis aulas' %}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='activities' %}">{% trans 'Actividades' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% if activity %}{% trans 'Editar' %}{% else %}{% trans 'Crear' %}{% endif %}</span>
+  </nav>
+
+  <section class="form-panel">
+    <h1>{% if practical_form %}{% if activity %}{% trans 'Editar práctica' %}{% else %}{% trans 'Crear práctica' %}{% endif %}{% elif activity %}{% trans 'Editar actividad' %}{% else %}{% trans 'Crear actividad' %}{% endif %}</h1>
+    {% if practical_form %}<p>{% trans 'El alumno entrega texto, enlaces escritos en su respuesta o un archivo. El profesor corrige la entrega, asigna una nota y publica el feedback. No requiere banco de preguntas.' %}</p>{% endif %}
+    <form method="post" class="stacked-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field-block{% if field.field.widget.input_type == 'checkbox' %} checkbox-field{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            {{ field }}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.name == 'description' or field.name == 'instructions' or field.name == 'solution' %}
+              <div class="rich-editor-shell" data-rich-editor-shell data-editor-error="{% trans 'No se pudo cargar el editor visual. Puedes editar el HTML en el campo de contenido.' %}">
+                {{ field }}
+              </div>
+            {% else %}
+              {{ field }}
+            {% endif %}
+          {% endif %}
+          {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+          {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        </div>
+        {% if field.name == 'module' %}
+          {% include 'lms/module_create_panel.html' %}
+        {% endif %}
+      {% endfor %}
+      <div class="action-row">
+        <button type="submit" class="button button-primary">{% trans 'Guardar actividad' %}</button>
+        <a class="button button-secondary" href="{% if practical_form %}{% url 'lms:course_area' course_id=course.pk area='quizzes' %}{% else %}{% url 'lms:course_area' course_id=course.pk area='activities' %}{% endif %}">{% trans 'Cancelar' %}</a>
+      </div>
+    </form>
+  </section>
+  {% include 'lms/module_create_form.html' with return_to='activities' %}
+{% endblock %}

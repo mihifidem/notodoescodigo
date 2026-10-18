@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+{% block title %}{{ prompt.titulo }} - Prompts{% endblock %}
+{% block page_title %}Biblioteca de Prompts{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- Ducky rating ---- */
+  .ducky-rating input[type='radio'] { display: none; }
+  .ducky-rating label {
+    cursor: pointer; font-size: 1.6rem; opacity: .35;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .ducky-rating label:hover,
+  .ducky-rating label:hover ~ label { opacity: .8; }
+  .ducky-rating input[type='radio']:checked ~ label { opacity: .35; }
+  .ducky-rating input[type='radio']:checked + label,
+  .ducky-rating input[type='radio']:checked + label ~ label { opacity: 1; transform: translateY(-2px); }
+
+  /* ---- Shared prompt interface styles ---- */
+  .var-card { transition: all .25s ease; }
+  .var-step-num { display: none; }
+
+  /* ---- MODO TÉCNICO (default) ---- */
+  [data-modo="tecnico"] .var-card {
+    padding: .75rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    margin-bottom: .6rem;
+  }
+  [data-modo="tecnico"] .var-label { font-size: .8rem; font-weight: 600; margin-bottom: .25rem; display: block; }
+  [data-modo="tecnico"] .var-desc  { font-size: .7rem; color: var(--bs-secondary-color); margin-bottom: .3rem; }
+  [data-modo="tecnico"] .var-input { font-size: .85rem; }
+  [data-modo="tecnico"] #promptPreview {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: .85rem;
+    min-height: 280px;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-color: #1e293b;
+    resize: vertical;
+  }
+  [data-modo="tecnico"] .preview-header { font-size: .8rem; }
+
+  /* ---- MODO FÁCIL ---- */
+  [data-modo="facil"] .modo-row { flex-direction: column !important; }
+  [data-modo="facil"] .prompt-vars-col,
+  [data-modo="facil"] .prompt-preview-col { flex: 0 0 100%; max-width: 100%; width: 100%; }
+  [data-modo="facil"] .var-card {
+    padding: 1.5rem 1.75rem;
+    background: var(--bs-body-bg);
+    border: 2px solid var(--bs-primary-border-subtle);
+    border-radius: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  [data-modo="facil"] .var-step-num { display: inline-flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 50%; background: var(--bs-primary); color: #fff; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+  [data-modo="facil"] .var-label { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; display: block; }
+  [data-modo="facil"] .var-desc  { font-size: .95rem; color: var(--bs-secondary-color); margin-bottom: .75rem; }
+  [data-modo="facil"] .var-input { font-size: 1.1rem; padding: .65rem 1rem; border-radius: .75rem; }
+  [data-modo="facil"] #promptPreview {
+    font-size: 1.1rem;
+    min-height: 240px;
+    border-radius: 1rem;
+    border: 2px solid var(--bs-success-border-subtle);
+    background: var(--bs-success-bg-subtle);
+    resize: vertical;
+  }
+  [data-modo="facil"] #btnCopiar { font-size: 1.15rem; padding: .75rem 2rem; border-radius: .75rem; }
+  [data-modo="facil"] .preview-header { font-size: 1.1rem; font-weight: 700; }
+
+  /* dark mode overrides */
+  [data-bs-theme="dark"] [data-modo="facil"] #promptPreview {
+    background: #0f2d1e !important;
+    border-color: #166534 !important;
+    color: #bbf7d0 !important;
+  }
+  [data-bs-theme="dark"] [data-modo="facil"] .var-card { border-color: #1e3a5f !important; }
+  [data-bs-theme="dark"] [data-modo="tecnico"] #promptPreview { background: #020817 !important; color: #94a3b8 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-xxl-10">
+
+    <!-- Back -->
+    <a href="{% url 'prompts:list' %}" class="btn btn-sm btn-outline-secondary mb-3">
+      <i class="bi bi-arrow-left me-1"></i>Volver a la biblioteca
+    </a>
+
+    <!-- Header card -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <!-- Badges row -->
+        <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+          <span class="badge bg-info-subtle text-info-emphasis border">{{ prompt.categoria.nombre }}</span>
+          {% if prompt.subcategoria %}
+          <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ prompt.subcategoria.nombre }}</span>
+          {% endif %}
+          {% if prompt.visibilidad == 'publico' %}
+          <span class="badge text-bg-success">Público</span>
+          {% elif prompt.visibilidad == 'semipublico' %}
+          <span class="badge text-bg-warning">Semipúblico</span>
+          {% else %}
+          <span class="badge text-bg-dark">Premium</span>
+          {% endif %}
+          {% if tiene_variables %}
+          <span class="badge bg-primary-subtle text-primary-emphasis border">
+            <i class="bi bi-sliders me-1"></i>{{ variables|length }} variable{% if variables|length != 1 %}s{% endif %}
+          </span>
+          {% endif %}
+          {% if prompt.destacado %}
+          <span class="badge text-bg-warning"><i class="bi bi-star-fill me-1"></i>Destacado</span>
+          {% endif %}
+
+          <!-- Interface toggle & favorito -->
+          <div class="ms-auto d-flex gap-2 flex-wrap">
+            {% if user.is_authenticated %}
+            <button id="btnFavorito"
+                    class="btn btn-sm {% if es_favorito %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                    data-url="{% url 'prompts:toggle_favorito' slug=prompt.slug %}"
+                    title="{% if es_favorito %}Quitar de favoritos{% else %}Añadir a favoritos{% endif %}">
+              <i class="bi {% if es_favorito %}bi-bookmark-fill{% else %}bi-bookmark{% endif %} me-1"></i>
+              <span id="favText">{% if es_favorito %}En favoritos{% else %}Añadir{% endif %}</span>
+            </button>
+            {% endif %}
+            {% if tiene_variables %}
+            <button id="btnModoToggle" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-stars me-1"></i>Modo Fácil
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <h1 class="h3 fw-bold">{{ prompt.titulo }}</h1>
+        {% if prompt.descripcion %}
+        <p class="lead text-muted">{{ prompt.descripcion }}</p>
+        {% endif %}
+        <p class="text-muted small mb-0">
+          Publicado {{ prompt.publicado_en|date:'d/m/Y' }}
+          &mdash; {{ prompt.total_valoraciones }} valoracion{% if prompt.total_valoraciones != 1 %}es{% endif %}
+          &mdash; <i class="bi bi-bookmark me-1"></i>{{ prompt.total_favoritos }} favorito{% if prompt.total_favoritos != 1 %}s{% endif %}
+        </p>
+      </div>
+    </div>
+
+    {% if prompt.imagen_prompt %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 class="h6 fw-bold mb-0">
+            <i class="bi bi-image me-1 text-primary"></i>Imagen del prompt
+          </h2>
+        </div>
+        <a href="{{ prompt.imagen_prompt.url }}" target="_blank" rel="noopener" class="d-block">
+          <img src="{{ prompt.imagen_prompt.url }}"
+               alt="Imagen principal del prompt"
+               class="img-fluid rounded shadow-sm w-100"
+               style="max-height:420px;object-fit:cover;border:1px solid rgba(0,0,0,.08);">
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if prompt.imagen_muestra %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 class="h6 fw-bold mb-0">
+            <i class="bi bi-images me-1 text-info"></i>Imagen de muestra / ejemplo real
+          </h2>
+          <span class="badge text-bg-info-subtle text-info-emphasis border">Ejemplo</span>
+        </div>
+
+        <div class="row g-3 align-items-stretch">
+          <div class="col-12 col-md-8">
+            <a href="{{ prompt.imagen_muestra.url }}" target="_blank" rel="noopener" class="d-block h-100">
+              <img src="{{ prompt.imagen_muestra.url }}"
+                   alt="Muestra del resultado del prompt"
+                   class="img-fluid rounded shadow-sm w-100"
+                   style="max-height:420px;object-fit:cover;border:1px solid rgba(0,0,0,.08);">
+            </a>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="h-100 rounded border bg-body-secondary p-3 d-flex flex-column justify-content-center">
+              <div class="small text-uppercase text-muted fw-semibold mb-2">Objetivo</div>
+              <p class="mb-0 text-sm text-body-secondary">
+                Usa esta referencia visual para guiar la composición, estilo o edición de la imagen que generes con este prompt.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- =================== PROMPT INTERFACE =================== -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+
+        {% if tiene_variables %}
+        <!-- Labelled interface with variable filling -->
+        <div id="promptInterface" data-modo="tecnico">
+          <div class="row g-4 modo-row">
+
+            <!-- Variables panel -->
+            <div class="col-12 col-md-4 prompt-vars-col">
+              <h2 class="h6 fw-bold mb-3">
+                <i class="bi bi-sliders me-1 text-primary"></i>
+                Variables
+                <span class="badge bg-secondary ms-1">{{ variables|length }}</span>
+              </h2>
+              {% for v in variables %}
+              <div class="var-card">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="var-step-num">{{ forloop.counter }}</span>
+                  <label class="var-label mb-0" for="var-{{ v.nombre }}">{{ v.descripcion }}</label>
+                </div>
+                <div class="var-desc">Variable: <code>&#123;{{ v.nombre }}&#125;</code></div>
+                {% if v.tipo == 'imagen' %}
+                <div id="img-preview-wrap-{{ v.nombre }}" class="mb-2 d-none">
+                  <img id="img-preview-{{ v.nombre }}" class="img-fluid rounded border"
+                       style="max-height:160px;object-fit:contain;" alt="Vista previa">
+                </div>
+                <input type="file"
+                       id="var-{{ v.nombre }}"
+                       class="var-input form-control"
+                       data-varname="{{ v.nombre }}"
+                       data-tipo="imagen"
+                       accept="image/*"
+                       multiple>
+                <div class="text-muted mt-1" style="font-size:.7rem;">
+                  <i class="bi bi-info-circle me-1"></i>Adjunta una o varias fotos de referencia para crear o modificar imágenes.
+                </div>
+                {% elif v.tipo == 'select' or v.tipo == 'opcion' or v.tipo == 'choice' %}
+                <select
+                       id="var-{{ v.nombre }}"
+                       class="var-input form-select"
+                       data-varname="{{ v.nombre }}"
+                       data-tipo="select">
+                  {% if v.valor_defecto %}
+                  <option value="" {% if v.valor_defecto == '' %}selected{% endif %}>Selecciona una opción</option>
+                  {% else %}
+                  <option value="" selected>Selecciona una opción</option>
+                  {% endif %}
+                  {% for opcion in v.opciones %}
+                  <option value="{{ opcion }}" {% if opcion == v.valor_defecto %}selected{% endif %}>{{ opcion }}</option>
+                  {% empty %}
+                  <option value="">Sin opciones</option>
+                  {% endfor %}
+                </select>
+                {% else %}
+                <input type="text"
+                       id="var-{{ v.nombre }}"
+                       class="var-input form-control"
+                       data-varname="{{ v.nombre }}"
+                       value="{{ v.valor_defecto }}"
+                       placeholder="{{ v.descripcion }}"
+                       autocomplete="off">
+                {% endif %}
+              </div>
+              {% endfor %}
+
+              <div class="mt-3">
+                <button type="button" id="btnReset" class="btn btn-outline-secondary btn-sm w-100">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Restablecer valores
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview panel -->
+            <div class="col-12 col-md-8 prompt-preview-col">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h6 fw-bold mb-0 preview-header">
+                  <i class="bi bi-terminal me-1 text-success"></i>Tu prompt personalizado
+                </h2>
+                <button id="btnCopiar" class="btn btn-success btn-sm">
+                  <i class="bi bi-clipboard me-1"></i>Copiar
+                </button>
+              </div>
+              <textarea id="promptPreview" class="form-control" rows="12" readonly spellcheck="false"></textarea>
+              <div id="copyFeedback" class="text-success small mt-2 d-none">
+                <i class="bi bi-check-circle-fill me-1"></i>Copiado al portapapeles.
+              </div>
+              <div class="mt-3 d-flex gap-2 flex-wrap">
+                <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Abrir ChatGPT
+                </a>
+                <a href="https://claude.ai/" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Abrir Claude
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {% else %}
+        <!-- No variables: show prompt directly with copy -->
+        <h2 class="h6 fw-bold mb-3">
+          <i class="bi bi-terminal me-1 text-success"></i>Prompt
+        </h2>
+        <textarea id="promptPreview" class="form-control font-monospace" rows="10" readonly spellcheck="false">{{ prompt.contenido }}</textarea>
+        <div class="mt-3 d-flex gap-2 flex-wrap align-items-center">
+          <button id="btnCopiar" class="btn btn-success">
+            <i class="bi bi-clipboard me-1"></i>Copiar prompt
+          </button>
+          <div id="copyFeedback" class="text-success small d-none">
+            <i class="bi bi-check-circle-fill me-1"></i>Copiado al portapapeles.
+          </div>
+          <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir ChatGPT
+          </a>
+          <a href="https://claude.ai/" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir Claude
+          </a>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Hashtags -->
+    {% if prompt.hashtags.all %}
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      {% for tag in prompt.hashtags.all %}
+      <a href="{% url 'prompts:list' %}?hashtag={{ tag.slug }}" class="badge bg-light text-dark border text-decoration-none">#{{ tag.nombre }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- =================== DUCKY RATING =================== -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+        <div>
+          <h2 class="h6 fw-semibold mb-1">Valora este prompt con duckies</h2>
+          <p class="small text-muted mb-0">
+            Valor medio: {{ prompt.promedio_rating|floatformat:1 }} / 5 ({{ prompt.total_valoraciones }} voto{% if prompt.total_valoraciones != 1 %}s{% endif %})
+          </p>
+          {% if user.is_authenticated and valoracion_usuario %}
+          <p class="small text-success fw-semibold mt-1 mb-0">
+            &#128035; Ya votaste con {{ valoracion_usuario }} ducky{% if valoracion_usuario != 1 %}s{% endif %}.
+          </p>
+          {% elif user.is_authenticated %}
+          <p class="small text-muted mt-1 mb-0">Aun no has votado este prompt.</p>
+          {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <form method="post" id="duckyRatingForm" class="ducky-rating d-flex align-items-center gap-1 flex-row-reverse">
+          {% csrf_token %}
+          {% for n in '54321' %}
+          <input type="radio" name="valor" id="ducky{{ n }}" value="{{ n }}" {% if valoracion_usuario == n|add:0 %}checked{% endif %}>
+          <label for="ducky{{ n }}" title="{{ n }}">&#128035;</label>
+          {% endfor %}
+        </form>
+        {% else %}
+        <a href="{% url 'account_login' %}" class="btn btn-sm btn-outline-primary">Inicia sesion para valorar</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // ---- Template & variables ----
+  const TEMPLATE = "{{ prompt.contenido|escapejs }}";
+  const VARIABLES = {{ variables_json|safe }};
+  const tiene_variables = {{ tiene_variables|yesno:"true,false" }};
+
+  // ---- Copy button ----
+  const btnCopiar = document.getElementById('btnCopiar');
+  const preview   = document.getElementById('promptPreview');
+  const feedback  = document.getElementById('copyFeedback');
+
+  if (btnCopiar && preview) {
+    btnCopiar.addEventListener('click', () => {
+      navigator.clipboard.writeText(preview.value).then(() => {
+        if (feedback) {
+          feedback.classList.remove('d-none');
+          setTimeout(() => feedback.classList.add('d-none'), 2500);
+        }
+        btnCopiar.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copiado';
+        btnCopiar.classList.add('btn-outline-success');
+        btnCopiar.classList.remove('btn-success');
+        setTimeout(() => {
+          btnCopiar.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar';
+          btnCopiar.classList.remove('btn-outline-success');
+          btnCopiar.classList.add('btn-success');
+        }, 2500);
+      }).catch(() => {
+        // Fallback for browsers without clipboard API
+        preview.select();
+        document.execCommand('copy');
+      });
+    });
+  }
+
+  // ---- Variable substitution (only when there are variables) ----
+  if (tiene_variables && preview) {
+    const defaults = {};
+    VARIABLES.forEach(v => { defaults[v.nombre] = v.valor_defecto; });
+
+    function fillPrompt() {
+      let result = TEMPLATE;
+      document.querySelectorAll('.var-input').forEach(input => {
+        const name = input.dataset.varname;
+        const tipo = input.dataset.tipo || 'texto';
+        let val;
+        if (tipo === 'imagen') {
+          if (input.files && input.files.length) {
+            const names = Array.from(input.files).map(file => file.name);
+            val = names.length === 1 ? `[📷 ${names[0]}]` : `[📷 ${names.join(', ')}]`;
+          } else {
+            val = null;
+          }
+        } else {
+          val = input.value.trim();
+        }
+
+        const placeholders = [
+          '{' + name + '}',
+          '{{' + name + '}}',
+          '{{ ' + name + ' }}',
+          '[' + name + ']',
+          '[ ' + name + ' ]',
+          '[ ' + name + ']',
+          '[' + name + ' ]'
+        ];
+
+        placeholders.forEach((placeholder) => {
+          if (tipo === 'select' && (!val || val === '')) {
+            result = result.split(placeholder).join(placeholder);
+            return;
+          }
+          result = result.split(placeholder).join(val || placeholder);
+        });
+      });
+      preview.value = result;
+    }
+
+    // Initial fill
+    fillPrompt();
+
+    // Watch inputs
+    document.querySelectorAll('.var-input').forEach(input => {
+      const eventType = input.dataset.tipo === 'imagen' ? 'change' : 'input';
+      input.addEventListener(eventType, function () {
+        if (this.dataset.tipo === 'imagen') {
+          const wrap = document.getElementById('img-preview-wrap-' + this.dataset.varname);
+          const img  = document.getElementById('img-preview-' + this.dataset.varname);
+          if (this.files && this.files.length && wrap && img) {
+            wrap.classList.remove('d-none');
+            img.src = URL.createObjectURL(this.files[0]);
+          } else if (wrap) {
+            wrap.classList.add('d-none');
+          }
+        }
+        fillPrompt();
+      });
+    });
+
+    // Reset button
+    const btnReset = document.getElementById('btnReset');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        document.querySelectorAll('.var-input').forEach(input => {
+          if (input.dataset.tipo === 'imagen') {
+            input.value = '';
+            const wrap = document.getElementById('img-preview-wrap-' + input.dataset.varname);
+            if (wrap) wrap.classList.add('d-none');
+          } else {
+            input.value = defaults[input.dataset.varname] || '';
+          }
+        });
+        fillPrompt();
+      });
+    }
+
+    // ---- Interface toggle ----
+    const interfaceDiv  = document.getElementById('promptInterface');
+    const btnToggle     = document.getElementById('btnModoToggle');
+    const savedModo     = localStorage.getItem('prompts-modo') || 'tecnico';
+
+    function applyModo(modo) {
+      interfaceDiv.dataset.modo = modo;
+      if (modo === 'facil') {
+        btnToggle.innerHTML = '<i class="bi bi-code-slash me-1"></i>Modo Técnico';
+        btnToggle.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+        preview.rows = 10;
+      } else {
+        btnToggle.innerHTML  = '<i class="bi bi-stars me-1"></i>Modo Fácil';
+        btnToggle.classList.replace('btn-outline-secondary', 'btn-outline-primary');
+        preview.rows = 12;
+      }
+      localStorage.setItem('prompts-modo', modo);
+    }
+
+    if (interfaceDiv && btnToggle) {
+      applyModo(savedModo);
+      btnToggle.addEventListener('click', () => {
+        applyModo(interfaceDiv.dataset.modo === 'tecnico' ? 'facil' : 'tecnico');
+      });
+    }
+  }
+
+  // ---- Ducky rating auto-submit ----
+  const ratingForm = document.getElementById('duckyRatingForm');
+  if (ratingForm) {
+    ratingForm.querySelectorAll('input[name="valor"]').forEach(input => {
+      input.addEventListener('change', () => ratingForm.submit());
+    });
+  }
+
+  // ---- Favorito toggle (AJAX) ----
+  const btnFav = document.getElementById('btnFavorito');
+  if (btnFav) {
+    function getCsrf() {
+      const m = document.cookie.split('; ').find(r => r.startsWith('csrftoken='));
+      return m ? m.split('=')[1] : '';
+    }
+    btnFav.addEventListener('click', async () => {
+      try {
+        const resp = await fetch(btnFav.dataset.url, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCsrf() },
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const icon    = btnFav.querySelector('i');
+        const favText = document.getElementById('favText');
+        if (data.favorito) {
+          icon.className = 'bi bi-bookmark-fill me-1';
+          btnFav.classList.replace('btn-outline-secondary', 'btn-warning');
+          btnFav.title = 'Quitar de favoritos';
+          if (favText) favText.textContent = 'En favoritos';
+        } else {
+          icon.className = 'bi bi-bookmark me-1';
+          btnFav.classList.replace('btn-warning', 'btn-outline-secondary');
+          btnFav.title = 'Añadir a favoritos';
+          if (favText) favText.textContent = 'Añadir';
+        }
+      } catch (_) {}
+    });
+  }
+})();
+</script>
+{% endblock %}

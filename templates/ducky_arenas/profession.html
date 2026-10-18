@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Duki Arenas · Elige tu profesión{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'ducky_arenas/css/ducky-world.css' %}">
+{% endblock %}
+{% block content %}
+<main class="ducky-world ducky-world__profession">
+    <section class="ducky-world__panel" aria-labelledby="profession-title">
+        <p class="ducky-world__eyebrow">DUKI ARENAS · ACTUALIDAD</p>
+        <h1 id="profession-title">Elige tu profesión</h1>
+        <p>Las prioridades son orientativas; no conceden ventajas ni modifican atributos.</p>
+        {% if progress_snapshot %}
+        <p class="ducky-world__profession-xp">
+            {% if progress_snapshot.simulated %}XP de prueba{% else %}XP oficial de EcoMotor{% endif %}:
+            <strong>{{ progress_snapshot.xp_total }}</strong>
+        </p>
+        {% else %}
+        <p class="ducky-world__note" role="status">
+            EcoMotor no está disponible. Se conserva el acceso ya desbloqueado, pero no se
+            pueden consultar puntos para distribuir.
+        </p>
+        {% endif %}
+        {% if profession_assignment %}
+        <p class="ducky-world__profession-status" role="status">
+            Selección actual: <strong>{{ profession_assignment.profession.name }}</strong>.
+            Estado: {{ profession_assignment.get_status_display }}.
+        </p>
+        {% endif %}
+        <div class="ducky-world__allocation-notice" role="status">
+            La consulta de puntos, la distribución manual y la confirmación están desactivadas
+            hasta que EcoMotor publique un contrato oficial. Esta selección se guardará como
+            borrador y no aplicará puntos.
+        </div>
+        <section class="ducky-world__current-attributes" aria-labelledby="current-attributes-title">
+            <h2 id="current-attributes-title">Atributos actuales de EcoMotor</h2>
+            <dl class="ducky-world__stats">
+                {% for stat in current_characteristics %}
+                <div><dt>{{ stat.label }}</dt><dd>{{ stat.value }}</dd></div>
+                {% endfor %}
+            </dl>
+            <p class="ducky-world__note">
+                Puntos disponibles: no consultables hasta disponer del contrato de EcoMotor.
+            </p>
+        </section>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <fieldset class="ducky-world__profession-fieldset">
+                <legend class="visually-hidden">Profesiones disponibles</legend>
+                <div class="ducky-world__profession-grid">
+                    {% for card in profession_cards %}
+                    {% with profession=card.profession %}
+                    <article class="ducky-world__profession-card">
+                        <input
+                            class="ducky-world__profession-radio"
+                            type="radio"
+                            id="profession-{{ profession.pk }}"
+                            name="profession"
+                            value="{{ profession.pk }}"
+                            {% if selected_profession_id == profession.pk|stringformat:"s" %}checked{% endif %}
+                            {% if card.access_error %}disabled{% endif %}
+                            required
+                        >
+                        <label for="profession-{{ profession.pk }}">
+                            {% if profession.icon_path %}
+                            <img class="ducky-world__profession-icon" src="{% static profession.icon_path %}" alt="">
+                            {% else %}
+                            <span class="ducky-world__profession-icon ducky-world__profession-icon--text" aria-hidden="true">{{ profession.name|first }}</span>
+                            {% endif %}
+                            <span class="ducky-world__profession-name">{{ profession.name }}</span>
+                        </label>
+                        <p class="ducky-world__profession-description">
+                            {{ profession.description|default:"Descripción pendiente de configuración." }}
+                        </p>
+                        {% if card.access_error %}
+                        <p class="ducky-world__profession-locked" role="note">
+                            {{ card.access_error }}
+                        </p>
+                        {% endif %}
+                        <h2>Prioridades orientativas</h2>
+                        <dl class="ducky-world__priority-list">
+                            {% for row in card.priorities %}
+                            <div>
+                                <dt>{{ row.label }}</dt>
+                                <dd>{{ row.priority_label }}</dd>
+                            </div>
+                            {% endfor %}
+                        </dl>
+                    </article>
+                    {% endwith %}
+                    {% empty %}
+                    <p>No hay profesiones disponibles en este momento.</p>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            {{ form.profession.errors }}
+            <button class="btn btn-primary mt-3" type="submit" {% if not professions %}disabled{% endif %}>
+                Guardar borrador de profesión
+            </button>
+        </form>
+    </section>
+</main>
+{% endblock %}

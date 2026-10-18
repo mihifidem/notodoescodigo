@@ -1,0 +1,807 @@
+.clash-arena {
+    overflow: hidden;
+    min-width: 0;
+}
+
+#clash-canvas {
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    background: var(--bs-tertiary-bg);
+    object-fit: contain;
+}
+
+.clash-hp {
+    display: block;
+    width: 100%;
+    height: 1rem;
+    accent-color: var(--bs-success);
+}
+
+.clash-phase-strip {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    background: var(--bs-tertiary-bg);
+}
+
+.clash-question-panel {
+    border-color: var(--bs-primary);
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.clash-options, .clash-inventory {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.clash-options .form-check {
+    padding: .75rem .75rem .75rem 2.25rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+
+.clash-options .form-check:focus-within {
+    outline: 2px solid var(--bs-primary);
+}
+
+.clash-options label {
+    display: block;
+    cursor: pointer;
+}
+
+body.duckyclash-ring-page #page-content > main {
+    min-width: 0;
+    padding: 0 !important;
+}
+
+body.duckyclash-ring-page .container.pt-3 > nav,
+body.duckyclash-ring-page .container.pt-3 > p {
+    display: none !important;
+}
+
+body.duckyclash-ring-page .container.pt-3 {
+    height: 0;
+    margin: 0 !important;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.clash-ring-page {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: clamp(.5rem, 1vw, 1rem) !important;
+}
+
+.clash-page-heading {
+    margin-bottom: .35rem;
+}
+
+.clash-page-heading h1 {
+    margin: 0;
+}
+
+#clash-sync-status {
+    min-height: 1rem;
+    margin: 0 0 .35rem;
+}
+
+.clash-scheduled-note {
+    margin-bottom: .4rem;
+}
+
+.clash-assets-status {
+    min-height: 1.25rem;
+}
+
+.clash-top-messages {
+    margin-bottom: .35rem;
+}
+
+.clash-play-layout {
+    display: grid;
+    grid-template-areas:
+        "hud"
+        "stage";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(560px, min(94dvh, 1120px));
+    gap: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+}
+
+.clash-game-hud {
+    grid-area: hud;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+    grid-template-areas:
+        "players question"
+        "messages question"
+        "inventory inventory"
+        "result result";
+    align-content: start;
+    gap: .5rem;
+    min-height: 0;
+    overflow: auto;
+    padding: .5rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: #fff;
+    color: #212529;
+}
+
+.clash-game-hud .clash-hp {
+    color-scheme: light;
+}
+
+.clash-arena {
+    grid-area: stage;
+    position: relative;
+    display: block;
+    min-height: 0;
+    z-index: 0;
+}
+
+.clash-question-panel {
+    width: 100%;
+    max-height: none;
+    gap: .2rem;
+    padding: .4rem;
+    background: #fff;
+    color: #212529;
+}
+
+.clash-question-panel[hidden] {
+    display: none !important;
+}
+
+.clash-fighter-summaries {
+    grid-area: players;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+}
+
+.clash-fighter-summaries > div {
+    min-width: 0;
+    padding: .4rem;
+    border: 1px solid #dee2e6;
+    border-radius: var(--bs-border-radius);
+    background: #fff;
+}
+
+.clash-fighter-summaries h2,
+.clash-fighter-summaries p {
+    margin-bottom: .15rem;
+}
+
+.clash-fighter-summaries .clash-hp {
+    height: .55rem;
+}
+
+.clash-hud-messages {
+    grid-area: messages;
+    min-width: 0;
+}
+
+.clash-hud-messages .clash-phase-strip {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    background: #f8f9fa;
+}
+
+.clash-question-controls {
+    grid-area: question;
+    min-width: 0;
+}
+
+.clash-question-open {
+    position: static;
+    margin-top: .3rem;
+}
+
+.clash-question-open[hidden] {
+    display: none;
+}
+
+.clash-hud-inventory {
+    grid-area: inventory;
+    min-width: 0;
+    padding-top: .25rem;
+    border-top: 1px solid #dee2e6;
+}
+
+#clash-result {
+    grid-area: result;
+}
+
+.clash-question-panel h2,
+.clash-question-panel p {
+    margin-bottom: .35rem;
+}
+
+.clash-question-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.clash-question-heading h2 {
+    min-width: 0;
+}
+
+#clash-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#clash-canvas:focus-visible {
+    outline: 3px solid var(--bs-primary);
+    outline-offset: -3px;
+}
+
+.clash-fighter-video-dialog {
+    width: min(640px, calc(100% - 2rem));
+    max-width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.clash-fighter-video-dialog::backdrop {
+    background: rgba(0, 0, 0, .72);
+}
+
+.clash-fighter-video-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .75rem;
+}
+
+.clash-fighter-video-dialog video {
+    display: block;
+    width: 100%;
+    max-height: 75dvh;
+    object-fit: contain;
+}
+
+.clash-arena noscript {
+    position: absolute;
+    z-index: 1;
+    bottom: 3.2rem;
+    left: .5rem;
+    max-width: calc(100% - 1rem);
+    padding: .25rem .5rem;
+    border-radius: var(--bs-border-radius);
+    background: rgba(15, 23, 42, .7);
+    color: #fff;
+}
+
+.clash-options .form-check {
+    min-width: 0;
+    margin-bottom: 0 !important;
+}
+
+.clash-question-panel #clash-answer {
+    margin-top: .6rem;
+}
+
+.clash-inventory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767.98px) {
+    .clash-play-layout {
+        height: auto;
+        min-height: 0;
+        grid-template-rows: auto minmax(480px, calc(100dvh - 6rem));
+    }
+
+    .clash-game-hud {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "players"
+            "messages"
+            "question"
+            "inventory"
+            "result";
+    }
+
+    .clash-fighter-summaries {
+        gap: .35rem;
+    }
+
+    #clash-canvas {
+        object-fit: contain;
+    }
+
+    .clash-question-panel {
+        width: 100%;
+        max-height: none;
+        padding: .4rem;
+        background: #fff;
+    }
+
+    .clash-question-panel .clash-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .35rem;
+    }
+
+    .clash-options .form-check {
+        padding: .45rem .35rem .45rem 1.7rem;
+        font-size: .9rem;
+    }
+
+    .clash-options .form-check-input {
+        margin-left: -1.35rem;
+    }
+
+    .clash-arena noscript {
+        bottom: 2.8rem;
+    }
+
+    .clash-inventory {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-height: 680px) {
+    .clash-play-layout {
+        height: auto;
+        min-height: 0;
+        grid-template-rows: auto minmax(420px, calc(100dvh - 5.5rem));
+    }
+
+    .clash-page-heading .btn {
+        padding: .2rem .45rem;
+    }
+
+    .clash-question-panel {
+        padding: .45rem;
+    }
+
+    .clash-question-panel #clash-prompt {
+        margin-bottom: .15rem;
+    }
+
+    .clash-question-panel .clash-options .form-check {
+        padding-top: .3rem;
+        padding-bottom: .3rem;
+    }
+}
+
+body.duckyclash-ring-page {
+    overflow-x: hidden;
+}
+
+body.duckyclash-ring-page #page-content {
+    width: 100%;
+    min-width: 0;
+}
+
+body.duckyclash-ring-page #page-content > .navbar {
+    flex-shrink: 0;
+}
+
+body.duckyclash-ring-page #page-content > main {
+    min-height: 0;
+    padding: 0 !important;
+}
+
+body.duckyclash-ring-page #page-content > footer {
+    display: none;
+}
+
+.clash-ring-page {
+    width: 100%;
+    max-width: none;
+    padding: 0 !important;
+}
+
+.clash-play-layout {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: calc(100dvh - 58px);
+    min-height: 360px;
+    margin: 0;
+}
+
+.clash-arena {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    background: #111827;
+}
+
+#clash-canvas {
+    object-fit: fill;
+}
+
+.clash-game-hud {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #fff;
+    pointer-events: none;
+}
+
+.clash-fighter-summaries {
+    position: absolute;
+    top: .4rem;
+    right: .5rem;
+    left: .5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1rem, 8vw, 6rem);
+}
+
+.clash-fighter-summaries > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0 .5rem;
+    min-width: 0;
+    max-width: none;
+    padding: .3rem .55rem;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: .35rem;
+    background: linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(15, 23, 42, .72));
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .45);
+    color: #fff;
+    font-size: clamp(.65rem, 1.5vw, .9rem);
+}
+
+.clash-fighter-summaries > div:nth-child(2) {
+    text-align: right;
+}
+
+.clash-fighter-summaries h2 {
+    overflow: hidden;
+    margin: 0;
+    color: #facc15;
+    font-size: clamp(.75rem, 1.7vw, 1rem);
+    font-weight: 900;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.clash-fighter-summaries p {
+    display: none;
+}
+
+.clash-fighter-summaries label {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: #fff;
+    font-weight: 700;
+}
+
+.clash-fighter-summaries .clash-hp {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    height: .75rem;
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 999px;
+    background: #111827;
+    accent-color: #22c55e;
+}
+
+.clash-fighter-summaries > div:nth-child(2) .clash-hp {
+    accent-color: #22c55e;
+}
+
+.clash-fighter-summaries [data-presence-player] {
+    display: none;
+}
+
+.clash-hud-messages {
+    position: absolute;
+    top: 4.4rem;
+    left: 50%;
+    width: min(28rem, calc(100% - 12rem));
+    transform: translateX(-50%);
+    text-align: center;
+    text-shadow: 0 1px 3px #000;
+    pointer-events: auto;
+}
+
+.clash-hud-messages > p,
+.clash-hud-messages > .clash-phase-strip {
+    display: none;
+}
+
+.clash-hud-messages #clash-sync-status:not(:empty),
+.clash-hud-messages #clash-assets-status:not(:empty),
+.clash-hud-messages #clash-effect-status:not(:empty) {
+    display: inline-block;
+    max-width: 100%;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .82);
+    color: #fff;
+    font-size: .75rem;
+}
+
+.clash-hud-messages > .alert {
+    margin: .25rem 0;
+    font-size: .75rem;
+}
+
+.clash-hud-messages form {
+    position: fixed;
+    bottom: .5rem;
+    left: .5rem;
+    z-index: 3;
+    margin: 0 !important;
+    pointer-events: auto;
+}
+
+.clash-question-controls {
+    position: absolute;
+    right: .5rem;
+    bottom: .5rem;
+    left: .5rem;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    pointer-events: none;
+}
+
+.clash-question-panel {
+    position: relative;
+    width: min(760px, 100%);
+    max-height: min(42dvh, 360px);
+    overflow-y: auto;
+    padding: clamp(.45rem, 1.4vw, .8rem);
+    border: 2px solid rgba(250, 204, 21, .85);
+    border-radius: .55rem;
+    background: linear-gradient(180deg, rgba(15, 23, 42, .96), rgba(9, 14, 25, .94));
+    box-shadow: 0 0 22px rgba(0, 0, 0, .7);
+    color: #fff;
+    pointer-events: auto;
+}
+
+.clash-question-panel .clash-question-heading {
+    justify-content: center;
+    margin-bottom: .2rem;
+}
+
+.clash-question-panel .clash-question-heading h2 {
+    margin: 0;
+    color: #facc15;
+    font-size: clamp(.75rem, 1.6vw, 1rem);
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.clash-question-panel .btn-close {
+    position: absolute;
+    right: .55rem;
+    filter: invert(1);
+}
+
+.clash-question-panel #clash-prompt {
+    margin: 0 0 .4rem;
+    color: #fff;
+    font-size: clamp(.8rem, 1.7vw, 1rem);
+    font-weight: 800;
+    text-align: center;
+}
+
+.clash-question-panel #clash-clock,
+.clash-question-panel #clash-engine-error,
+.clash-question-panel #clash-ready-help {
+    margin-bottom: .25rem;
+    color: #cbd5e1;
+    font-size: .72rem;
+    text-align: center;
+}
+
+.clash-question-panel fieldset {
+    min-width: 0;
+}
+
+.clash-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .3rem;
+    counter-reset: answer;
+}
+
+.clash-options .form-check {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 2rem;
+    margin: 0 !important;
+    padding: .25rem .4rem .25rem 1.9rem;
+    border: 1px solid rgba(203, 213, 225, .55);
+    border-radius: .3rem;
+    background: linear-gradient(180deg, rgba(71, 85, 105, .96), rgba(30, 41, 59, .96));
+    counter-increment: answer;
+}
+
+.clash-options .form-check::before {
+    position: absolute;
+    left: .45rem;
+    color: #facc15;
+    content: counter(answer, upper-alpha) ")";
+    font-weight: 900;
+}
+
+.clash-options .form-check:has(.form-check-input:checked) {
+    border-color: #a3e635;
+    background: linear-gradient(180deg, rgba(22, 101, 52, .98), rgba(20, 83, 45, .98));
+}
+
+.clash-options .form-check-input {
+    position: absolute;
+    left: .25rem;
+    margin: 0;
+    opacity: 0;
+}
+
+.clash-options .form-check-label {
+    color: #fff;
+    font-size: clamp(.72rem, 1.45vw, .88rem);
+    font-weight: 700;
+}
+
+.clash-question-panel #clash-answer {
+    display: block;
+    margin: .4rem auto 0;
+    padding: .25rem .8rem;
+    font-size: .8rem;
+}
+
+.clash-question-panel #clash-answer-feedback {
+    text-align: center;
+}
+
+.clash-question-open {
+    position: fixed;
+    right: .5rem;
+    bottom: .5rem;
+    z-index: 4;
+    pointer-events: auto;
+}
+
+.clash-hud-inventory {
+    position: absolute;
+    top: 4.5rem;
+    right: .5rem;
+    z-index: 3;
+    width: min(280px, 55vw);
+    padding: 0;
+    border: 0;
+    pointer-events: auto;
+}
+
+.clash-hud-inventory details {
+    padding: .35rem .55rem;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: .35rem;
+    background: rgba(15, 23, 42, .88);
+    color: #fff;
+}
+
+.clash-hud-inventory summary {
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.clash-hud-inventory .clash-inventory {
+    max-height: 32dvh;
+    margin-top: .35rem;
+    overflow-y: auto;
+}
+
+.clash-hud-inventory .clash-inventory .btn {
+    padding: .25rem;
+    font-size: .72rem;
+}
+
+.clash-hud-inventory > details > p {
+    font-size: .7rem;
+}
+
+#clash-result {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    width: min(28rem, calc(100% - 1rem));
+    margin: 0;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+}
+
+.clash-arena noscript {
+    bottom: 3.5rem;
+}
+
+@media (max-width: 767.98px) {
+    .clash-play-layout {
+        height: calc(100dvh - 58px);
+        min-height: 360px;
+    }
+
+    .clash-fighter-summaries {
+        right: .25rem;
+        left: .25rem;
+        gap: .75rem;
+    }
+
+    .clash-fighter-summaries > div {
+        padding: .25rem .35rem;
+    }
+
+    .clash-hud-messages {
+        top: 3.8rem;
+        width: min(28rem, calc(100% - 8rem));
+    }
+
+    .clash-hud-inventory {
+        top: 3.9rem;
+        right: .25rem;
+        width: auto;
+    }
+
+    .clash-hud-inventory details {
+        padding: .2rem .4rem;
+    }
+
+    .clash-hud-inventory .clash-inventory {
+        grid-template-columns: 1fr;
+    }
+
+    .clash-question-controls {
+        right: .25rem;
+        bottom: .25rem;
+        left: .25rem;
+    }
+
+    .clash-question-panel {
+        max-height: min(40dvh, 290px);
+        padding: .4rem;
+    }
+
+    .clash-options {
+        gap: .25rem;
+    }
+
+    .clash-options .form-check {
+        min-height: 1.8rem;
+        padding-left: 1.65rem;
+    }
+}

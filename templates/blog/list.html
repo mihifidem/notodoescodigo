@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block title %}Blog - MihiTraining{% endblock %}
+{% block page_title %}Blog{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-xl-9">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <form id="blogFilterForm" method="get" class="row g-2 align-items-end">
+          <div class="col-12 col-md-4">
+            <label class="form-label small fw-semibold mb-1">Buscar</label>
+            <input id="blogSearchInput" type="text" name="q" value="{{ q_actual }}" class="form-control form-control-sm" placeholder="Titulo, resumen o contenido" autocomplete="off">
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label small fw-semibold mb-1">Categoria</label>
+            <select name="categoria" class="form-select form-select-sm">
+              <option value="">Todas</option>
+              {% for categoria in categorias %}
+                <option value="{{ categoria.slug }}" {% if categoria_actual == categoria.slug %}selected{% endif %}>{{ categoria.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label small fw-semibold mb-1">Subcategoria</label>
+            <select name="subcategoria" class="form-select form-select-sm">
+              <option value="">Todas</option>
+              {% for subcategoria in subcategorias %}
+                <option value="{{ subcategoria.slug }}" {% if subcategoria_actual == subcategoria.slug %}selected{% endif %}>{{ subcategoria.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label small fw-semibold mb-1">Hashtag</label>
+            <select name="hashtag" class="form-select form-select-sm">
+              <option value="">Todos</option>
+              {% for hashtag in hashtags %}
+                <option value="{{ hashtag.slug }}" {% if hashtag_actual == hashtag.slug %}selected{% endif %}>#{{ hashtag.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label small fw-semibold mb-1">Desde</label>
+            <input type="date" name="fecha_desde" value="{{ fecha_desde_actual }}" class="form-control form-control-sm">
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label small fw-semibold mb-1">Hasta</label>
+            <input type="date" name="fecha_hasta" value="{{ fecha_hasta_actual }}" class="form-control form-control-sm">
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="bi bi-search me-1"></i>Filtrar
+            </button>
+            <a href="{% url 'blog:list' %}" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-4" style="margin-left: 10px;">
+      {% for post in posts %}
+      <div class="col">
+        <div class="card border-0 shadow-sm h-100">
+          {% if post.imagen %}
+          <img src="{{ post.imagen.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ post.titulo }}">
+          {% else %}
+          <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 180px;">
+            <i class="bi bi-journal-richtext display-4 text-primary opacity-50"></i>
+          </div>
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              <span class="badge bg-info-subtle text-info-emphasis border">{{ post.categoria.nombre }}</span>
+              {% if post.subcategoria %}
+              <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ post.subcategoria.nombre }}</span>
+              {% endif %}
+              {% if post.visibilidad == 'publico' %}
+              <span class="badge text-bg-success">Público</span>
+              {% elif post.visibilidad == 'semipublico' %}
+              <span class="badge text-bg-warning">Semipúblico</span>
+              {% else %}
+              <span class="badge text-bg-dark">Premium</span>
+              {% endif %}
+            </div>
+            <h5 class="card-title fw-bold">{{ post.titulo }}</h5>
+            <p class="card-text text-muted flex-grow-1 mb-3" style="font-size: 0.78rem; line-height: 1.6;">{{ post.contenido_publico|striptags|truncatewords:28 }}</p>
+
+            <div class="small text-muted d-flex justify-content-between mb-2">
+              <span><i class="bi bi-calendar-event me-1"></i>{{ post.publicado_en|date:'d/m/Y' }}</span>
+              <span>
+                {% if post.promedio_rating %}
+                  {{ post.promedio_rating|floatformat:1 }} / 5
+                {% else %}
+                  Sin valoraciones
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              {% for tag in post.hashtags.all|slice:':3' %}
+                <a href="?hashtag={{ tag.slug }}" class="badge bg-light text-dark text-decoration-none border">#{{ tag.nombre }}</a>
+              {% endfor %}
+            </div>
+
+            <a href="{% url 'blog:detail' slug=post.slug %}" class="btn btn-outline-primary btn-sm mt-auto">Leer post</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info">No hay posts para los filtros seleccionados.</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-4" aria-label="Paginacion del blog">
+      <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q_actual|urlencode }}&categoria={{ categoria_actual }}&subcategoria={{ subcategoria_actual }}&hashtag={{ hashtag_actual }}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q_actual|urlencode }}&categoria={{ categoria_actual }}&subcategoria={{ subcategoria_actual }}&hashtag={{ hashtag_actual }}">Siguiente</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+
+  <div class="col-12 col-xl-3">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header bg-white fw-semibold">Categorias</div>
+      <div class="accordion accordion-flush" id="blogCategoryAccordion">
+        {% for categoria in grupos_categorias %}
+        <div class="accordion-item border-0">
+          <h2 class="accordion-header" id="heading-{{ categoria.slug }}">
+            <button class="accordion-button collapsed ps-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ categoria.slug }}" aria-expanded="false" aria-controls="collapse-{{ categoria.slug }}" style="font-size:0.9rem;">
+              <span class="badge text-bg-light border me-2">{{ categoria.total_posts }}</span>
+              <span class="me-auto">{{ categoria.nombre }}</span>
+            </button>
+          </h2>
+          <div id="collapse-{{ categoria.slug }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ categoria.slug }}" data-bs-parent="#blogCategoryAccordion">
+            <div class="accordion-body p-0">
+              <ul class="list-group list-group-flush small">
+                <li class="list-group-item px-3 py-2">
+                  <a href="?categoria={{ categoria.slug }}&mostrar_todas_subcategorias=1" class="d-flex justify-content-between align-items-center text-decoration-none">
+                    <span><span class="badge text-bg-light border me-2">{{ categoria.total_posts }}</span>Ver todas</span>
+                    <span class="text-muted small">{{ categoria.subcategorias_todas|length }} total</span>
+                  </a>
+                </li>
+                {% for subcategoria in categoria.subcategorias %}
+                <li class="list-group-item px-3 py-2">
+                  <a href="?categoria={{ categoria.slug }}&subcategoria={{ subcategoria.slug }}" class="d-flex justify-content-between align-items-center text-decoration-none">
+                    <span><span class="badge text-bg-light border me-2">{{ subcategoria.total_posts }}</span>{{ subcategoria.nombre }}</span>
+                    <span class="text-muted small">Subcat.</span>
+                  </a>
+                </li>
+                {% empty %}
+                <li class="list-group-item px-3 py-2 text-muted small">No hay subcategorias con posts disponibles.</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="p-3 text-muted small">No hay categorias activas.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">Hashtags</div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% for hashtag in grupos_hashtags %}
+        <a href="?hashtag={{ hashtag.slug }}" class="badge bg-light text-dark border text-decoration-none">#{{ hashtag.nombre }} ({{ hashtag.total_posts }})</a>
+        {% empty %}
+        <span class="text-muted small">No hay hashtags.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    const form = document.getElementById('blogFilterForm');
+    const searchInput = document.getElementById('blogSearchInput');
+    if (!form) return;
+
+    const autoSubmitSelects = form.querySelectorAll('select[name="categoria"], select[name="subcategoria"], select[name="hashtag"]');
+
+    autoSubmitSelects.forEach(function (selectEl) {
+      selectEl.addEventListener('change', function () {
+        form.submit();
+      });
+    });
+
+    if (!searchInput) return;
+
+    let debounceTimer = null;
+
+    searchInput.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function () {
+        form.submit();
+      }, 350);
+    });
+  })();
+</script>
+{% endblock %}

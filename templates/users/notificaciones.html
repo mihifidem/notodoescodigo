@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block title %}Notificaciones — MihiTraining{% endblock %}
+{% block page_title %}Notificaciones{% endblock %}
+{% block body_class %}notification-center-page{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'users/notifications.css' %}?v=20261012-center">
+{% endblock %}
+
+{% block content %}
+<section class="notification-center" aria-labelledby="notification-center-title">
+  <header class="notification-hero">
+    <div>
+      <span class="notification-eyebrow"><i class="bi bi-bell-fill" aria-hidden="true"></i> TU ACTIVIDAD, EN UN SOLO LUGAR</span>
+      <h1 id="notification-center-title">Centro de notificaciones</h1>
+      <p>Anuncios, actividades, pruebas y feedback. Consulta lo importante y mantén tus pendientes al día.</p>
+    </div>
+    <form method="post" action="{% url 'users:marcar_todas_leidas' %}">
+      {% csrf_token %}
+      <input type="hidden" name="estado" value="{{ notification_state }}">
+      <input type="hidden" name="buscar" value="{{ notification_search }}">
+      <input type="hidden" name="curso" value="{{ notification_course }}">
+      <button type="submit" class="btn btn-light notification-mark-all" {% if not notification_stats.pending %}disabled{% endif %} data-notification-mark-all>
+        <i class="bi bi-check2-all" aria-hidden="true"></i> Marcar todas como leídas
+      </button>
+    </form>
+  </header>
+
+  <div class="notification-stats" aria-label="Resumen de notificaciones">
+    <div class="notification-stat"><span class="notification-stat-icon"><i class="bi bi-stack" aria-hidden="true"></i></span><div><strong data-notification-center-total>{{ notification_stats.total }}</strong><span>Notificaciones</span></div></div>
+    <div class="notification-stat notification-stat-pending"><span class="notification-stat-icon"><i class="bi bi-bell" aria-hidden="true"></i></span><div><strong data-notification-center-unread>{{ notification_stats.pending }}</strong><span>Pendientes de leer</span></div></div>
+    <div class="notification-stat"><span class="notification-stat-icon"><i class="bi bi-check-circle" aria-hidden="true"></i></span><div><strong data-notification-center-read>{{ notification_stats.read }}</strong><span>Leídas</span></div></div>
+  </div>
+
+  <div class="notification-toolbar">
+    <nav class="notification-tabs" aria-label="Filtrar por lectura">
+      <a href="?{{ notification_tabs_query }}" {% if not notification_state %}class="is-active" aria-current="page"{% endif %}>Todas</a>
+      <a href="?estado=pendientes{% if notification_tabs_query %}&amp;{{ notification_tabs_query }}{% endif %}" {% if notification_state == 'pendientes' %}class="is-active" aria-current="page"{% endif %}>Pendientes <span data-notification-center-unread>{{ notification_stats.pending }}</span></a>
+      <a href="?estado=leidas{% if notification_tabs_query %}&amp;{{ notification_tabs_query }}{% endif %}" {% if notification_state == 'leidas' %}class="is-active" aria-current="page"{% endif %}>Leídas</a>
+    </nav>
+    <span class="notification-live-status" data-notification-center-status role="status"><span aria-hidden="true"></span> Actualizaciones activas</span>
+  </div>
+
+  <form method="get" class="notification-filters" role="search" aria-label="Buscar notificaciones">
+    <input type="hidden" name="estado" value="{{ notification_state }}">
+    <div class="notification-search"><i class="bi bi-search" aria-hidden="true"></i><input class="form-control" type="search" name="buscar" value="{{ notification_search }}" maxlength="200" aria-label="Buscar por título o mensaje" placeholder="Buscar por título o mensaje…"></div>
+    <select name="curso" class="form-select" aria-label="Filtrar por curso">
+      <option value="">Todos los cursos y la plataforma</option>
+      {% for item in notification_courses %}<option value="{{ item.lms_notification__course_id }}" {% if item.lms_notification__course_id|stringformat:'s' == notification_course %}selected{% endif %}>{{ item.lms_notification__course__nombre }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    {% if notification_search or notification_course %}<a href="?estado={{ notification_state }}" class="btn btn-outline-secondary">Limpiar</a>{% endif %}
+  </form>
+
+  <div class="notification-new alert alert-primary" data-notification-center-new hidden role="status">
+    <i class="bi bi-bell" aria-hidden="true"></i> Hay nuevos avisos disponibles.
+    <a href="{{ request.get_full_path }}" class="alert-link">Actualizar lista</a>
+  </div>
+
+  {% if notificaciones %}
+    <p class="notification-results">{{ paginator.count }} resultado{{ paginator.count|pluralize }} · Página {{ page_obj.number }} de {{ paginator.num_pages }}</p>
+    {% regroup notificaciones by notification_day as days %}
+    {% for day in days %}
+      <h2 class="notification-day">{% if day.grouper == today %}Hoy{% elif day.grouper == yesterday %}Ayer{% else %}{{ day.grouper|date:'j F Y' }}{% endif %}</h2>
+      <ul class="notification-items">
+        {% for n in day.list %}
+          <li class="notification-card {% if not n.leida %}is-unread{% endif %}" data-notification-center-item="{{ n.pk }}">
+            <div class="notification-icon notification-icon-{{ n.area|default:n.tipo }}"><i class="bi {{ n.icon }}" aria-hidden="true"></i></div>
+            <div class="notification-card-content">
+              <div class="notification-card-meta"><span>{{ n.area_label }}</span>{% if n.lms_notification.course %}<span>{{ n.lms_notification.course.nombre }}</span>{% endif %}<time datetime="{{ n.creada_en|date:'c' }}" title="{{ n.creada_en|date:'d/m/Y H:i' }}">{{ n.creada_en|timesince }}</time></div>
+              <h3>{% if n.target_url %}<a href="{{ n.target_url }}">{{ n.titulo }}</a>{% else %}{{ n.titulo }}{% endif %}</h3>
+              <p>{{ n.mensaje }}</p>
+              <div class="notification-card-footer">
+                <span class="notification-read-state" data-notification-center-read-state>{% if n.leida %}Leída{% else %}Pendiente de leer{% endif %}</span>
+                {% if not n.leida and n.dias_antiguedad >= 1 %}<span class="notification-age">Pendiente desde hace {{ n.dias_antiguedad }} día{{ n.dias_antiguedad|pluralize }}</span>{% endif %}
+                {% if n.target_url %}<a href="{{ n.target_url }}" class="notification-detail">Ver detalle <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>{% endif %}
+              </div>
+            </div>
+            <form method="post" action="{% url 'users:marcar_leida' pk=n.pk %}" class="notification-card-action">
+              {% csrf_token %}
+              <input type="hidden" name="read" value="{% if n.leida %}0{% else %}1{% endif %}">
+              <input type="hidden" name="estado" value="{{ notification_state }}">
+              <input type="hidden" name="buscar" value="{{ notification_search }}">
+              <input type="hidden" name="curso" value="{{ notification_course }}">
+              <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="{% if n.leida %}Marcar como pendiente{% else %}Marcar como leída{% endif %}: {{ n.titulo }}">
+                <i class="bi {% if n.leida %}bi-arrow-counterclockwise{% else %}bi-check2{% endif %}" aria-hidden="true"></i>
+                <span data-notification-center-action-label>{% if n.leida %}Pendiente{% else %}Marcar leída{% endif %}</span>
+              </button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% else %}
+    <div class="notification-empty"><i class="bi bi-bell-slash" aria-hidden="true"></i><h2>{% if notification_state == 'pendientes' %}¡Todo al día!{% else %}Sin notificaciones{% endif %}</h2><p>{% if notification_search or notification_course %}No hay avisos que coincidan con estos filtros.{% elif notification_state == 'pendientes' %}No tienes avisos pendientes de leer.{% else %}Los nuevos anuncios y novedades aparecerán aquí.{% endif %}</p></div>
+  {% endif %}
+  {% if is_paginated %}
+    <nav aria-label="Páginas de notificaciones" class="notification-pagination">
+      {% if page_obj.has_previous %}<a class="btn btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}{% if notification_filter_query %}&amp;{{ notification_filter_query }}{% endif %}"><i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior</a>{% endif %}
+      <span>{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a class="btn btn-outline-secondary" href="?page={{ page_obj.next_page_number }}{% if notification_filter_query %}&amp;{{ notification_filter_query }}{% endif %}">Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i></a>{% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    const center = document.querySelector('.notification-center');
+    const status = center.querySelector('[data-notification-center-status]');
+    document.addEventListener('lms:notification-counts', event => {
+      const data = event.detail;
+      center.querySelectorAll('[data-notification-center-unread]').forEach(item => { item.textContent = data.count; });
+      center.querySelector('[data-notification-mark-all]').disabled = !data.count;
+      if (Number.isInteger(data.total_count)) {
+        center.querySelector('[data-notification-center-total]').textContent = data.total_count;
+        center.querySelector('[data-notification-center-read]').textContent = data.total_count - data.count;
+      }
+      if (data.notifications && data.notifications.length) center.querySelector('[data-notification-center-new]').hidden = false;
+      if (!Array.isArray(data.unread_ids)) return;
+      const unread = new Set(data.unread_ids.map(String));
+      center.querySelectorAll('[data-notification-center-item]').forEach(item => {
+        const pending = unread.has(item.dataset.notificationCenterItem);
+        item.classList.toggle('is-unread', pending);
+        item.querySelector('[data-notification-center-read-state]').textContent = pending ? 'Pendiente de leer' : 'Leída';
+        item.querySelector('[name="read"]').value = pending ? '1' : '0';
+        item.querySelector('[data-notification-center-action-label]').textContent = pending ? 'Marcar leída' : 'Pendiente';
+        const button = item.querySelector('button');
+        button.setAttribute('aria-label', `${pending ? 'Marcar como leída' : 'Marcar como pendiente'}: ${item.querySelector('h3').textContent}`);
+        button.querySelector('i').className = `bi ${pending ? 'bi-check2' : 'bi-arrow-counterclockwise'}`;
+        const age = item.querySelector('.notification-age');
+        if (age) age.hidden = !pending;
+      });
+    });
+    document.addEventListener('lms:notifications-paused', () => {
+      status.classList.add('is-paused');
+      status.lastChild.textContent = ' Consultas detenidas';
+    });
+    document.addEventListener('lms:notifications-resumed', () => {
+      status.classList.remove('is-paused');
+      status.lastChild.textContent = ' Actualizaciones activas';
+    });
+  })();
+</script>
+{% endblock %}

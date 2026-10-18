@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Contraste WCAG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Contrast Checker</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Esta miniapp te ayuda a comprobar la legibilidad entre fondo y texto para cumplir accesibilidad.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#toolInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3">
+            <div class="col-md-5"><label class="form-label">Fondo</label><input type="text" name="bg" value="{{ bg|default:'#FFFFFF' }}" class="form-control"></div>
+            <div class="col-md-5"><label class="form-label">Texto</label><input type="text" name="fg" value="{{ fg|default:'#111827' }}" class="form-control"></div>
+            <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-success w-100 rounded-pill">Check</button></div>
+          </form>
+
+          <div class="mt-4 p-4 rounded-4" style="background: {{ bg }}; color: {{ fg }}; font-size: 1.1rem; font-weight: 700;">
+            Texto de prueba con contraste.
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-6"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">Ratio</div><div class="fw-bold fs-3 mt-2">{{ ratio }}</div></div></div>
+            <div class="col-md-6"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">WCAG</div><div class="fw-bold fs-3 mt-2">{{ wcag }}</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

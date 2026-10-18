@@ -1,0 +1,44 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block content %}
+<nav class="breadcrumbs"><a href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans 'Contenido' %}</a><span>/</span><span>{{ module.titulo }}</span></nav>
+<section class="form-panel">
+  <h1>{{ module.titulo }}{% if unit %} · {{ unit.title }}{% endif %}</h1>
+  <p>{% trans 'Las fechas, los prerrequisitos y la secuencia se aplican cuando se activa la progresión secuencial en Configuraciones. La duración es informativa. Las fechas se introducen en la zona horaria de tu sesión.' %}</p>
+  <h2>{% trans 'Fechas y duración del módulo' %}</h2>
+  <form method="post" class="stacked-form">
+    {% csrf_token %}<input type="hidden" name="action" value="schedule">
+    {{ schedule_form.as_p }}
+    <button type="submit" class="button button-primary">{% trans 'Guardar planificación' %}</button>
+  </form>
+  <h2>{% trans 'Unidades formativas' %}</h2>
+  <a class="button button-secondary" href="{% url 'lms:formative_unit_create' course_id=course.pk module_id=module.pk %}">{% trans 'Crear unidad formativa' %}</a>
+  {% for entry in units %}
+  <article class="content-panel">
+    <h3>{{ entry.title }}</h3>
+    <a href="{% url 'lms:formative_unit_contents' course_id=course.pk module_id=module.pk unit_id=entry.pk %}">{% trans 'Gestionar recursos' %}</a>
+    <a href="{% url 'lms:formative_unit_edit' course_id=course.pk module_id=module.pk unit_id=entry.pk %}">{% trans 'Editar unidad' %}</a>
+    <form method="post" action="{% url 'lms:formative_unit_edit' course_id=course.pk module_id=module.pk unit_id=entry.pk %}">{% csrf_token %}<input type="hidden" name="action" value="delete"><button class="button button-secondary" type="submit">{% trans 'Eliminar unidad vacía' %}</button></form>
+  </article>
+  {% empty %}<p>{% trans 'Crea una unidad para organizar los recursos del módulo.' %}</p>{% endfor %}
+  <h2>{% if unit %}{% trans 'Recursos de la unidad formativa' %}{% else %}{% trans 'Recursos del módulo' %}{% endif %}</h2>
+  <p>{% trans 'Cada recurso pertenece a una unidad formativa del módulo. Puedes combinar páginas, ficheros, pruebas y actividades. Los obligatorios determinan cuándo se desbloquea el siguiente módulo.' %}</p>
+  {% for item in contents %}
+    <article class="content-panel">
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.unit.title }} · {{ item.get_criterion_display }} · {% if item.required %}{% trans 'Obligatorio' %}{% else %}{% trans 'Opcional' %}{% endif %} · {% trans 'Orden' %}: {{ item.position }}</p>
+      {% if item.prerequisite %}<p>{% trans 'Prerrequisito' %}: {{ item.prerequisite.title }}</p>{% endif %}
+      <a href="?edit={{ item.pk }}#content-form">{% trans 'Editar condiciones' %}</a>
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="remove"><input type="hidden" name="content_id" value="{{ item.pk }}"><button class="button button-secondary" type="submit">{% trans 'Retirar de la unidad' %}</button></form>
+    </article>
+  {% empty %}<p>{% trans 'No hay contenidos agregados. Mientras tanto se usa la finalización del tema existente.' %}</p>{% endfor %}
+  <h2 id="content-form">{% if editing_content %}{% trans 'Editar contenido' %}{% else %}{% trans 'Agregar contenido existente' %}{% endif %}</h2>
+  <p>{% if editing_content %}{% trans 'Selecciona un recurso para este contenido.' %}{% else %}{% trans 'Marca uno o varios recursos de cada tipo para añadirlos juntos con las mismas condiciones y en orden consecutivo.' %}{% endif %} {% trans 'Para crear uno nuevo, utiliza su apartado correspondiente y luego agrégalo aquí.' %}</p>
+  <form method="post" class="stacked-form">
+    {% csrf_token %}<input type="hidden" name="action" value="content">
+    {{ content_form.as_p }}
+    <button type="submit" class="button button-primary">{% trans 'Guardar contenido' %}</button>
+    {% if editing_content %}<a href="{% url 'lms:module_contents' course_id=course.pk module_id=module.pk %}">{% trans 'Cancelar edición' %}</a>{% endif %}
+  </form>
+</section>
+{% endblock %}

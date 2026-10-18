@@ -1,0 +1,17 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Invitaciones · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">{% if folder == 'received' %}Invitaciones recibidas{% elif folder == 'sent' %}Invitaciones enviadas{% else %}Contrapropuestas por responder{% endif %}</h1>
+    <p>Abre el detalle para revisar la versión vigente antes de aceptar o rechazar.</p>
+    <div class="list-group">
+        {% for challenge in challenges %}
+        <a class="list-group-item list-group-item-action" href="{% url 'duckyclash:challenge_detail' challenge.pk %}">
+            <strong>Reto #{{ challenge.pk }}</strong> · {{ challenge.creator.get_username }} contra {{ challenge.opponent.get_username }}
+            <span class="d-block small">{% if challenge.is_expired %}Caducado{% else %}{{ challenge.get_status_display }}{% endif %} · Última propuesta de {{ challenge.proposed_by.get_username }}</span>
+        </a>
+        {% empty %}<p class="border rounded p-3">No hay invitaciones en esta bandeja. <a href="{% url 'duckyclash:create' %}">Crear un reto</a>.</p>{% endfor %}
+    </div>
+    {% include 'duckyclash/pagination.html' %}
+</div>
+{% endblock %}

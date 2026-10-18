@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversor universal de medidas{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-primary text-white border-0 py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Conversor universal</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-house-door me-1"></i>Hub
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Elige una categoría, introduce la cantidad y selecciona las unidades de origen y destino para obtener una conversión instantánea.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#converterInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Categoría</label>
+              <select name="category" class="form-select form-select-lg" onchange="this.form.submit()">
+                {% for key, item in categories.items %}
+                  <option value="{{ key }}" {% if key == category_key %}selected{% endif %}>{{ item.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Cantidad</label>
+              <input type="number" step="any" name="value" value="{{ value }}" class="form-control form-control-lg" placeholder="Ej. 30" required>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Desde</label>
+              <select name="from_unit" class="form-select form-select-lg">
+                {% for key, unit in units.items %}
+                  <option value="{{ key }}" {% if key == from_unit %}selected{% endif %}>{{ unit.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">A</label>
+              <select name="to_unit" class="form-select form-select-lg">
+                {% for key, unit in units.items %}
+                  <option value="{{ key }}" {% if key == to_unit %}selected{% endif %}>{{ unit.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Ir</button>
+            </div>
+          </form>
+
+          {% if result is not None %}
+            <div class="mt-5 p-4 rounded-4 border border-primary-subtle bg-primary-subtle">
+              <div class="small text-uppercase text-primary fw-bold mb-2">Resultado</div>
+              <h3 class="display-6 fw-bold mb-0">
+                {{ value }} {{ from_label }} = {{ result_label }} {{ to_label }}
+              </h3>
+            </div>
+          {% endif %}
+
+          <div class="mt-5">
+            <h4 class="fw-bold mb-3">Equivalencias rápidas</h4>
+            <div class="row g-3">
+              {% for example in kitchen_examples %}
+                <div class="col-md-6 col-lg-3">
+                  <div class="border rounded-4 p-3 h-100 bg-light">
+                    <div class="small text-uppercase text-secondary fw-semibold">{{ example.label }}</div>
+                    <div class="mt-2 fw-bold">{{ example.result }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="converterInstructionsModal" tabindex="-1" aria-labelledby="converterInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="converterInstructionsModalLabel">Instrucciones del conversor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Selecciona la categoría que te interesa: peso, temperatura, presión, electricidad o velocidad.</li>
+          <li>Escribe la cantidad que quieres convertir.</li>
+          <li>Elige la unidad de origen y la unidad de destino.</li>
+          <li>Haz clic en “Ir” para ver el resultado instantáneamente.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          <strong>Ejemplos:</strong><br>
+          30 g = 2 cucharadas grandes<br>
+          32 °F = 0 °C<br>
+          1 atm = 1.01325 bar
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

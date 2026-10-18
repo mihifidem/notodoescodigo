@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ profile.cv.personal_info.nombre_completo|default:profile.nombre }} — CV Minimalista</title>
+  <style>
+    /* ── Reset & Base ────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent: #1a1a2e;
+      --accent-light: #16213e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+      --text: #111827;
+    }
+    body {
+      font-family: 'Georgia', serif;
+      color: var(--text);
+      background: #f9fafb;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ──────────────────────────────────── */
+    .cv-wrapper {
+      max-width: 860px;
+      margin: 2rem auto 4rem;
+      background: var(--bg);
+      box-shadow: 0 1px 20px rgba(0,0,0,.06);
+    }
+    .cv-header {
+      padding: 3rem 3.5rem 2rem;
+      border-bottom: 3px solid var(--accent);
+    }
+    .cv-body { padding: 2.5rem 3.5rem; }
+
+    /* ── Header ──────────────────────────────────── */
+    .cv-header__name {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -.5px;
+      color: var(--accent);
+    }
+    .cv-header__job {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-top: .25rem;
+    }
+    .cv-header__contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem 1.5rem;
+      margin-top: 1rem;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .cv-header__contact span { display: flex; align-items: center; gap: .3rem; }
+    .cv-header__photo {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      float: right;
+      margin-left: 1.5rem;
+    }
+
+    /* ── Sections ─────────────────────────────────── */
+    .cv-section { margin-bottom: 2rem; }
+    .cv-section__title {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .4rem;
+      margin-bottom: 1.1rem;
+    }
+
+    /* ── Experience / Education entries ───────────── */
+    .entry { margin-bottom: 1.4rem; }
+    .entry__header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .2rem; }
+    .entry__title { font-weight: 600; font-size: 1rem; }
+    .entry__sub { color: var(--muted); font-size: .9rem; }
+    .entry__period { font-size: .82rem; color: var(--muted); white-space: nowrap; }
+    .entry__body { margin-top: .4rem; font-size: .9rem; }
+    .entry__logros { margin-top: .4rem; font-size: .88rem; }
+    .entry__logros li { list-style: none; padding-left: 1rem; position: relative; }
+    .entry__logros li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
+
+    /* ── Skills ──────────────────────────────────── */
+    .skills-grid { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .skill-tag {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .2rem .7rem;
+      font-size: .83rem;
+    }
+    .skill-tag--soft { background: #eff6ff; border-color: #bfdbfe; }
+
+    /* ── Languages ─────────────────────────────────── */
+    .lang-list { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .lang-item { min-width: 120px; }
+    .lang-item__name { font-weight: 600; font-size: .9rem; }
+    .lang-item__level { font-size: .8rem; color: var(--muted); }
+    .lang-item__cert { font-size: .78rem; color: var(--muted); font-style: italic; }
+
+    /* ── Badges ──────────────────────────────────── */
+    .badge-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .badge {
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: .25rem .9rem;
+      font-size: .82rem;
+    }
+
+    /* ── Social links ─────────────────────────────── */
+    .social-links { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .88rem; }
+    .social-links a { display: flex; align-items: center; gap: .3rem; color: var(--accent); }
+
+    /* ── Toolbar (not printed) ────────────────────── */
+    .cv-toolbar {
+      position: fixed; top: 1rem; right: 1rem;
+      display: flex; gap: .6rem;
+      z-index: 100;
+    }
+    .cv-toolbar a, .cv-toolbar button {
+      padding: .5rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .85rem;
+      text-decoration: none;
+    }
+
+    /* ── Print ────────────────────────────────────── */
+    @media print {
+      body { background: white; }
+      .cv-wrapper { box-shadow: none; margin: 0; max-width: 100%; }
+      .cv-toolbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<nav class="cv-toolbar" aria-label="Acciones">
+  <a href="{% url 'curriculum_cv_pdf' slug=profile.slug %}" target="_blank">⬇ PDF</a>
+  {% if user.is_authenticated and user == profile.user %}
+  <a href="{% url 'curriculum:profile_list' %}">← Mis perfiles</a>
+  {% endif %}
+</nav>
+
+<div class="cv-wrapper">
+
+  <!-- ── HEADER ──────────────────────────────────── -->
+  <header class="cv-header">
+    {% with pi=profile.cv.personal_info %}
+    {% if pi.foto %}
+    <img src="{{ pi.foto.url }}" alt="{{ pi.nombre_completo }}" class="cv-header__photo">
+    {% endif %}
+
+
+    {% if pi.nombre_completo %}
+    <span class="cv-header__name">{{ pi.nombre_completo }}</span>
+    {% endif %}
+
+
+    {% if profile.mostrar_perfil_profesional and profile.cv.professional_profile and profile.cv.professional_profile.profesion %}
+    <h1 class="cv-header__name">{{ pi.nombre_completo|default:"—" }}</h1>
+    {% if profile.mostrar_perfil_profesional and profile.cv.professional_profile %}
+    <p class="cv-header__job">{{ profile.cv.professional_profile.profesion }}</p>
+    {% endif %}
+    <div class="cv-header__contact">
+      {% if pi.email_profesional1 %}<span>✉ <a href="mailto:{{ pi.email_profesional1 }}">{{ pi.email_profesional1 }}</a></span>{% endif %}
+      {% if pi.email_profesional2 %}<span>✉ <a href="mailto:{{ pi.email_profesional2 }}">{{ pi.email_profesional2 }}</a></span>{% endif %}
+      {% if pi.telefono1 %}<span>☎ {{ pi.telefono1 }}</span>{% endif %}
+      {% if pi.telefono2 %}<span>☎ {{ pi.telefono2 }}</span>{% endif %}
+      {% if pi.ciudad %}<span>📍 {{ pi.ciudad }}{% if pi.pais %}, {{ pi.pais }}{% endif %}</span>{% endif %}
+      {% if pi.disponibilidad %}<span>⏱ {{ pi.get_disponibilidad_display }}</span>{% endif %}
+      {% if pi.carnet_conducir %}<span>🚗 Carnet de conducir</span>{% endif %}
+    </div>
+    {% endif %}
+    {% endwith %}
+  </header>
+
+  <div class="cv-body">
+
+    <!-- ── PROFILE SUMMARY ─────────────────────────── -->
+    {% if profile.mostrar_perfil_profesional %}
+    {% with pp=profile.cv.professional_profile %}
+    {% if pp %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Sobre mí</h2>
+      {% if pp.objetivo %}<p style="font-style:italic; color:#374151; margin-bottom:.6rem;">{{ pp.objetivo }}</p>{% endif %}
+      <p>{{ pp.resumen }}</p>
+    </section>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+
+    <!-- ── WORK EXPERIENCE ─────────────────────────── -->
+    {% if profile.experiencias.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Experiencia profesional</h2>
+      {% for exp in profile.experiencias.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <div>
+            <span class="entry__title">{{ exp.puesto }}</span>
+            —
+            <span class="entry__sub">{{ exp.empresa }}{% if exp.ubicacion %}, {{ exp.ubicacion }}{% endif %}</span>
+          </div>
+          <span class="entry__period">{{ exp.periodo }}</span>
+        </div>
+        {% if exp.descripcion %}
+        <div class="entry__body">{{ exp.descripcion|linebreaksbr }}</div>
+        {% endif %}
+        {% if exp.logros %}
+        <ul class="entry__logros">
+          {% for logro in exp.logros.splitlines %}
+          {% if logro %}<li>{{ logro }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── EDUCATION ───────────────────────────────── -->
+    {% if profile.educaciones.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Formación académica</h2>
+      {% for edu in profile.educaciones.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <div>
+            <span class="entry__title">{{ edu.titulo }}</span>
+            —
+            <span class="entry__sub">{{ edu.centro }}{% if edu.ubicacion %}, {{ edu.ubicacion }}{% endif %}</span>
+          </div>
+          <span class="entry__period">{{ edu.periodo }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── COMPLEMENTARY TRAINING ──────────────────── -->
+    {% if profile.formaciones.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Formación complementaria</h2>
+      {% for formacion in profile.formaciones.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <div>
+            <span class="entry__title">{{ formacion.nombre }}</span>
+            {% if formacion.entidad %}<span class="entry__sub">— {{ formacion.entidad }}</span>{% endif %}
+          </div>
+          <span class="entry__period">{{ formacion.get_tipo_display }}{% if formacion.fecha %} · {{ formacion.fecha|date:"m/Y" }}{% endif %}</span>
+        </div>
+        {% if formacion.descripcion %}<div class="entry__body">{{ formacion.descripcion }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── SKILLS ─────────────────────────────────── -->
+    {% if profile.habilidades.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Habilidades</h2>
+      {% with hard=profile.habilidades.filter soft=profile.habilidades.all %}
+      <p style="font-size:.8rem;color:#6b7280;margin-bottom:.5rem;">Técnicas</p>
+      <div class="skills-grid" style="margin-bottom:1rem;">
+        {% for s in profile.habilidades.all %}
+        {% if s.tipo == 'hard' %}
+        <span class="skill-tag">{{ s.nombre }}{% if s.nivel %} · {{ s.nivel }}/5{% endif %}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <p style="font-size:.8rem;color:#6b7280;margin-bottom:.5rem;">Blandas</p>
+      <div class="skills-grid">
+        {% for s in profile.habilidades.all %}
+        {% if s.tipo == 'soft' %}
+        <span class="skill-tag skill-tag--soft">{{ s.nombre }}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endwith %}
+    </section>
+    {% endif %}
+
+    <!-- ── LANGUAGES ──────────────────────────────── -->
+    {% if profile.idiomas.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Idiomas</h2>
+      <div class="lang-list">
+        {% for lang in profile.idiomas.all %}
+        <div class="lang-item">
+          <div class="lang-item__name">{{ lang.idioma }}</div>
+          <div class="lang-item__level">{{ lang.get_nivel_display }}</div>
+          {% if lang.certificacion %}<div class="lang-item__cert">{{ lang.certificacion }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- ── PROJECTS ───────────────────────────────── -->
+    {% if profile.proyectos.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Proyectos</h2>
+      {% for proj in profile.proyectos.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <span class="entry__title">
+            {% if proj.link %}<a href="{{ proj.link }}" target="_blank" rel="noopener">{{ proj.nombre }}</a>{% else %}{{ proj.nombre }}{% endif %}
+          </span>
+          {% if proj.tecnologias %}<span class="entry__period">{{ proj.tecnologias }}</span>{% endif %}
+        </div>
+        {% if proj.descripcion %}<div class="entry__body">{{ proj.descripcion }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── ACHIEVEMENTS ───────────────────────────── -->
+    {% if profile.mostrar_logros and profile.logros.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Logros y reconocimientos</h2>
+      {% for logro in profile.logros.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <span class="entry__title">{{ logro.titulo }}</span>
+          {% if logro.fecha %}<span class="entry__period">{{ logro.fecha|date:"Y" }}</span>{% endif %}
+        </div>
+        <div class="entry__sub">{{ logro.get_tipo_display }}</div>
+        {% if logro.descripcion %}<div class="entry__body">{{ logro.descripcion }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── VOLUNTEERING ───────────────────────────── -->
+    {% if profile.mostrar_voluntariado and profile.voluntariados.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Voluntariado</h2>
+      {% for vol in profile.voluntariados.all %}
+      <div class="entry">
+        <div class="entry__header">
+          <div>
+            <span class="entry__title">{{ vol.funcion }}</span>
+            — <span class="entry__sub">{{ vol.organizacion }}</span>
+          </div>
+        </div>
+        {% if vol.impacto %}<div class="entry__body">{{ vol.impacto }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ── SOCIAL NETWORKS ────────────────────────── -->
+    {% if profile.mostrar_redes %}
+    {% with sn=profile.cv.social_networks %}
+    {% if sn %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Redes profesionales</h2>
+      <div class="social-links">
+        {% if sn.linkedin %}<a href="{{ sn.linkedin }}" target="_blank" rel="noopener">🔗 LinkedIn</a>{% endif %}
+        {% if sn.github %}<a href="{{ sn.github }}" target="_blank" rel="noopener">🐙 GitHub</a>{% endif %}
+        {% if sn.portfolio %}<a href="{{ sn.portfolio }}" target="_blank" rel="noopener">🌐 Portfolio</a>{% endif %}
+        {% if sn.twitter %}<a href="{{ sn.twitter }}" target="_blank" rel="noopener">𝕏 Twitter/X</a>{% endif %}
+      </div>
+    </section>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+
+    <!-- ── INTERESTS ──────────────────────────────── -->
+    {% if profile.mostrar_intereses and profile.intereses.exists %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Intereses</h2>
+      <div class="badge-row">
+        {% for interes in profile.intereses.all %}
+        <span class="badge">{{ interes.nombre }}</span>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- ── OTHER INFO ─────────────────────────────── -->
+    {% if profile.mostrar_otros %}
+    {% with oi=profile.cv.other_info %}
+    {% if oi %}
+    <section class="cv-section">
+      <h2 class="cv-section__title">Otros datos</h2>
+      <div style="font-size:.9rem;">
+        <p>Teletrabajo: <strong>{{ oi.get_teletrabajo_display }}</strong></p>
+        <p>Disponibilidad para viajar: <strong>{% if oi.disponibilidad_viajar %}Sí{% else %}No{% endif %}</strong></p>
+        {% if oi.expectativa_salarial %}<p>Expectativas salariales: <strong>{{ oi.expectativa_salarial }}</strong></p>{% endif %}
+        {% if oi.notas %}<p>{{ oi.notas }}</p>{% endif %}
+      </div>
+    </section>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+
+  </div><!-- /cv-body -->
+</div><!-- /cv-wrapper -->
+
+<script>
+  // Auto-print if ?print=1
+  if (new URLSearchParams(location.search).get('print') === '1') {
+    window.addEventListener('load', () => window.print());
+  }
+</script>
+</body>
+</html>

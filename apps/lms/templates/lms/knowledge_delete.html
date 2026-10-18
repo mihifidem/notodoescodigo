@@ -1,0 +1,16 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Eliminar banco' %} | {{ bank.title }}{% endblock %}
+{% block content %}
+  <section class="form-panel">
+    <h1>{% trans 'Eliminar banco de conocimiento' %}</h1>
+    <p><strong>{{ bank.title }}</strong></p>
+    <p>{% blocktrans count total=question_count %}Se eliminará el banco y su pregunta, incluidas las versiones. Esta acción no se puede deshacer.{% plural %}Se eliminará el banco y sus {{ total }} preguntas, incluidas las versiones. Esta acción no se puede deshacer.{% endblocktrans %}</p>
+    <p class="quiet-note">{% trans 'Si alguna pregunta está vinculada a una prueba o registro histórico, se bloqueará la eliminación completa. En ese caso puedes archivar el banco.' %}</p>
+    <form method="post" class="action-row">
+      {% csrf_token %}
+      <button class="button button-danger" name="confirm" value="delete" type="submit">{% trans 'Confirmar eliminación' %}</button>
+      <a class="button button-secondary" href="{% url 'lms:knowledge_bank' course_id=course.pk bank_id=bank.pk %}">{% trans 'Cancelar' %}</a>
+    </form>
+  </section>
+{% endblock %}

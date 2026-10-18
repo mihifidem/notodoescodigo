@@ -1,0 +1,40 @@
+{% load i18n %}
+<div class="course-settings-layout">
+  <div class="course-settings-main">
+    <nav class="settings-tabs" aria-label="{% trans 'Configuraciones del curso' %}">
+      <a href="{% url 'lms:course_area' course_id=course.pk area='settings' %}"{% if settings_tab == 'details' %} aria-current="page"{% endif %}>{% trans 'Detalles de la asignatura' %}</a>
+      <a href="?tab=sections"{% if settings_tab == 'sections' %} aria-current="page"{% endif %}>{% trans 'Secciones' %}</a>
+      <a href="{% url 'lms:course_area' course_id=course.pk area='settings' %}#settings-options">{% trans 'Opciones del curso' %}</a>
+    </nav>
+    {% if settings_tab == 'sections' %}
+      <h1>{% trans 'Secciones de la asignatura' %}</h1>
+      <ul class="settings-sections">
+        {% for section in settings_sections %}
+          <li><strong>{{ section.title }}</strong><span>{% if section.is_active %}{% trans 'Activa' %}{% else %}{% trans 'Inactiva' %}{% endif %}</span>{% if section.description %}<p>{{ section.description }}</p>{% endif %}</li>
+        {% empty %}<li>{% trans 'Este curso no tiene secciones.' %}</li>{% endfor %}
+      </ul>
+      <a href="{% url 'lms:course_area' course_id=course.pk area='people' %}?tab=groups">{% trans 'Ver participantes por sección' %}</a>
+    {% else %}
+      <div class="settings-heading"><h1>{% trans 'Detalles de la asignatura' %}</h1><span class="status {% if course.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ course.get_status_display }}</span></div>
+      <form method="post" enctype="multipart/form-data" class="settings-form" novalidate>
+        {% csrf_token %}
+        {% if settings_form.non_field_errors %}<div class="form-errors" role="alert">{{ settings_form.non_field_errors }}</div>{% endif %}
+        {% for field in settings_detail_fields %}{% include 'lms/course_settings_field.html' %}{% endfor %}
+        <h2 id="settings-options">{% trans 'Opciones del curso' %}</h2>
+        {% for field in settings_option_fields %}{% include 'lms/course_settings_field.html' %}{% endfor %}
+        <div class="settings-save"><button type="submit" class="button button-primary">{% trans 'Actualizar detalles de la asignatura' %}</button></div>
+      </form>
+    {% endif %}
+  </div>
+  <aside class="settings-sidebar" aria-label="{% trans 'Resumen de la asignatura' %}">
+    <nav class="settings-actions" aria-label="{% trans 'Acciones de la asignatura' %}">
+      <a href="{% url 'lms:course_preview' course_id=course.pk %}"><i class="bi bi-eye" aria-hidden="true"></i> {% trans 'Vista previa de la asignatura' %}</a>
+      <a href="{% url 'lms:global_area' area='calendar' %}"><i class="bi bi-calendar3" aria-hidden="true"></i> {% trans 'Calendario' %}</a>
+      <a href="{% url 'lms:course_area' course_id=course.pk area='grades' %}"><i class="bi bi-bar-chart" aria-hidden="true"></i> {% trans 'Notas de la asignatura' %}</a>
+      <a href="{% url 'lms:course_edit' course_id=course.pk %}"><i class="bi bi-clock-history" aria-hidden="true"></i> {% trans 'Organización e historial' %}</a>
+    </nav>
+    <h2>{% trans 'Usuarios actuales' %}</h2>
+    <dl class="settings-users"><div><dt>{% trans 'Estudiantes' %}</dt><dd>{{ settings_student_count }}</dd></div><div><dt>{% trans 'Profesores' %}</dt><dd>{{ settings_teacher_count }}</dd></div></dl>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='people' %}">{% trans 'Ver personas' %}</a>
+  </aside>
+</div>

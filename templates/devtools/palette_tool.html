@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+
+{% block title %}Paleta accesible{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-secondary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Accessible Palette</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Qué hace</div>
+              <p class="mb-0 text-secondary">
+                Genera múltiples combinaciones de color a partir de una base, y también puedes subir una imagen para extraer una paleta dominante con un máximo de tonos configurable.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#paletteInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form id="paletteForm" class="row g-3 align-items-end" method="get">
+            <div class="col-md-4">
+              <label class="form-label">Color base</label>
+              <input id="baseColorInput" type="color" name="base" value="{{ base|default:'#2563eb' }}" class="form-control form-control-color form-control-lg w-100">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Paletas</label>
+              <input type="number" name="palette_count" value="{{ palette_count|default:'6' }}" class="form-control" min="1" max="12" step="1">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Máx. colores</label>
+              <input type="number" name="max_colors" value="{{ max_colors|default:'5' }}" class="form-control" min="2" max="10" step="1">
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+              <button type="submit" class="btn btn-secondary w-100 rounded-pill">Generar</button>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Subir imagen</label>
+              <input id="paletteImageInput" type="file" accept="image/*" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="button" id="paletteResetBtn" class="btn btn-outline-secondary w-100 rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div class="mt-4 mb-3">
+            <div class="small text-uppercase text-secondary fw-bold mb-2">Paletas generadas</div>
+            <div id="paletteGrid" class="row g-3"></div>
+          </div>
+
+          <div class="mt-4">
+            <div class="small text-uppercase text-secondary fw-bold mb-2">Colores base</div>
+            <div class="row g-3 mt-1">
+              {% for name, value in palette.items %}
+              <div class="col-md-6 col-lg-3">
+                <div class="border rounded-4 p-3 h-100" style="background: {{ value }}; color: white; min-height: 120px; display:flex; align-items:flex-end;">
+                  <div>
+                    <div class="small text-uppercase fw-bold opacity-75">{{ name }}</div>
+                    <div class="fw-bold">{{ value }}</div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="paletteInstructionsModal" tabindex="-1" aria-labelledby="paletteInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="paletteInstructionsModalLabel">Instrucciones del Accessible Palette</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Elige un color base para iniciar la generación.</li>
+          <li>Define cuántas paletas quieres generar y cuántos colores máximo tendrán.</li>
+          <li>Sube una imagen para extraer tonos dominantes automáticamente.</li>
+          <li>Usa <strong>Reset</strong> para volver a valores por defecto.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Recomendación: usa paletas pequeñas y contrastadas para interfaces, botones y tarjetas con buena legibilidad.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('paletteForm');
+    const grid = document.getElementById('paletteGrid');
+    const baseColorInput = document.getElementById('baseColorInput');
+    const resetBtn = document.getElementById('paletteResetBtn');
+    const imageInput = document.getElementById('paletteImageInput');
+
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '');
+      const value = clean.length === 3
+        ? clean.split('').map((char) => char + char).join('')
+        : clean;
+      const num = parseInt(value, 16);
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255,
+      };
+    }
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map((part) => {
+        const hex = part.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('').toUpperCase();
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h;
+      let s;
+      const l = (max + min) / 2;
+
+      if (max === min) {
+        h = 0;
+        s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          default: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+
+      return { h: h * 360, s: s * 100, l: l * 100 };
+    }
+
+    function hslToRgb(h, s, l) {
+      s /= 100; l /= 100;
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = l - c / 2;
+      let r = 0; let g = 0; let b = 0;
+
+      if (h >= 0 && h < 60) { r = c; g = x; }
+      else if (h >= 60 && h < 120) { r = x; g = c; }
+      else if (h >= 120 && h < 180) { g = c; b = x; }
+      else if (h >= 180 && h < 240) { g = x; b = c; }
+      else if (h >= 240 && h < 300) { r = x; b = c; }
+      else { r = c; b = x; }
+
+      return {
+        r: Math.round((r + m) * 255),
+        g: Math.round((g + m) * 255),
+        b: Math.round((b + m) * 255),
+      };
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function generatePaletteFromBase(baseHex, paletteCount, maxColors) {
+      const base = hexToRgb(baseHex);
+      const baseHsl = rgbToHsl(base.r, base.g, base.b);
+      const palettes = [];
+      const validCount = clamp(Number(paletteCount || 6), 1, 12);
+      const validMax = clamp(Number(maxColors || 5), 2, 10);
+
+      for (let i = 0; i < validCount; i += 1) {
+        const palette = [];
+        const shift = (i * 42) % 360;
+        const startHue = (baseHsl.h + shift) % 360;
+
+        for (let j = 0; j < validMax; j += 1) {
+          const h = (startHue + (j * 360 / validMax)) % 360;
+          const lightness = clamp(baseHsl.l + (j - (validMax - 1) / 2) * 8, 20, 86);
+          const saturation = clamp(baseHsl.s + (j % 2 === 0 ? 8 : -6), 35, 90);
+          const rgb = hslToRgb(h, saturation, lightness);
+          palette.push(rgbToHex(rgb.r, rgb.g, rgb.b));
+        }
+
+        palettes.push(palette);
+      }
+
+      return palettes;
+    }
+
+    function buildFallbackPalette(baseHex, limit) {
+      const safeLimit = clamp(Number(limit || 5), 2, 10);
+      const base = hexToRgb(baseHex || '#2563eb');
+      const baseHsl = rgbToHsl(base.r, base.g, base.b);
+      const colors = [];
+
+      for (let i = 0; i < safeLimit; i += 1) {
+        const hue = (baseHsl.h + (i * 360 / safeLimit)) % 360;
+        const lightness = clamp(baseHsl.l + (i - safeLimit / 2) * 9, 18, 86);
+        const saturation = clamp(baseHsl.s + (i % 2 === 0 ? 10 : -8), 28, 90);
+        const rgb = hslToRgb(hue, saturation, lightness);
+        colors.push(rgbToHex(rgb.r, rgb.g, rgb.b));
+      }
+
+      return colors;
+    }
+
+    function renderPaletteCards(palettes) {
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      palettes.forEach(function (palette, paletteIndex) {
+        const wrap = document.createElement('div');
+        wrap.className = 'col-lg-6';
+
+        const card = document.createElement('div');
+        card.className = 'border rounded-4 p-3 h-100 shadow-sm';
+
+        const title = document.createElement('div');
+        title.className = 'small text-uppercase text-secondary fw-bold mb-3';
+        title.textContent = 'Paleta ' + (paletteIndex + 1);
+
+        const swatches = document.createElement('div');
+        swatches.className = 'row g-2';
+
+        palette.forEach(function (color) {
+          const cell = document.createElement('div');
+          cell.className = 'col-6 col-sm-4 col-md-3';
+          const chip = document.createElement('div');
+          chip.className = 'rounded-3 border overflow-hidden';
+          chip.style.background = color;
+          chip.style.minHeight = '70px';
+          chip.style.display = 'flex';
+          chip.style.alignItems = 'flex-end';
+          chip.style.padding = '0.5rem';
+          chip.style.color = '#fff';
+          chip.style.fontWeight = '700';
+          chip.style.fontSize = '0.7rem';
+          chip.textContent = color;
+          cell.appendChild(chip);
+          swatches.appendChild(cell);
+        });
+
+        card.appendChild(title);
+        card.appendChild(swatches);
+        wrap.appendChild(card);
+        grid.appendChild(wrap);
+      });
+    }
+
+    function generateFromForm() {
+      const base = (baseColorInput ? baseColorInput.value : '#2563eb') || '#2563eb';
+      const paletteCount = form.querySelector('[name="palette_count"]')?.value || '6';
+      const maxColors = form.querySelector('[name="max_colors"]')?.value || '5';
+      const palettes = generatePaletteFromBase(base, paletteCount, maxColors);
+      renderPaletteCards(palettes);
+    }
+
+    function extractDominantColorsFromImage(file) {
+      if (!file || !window.FileReader) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const maxSize = 80;
+          const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+          canvas.width = Math.max(1, Math.round(img.width * ratio));
+          canvas.height = Math.max(1, Math.round(img.height * ratio));
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          const buckets = new Map();
+          const step = 4;
+          const maxColors = Number(form.querySelector('[name="max_colors"]')?.value || 5);
+          const fallbackBase = (baseColorInput ? baseColorInput.value : '#2563eb') || '#2563eb';
+
+          for (let i = 0; i < data.length; i += step * 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const alpha = data[i + 3];
+            if (alpha < 128) continue;
+
+            const key = `${Math.round(r / 32) * 32}-${Math.round(g / 32) * 32}-${Math.round(b / 32) * 32}`;
+            buckets.set(key, (buckets.get(key) || 0) + 1);
+          }
+
+          let colors = [...buckets.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, maxColors)
+            .map(([key]) => {
+              const [r, g, b] = key.split('-').map(Number);
+              return rgbToHex(r, g, b);
+            });
+
+          if (!colors.length) {
+            colors = buildFallbackPalette(fallbackBase, maxColors);
+          } else if (colors.length < maxColors) {
+            const fallback = buildFallbackPalette(fallbackBase, maxColors);
+            colors = [...colors, ...fallback.filter((item) => !colors.includes(item))].slice(0, maxColors);
+          }
+
+          renderPaletteCards([colors]);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (baseColorInput) {
+      baseColorInput.addEventListener('input', generateFromForm);
+      baseColorInput.addEventListener('change', generateFromForm);
+    }
+
+    if (form) {
+      form.querySelectorAll('input').forEach(function (input) {
+        input.addEventListener('input', generateFromForm);
+      });
+    }
+
+    if (imageInput) {
+      imageInput.addEventListener('change', function (event) {
+        const file = event.target.files && event.target.files[0];
+        if (file) {
+          extractDominantColorsFromImage(file);
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        if (baseColorInput) baseColorInput.value = '#2563eb';
+        const paletteCountInput = form.querySelector('[name="palette_count"]');
+        const maxColorsInput = form.querySelector('[name="max_colors"]');
+        if (paletteCountInput) paletteCountInput.value = '6';
+        if (maxColorsInput) maxColorsInput.value = '5';
+        if (imageInput) imageInput.value = '';
+        generateFromForm();
+      });
+    }
+
+    generateFromForm();
+  });
+</script>
+{% endblock %}

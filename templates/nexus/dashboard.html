@@ -1,0 +1,252 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Nexus 2026 – Dashboard{% endblock %}
+
+{% block nexus_content %}
+
+<!-- Hero -->
+<div class="nx-hero mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h1 class="nexus-heading fw-bold mb-1" style="font-size:2rem;">
+        Nexus 2026 <span style="color:#00C4FF;">DNA</span>
+      </h1>
+      <p class="mb-3 opacity-75">Talent Intelligence Platform — Motor de evaluación de softskills</p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'nexus:test_create' %}" class="btn btn-sm" style="background:#00C4FF;color:#fff;font-weight:600;">
+          <i class="bi bi-plus-circle me-1"></i>Subir nuevo test
+        </a>
+        <a href="{% url 'nexus:test_list' %}" class="btn btn-sm btn-light fw-semibold">
+          <i class="bi bi-file-earmark-code me-1"></i>Tests HTML
+        </a>
+        <a href="{% url 'nexus:profile_list' %}" class="btn btn-sm btn-outline-light">
+          <i class="bi bi-person-badge me-1"></i>Perfiles DNA
+        </a>
+      </div>
+    </div>
+    <div class="col-md-4 text-end d-none d-md-block">
+      <div style="font-size:4rem;opacity:.3;">⬡⬡</div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="nx-stat-card card shadow-sm h-100 p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="nx-stat-icon" style="background:rgba(0,196,255,.1);">
+          <i class="bi bi-file-earmark-code" style="color:#0090cc;"></i>
+        </div>
+        <div>
+          <div class="nexus-heading fw-bold fs-3" style="color:#0090cc;">{{ total_tests }}</div>
+          <div class="text-muted small">Tests activos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="nx-stat-card card shadow-sm h-100 p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="nx-stat-icon" style="background:rgba(34,197,94,.1);">
+          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+        </div>
+        <div>
+          <div class="nexus-heading fw-bold fs-3" style="color:#16a34a;">{{ sesiones_completadas }}</div>
+          <div class="text-muted small">Tests completados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="nx-stat-card card shadow-sm h-100 p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="nx-stat-icon" style="background:rgba(27,60,89,.1);">
+          <i class="bi bi-boxes" style="color:#1B3C59;"></i>
+        </div>
+        <div>
+          <div class="nexus-heading fw-bold fs-3" style="color:#1B3C59;">{{ total_modules }}</div>
+          <div class="text-muted small">Módulos DNA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="nx-stat-card card shadow-sm h-100 p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="nx-stat-icon" style="background:rgba(139,92,246,.1);">
+          <i class="bi bi-person-badge" style="color:#7c3aed;"></i>
+        </div>
+        <div>
+          <div class="nexus-heading fw-bold fs-3" style="color:#7c3aed;">{{ total_profiles }}</div>
+          <div class="text-muted small">Perfiles DNA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- Tests HTML recientes -->
+  <div class="col-lg-8">
+    <div class="nx-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="nx-section-title">Tests HTML cargados</div>
+        <a href="{% url 'nexus:test_create' %}" class="nx-btn-primary btn btn-sm">
+          <i class="bi bi-plus me-1"></i>Subir test
+        </a>
+      </div>
+
+      {% if recent_tests %}
+      <div class="table-responsive">
+        <table class="table nx-table mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th>Sesiones</th>
+              <th>Completadas</th>
+              <th>Fecha</th>
+              <th style="width:100px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in recent_tests %}
+            <tr>
+              <td>
+                <div class="fw-semibold small" style="color:#1B3C59;">{{ t.nombre }}</div>
+                {% if t.descripcion %}
+                <div class="text-muted" style="font-size:.7rem;">{{ t.descripcion|truncatechars:60 }}</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if t.activo %}
+                  <span class="badge bg-success">Activo</span>
+                {% else %}
+                  <span class="badge bg-secondary">Borrador</span>
+                {% endif %}
+              </td>
+              <td><span class="badge" style="background:rgba(27,60,89,.1);color:#1B3C59;">{{ t.total_sesiones }}</span></td>
+              <td><span class="badge bg-success-subtle text-success">{{ t.sesiones_completadas }}</span></td>
+              <td class="text-muted small">{{ t.creado_en|date:"d/m/Y" }}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{% url 'nexus:test_edit' t.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'nexus:test_delete' t.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-file-earmark-code fs-1 mb-3 d-block opacity-25"></i>
+        <p class="mb-3">No hay tests cargados aún.</p>
+        <a href="{% url 'nexus:test_create' %}" class="nx-btn-primary btn btn-sm">
+          <i class="bi bi-plus me-1"></i>Subir primer test
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Módulos DNA (referencia) -->
+    <div class="nx-card p-4 mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="nx-section-title">Módulos Nexus DNA</div>
+        <a href="{% url 'nexus:module_list' %}" class="text-muted small">Ver todos →</a>
+      </div>
+      <div class="row g-2">
+        {% for mod in foundation_modules %}
+        <div class="col-4 col-md-3">
+          <a href="{% url 'nexus:module_detail' mod.pk %}" class="text-decoration-none">
+            <div class="nx-module-card card p-2" style="border-left-color:#2563EB;">
+              <div class="fw-semibold" style="font-size:.75rem;color:#2563EB;">{{ mod.name }}</div>
+              <div class="text-muted" style="font-size:.65rem;">{{ mod.weight_percent }}</div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+        {% for mod in talent_modules %}
+        <div class="col-4 col-md-3">
+          <a href="{% url 'nexus:module_detail' mod.pk %}" class="text-decoration-none">
+            <div class="nx-module-card card p-2" style="border-left-color:#7C3AED;">
+              <div class="fw-semibold" style="font-size:.75rem;color:#7C3AED;">{{ mod.name }}</div>
+              <div class="text-muted" style="font-size:.65rem;">{{ mod.weight_percent }}</div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+        {% for mod in human_modules %}
+        <div class="col-4 col-md-3">
+          <a href="{% url 'nexus:module_detail' mod.pk %}" class="text-decoration-none">
+            <div class="nx-module-card card p-2" style="border-left-color:{{ mod.color }};">
+              <div class="fw-semibold" style="font-size:.75rem;color:{{ mod.color }};">{{ mod.name }}</div>
+              <div class="text-muted" style="font-size:.65rem;">{{ mod.weight_percent }}</div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Columna derecha -->
+  <div class="col-lg-4">
+
+    <!-- Top perfiles DNA -->
+    <div class="nx-card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="nx-section-title">Top DNA Scores</div>
+        <a href="{% url 'nexus:profile_list' %}" class="text-muted small">Ver todos →</a>
+      </div>
+      {% if top_profiles %}
+        {% for p in top_profiles %}
+        <a href="{% url 'nexus:profile_detail' p.pk %}" class="text-decoration-none">
+          <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                 style="width:36px;height:36px;background:linear-gradient(135deg,#1B3C59,#234d72);font-size:.8rem;flex-shrink:0;">
+              {{ p.user.get_full_name|default:p.user.username|first|upper }}
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold small text-truncate">{{ p.user.get_full_name|default:p.user.username }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ p.primary_archetype|default:"—" }}</div>
+            </div>
+            <div class="nexus-heading fw-bold" style="color:#1B3C59;font-size:1.1rem;">{{ p.nexus_score }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-3 text-muted small">Sin perfiles DNA aún</div>
+      {% endif %}
+    </div>
+
+    <!-- Últimas sesiones -->
+    <div class="nx-card p-4">
+      <div class="nx-section-title mb-3">Últimas sesiones</div>
+      {% if recent_sesiones %}
+        {% for s in recent_sesiones %}
+        <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+          <div class="min-w-0">
+            <div class="fw-semibold small text-truncate">{{ s.alumno.get_full_name|default:s.alumno.username }}</div>
+            <div class="text-muted" style="font-size:.7rem;">{{ s.test.nombre }}</div>
+          </div>
+          <span class="badge bg-{{ s.estado_class }} ms-2" style="font-size:.65rem;">
+            {{ s.get_estado_display }}
+          </span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-3 text-muted small">Sin sesiones aún</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

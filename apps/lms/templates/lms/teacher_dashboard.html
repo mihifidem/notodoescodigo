@@ -1,0 +1,183 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Espacio docente" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a><span aria-hidden="true">/</span><span aria-current="page">{% trans "Espacio docente" %}</span></nav>
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "BACK OFFICE DOCENTE" %}</p>
+      <h1>{% trans "Gestiona tus aulas" %}</h1>
+      <p class="lede">{% trans "Selecciona un curso para revisar su actividad, corregir entregas y mantener el ritmo de clase." %}</p>
+    </div>
+    {% if can_create_course %}
+      <a class="button button-primary" href="{% url 'lms:course_create' %}">{% trans "Crear aula" %}</a>
+    {% endif %}
+  </section>
+
+  {% if teacher_memberships %}
+    <form method="get" class="course-selector">
+      <div>
+        <label for="teacher-course">{% trans "Curso seleccionado" %}</label>
+        <select id="teacher-course" name="course">
+          {% for item in teacher_memberships %}
+            <option value="{{ item.course.pk }}" {% if selected_membership and selected_membership.pk == item.pk %}selected{% endif %}>{{ item.course.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="button button-secondary button-small" type="submit">{% trans "Abrir curso" %}</button>
+    </form>
+
+    {% if selected_course %}
+      <div class="teacher-course-grid">
+        <section class="course-hero teacher-hero">
+          <div class="hero-content">
+            <p class="eyebrow">{% trans "AULA SELECCIONADA" %}</p>
+            <div class="hero-title-row">
+              <h2>{{ selected_course.nombre }}</h2>
+              <span class="status {% if selected_course.lms_settings.archived %}status-draft{% elif selected_course.activo %}status-published{% else %}status-draft{% endif %}">{% if selected_course.lms_settings.archived %}{% trans "Archivado" %}{% elif selected_course.activo %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
+            </div>
+            <p>{{ selected_course.descripcion|truncatewords:32 }}</p>
+            <div class="hero-actions">
+              <a class="button button-light" href="{% url 'lms:course_detail' course_id=selected_course.pk %}">{% trans "Ver aula" %}</a>
+              <a class="button button-light" href="{% url 'lms:course_edit' course_id=selected_course.pk %}">{% trans "Editar aula" %}</a>
+              {% if can_publish %}
+                <form method="post" action="{% url 'lms:course_publish' course_id=selected_course.pk %}">{% csrf_token %}<button class="button button-primary" type="submit">{% trans "Publicar" %}</button></form>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+
+        <div class="metrics-grid" style="grid-column: 1 / -1; margin-bottom: 18px;">
+          <article class="metric-card">
+            <div class="metric-label">{% trans "Alumnos activos" %}</div>
+            <strong>{{ kpis.students }}</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">{% trans "Entregas sin evaluar" %}</div>
+            <strong>{{ kpis.pending_submissions }}</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">{% trans "Pruebas abiertas" %}</div>
+            <strong>{{ kpis.open_quizzes }}</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">{% trans "Progreso de clase" %}</div>
+            <strong>{{ kpis.class_progress }}%</strong>
+          </article>
+        </div>
+
+        <section class="content-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">{% trans "ALERTAS" %}</p>
+              <h2>{% trans "Acciones prioritarias" %}</h2>
+            </div>
+          </div>
+          {% if alerts %}
+            <ul class="due-list">
+              {% for alert in alerts %}
+                <li>
+                  <span class="due-icon" aria-hidden="true">⚑</span>
+                  <div>
+                    <h3><a href="{{ alert.url }}">{{ alert.title }}</a></h3>
+                    <p>{{ alert.body }}</p>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </section>
+
+        <aside class="upcoming-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">{% trans "PLANIFICACIÓN" %}</p><h2>{% trans "Próximas actividades" %}</h2></div>
+          </div>
+          {% if upcoming_evaluations %}
+            <ul class="due-list">
+              {% for evaluation in upcoming_evaluations %}
+                <li>
+                  <span class="due-icon" aria-hidden="true">◷</span>
+                  <div>
+                    <h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3>
+                    <p>{% if evaluation.is_deadline %}{% trans "Cierre" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p>
+                    <span class="due-state due-{{ evaluation.state }}">{% if evaluation.published %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="quiet-note">{% trans "No hay actividades próximas." %}</p>
+          {% endif %}
+        </aside>
+
+        <section class="content-panel" style="grid-column: 1 / -1; margin-top: 18px;">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">{% trans "ACCIONES RÁPIDAS" %}</p>
+              <h2>{% trans "Crear y gestionar contenido" %}</h2>
+            </div>
+          </div>
+          <div class="hero-actions" style="margin-top: 0;">
+            {% for action in quick_actions %}
+              <a class="button button-secondary" href="{{ action.url }}">{{ action.label }}</a>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="content-panel" style="grid-column: 1 / -1;">
+          <div class="section-heading">
+            <div><p class="eyebrow">{% trans "ACTIVIDAD RECIENTE" %}</p><h2>{% trans "Últimos cambios" %}</h2></div>
+          </div>
+          {% if recent_activity %}
+            <ul class="due-list">
+              {% for item in recent_activity %}
+                <li>
+                  <span class="due-icon" aria-hidden="true">◌</span>
+                  <div>
+                    <h3>{{ item.get_action_display }}</h3>
+                    <p>{% if item.actor %}{{ item.actor.get_full_name|default:item.actor.username }}{% else %}{% trans "Sistema" %}{% endif %} · {{ item.created_at|date:"j M H:i" }}</p>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="quiet-note">{% trans "Aún no hay actividad reciente para este curso." %}</p>
+          {% endif %}
+        </section>
+
+        <section class="content-panel" style="grid-column: 1 / -1;">
+          <div class="section-heading">
+            <div><p class="eyebrow">{% trans "CONTENIDO" %}</p><h2>{% trans "Temas del aula" %}</h2></div>
+            <a class="text-link" href="{% url 'lms:course_area' course_id=selected_course.pk area='content' %}">{% trans "Abrir contenido" %} →</a>
+          </div>
+          {% if topics %}
+            <ol class="activity-timeline">
+              {% for topic in topics %}
+                <li>
+                  <span class="timeline-marker" aria-hidden="true">{{ forloop.counter }}</span>
+                  <div>
+                    <p class="eyebrow">{% blocktrans with number=forloop.counter %}TEMA {{ number }}{% endblocktrans %}</p>
+                    <h3><a href="{% url 'courses:tema_detail' topic.pk %}">{{ topic.titulo }}</a></h3>
+                  </div>
+                </li>
+              {% endfor %}
+            </ol>
+          {% else %}
+            <div class="empty-state empty-state-compact"><p>{% trans "Todavía no hay temas en el curso." %}</p></div>
+          {% endif %}
+        </section>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <h2>{% trans "No tienes aulas asignadas como docente" %}</h2>
+      <p>{% trans "Las capacidades docentes se asignan curso por curso. La administración global es independiente." %}</p>
+      {% if can_create_course %}
+        <a class="button button-primary" href="{% url 'lms:first_course_wizard' %}">{% trans "Crear mi primer curso" %}</a>
+      {% else %}
+        <a class="button button-secondary" href="{% url 'lms:dashboard' %}">{% trans "Volver a mis aulas" %}</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

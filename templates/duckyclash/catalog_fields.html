@@ -1,0 +1,22 @@
+{% if can_add_subcategory or can_add_landscape %}
+<div class="border rounded p-3 mb-3">
+    <h3 class="h6">Ampliar el catálogo</h3>
+    <p class="text-body-secondary">Guardar aquí no publica el reto. Los datos escritos se conservan; si eliges una imagen, súbela antes de añadir otra subcategoría.</p>
+    {% if can_add_subcategory %}
+    <details class="mb-3" {% if subcategory_form.is_bound %}open{% endif %}>
+        <summary>Añadir subcategoría</summary>
+        <p class="text-body-secondary">Sector → Categoría → Subcategoría. Selecciona el sector de la categoría; los sectores y su asignación a categorías se gestionan desde la administración.</p>
+        {{ subcategory_form.as_p }}
+        <button type="submit" name="catalog_action" value="subcategory" formnovalidate class="btn btn-outline-primary">Guardar subcategoría</button>
+    </details>
+    {% endif %}
+    {% if can_add_landscape %}
+    <details {% if landscape_form.is_bound %}open{% endif %}>
+        <summary>Subir paisaje</summary>
+        <p>PNG, JPEG o WebP, hasta 5 MB y 4096 píxeles por lado. Se guarda como un nuevo paisaje para no cambiar duelos existentes.</p>
+        {{ landscape_form.as_p }}
+        <button type="submit" name="catalog_action" value="landscape" formnovalidate class="btn btn-outline-primary">Guardar paisaje</button>
+    </details>
+    {% endif %}
+</div>
+{% endif %}

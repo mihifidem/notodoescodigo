@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}{{ block.super }} duckyclash-pages{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'duckyclash/pages.css' %}">{% endblock %}
+{% block page_title %}DuckyClash{% endblock %}
+{% block content %}
+<div class="container pt-3">
+    <nav aria-label="DuckyClash" class="d-flex flex-wrap gap-2 border-bottom pb-3">
+        <a class="btn btn-sm btn-outline-success" href="{% url 'ducky_arenas:world' %}">Volver a Duki Arenas</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:home' %}">Área de Clash</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:create' %}">Crear reto</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:invitations_received' %}">Recibidas</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:invitations_sent' %}">Enviadas</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:counteroffers' %}">Contrapropuestas</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:open_list' %}">Retos Abiertos</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:duel_list' %}">Mis duelos</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'duckyclash:history' %}">Historial y estadísticas</a>
+    </nav>
+    <p class="small text-body-secondary mt-2 mb-0">Los horarios se muestran en tu zona local si JavaScript está disponible; en caso contrario, en la zona del sitio. Los formularios indican su propia zona horaria.</p>
+</div>
+{% block clash_content %}{% endblock %}
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'duckyclash/pages.js' %}" defer></script>
+{% endblock %}

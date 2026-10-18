@@ -1,0 +1,30 @@
+{% extends "nexus/base.html" %}
+{% block page_title %}Eliminar Assessment – Nexus 2026{% endblock %}
+
+{% block nexus_content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="nx-card p-4 text-center">
+      <div class="mb-3" style="font-size:3rem;color:#EF4444;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <h4 class="nexus-heading fw-bold mb-1">¿Eliminar assessment?</h4>
+      <p class="text-muted mb-4">
+        Estás a punto de eliminar <strong>{{ assessment.title }}</strong>.
+        Se eliminarán también todas las sesiones y respuestas asociadas.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="{% url 'nexus:assessment_detail' assessment.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Cancelar
+          </a>
+          <button type="submit" class="btn btn-danger fw-semibold">
+            <i class="bi bi-trash me-1"></i>Sí, eliminar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

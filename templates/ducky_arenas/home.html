@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static l10n %}
+{% block title %}Ducky Arenas · Lobby{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ducky-lobby.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ducky-lobby" data-ducky-lobby>
+    <header class="lobby-header">
+        <div>
+            <span class="lobby-eyebrow">ELIGE TU RETO. SUPERA TUS LÍMITES.</span>
+            <h1>DUCKY <span>ARENAS</span></h1>
+        </div>
+        <nav class="lobby-shortcuts" aria-label="Tu jugador">
+            <a href="{% url 'ducky_arenas:world' %}"><i class="bi bi-map" aria-hidden="true"></i> Explorar Duki Arenas</a>
+            <a href="{% url 'ducky_arenas:profile' %}"><i class="bi bi-person-badge" aria-hidden="true"></i> Mi perfil</a>
+            <a href="{% url 'ducky_arenas:inventory' %}"><i class="bi bi-backpack" aria-hidden="true"></i> Equipamiento</a>
+        </nav>
+    </header>
+
+    <div class="lobby-panels">
+        <section class="lobby-panel lobby-arena-panel" aria-labelledby="arena-heading">
+            <div class="lobby-panel-bar">
+                <h2 id="arena-heading"><i class="bi bi-grid" aria-hidden="true"></i> Seleccionar arena</h2>
+                <span>01 / 02</span>
+            </div>
+            <div class="lobby-panel-body">
+                <p class="lobby-hint">Cuatro formas de poner a prueba tu talento.</p>
+                <fieldset class="lobby-mode-grid">
+                    <legend class="visually-hidden">Elige un modo de juego</legend>
+                    <div class="lobby-mode">
+                        <input type="radio" name="arena" id="lobby-quiz" value="quiz" checked
+                               data-url="{% url 'ducky_arenas:quiz' %}" data-title="Quiz Arenas"
+                               data-description="Desafíos colectivos entre alumnos con ranking, tiempo y evaluación.">
+                        <label for="lobby-quiz">
+                            <span class="lobby-mode-number">01</span>
+                            <span class="lobby-mode-check"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                            <img src="{% static 'img/quizArenas.png' %}" alt="" width="160" height="160">
+                            <strong>Quiz</strong><span class="lobby-mode-subtitle">Prueba grupal</span>
+                        </label>
+                        <a class="lobby-direct-link" href="{% url 'ducky_arenas:quiz' %}">Entrar en Quiz</a>
+                    </div>
+                    <div class="lobby-mode">
+                        <input type="radio" name="arena" id="lobby-battle" value="battle"
+                               data-url="{% url 'ducky_arenas:battle' %}" data-title="Battle Arenas"
+                               data-description="Duelo directo entre dos usuarios para decidir el campeón.">
+                        <label for="lobby-battle">
+                            <span class="lobby-mode-number">02</span>
+                            <span class="lobby-mode-check"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                            <img src="{% static 'img/battleArenas.png' %}" alt="" width="160" height="160">
+                            <strong>Battle</strong><span class="lobby-mode-subtitle">Duelo competitivo · 1 vs 1</span>
+                        </label>
+                        <a class="lobby-direct-link" href="{% url 'ducky_arenas:battle' %}">Entrar en Battle</a>
+                    </div>
+                    <div class="lobby-mode">
+                        <input type="radio" name="arena" id="lobby-challenge" value="challenge"
+                               data-url="{% url 'ducky_arenas:challenge' %}" data-title="Challenge Arenas"
+                               data-description="Entrena lógica, memoria y creatividad con mini juegos técnicos.">
+                        <label for="lobby-challenge">
+                            <span class="lobby-mode-number">03</span>
+                            <span class="lobby-mode-check"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                            <img src="{% static 'img/challengeArenas.png' %}" alt="" width="160" height="160">
+                            <strong>Challenge</strong><span class="lobby-mode-subtitle">Mini juegos técnicos</span>
+                        </label>
+                        <a class="lobby-direct-link" href="{% url 'ducky_arenas:challenge' %}">Entrar en Challenge</a>
+                    </div>
+                    <div class="lobby-mode">
+                        <input type="radio" name="arena" id="lobby-escape" value="escape"
+                               data-url="{% url 'ducky_arenas:escape' %}" data-title="Escape Arenas"
+                               data-description="Resuelve enigmas, descubre pistas y escapa del laboratorio.">
+                        <label for="lobby-escape">
+                            <span class="lobby-mode-number">04</span>
+                            <span class="lobby-mode-check"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                            <img src="{% static 'img/escapeArenas.png' %}" alt="" width="160" height="160">
+                            <strong>Escape</strong><span class="lobby-mode-subtitle">Escape room técnico</span>
+                        </label>
+                        <a class="lobby-direct-link" href="{% url 'ducky_arenas:escape' %}">Entrar en Escape</a>
+                    </div>
+                </fieldset>
+                <div class="lobby-selection" aria-live="polite" aria-atomic="true">
+                    <span class="lobby-eyebrow">MISIÓN SELECCIONADA</span>
+                    <h3 data-arena-title>Quiz Arenas</h3>
+                    <p data-arena-description>Desafíos colectivos entre alumnos con ranking, tiempo y evaluación.</p>
+                </div>
+                <noscript><p class="lobby-hint">Usa el enlace de cada arena para entrar al juego.</p></noscript>
+            </div>
+        </section>
+
+        <section class="lobby-panel lobby-character-panel" aria-labelledby="character-heading">
+            <div class="lobby-panel-bar">
+                <h2 id="character-heading"><i class="bi bi-person" aria-hidden="true"></i> Tu Ducky</h2>
+                <span>02 / 02</span>
+            </div>
+            <div class="lobby-character-stage">
+                <span class="lobby-character-class">{{ avatar_config.label }} <i class="bi bi-diamond-fill" aria-hidden="true"></i></span>
+                <div class="lobby-stage-orbit" aria-hidden="true"></div>
+                <img class="lobby-character-image" src="{% static 'img/pato.png' %}"
+                     alt="Tu Ducky de cuerpo entero · {{ avatar_config.label }}" width="1690" height="2000">
+                <div class="lobby-character-name">
+                    <span>{{ profile.get_evolutionStage_display }}</span>
+                    <h3>{{ profile.nickname }}</h3>
+                </div>
+            </div>
+            <div class="lobby-player-stats">
+                <div><span>NIVEL</span><strong>{{ level_progress.current_level|stringformat:'02d' }}</strong></div>
+                <div><span>RANGO</span><strong>{{ profile.get_rank_display }}</strong></div>
+                <div><span>RATING</span><strong>{{ profile.rating }}</strong></div>
+            </div>
+            <section class="lobby-characteristics" aria-labelledby="characteristics-heading">
+                <h3 id="characteristics-heading">Características</h3>
+                <dl>
+                    {% for stat in characteristics %}
+                    <div><dt><abbr title="{{ stat.label }}">{{ stat.code }}</abbr></dt><dd>{{ stat.value }}</dd></div>
+                    {% endfor %}
+                </dl>
+            </section>
+            <div class="lobby-xp">
+                <div><span>Experiencia · {{ profile.xp }} XP</span>
+                    <span>{% if level_progress.current_level < level_progress.next_level %}Próximo nivel: {{ level_progress.next_level }}{% else %}Nivel máximo{% endif %}</span>
+                </div>
+                <progress value="{{ level_progress.progress_percent|unlocalize }}" max="100"
+                          aria-label="Progreso de experiencia">{{ level_progress.progress_percent }}%</progress>
+            </div>
+        </section>
+    </div>
+
+    <footer class="lobby-footer">
+        <div class="lobby-player-card">
+            <img src="{% static avatar_config.avatarFallback %}" alt="" width="48" height="48">
+            <div><strong>{{ profile.nickname }}</strong><span>{{ avatar_config.label }} · Nivel {{ level_progress.current_level }}</span></div>
+        </div>
+        <a class="lobby-play" data-arena-play href="{% url 'ducky_arenas:quiz' %}" hidden>
+            <i class="bi bi-play-fill" aria-hidden="true"></i> <span data-arena-play-label>JUGAR · QUIZ</span>
+        </a>
+        <div class="lobby-wallet"><i class="bi bi-coin" aria-hidden="true"></i> {{ profile.duckCoins }} <span>Ducky Coins</span></div>
+    </footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'ducky_arenas/lobby.js' %}" defer></script>
+{% endblock %}

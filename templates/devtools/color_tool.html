@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+
+{% block title %}Generador de color{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Color Tool</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Cómo usarlo</div>
+              <p class="mb-0 text-secondary">
+                Esta miniapp te ayuda a analizar colores y convertir su información a RGB, HSL y HEX para trabajar con consistencia.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#toolInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Color</label>
+              <input type="color" name="color" value="{{ color.hex|default:'#2563EB' }}" class="form-control form-control-color form-control-lg w-100" title="Elige un color">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Analizar</button>
+            </div>
+          </form>
+
+          <div class="row g-4 mt-2">
+            <div class="col-lg-5">
+              <div class="border rounded-4 p-3 bg-light h-100">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <div>
+                    <div class="small text-uppercase text-secondary fw-bold mb-1">Selector</div>
+                    <div class="fw-semibold">Color base</div>
+                  </div>
+                  <input id="baseColorInput" type="color" value="{{ color.hex|default:'#2563EB' }}" class="form-control form-control-color" style="width: 72px; height: 48px;" aria-label="Color base">
+                </div>
+
+                <div class="mt-4">
+                  <label class="form-label fw-semibold" for="hueRange">Matiz</label>
+                  <input id="hueRange" type="range" min="0" max="360" value="220" class="form-range">
+                </div>
+
+                <div class="mt-3">
+                  <label class="form-label fw-semibold" for="saturationRange">Saturación</label>
+                  <input id="saturationRange" type="range" min="0" max="100" value="91" class="form-range">
+                </div>
+
+                <div class="mt-3">
+                  <label class="form-label fw-semibold" for="lightnessRange">Brillo</label>
+                  <input id="lightnessRange" type="range" min="0" max="100" value="52" class="form-range">
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                  <div id="colorWheel" class="position-relative rounded-circle border border-2 border-white shadow-sm" style="width: 220px; height: 220px; background: radial-gradient(circle at center, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.18) 26%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.18) 100%), conic-gradient(from -90deg, #ff0000 0deg, #ffff00 60deg, #00ff00 120deg, #00ffff 180deg, #0000ff 240deg, #ff00ff 300deg, #ff0000 360deg); cursor: crosshair;">
+                    <div id="wheelCursor" class="position-absolute rounded-circle border border-3 border-white shadow" style="width: 18px; height: 18px; left: 50%; top: 50%; transform: translate(-50%, -50%); background: white; box-shadow: 0 0 0 3px rgba(0,0,0,0.12);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7">
+              <div class="border rounded-4 p-3 h-100">
+                <div class="small text-uppercase text-secondary fw-bold mb-3">Paletas sugeridas</div>
+                <div class="d-flex flex-wrap gap-2 mb-3" id="schemeButtons">
+                  <button type="button" class="btn btn-sm rounded-pill btn-primary scheme-btn active" data-scheme="analogous">Análoga</button>
+                  <button type="button" class="btn btn-sm rounded-pill btn-outline-primary scheme-btn" data-scheme="complementary">Complementaria</button>
+                  <button type="button" class="btn btn-sm rounded-pill btn-outline-primary scheme-btn" data-scheme="triadic">Triádica</button>
+                  <button type="button" class="btn btn-sm rounded-pill btn-outline-primary scheme-btn" data-scheme="split">Split</button>
+                  <button type="button" class="btn btn-sm rounded-pill btn-outline-primary scheme-btn" data-scheme="tetradic">Tetrádica</button>
+                  <button type="button" class="btn btn-sm rounded-pill btn-outline-primary scheme-btn" data-scheme="monochromatic">Monocromática</button>
+                  <button type="button" id="savePaletteBtn" class="btn btn-sm rounded-pill btn-success ms-auto">Guardar paleta</button>
+                </div>
+                <div id="paletteGrid" class="row g-3"></div>
+                <div class="mt-3">
+                  <div class="small text-uppercase text-secondary fw-bold mb-2">Paletas guardadas</div>
+                  <div id="favoritesList" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="selectedColorPreview" class="mt-4 p-4 rounded-4 border" style="background: {{ color.hex|default:'#2563EB' }}; color: white; min-height: 150px; display: flex; align-items: end;">
+            <div>
+              <div class="small text-uppercase fw-bold opacity-75">Vista previa</div>
+              <div class="fs-3 fw-bold">{{ color.hex|default:'#2563EB' }}</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">RGB</div><div class="fw-bold mt-2" id="rgbValue">{{ color.rgb }}</div></div></div>
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">HSL</div><div class="fw-bold mt-2" id="hslValue">{{ color.hsl }}</div></div></div>
+            <div class="col-md-4"><div class="border rounded-4 p-3 bg-light h-100"><div class="small text-uppercase text-secondary">HEX</div><div class="fw-bold mt-2" id="hexValue">{{ color.hex }}</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="toolInstructionsModal" tabindex="-1" aria-labelledby="toolInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="toolInstructionsModalLabel">Instrucciones del Color Tool</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Selecciona un color con el selector nativo o ajusta el matiz, saturación y brillo.</li>
+          <li>Explora la rueda cromática para mover el cursor y cambiar el tono de forma visual.</li>
+          <li>Prueba diferentes armonías: análoga, complementaria, triádica, split, tetrádica o monocromática.</li>
+          <li>Haz clic en cualquier tono de la paleta para copiar su valor HEX.</li>
+          <li>Usa “Guardar paleta” para conservar combinaciones favoritas y volver a cargarlas después.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          <strong>Ejemplos:</strong><br>
+          #2563EB → azul principal de interfaces<br>
+          #F59E0B → amarillo de acento<br>
+          #10B981 → verde de éxito o confirmación
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const defaultHex = '{{ color.hex|default:'#2563EB' }}'.toUpperCase();
+  const STORAGE_KEY = 'devtools_color_palettes';
+  const state = {
+    baseColor: defaultHex,
+    scheme: 'analogous'
+  };
+
+  function getSavedPalettes() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function savePalette() {
+    const palette = buildPalette(state.baseColor, state.scheme).map((item) => item.hex);
+    const saved = getSavedPalettes();
+    const next = [{ id: Date.now(), colors: palette }, ...saved].slice(0, 6);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    renderFavorites();
+  }
+
+  function renderFavorites() {
+    const list = document.getElementById('favoritesList');
+    const saved = getSavedPalettes();
+
+    if (!saved.length) {
+      list.innerHTML = '<span class="text-secondary small">Todavía no hay paletas guardadas.</span>';
+      return;
+    }
+
+    list.innerHTML = saved.map((entry) => `
+      <button type="button" class="btn btn-light border rounded-pill px-2 py-2 favorite-btn" data-colors="${JSON.stringify(entry.colors).replace(/"/g, '&quot;')}">
+        <span class="d-flex gap-1 align-items-center">
+          ${entry.colors.map((color) => `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${color};border:1px solid rgba(0,0,0,0.12);"></span>`).join('')}
+        </span>
+      </button>
+    `).join('');
+
+    document.querySelectorAll('.favorite-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        const colors = JSON.parse(button.dataset.colors.replace(/&quot;/g, '"'));
+        if (colors.length) {
+          updateBaseColor(colors[0]);
+          state.scheme = 'analogous';
+          document.querySelectorAll('.scheme-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.scheme === 'analogous');
+            btn.classList.toggle('btn-primary', btn.dataset.scheme === 'analogous');
+            btn.classList.toggle('btn-outline-primary', btn.dataset.scheme !== 'analogous');
+          });
+          renderPalette();
+        }
+      });
+    });
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function hexToRgb(hex) {
+    const clean = hex.replace('#', '').trim();
+    const value = clean.length === 3
+      ? clean.split('').map((char) => char + char).join('')
+      : clean;
+    const int = parseInt(value, 16);
+    return {
+      r: (int >> 16) & 255,
+      g: (int >> 8) & 255,
+      b: int & 255,
+    };
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  function rgbToHsl(r, g, b) {
+    const rr = r / 255;
+    const gg = g / 255;
+    const bb = b / 255;
+    const max = Math.max(rr, gg, bb);
+    const min = Math.min(rr, gg, bb);
+    const delta = max - min;
+    let h = 0;
+    const l = (max + min) / 2;
+    const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+    if (delta !== 0) {
+      if (max === rr) h = ((gg - bb) / delta) % 6;
+      else if (max === gg) h = (bb - rr) / delta + 2;
+      else h = (rr - gg) / delta + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+
+    return {
+      h: Math.round(h),
+      s: Math.round(s * 100),
+      l: Math.round(l * 100),
+    };
+  }
+
+  function hslToRgb(h, s, l) {
+    const hue = h / 360;
+    const sat = s / 100;
+    const light = l / 100;
+    const c = (1 - Math.abs(2 * light - 1)) * sat;
+    const x = c * (1 - Math.abs((hue * 6 % 2) - 1));
+    const m = light - c / 2;
+    let r = 0, g = 0, b = 0;
+
+    if (hue < 1 / 6) [r, g, b] = [c, x, 0];
+    else if (hue < 2 / 6) [r, g, b] = [x, c, 0];
+    else if (hue < 3 / 6) [r, g, b] = [0, c, x];
+    else if (hue < 4 / 6) [r, g, b] = [0, x, c];
+    else if (hue < 5 / 6) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+
+    return {
+      r: Math.round((r + m) * 255),
+      g: Math.round((g + m) * 255),
+      b: Math.round((b + m) * 255),
+    };
+  }
+
+  function hexToHsl(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    return rgbToHsl(r, g, b);
+  }
+
+  function hslToHex(h, s, l) {
+    const { r, g, b } = hslToRgb(h, s, l);
+    return rgbToHex(r, g, b);
+  }
+
+  function shiftHue(h, delta) {
+    return (h + delta + 360) % 360;
+  }
+
+  function buildPalette(hex, scheme) {
+    const { h, s, l } = hexToHsl(hex);
+    const schemeMap = {
+      analogous: [0, -30, 30, 60, 90],
+      complementary: [0, 180, 30, -30, 60],
+      triadic: [0, 120, 240, 30, -30],
+      split: [0, 150, 210, 30, -30],
+      tetradic: [0, 90, 180, 270, 45],
+      monochromatic: [0, 0, 0, 0, 0],
+    };
+
+    const offsets = schemeMap[scheme] || schemeMap.analogous;
+    return offsets.map((offset, index) => {
+      let hue = shiftHue(h, offset);
+      let sat = s;
+      let light = l;
+
+      if (scheme === 'monochromatic') {
+        const lightAdjustments = [0, -16, 16, -30, 30];
+        const satAdjustments = [0, 12, -10, 18, -15];
+        light = clamp(l + lightAdjustments[index], 18, 85);
+        sat = clamp(s + satAdjustments[index], 18, 100);
+      } else {
+        if (index === 1) { light = clamp(light - 8, 18, 90); }
+        if (index === 2) { light = clamp(light + 8, 18, 90); }
+        if (index === 3) { light = clamp(light + 12, 18, 90); }
+        if (index === 4) { light = clamp(light - 10, 18, 90); }
+      }
+
+      return {
+        hex: hslToHex(hue, sat, light),
+        label: `Tono ${index + 1}`,
+      };
+    });
+  }
+
+  function updateReadouts(hex) {
+    const rgb = hexToRgb(hex);
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const rgbText = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+    const hslText = `${hsl.h}°, ${hsl.s}%, ${hsl.l}%`;
+
+    document.getElementById('hexValue').textContent = hex.toUpperCase();
+    document.getElementById('rgbValue').textContent = rgbText;
+    document.getElementById('hslValue').textContent = hslText;
+
+    const preview = document.getElementById('selectedColorPreview');
+    preview.style.background = hex;
+    preview.innerHTML = `
+      <div>
+        <div class="small text-uppercase fw-bold opacity-75">Vista previa</div>
+        <div class="fs-3 fw-bold">${hex.toUpperCase()}</div>
+      </div>
+    `;
+  }
+
+  function renderPalette() {
+    const palette = buildPalette(state.baseColor, state.scheme);
+    const grid = document.getElementById('paletteGrid');
+    grid.innerHTML = '';
+
+    palette.forEach((color) => {
+      const col = document.createElement('div');
+      col.className = 'col-md-6 col-xl-4';
+      col.innerHTML = `
+        <div class="border rounded-4 overflow-hidden shadow-sm h-100">
+          <div class="d-flex align-items-center justify-content-center" style="height: 110px; background: ${color.hex}; color: white;">
+            <span class="fw-bold fs-5">${color.hex}</span>
+          </div>
+          <div class="p-3 bg-white d-flex align-items-center justify-content-between gap-2">
+            <span class="small text-secondary">${color.label}</span>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill copy-btn" data-hex="${color.hex}">Copiar</button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(col);
+    });
+
+    document.querySelectorAll('.copy-btn').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const hex = button.dataset.hex;
+        try {
+          await navigator.clipboard.writeText(hex);
+          const original = button.textContent;
+          button.textContent = '¡Copiado!';
+          button.classList.add('btn-primary');
+          button.classList.remove('btn-outline-primary');
+          setTimeout(() => {
+            button.textContent = original;
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-outline-primary');
+          }, 1200);
+        } catch (error) {
+          button.textContent = 'Error';
+        }
+      });
+    });
+  }
+
+  function renderWheel() {
+    const { h, s } = hexToHsl(state.baseColor);
+    const angle = ((h - 90) * Math.PI) / 180;
+    const radius = ((s / 100) * 78) + 8;
+    const x = 50 + Math.cos(angle) * radius;
+    const y = 50 + Math.sin(angle) * radius;
+    const cursor = document.getElementById('wheelCursor');
+    cursor.style.left = `${x}%`;
+    cursor.style.top = `${y}%`;
+    cursor.style.background = state.baseColor;
+  }
+
+  function applySchemeSelection(nextScheme) {
+    state.scheme = nextScheme;
+    document.querySelectorAll('.scheme-btn').forEach((btn) => {
+      const isActive = btn.dataset.scheme === nextScheme;
+      btn.classList.toggle('active', isActive);
+      btn.classList.toggle('btn-primary', isActive);
+      btn.classList.toggle('btn-outline-primary', !isActive);
+    });
+    renderPalette();
+  }
+
+  function syncControlValues(hex) {
+    const { h, s, l } = hexToHsl(hex);
+    document.getElementById('baseColorInput').value = hex;
+    document.getElementById('hueRange').value = h;
+    document.getElementById('saturationRange').value = s;
+    document.getElementById('lightnessRange').value = l;
+  }
+
+  function updateBaseColor(hex) {
+    const normalized = hex.toUpperCase();
+    state.baseColor = normalized;
+    syncControlValues(normalized);
+    updateReadouts(normalized);
+    renderWheel();
+    renderPalette();
+  }
+
+  function setFromControls() {
+    const hue = Number(document.getElementById('hueRange').value);
+    const saturation = Number(document.getElementById('saturationRange').value);
+    const lightness = Number(document.getElementById('lightnessRange').value);
+    const nextHex = hslToHex(hue, saturation, lightness);
+    updateBaseColor(nextHex);
+  }
+
+  document.getElementById('baseColorInput').addEventListener('input', (event) => {
+    updateBaseColor(event.target.value);
+  });
+
+  document.getElementById('hueRange').addEventListener('input', setFromControls);
+  document.getElementById('saturationRange').addEventListener('input', setFromControls);
+  document.getElementById('lightnessRange').addEventListener('input', setFromControls);
+
+  const wheel = document.getElementById('colorWheel');
+
+  function updateWheelFromPointer(event) {
+    const rect = wheel.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = event.clientX - cx;
+    const dy = event.clientY - cy;
+    const radius = Math.min(Math.hypot(dx, dy), rect.width / 2 - 18);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const hue = (angle + 90 + 360) % 360;
+    const saturation = clamp(Math.round((radius / (rect.width / 2 - 18)) * 100), 0, 100);
+    const { l } = hexToHsl(state.baseColor);
+    const nextHex = hslToHex(hue, saturation, l);
+    updateBaseColor(nextHex);
+  }
+
+  wheel.addEventListener('pointerdown', (event) => {
+    updateWheelFromPointer(event);
+    wheel.setPointerCapture(event.pointerId);
+  });
+
+  wheel.addEventListener('pointermove', (event) => {
+    if (event.pressure > 0 || event.buttons === 1) {
+      updateWheelFromPointer(event);
+    }
+  });
+
+  document.querySelectorAll('.scheme-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      applySchemeSelection(button.dataset.scheme);
+    });
+  });
+
+  document.getElementById('savePaletteBtn').addEventListener('click', () => {
+    savePalette();
+  });
+
+  renderFavorites();
+  updateBaseColor(defaultHex);
+</script>
+{% endblock %}

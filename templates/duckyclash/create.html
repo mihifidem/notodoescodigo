@@ -1,0 +1,18 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Crear reto · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Crear reto</h1>
+    <p>Elige cómo encontrar rival. Publicar no reserva monedas; el servidor verifica las reservas después de aceptar.</p>
+    <div class="row g-3">
+        <div class="col-md-6"><article class="card h-100"><div class="card-body">
+            <h2 class="h5">Reto privado</h2><p>Busca por el nombre de usuario real. Podréis negociar fecha, hora y apuesta.</p>
+            <a class="btn btn-primary" href="{% url 'duckyclash:challenge_create' %}">Buscar rival y enviar invitación</a>
+        </div></article></div>
+        <div class="col-md-6"><article class="card h-100"><div class="card-body">
+            <h2 class="h5">Reto abierto</h2><p>Publica condiciones y vencimiento. Solo el primer aceptante confirmado obtiene el duelo.</p>
+            <a class="btn btn-outline-primary" href="{% url 'duckyclash:open_create' %}">Publicar reto abierto</a>
+        </div></article></div>
+    </div>
+</div>
+{% endblock %}

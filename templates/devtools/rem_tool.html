@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}PX ↔ REM{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4 overflow-hidden rem-tool-wrap">
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">PX / REM Converter</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+              <div class="small text-uppercase text-primary fw-bold mb-2">Qué hace</div>
+              <p class="mb-0 text-secondary">
+                Convierte tamaños de CSS entre px y rem usando una base configurable. Esta herramienta es ideal para mantener tipografías, espaciados y componentes proporcionales sin perder consistencia en todo el diseño.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#remInstructionsModal">
+              <i class="bi bi-info-circle me-1"></i>Ver instrucciones
+            </button>
+          </div>
+
+          <form method="get" class="row g-3 align-items-end" id="remForm">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">PX</label>
+              <input type="number" step="0.1" name="px" value="{{ px|default:'16' }}" class="form-control form-control-lg">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Base (px)</label>
+              <input id="remBaseInput" type="number" step="0.1" name="base" value="{{ base|default:'16' }}" class="form-control form-control-lg">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Convertir</button>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" id="resetRemBtn" class="btn btn-outline-secondary btn-lg w-100 rounded-pill">Reset</button>
+            </div>
+          </form>
+
+          <div class="mt-4 p-4 rounded-4 bg-light border">
+            <div class="small text-uppercase text-secondary">Resultado</div>
+            <div class="fw-bold fs-3 mt-2">{{ px }}px = {{ rem }}rem</div>
+          </div>
+
+          <div class="mt-4 alert alert-info rounded-4 mb-0">
+            <strong>Ejemplo:</strong> Si la base del documento es 16px y escribes 24px, el valor en rem será 1.5rem. Esto te ayuda a escalar la tipografía y el layout de manera más consistente.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="remInstructionsModal" tabindex="-1" aria-labelledby="remInstructionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="remInstructionsModalLabel">Instrucciones del PX / REM Converter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <ol class="mb-3 ps-3">
+          <li>Escribe el valor en píxeles que quieres convertir.</li>
+          <li>Indica la base del documento, normalmente 16px.</li>
+          <li>La herramienta calcula el valor equivalente en rem.</li>
+          <li>Úsalo para estilos escalables y más fáciles de mantener.</li>
+        </ol>
+        <div class="alert alert-primary mb-0 rounded-4">
+          Fórmula: <code>rem = px / base</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .rem-tool-wrap,
+  [data-bs-theme="dark"] .rem-tool-wrap .form-label,
+  [data-bs-theme="dark"] .rem-tool-wrap .small,
+  [data-bs-theme="dark"] .rem-tool-wrap .alert,
+  [data-bs-theme="dark"] .rem-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .rem-tool-wrap .border {
+    color: #ffffff !important;
+  }
+
+  [data-bs-theme="dark"] .rem-tool-wrap .bg-light,
+  [data-bs-theme="dark"] .rem-tool-wrap .border {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+
+  [data-bs-theme="dark"] .rem-tool-wrap .form-control {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('remForm');
+    const resetBtn = document.getElementById('resetRemBtn');
+    const baseInput = document.getElementById('remBaseInput');
+
+    if (resetBtn && form && baseInput) {
+      resetBtn.addEventListener('click', function () {
+        baseInput.value = 16;
+        form.submit();
+      });
+    }
+  });
+</script>
+{% endblock %}

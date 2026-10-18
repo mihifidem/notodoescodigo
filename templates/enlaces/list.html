@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Enlaces Importantes — MihiTraining{% endblock %}
+{% block page_title %}Enlaces Importantes{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white fw-semibold">
+    <i class="bi bi-link-45deg me-2 text-primary"></i>Webs recomendadas
+  </div>
+  <div class="card-body border-bottom">
+    <form method="get" class="row g-2 align-items-end" id="enlacesFiltroForm">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold mb-1">Categoria</label>
+        <select name="categoria" class="form-select form-select-sm" id="enlacesCategoriaInput">
+          <option value="">Todas</option>
+          {% for cat in categorias %}
+            <option value="{{ cat }}" {% if categoria_actual == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label small fw-semibold mb-1">Palabras</label>
+        <input type="text" name="q" value="{{ q_actual }}" class="form-control form-control-sm" placeholder="Busca por titulo, comentario o URL" id="enlacesTextoInput" autocomplete="off">
+      </div>
+      <div class="col-12 col-md-2 d-grid">
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="bi bi-search me-1"></i>Buscar
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Titulo</th>
+          <th>Categoria</th>
+          <th>Comentario</th>
+          <th class="text-end">Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for enlace, accedido in enlaces_estado %}
+        <tr>
+          <td class="fw-semibold">{{ enlace.titulo }}</td>
+          <td><span class="badge bg-secondary">{{ enlace.categoria }}</span></td>
+          <td class="small text-muted">{{ enlace.comentario }}</td>
+          <td class="text-end">
+            <a href="{% url 'enlaces:acceder' enlace.id %}" class="btn btn-sm btn-primary" target="_blank" rel="noopener noreferrer">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Ir al enlace
+            </a>
+            {% if accedido %}
+            <span class="badge bg-success ms-2">Punto ya obtenido</span>
+            {% else %}
+            <span class="badge bg-warning text-dark ms-2">+1 punto disponible</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">No hay enlaces que coincidan con tu busqueda.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    const form = document.getElementById('enlacesFiltroForm');
+    const texto = document.getElementById('enlacesTextoInput');
+    const categoria = document.getElementById('enlacesCategoriaInput');
+    if (!form || !texto || !categoria) {
+      return;
+    }
+
+    let debounceId = null;
+    const enviarConEspera = () => {
+      if (debounceId) {
+        clearTimeout(debounceId);
+      }
+      debounceId = setTimeout(() => form.submit(), 350);
+    };
+
+    texto.addEventListener('input', enviarConEspera);
+    categoria.addEventListener('change', () => form.submit());
+  })();
+</script>
+{% endblock %}

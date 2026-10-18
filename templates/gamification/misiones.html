@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Misiones — MihiTraining{% endblock %}
+{% block page_title %}Misiones{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  {% for mu in misiones_usuario %}
+  <div class="col-12 col-md-6">
+    <div class="card border-0 shadow-sm {% if mu.completada %}border-start border-success border-3{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <span class="badge {% if mu.mision.tipo == 'diaria' %}bg-info{% else %}bg-purple text-white bg-primary{% endif %} mb-1">
+              {{ mu.mision.get_tipo_display }}
+            </span>
+            <h6 class="fw-bold mb-0">{{ mu.mision.titulo }}</h6>
+          </div>
+          <span class="badge {% if mu.mision.puntos_recompensa < 0 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+            <i class="bi bi-star me-1"></i>
+            {% if mu.mision.puntos_recompensa >= 0 %}+{% endif %}{{ mu.mision.puntos_recompensa }}
+          </span>
+        </div>
+        <p class="text-muted small mb-3">{{ mu.mision.descripcion }}</p>
+        <div class="d-flex justify-content-between small mb-1">
+          <span>Progreso</span>
+          <span>{{ mu.progreso }} / {{ mu.mision.requisito_cantidad }}</span>
+        </div>
+        <div class="progress mb-2" style="height:8px;">
+          {% widthratio mu.progreso mu.mision.requisito_cantidad 100 as pct %}
+          <div class="progress-bar {% if mu.completada %}bg-success{% else %}bg-primary{% endif %}" style="width:{{ pct }}%;"></div>
+        </div>
+        {% if mu.completada %}
+          <div class="small text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Completada el {{ mu.fecha_completada|date:"d M" }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-info">No tienes misiones asignadas. ¡Vuelve mañana para nuevas misiones!</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

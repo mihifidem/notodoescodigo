@@ -1,0 +1,18 @@
+{% extends 'duckyclash/base.html' %}
+{% block title %}Editar reto · DuckyClash{% endblock %}
+{% block clash_content %}
+<div class="container py-4">
+    <h1 class="h3">Editar reto #{{ challenge.pk }}</h1>
+    <p>Solo el creador puede editar un reto pendiente y no caducado. El rival y el tipo de reto no cambian. Cada cambio crea una nueva oferta que debe aceptarse expresamente; no reserva monedas.</p>
+    <div class="card"><div class="card-body">
+        <p>Fecha, hora y vencimiento en {{ form.time_zone }}.</p>
+        <form method="post" action="{% url 'duckyclash:challenge_edit' challenge.pk %}" data-clash-confirm="¿Guardar las nuevas condiciones del reto? Las aceptaciones anteriores de la oferta dejarán de ser válidas.">
+            {% csrf_token %}
+            {% include 'duckyclash/form_errors.html' %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a class="btn btn-outline-secondary" href="{% url 'duckyclash:challenge_detail' challenge.pk %}">Volver sin guardar</a>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

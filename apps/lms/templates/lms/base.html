@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static i18n lms_navigation %}
+{% block body_class %}lms-theme{% endblock %}
+{% block content_start %}<div class="lms-content">{% if course %}{% course_navigation course request area_key preview_mode %}{% endif %}{% endblock %}
+{% block content_end %}</div>{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'lms/lms.css' %}?v=20261011">
+  <link rel="stylesheet" href="{% static 'lms/navbar.css' %}?v=20261012-unified">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'lms/theme.css' %}?v=20261013-category-compact">
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script src="{% static 'lms/forms.js' %}?v=20261011" defer></script>
+  <script src="{% static 'lms/announcements.js' %}?v=20261013-linked-announcement" defer></script>
+  <script src="{% static 'lms/forum.js' %}?v=20261012-unified" defer></script>
+  <script src="{% static 'lms/quiz-live.js' %}?v=20261012-unified" defer></script>
+{% endblock %}
+
+{% block page_title %}
+  {% if course %}
+    {{ course.nombre }}
+  {% else %}
+    {% trans "Campus LMS" %}
+  {% endif %}
+{% endblock %}

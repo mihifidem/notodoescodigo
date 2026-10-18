@@ -1,0 +1,37 @@
+{% load i18n %}
+<h2>{% trans 'Insignias por tema' %}</h2>
+<p>{% trans 'Completa los contenidos obligatorios de un tema para obtener su insignia automáticamente.' %}</p>
+{% for badge in module_badges %}
+  <article class="content-panel">
+    {% if badge.image %}<img src="{{ badge.image.url }}" alt="{{ badge.name }}" width="96" height="96" style="object-fit:contain;">{% endif %}
+    <h3>{{ badge.name }}</h3>
+    <p>{{ badge.module.titulo }}</p>
+    <p>{{ badge.description|linebreaksbr }}</p>
+    {% if teacher_view %}
+      <span class="tag">{% if badge.is_active %}{% trans 'Activa' %}{% else %}{% trans 'Inactiva' %}{% endif %}</span>
+      <a class="button button-secondary" href="?edit={{ badge.pk }}#badge-form">{% trans 'Editar insignia' %}</a>
+      {% if badge.is_active %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="deactivate"><input type="hidden" name="badge_id" value="{{ badge.pk }}"><button type="submit" class="button button-secondary">{% trans 'Desactivar' %}</button></form>{% endif %}
+    {% elif badge.pk in earned_badge_ids %}
+      <strong class="tag">{% trans 'Insignia obtenida' %}</strong>
+    {% else %}
+      <span class="tag">{% trans 'Pendiente de completar el tema' %}</span>
+    {% endif %}
+  </article>
+{% empty %}<p>{% trans 'Todavía no hay insignias asignadas a los temas.' %}</p>{% endfor %}
+{% if teacher_view %}
+  <section class="content-panel" id="badge-form">
+    <h2>{% if editing_badge %}{% trans 'Editar insignia' %}{% else %}{% trans 'Crear insignia' %}{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data" class="stacked-form">
+      {% csrf_token %}<input type="hidden" name="action" value="badge">
+      {{ badge_form.as_p }}
+      <button type="submit" class="button button-primary">{% trans 'Guardar insignia' %}</button>
+      {% if editing_badge %}<a href="{% url 'lms:course_area' course_id=course.pk area='competencies' %}">{% trans 'Cancelar edición' %}</a>{% endif %}
+    </form>
+  </section>
+  <section class="content-panel">
+    <h2>{% trans 'Insignias concedidas' %}</h2>
+    {% for award in badge_awards %}
+      <p>{{ award.user.get_full_name|default:award.user.username }} · {{ award.badge.name }} · {{ award.badge.module.titulo }} · {{ award.awarded_at|date:'j M Y, H:i' }}</p>
+    {% empty %}<p>{% trans 'Ningún alumno ha obtenido una insignia todavía.' %}</p>{% endfor %}
+  </section>
+{% endif %}

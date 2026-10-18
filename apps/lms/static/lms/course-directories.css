@@ -1,0 +1,32 @@
+.lms-theme .course-directory { margin-bottom: 24px; }
+.lms-theme .directory-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--lms-border); margin-bottom: 14px; }
+.lms-theme .directory-tabs a { padding: 8px 14px; text-decoration: none; font-size: 13px; }
+.lms-theme .directory-tabs a[aria-current] { border: 1px solid var(--lms-border); border-bottom-color: var(--lms-surface); margin-bottom: -1px; border-radius: 4px 4px 0 0; }
+.lms-theme .directory-search { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.lms-theme .directory-search :is(input, select) { padding: 6px 10px; min-height: 34px; border: 1px solid var(--lms-border); border-radius: 4px; background: var(--lms-surface); color: var(--lms-text); }
+.lms-theme .directory-search input { flex: 1; min-width: 180px; }
+.lms-theme .directory-search select { max-width: 200px; }
+.lms-theme .directory-scroll { overflow-x: auto; }
+.lms-theme .directory-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.lms-theme .directory-table :is(th, td) { padding: 9px 10px; border-bottom: 1px solid var(--lms-border); text-align: left; vertical-align: middle; }
+.lms-theme .directory-table thead th { font-weight: 600; font-size: 11px; }
+.lms-theme .people-table tbody tr:nth-child(odd) { background: var(--lms-bg); }
+.lms-theme .directory-table tbody th { font-weight: 400; color: var(--lms-blue); }
+.lms-theme .directory-table small { display: block; margin-top: 3px; overflow-wrap: anywhere; }
+.lms-theme .directory-person { display: flex; align-items: center; gap: 9px; min-width: 150px; }
+.lms-theme .directory-avatar { flex: 0 0 30px; width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.lms-theme .directory-avatar-placeholder { display: grid; place-items: center; background: var(--lms-border); color: var(--lms-text); font-size: 20px; }
+.lms-theme .directory-actions summary { cursor: pointer; list-style: none; padding: 6px; }
+.lms-theme .directory-actions summary::-webkit-details-marker { display: none; }
+.lms-theme .directory-actions[open] { min-width: 140px; }
+.lms-theme .directory-actions :is(p, form) { margin: 6px 0; }
+.lms-theme .directory-actions a { display: block; margin: 6px 0; }
+.lms-theme .directory-file-name { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+.lms-theme .directory-file-name > i { font-size: 24px; color: var(--lms-blue); }
+.lms-theme .directory-file-name span { overflow-wrap: anywhere; }
+.lms-theme .directory-file-table :is(th, td) { padding-top: 12px; padding-bottom: 12px; }
+.lms-theme .directory-file-summary { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; }
+@media (max-width: 600px) {
+  .lms-theme .directory-search input { flex-basis: 100%; }
+  .lms-theme .directory-table { min-width: 650px; }
+}

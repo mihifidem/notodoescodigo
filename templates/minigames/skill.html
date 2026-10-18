@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% block page_title %}SynapseShot — Habilidad{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+body { background: #061A0F; overflow-x:hidden; }
+#page-content { background: #061A0F !important; }
+main.flex-grow-1 { background: #061A0F !important; color: rgba(255,255,255,.85) !important; padding: 0 !important; }
+.mg-wrap { max-width:800px; margin:0 auto; padding:1.5rem 1rem; }
+.mg-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+.mg-logo { font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; }
+.mg-logo span { background:linear-gradient(135deg,#10B981,#34D399); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.mg-back { color:rgba(255,255,255,.5); text-decoration:none; font-size:.8rem; display:flex; align-items:center; gap:5px; }
+.mg-back:hover { color:#fff; }
+
+/* HUD */
+.ss-hud { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.25rem; }
+.hud-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:10px; text-align:center; }
+.hud-n { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; color:#fff; line-height:1; }
+.hud-l { font-size:.6rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+#ssTimer { color:#10B981; }
+#ssTimer.warn { color:#F59E0B!important; }
+#ssTimer.danger { color:#EF4444!important; animation:blink .5s step-end infinite; }
+@keyframes blink { 50%{opacity:.2} }
+
+/* Legend */
+.ss-legend { display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; }
+.ss-leg { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:8px; padding:5px 12px; }
+.ss-leg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+.ss-leg-txt { font-size:.72rem; color:rgba(255,255,255,.6); font-weight:600; }
+
+/* Arena */
+.ss-arena {
+  background:linear-gradient(145deg,#061A0F,#031208);
+  border:1px solid rgba(16,185,129,.12); border-radius:18px;
+  position:relative; overflow:hidden;
+  height:360px; user-select:none;
+  box-shadow:0 8px 40px rgba(0,0,0,.4), inset 0 0 60px rgba(0,0,0,.3);
+  cursor:crosshair;
+}
+.ss-arena::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(16,185,129,.03),transparent 70%);
+}
+.ss-grid-lines {
+  position:absolute; inset:0; pointer-events:none; opacity:.08;
+  background-image:
+    linear-gradient(rgba(255,255,255,.3) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.3) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* Targets */
+.ss-target {
+  position:absolute; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.9rem; font-weight:800; color:#fff;
+  cursor:pointer; transform:scale(0); transition:transform .15s ease-out;
+  box-shadow:0 0 20px currentColor;
+  user-select:none; -webkit-user-select:none;
+  pointer-events:all;
+  font-family:'JetBrains Mono',monospace;
+}
+.ss-target.show { transform:scale(1); }
+.ss-target.hit { animation:burst .3s ease-out forwards; pointer-events:none; }
+.ss-target.miss { animation:fadeOut .2s ease-out forwards; }
+@keyframes burst { 0%{transform:scale(1)} 50%{transform:scale(1.4);opacity:.6} 100%{transform:scale(0);opacity:0} }
+@keyframes fadeOut { 0%{transform:scale(1);opacity:1} 100%{transform:scale(.8);opacity:0} }
+
+/* Score popup */
+.ss-popup {
+  position:absolute; font-family:'JetBrains Mono',monospace;
+  font-size:.9rem; font-weight:700; pointer-events:none;
+  animation:floatUp .7s ease-out forwards;
+}
+@keyframes floatUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
+
+/* Multiplier bar */
+.ss-mult-wrap { margin:10px 0 4px; }
+.ss-mult-label { display:flex; justify-content:space-between; font-size:.68rem; color:rgba(255,255,255,.4); margin-bottom:4px; }
+.ss-mult-track { height:5px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; }
+.ss-mult-fill { height:100%; background:linear-gradient(90deg,#10B981,#34D399); border-radius:99px; transition:width .2s; }
+
+/* Overlays */
+.mg-overlay { position:fixed; inset:0; background:rgba(6,26,15,.92); display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(8px); }
+.mg-modal { background:linear-gradient(145deg,#0A2415,#061A0F); border:1px solid rgba(16,185,129,.18); border-radius:20px; padding:2.5rem; text-align:center; max-width:420px; width:90%; box-shadow:0 32px 80px rgba(0,0,0,.6); }
+.mg-modal-icon { font-size:3.5rem; margin-bottom:1rem; }
+.mg-modal-title { font-family:'Poppins',sans-serif; font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+.mg-modal-sub { color:rgba(255,255,255,.45); font-size:.82rem; margin-bottom:1.5rem; line-height:1.6; }
+.mg-modal-score { font-family:'JetBrains Mono',monospace; font-size:2.8rem; font-weight:700; color:#10B981; line-height:1; margin-bottom:.25rem; }
+.mg-modal-score-lbl { font-size:.65rem; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:1.5rem; }
+.result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
+.result-box { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:10px; }
+.result-n { font-family:'JetBrains Mono',monospace; font-size:1.2rem; font-weight:700; color:#fff; }
+.result-l { font-size:.6rem; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.mg-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 28px; border-radius:12px; font-weight:700; font-size:.9rem; border:none; cursor:pointer; transition:all .2s; }
+.mg-btn-primary { background:linear-gradient(135deg,#065F46,#10B981); color:#fff; }
+.mg-btn-secondary { background:rgba(255,255,255,.07); color:rgba(255,255,255,.6); }
+.mg-btn:hover { filter:brightness(1.1); transform:translateY(-2px); }
+.mg-btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* Legend instructions */
+.mg-instructions { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:14px 16px; margin-bottom:1rem; }
+.mg-instructions-title { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.mg-instructions-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.inst-item { text-align:center; }
+.inst-circle { width:36px; height:36px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+.inst-txt { font-size:.65rem; color:rgba(255,255,255,.5); line-height:1.3; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mg-wrap">
+  <div class="mg-nav">
+    <div class="mg-logo">🎯 Synapse<span>Shot</span></div>
+    <a href="{% url 'minigames:hub' %}" class="mg-back"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+
+  <!-- HUD -->
+  <div class="ss-hud">
+    <div class="hud-box"><div class="hud-n" id="ssTimer">60</div><div class="hud-l">Segundos</div></div>
+    <div class="hud-box"><div class="hud-n" id="ssScore">0</div><div class="hud-l">Puntos</div></div>
+    <div class="hud-box"><div class="hud-n" id="ssAcc">—</div><div class="hud-l">Precisión</div></div>
+    <div class="hud-box"><div class="hud-n" id="ssMult">×1</div><div class="hud-l">Mult.</div></div>
+  </div>
+
+  <!-- Multiplier bar -->
+  <div class="ss-mult-wrap">
+    <div class="ss-mult-label"><span>Combo multiplier</span><span id="ssMultLbl">×1.0</span></div>
+    <div class="ss-mult-track"><div class="ss-mult-fill" id="ssMultFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Arena -->
+  <div class="ss-arena" id="arena">
+    <div class="ss-grid-lines"></div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="mg-instructions mt-3">
+    <div class="mg-instructions-title">Leyenda</div>
+    <div class="mg-instructions-grid">
+      <div class="inst-item">
+        <div class="inst-circle" style="background:rgba(34,197,94,.2);box-shadow:0 0 10px #22C55E;color:#22C55E;">●</div>
+        <div class="inst-txt">VERDE<br>1 clic · +10 pts</div>
+      </div>
+      <div class="inst-item">
+        <div class="inst-circle" style="background:rgba(239,68,68,.18);box-shadow:0 0 10px #EF4444;color:#EF4444;">●</div>
+        <div class="inst-txt">ROJO<br>¡No clicar! · −5 pts</div>
+      </div>
+      <div class="inst-item">
+        <div class="inst-circle" style="background:rgba(59,130,246,.2);box-shadow:0 0 10px #3B82F6;color:#3B82F6;">⚡</div>
+        <div class="inst-txt">AZUL<br>Doble clic · +25 pts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Start overlay -->
+<div class="mg-overlay" id="startOverlay">
+  <div class="mg-modal">
+    <div class="mg-modal-icon">🎯</div>
+    <div class="mg-modal-title">SynapseShot</div>
+    <div class="mg-modal-sub">
+      Objetivos de distintos colores aparecen y desaparecen.<br>
+      <strong style="color:#22C55E">Verde</strong>: clic simple · <strong style="color:#EF4444">Rojo</strong>: ¡no clicar! · <strong style="color:#3B82F6">Azul</strong>: doble clic<br><br>
+      La velocidad aumenta con el tiempo. 60 segundos.
+    </div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-play-fill"></i> Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<!-- End overlay -->
+<div class="mg-overlay" id="endOverlay" style="display:none;">
+  <div class="mg-modal">
+    <div class="mg-modal-icon" id="endIcon">🏆</div>
+    <div class="mg-modal-title" id="endTitle">Fin</div>
+    <div class="mg-modal-score" id="endScore">0</div>
+    <div class="mg-modal-score-lbl">Puntos finales</div>
+    <div class="result-grid">
+      <div class="result-box"><div class="result-n" id="endHits">0</div><div class="result-l">Aciertos</div></div>
+      <div class="result-box"><div class="result-n" id="endMisses">0</div><div class="result-l">Fallos</div></div>
+      <div class="result-box"><div class="result-n" id="endAccFinal">0%</div><div class="result-l">Precisión</div></div>
+    </div>
+    <div class="mg-modal-sub" id="endMsg"></div>
+    <div class="mg-btn-row">
+      <button class="mg-btn mg-btn-primary" onclick="startGame()"><i class="bi bi-arrow-clockwise"></i> Repetir</button>
+      <a href="{% url 'minigames:hub' %}" class="mg-btn mg-btn-secondary"><i class="bi bi-grid"></i> Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── State ── */
+let gameTime=60, timerVal=60, timerInt=null;
+let score=0, hits=0, misses=0, wrongClicks=0;
+let combo=0, maxCombo=0, mult=1.0;
+let spawnInt=null, spawnDelay=1200;
+let targets=[]; // active target objects {el, type, timeout}
+let gameRunning=false;
+
+const COLORS = {
+  green: { bg:'rgba(34,197,94,.18)', border:'#22C55E', glow:'#22C55E', label:'●', pts:10, action:'click' },
+  red:   { bg:'rgba(239,68,68,.15)', border:'#EF4444', glow:'#EF4444', label:'●', pts:-5, action:'avoid' },
+  blue:  { bg:'rgba(59,130,246,.18)', border:'#3B82F6', glow:'#3B82F6', label:'⚡', pts:25, action:'dblclick' },
+};
+
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+function startGame() {
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  score=0; hits=0; misses=0; wrongClicks=0; combo=0; maxCombo=0; mult=1;
+  timerVal=gameTime; spawnDelay=1200;
+  targets.forEach(t => { if(t.el.parentNode) t.el.parentNode.removeChild(t.el); clearTimeout(t.timeout); });
+  targets=[];
+  updateHUD();
+  gameRunning=true;
+
+  // Timer
+  timerInt=setInterval(()=>{
+    timerVal--;
+    const el=document.getElementById('ssTimer');
+    el.textContent=timerVal;
+    el.className='hud-n'+(timerVal<=10?' danger':timerVal<=20?' warn':'');
+    // Speed up over time
+    spawnDelay=Math.max(400,1200-((gameTime-timerVal)/gameTime)*800);
+    if(timerVal<=0){ clearInterval(timerInt); clearInterval(spawnInt); endGame(); }
+  },1000);
+
+  // Spawn loop
+  function doSpawn(){
+    if(!gameRunning) return;
+    spawnTarget();
+    spawnInt=setTimeout(doSpawn, spawnDelay+randInt(-200,200));
+  }
+  doSpawn();
+}
+
+function spawnTarget(){
+  const arena=document.getElementById('arena');
+  const W=arena.clientWidth, H=arena.clientHeight;
+  const size=randInt(42,62);
+  const x=randInt(10,W-size-10), y=randInt(10,H-size-10);
+
+  // Weight: green 55%, red 30%, blue 15%
+  const r=Math.random();
+  const type=r<.55?'green':r<.85?'red':'blue';
+  const cfg=COLORS[type];
+
+  const el=document.createElement('div');
+  el.className='ss-target';
+  el.style.cssText=`
+    width:${size}px; height:${size}px; left:${x}px; top:${y}px;
+    background:${cfg.bg}; border:2px solid ${cfg.border};
+    box-shadow:0 0 16px ${cfg.glow}44, inset 0 0 8px ${cfg.glow}22;
+    color:${cfg.border}; font-size:${size*.5}px;
+  `;
+  el.textContent=cfg.label;
+
+  // Lifetime: shrinks over game (800ms early, 550ms late)
+  const life=Math.max(550,850-(gameTime-timerVal)*6);
+
+  const obj={el, type, timeout:null, dblPending:false};
+  targets.push(obj);
+  arena.appendChild(el);
+
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ el.classList.add('show'); }); });
+
+  // Auto-remove on expiry
+  obj.timeout=setTimeout(()=>{
+    if(!el.classList.contains('hit')){
+      el.classList.add('miss');
+      // Red escaping = good; green/blue escaping = miss
+      if(type!=='red') { combo=0; mult=1; updateMult(); }
+      setTimeout(()=>removeTarget(obj),200);
+    }
+  }, life);
+
+  // Click handlers
+  if(type==='blue'){
+    let clicks=0;
+    el.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(!gameRunning||el.classList.contains('hit')) return;
+      clicks++;
+      if(clicks===1){
+        obj.dblPending=true;
+        setTimeout(()=>{
+          if(obj.dblPending){ // single click on blue = wrong
+            obj.dblPending=false;
+            penalize(el, obj, -5, 'azul solo clic');
+          }
+        },350);
+      } else if(clicks===2){
+        obj.dblPending=false;
+        reward(el, obj, cfg.pts, true);
+      }
+    });
+    el.addEventListener('dblclick',e=>{ e.stopPropagation(); /* handled above */ });
+  } else if(type==='green'){
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!gameRunning||el.classList.contains('hit')) return;
+      reward(el,obj,cfg.pts,true);
+    });
+  } else { // red
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!gameRunning||el.classList.contains('hit')) return;
+      penalize(el,obj,5,'rojo clic');
+    });
+  }
+}
+
+function reward(el,obj,pts,countHit){
+  clearTimeout(obj.timeout);
+  const base=Math.round(pts*mult);
+  score+=base; if(countHit){hits++;combo++;maxCombo=Math.max(maxCombo,combo);}
+  mult=Math.min(4,1+combo*0.1);
+  el.classList.remove('show'); el.classList.add('hit');
+  showPopup(el,'+'+base, '#22C55E');
+  updateHUD(); updateMult();
+  setTimeout(()=>removeTarget(obj),300);
+}
+
+function penalize(el,obj,deduction,reason){
+  clearTimeout(obj.timeout);
+  score=Math.max(0,score-deduction); wrongClicks++; combo=0; mult=1;
+  el.classList.remove('show'); el.classList.add('hit');
+  showPopup(el,'-'+deduction,'#EF4444');
+  updateHUD(); updateMult();
+  setTimeout(()=>removeTarget(obj),250);
+}
+
+function removeTarget(obj){
+  if(obj.el.parentNode) obj.el.parentNode.removeChild(obj.el);
+  targets=targets.filter(t=>t!==obj);
+}
+
+function showPopup(el,txt,color){
+  const arena=document.getElementById('arena');
+  const pop=document.createElement('div');
+  pop.className='ss-popup';
+  pop.style.cssText=`left:${parseInt(el.style.left)+20}px;top:${parseInt(el.style.top)}px;color:${color};`;
+  pop.textContent=txt;
+  arena.appendChild(pop);
+  setTimeout(()=>{ if(pop.parentNode)pop.parentNode.removeChild(pop); },700);
+}
+
+function updateHUD(){
+  document.getElementById('ssScore').textContent=score;
+  const total=hits+wrongClicks;
+  const acc=total>0?Math.round((hits/total)*100):100;
+  document.getElementById('ssAcc').textContent=acc+'%';
+  document.getElementById('ssMult').textContent='×'+mult.toFixed(1);
+}
+
+function updateMult(){
+  const pct=Math.min(100,((mult-1)/3)*100);
+  document.getElementById('ssMultFill').style.width=pct+'%';
+  document.getElementById('ssMultLbl').textContent='×'+mult.toFixed(1);
+}
+
+function endGame(){
+  gameRunning=false;
+  targets.forEach(t=>{ clearTimeout(t.timeout); if(t.el.parentNode)t.el.parentNode.removeChild(t.el); });
+  targets=[];
+  const total=hits+wrongClicks;
+  const acc=total>0?Math.round((hits/total)*100):100;
+  const msgs=['Sigue entrenando','Reflejos en desarrollo','Buenos reflejos','Gran precisión','¡Nivel élite! Reflejos excepcionales'];
+  const msgIdx=Math.min(4,Math.floor(acc/20));
+
+  document.getElementById('endIcon').textContent=acc>=80?'🏆':acc>=60?'🎯':'⚡';
+  document.getElementById('endTitle').textContent=acc>=80?'¡Élite!':acc>=60?'¡Bien hecho!':'Fin del juego';
+  document.getElementById('endScore').textContent=score.toLocaleString();
+  document.getElementById('endHits').textContent=hits;
+  document.getElementById('endMisses').textContent=wrongClicks;
+  document.getElementById('endAccFinal').textContent=acc+'%';
+  document.getElementById('endMsg').textContent=msgs[msgIdx]+' · Combo máx: ×'+maxCombo;
+  document.getElementById('endOverlay').style.display='flex';
+}
+</script>
+{% endblock %}

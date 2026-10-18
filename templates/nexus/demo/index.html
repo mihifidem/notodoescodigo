@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block page_title %}Nexus DNA · Test Gratuito{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .nx-heading { font-family:'Poppins',sans-serif; }
+  .nx-hero {
+    background:linear-gradient(135deg,#1B3C59 0%,#0f2540 100%);
+    border-radius:16px; color:#fff; padding:2.5rem 2.5rem; position:relative; overflow:hidden;
+  }
+  .nx-hero::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%2300C4FF' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+  .nx-card {
+    border:1px solid #E5E7EB; border-radius:14px; background:#fff;
+    transition:transform .15s,box-shadow .15s; overflow:hidden;
+  }
+  .nx-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,.1); }
+  .nx-pill {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-size:.7rem; font-weight:600; padding:.2rem .6rem;
+    border-radius:20px; background:rgba(0,196,255,.12); color:#0090cc;
+  }
+  .nx-btn-start {
+    background:linear-gradient(135deg,#00C4FF,#0090cc);
+    color:#fff; border:0; border-radius:8px;
+    font-weight:700; font-family:'Poppins',sans-serif;
+    padding:.5rem 1.4rem; font-size:.9rem;
+    text-decoration:none; display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .nx-btn-start:hover { opacity:.88; color:#fff; }
+  .feature-item {
+    display:flex; align-items:flex-start; gap:.75rem; padding:.5rem 0;
+  }
+  .feature-icon {
+    width:32px; height:32px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; font-size:1rem;
+  }
+  .register-banner {
+    background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+    border:1px solid #bae6fd; border-radius:14px;
+    padding:1.5rem 2rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+
+  <!-- Hero -->
+  <div class="nx-hero mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8" style="position:relative;z-index:1;">
+        <div style="color:#00C4FF;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;">
+          <i class="bi bi-gift me-1"></i>Acceso gratuito · Sin registro
+        </div>
+        <h1 class="nx-heading fw-bold mb-2" style="font-size:2rem;line-height:1.1;">
+          Descubre tu <span style="color:#00C4FF;">Nexus DNA</span><br>gratis
+        </h1>
+        <p style="color:rgba(255,255,255,.75);max-width:480px;line-height:1.65;font-size:.95rem;">
+          Realiza el assessment esencial sin necesidad de crear una cuenta.
+          Verás tus resultados al instante — nada se guarda.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="nx-pill"><i class="bi bi-shield-check"></i>Sin datos personales</span>
+          <span class="nx-pill"><i class="bi bi-clock"></i>~10 min</span>
+          <span class="nx-pill"><i class="bi bi-eye-slash"></i>Resultados solo en pantalla</span>
+        </div>
+      </div>
+      <div class="col-md-4 d-none d-md-flex align-items-center justify-content-end" style="position:relative;z-index:1;">
+        <div class="text-center">
+          <div style="font-size:4rem;line-height:1;">🧬</div>
+          <div style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:.5rem;">Nexus DNA Score</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Tests disponibles -->
+    <div class="col-lg-7">
+      <h5 class="nx-heading fw-bold mb-3" style="color:#1B3C59;">
+        <i class="bi bi-collection me-2" style="color:#00C4FF;"></i>Tests disponibles
+      </h5>
+
+      {% if tests %}
+        {% for test in tests %}
+        <div class="nx-card mb-3">
+          <div class="p-4" style="border-left:5px solid #00C4FF;">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+              <div>
+                <span class="badge mb-1" style="background:rgba(0,196,255,.12);color:#0090cc;font-size:.65rem;font-weight:700;letter-spacing:.05em;">ESSENTIAL · GRATUITO</span>
+                <h6 class="nx-heading fw-bold mb-0" style="color:#1B3C59;font-size:1rem;">{{ test.nombre }}</h6>
+              </div>
+            </div>
+            {% if test.descripcion %}
+            <p class="text-muted small mb-3" style="line-height:1.6;">{{ test.descripcion }}</p>
+            {% endif %}
+            <a href="{% url 'nexus:demo_take' test.pk %}" class="nx-btn-start">
+              <i class="bi bi-play-fill"></i>Comenzar test
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="nx-card p-5 text-center text-muted">
+        <i class="bi bi-clipboard2 fs-1 d-block mb-3 opacity-25"></i>
+        <p class="fw-semibold mb-1">No hay tests demo disponibles en este momento.</p>
+        <p class="small">Vuelve más tarde o crea una cuenta gratuita para acceder a todos los assessments.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar: qué obtienes + registro CTA -->
+    <div class="col-lg-5">
+
+      <!-- Qué obtienes -->
+      <div class="nx-card p-4 mb-3">
+        <h6 class="nx-heading fw-bold mb-3" style="color:#1B3C59;font-size:.95rem;">
+          <i class="bi bi-stars me-2" style="color:#F59E0B;"></i>Qué obtienes
+        </h6>
+        <div class="feature-item">
+          <div class="feature-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-graph-up-arrow"></i></div>
+          <div>
+            <div class="fw-semibold small" style="color:#111;">Nexus DNA Score</div>
+            <div class="text-muted" style="font-size:.78rem;">Tu puntuación global de competencias profesionales (0–100).</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-hexagon-half"></i></div>
+          <div>
+            <div class="fw-semibold small" style="color:#111;">Radar de Inteligencias</div>
+            <div class="text-muted" style="font-size:.78rem;">8 ejes: Liderazgo, Innovación, Tecnología, Futuro y más.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon" style="background:#fff7ed;color:#ea580c;"><i class="bi bi-person-badge"></i></div>
+          <div>
+            <div class="fw-semibold small" style="color:#111;">Arquetipo profesional</div>
+            <div class="text-muted" style="font-size:.78rem;">Descubre si eres Innovator, Leader, Technologist u otro.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon" style="background:#fce7f3;color:#be185d;"><i class="bi bi-bar-chart-line"></i></div>
+          <div>
+            <div class="fw-semibold small" style="color:#111;">Master Indices</div>
+            <div class="text-muted" style="font-size:.78rem;">Desglose detallado de 8 índices clave de tu perfil.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registro CTA -->
+      <div class="register-banner">
+        <div style="color:#0369a1;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">
+          <i class="bi bi-lock-fill me-1"></i>¿Quieres guardar tus resultados?
+        </div>
+        <p class="small mb-3" style="color:#0c4a6e;line-height:1.6;">
+          Regístrate gratis para guardar tu historial de tests, obtener tu perfil DNA completo
+          y añadir tus soft skills al Currículum Vitae.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'account_signup' %}" class="btn btn-sm fw-semibold"
+             style="background:#1B3C59;color:#fff;border-radius:8px;font-size:.82rem;">
+            <i class="bi bi-person-plus me-1"></i>Crear cuenta gratis
+          </a>
+          <a href="{% url 'account_login' %}" class="btn btn-sm btn-outline-secondary fw-semibold"
+             style="border-radius:8px;font-size:.82rem;">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Ya tengo cuenta
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

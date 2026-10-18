@@ -1,0 +1,33 @@
+{% extends "curriculum/sections/_list_base.html" %}
+{% block list_title %}<i class="bi bi-mortarboard me-2 text-primary"></i>Formación académica{% endblock %}
+{% block create_url %}{% url 'curriculum:education_create' %}{% endblock %}
+
+{% block list_content %}
+{% if items %}
+<div class="d-flex flex-column gap-3">
+  {% for edu in items %}
+  <div class="card border-0 shadow-sm">
+    <div class="card-body d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h6 class="fw-bold mb-0">{{ edu.titulo }}</h6>
+        <p class="text-muted small mb-1">{{ edu.centro }}{% if edu.ubicacion %} · {{ edu.ubicacion }}{% endif %}</p>
+        <span class="badge bg-primary-subtle text-primary">{{ edu.periodo }}</span>
+        {% if edu.en_curso %}<span class="badge bg-success ms-1">En curso</span>{% endif %}
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'curriculum:education_edit' pk=edu.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+        <form method="post" action="{% url 'curriculum:education_delete' pk=edu.pk %}" onsubmit="return confirm('¿Eliminar?');">
+          {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-mortarboard" style="font-size:3rem;"></i>
+  <p class="mt-2">Sin formación académica. <a href="{% url 'curriculum:education_create' %}">Añade la primera</a></p>
+</div>
+{% endif %}
+{% endblock %}

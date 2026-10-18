@@ -1,0 +1,88 @@
+{% load i18n %}
+<div id="evaluations-quicklinks" style="
+  margin: 16px 8px 8px 8px;
+  border-top: 1px solid #444;
+  padding-top: 12px;
+">
+  <h3 style="
+    color: #79aec8;
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 8px 6px 8px;
+    margin: 0;
+  ">
+    Evaluaciones IA
+  </h3>
+
+  <nav>
+    <ul style="list-style: none; margin: 0; padding: 0;">
+
+      <li>
+        <a href="{% url 'admin:evaluations_evaluacion_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          📋 Evaluaciones
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_evaluacion_add' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          ➕ Nueva evaluación
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_tipoexamen_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          🏷️ Tipos de examen
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_rubricaevaluacion_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          📐 Rúbricas
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_entregaevaluacion_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          📤 Entregas
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_entregaevaluacion_changelist' %}?estado__exact=REVISION_DOCENTE"
+           style="display:block; padding: 5px 8px; color: #e8a838; text-decoration: none; font-size: 0.8125rem; font-weight: 500;"
+           onmouseover="this.style.color='#ffd080'" onmouseout="this.style.color='#e8a838'">
+          ⚠️ Pendientes revisión
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_correccionevaluacion_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          🤖 Correcciones IA
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin:evaluations_eventocorreccion_changelist' %}"
+           style="display:block; padding: 5px 8px; color: #ddd; text-decoration: none; font-size: 0.8125rem;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ddd'">
+          📜 Eventos / Auditoría
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+</div>

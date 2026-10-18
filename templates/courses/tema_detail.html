@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}{{ tema.titulo }} — MihiTraining{% endblock %}
+{% block page_title %}{{ tema.titulo }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-lg-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="{% url 'courses:list' %}">Cursos</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'courses:detail' pk=tema.curso.pk %}">{{ tema.curso.nombre }}</a></li>
+        <li class="breadcrumb-item active">{{ tema.titulo }}</li>
+      </ol>
+    </nav>
+
+    <!-- Content -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="prose" style="line-height:1.8;">
+          {{ tema.contenido|linebreaks }}
+        </div>
+      </div>
+    </div>
+
+    {% if hay_recursos %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-paperclip me-2 text-primary"></i>Recursos del tema</span>
+        <span class="small text-muted">+{{ puntos_recurso }} pts al ver online</span>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for recurso, visto in recursos_con_estado %}
+        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 flex-wrap">
+          <div>
+            <div class="fw-semibold d-flex align-items-center gap-2 flex-wrap">
+              <span>
+                <i class="bi bi-{% if recurso.tipo_codigo == 'pdf' %}filetype-pdf{% elif recurso.tipo_codigo == 'audio' %}music-note-beamed{% elif recurso.tipo_codigo == 'imagen' %}image{% else %}film{% endif %} me-2"></i>
+                {{ recurso.titulo }}
+              </span>
+              {% if recurso.numero_hojas %}
+                <span class="badge bg-light text-dark border">{{ recurso.numero_hojas }} páginas</span>
+              {% endif %}
+            </div>
+            <div class="small text-muted text-uppercase">{{ recurso.tipo_nombre }}</div>
+            {% if recurso.tiempo_lectura %}
+            <div class="small text-muted mt-1">
+              <span><i class="bi bi-clock-history me-1"></i>{{ recurso.tiempo_lectura }}</span>
+            </div>
+            {% endif %}
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            {% if visto %}
+              <span class="badge bg-success-subtle text-success-emphasis border">+{{ puntos_recurso }} pts obtenidos</span>
+            {% else %}
+              <span class="badge bg-warning-subtle text-warning-emphasis border">Pendiente de recompensa</span>
+            {% endif %}
+            <div class="d-flex gap-2">
+              <a href="{% url 'courses:recurso_abrir' pk=recurso.pk %}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                Abrir
+              </a>
+              <a href="{% url 'courses:recurso_descargar' pk=recurso.pk %}" class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer" download>
+                Descargar
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body text-muted small">
+        <i class="bi bi-info-circle me-2"></i>No hay recursos disponibles para este tema todavía.
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Quiz CTA -->
+    {% if tiene_quiz %}
+    <div class="alert alert-info d-flex align-items-center gap-3">
+      <i class="bi bi-patch-question-fill fs-3"></i>
+      <div>
+        <strong>Este tema tiene un quiz.</strong>
+        <p class="mb-1 small">Debes aprobarlo con al menos {{ quiz_porcentaje_aprobacion }}% para completar el tema.</p>
+        {% if quiz_aprobado %}
+          <span class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i>Quiz aprobado</span><br>
+        {% endif %}
+        <a href="{% url 'courses:quiz' pk=tema.quiz.pk %}" class="btn btn-info btn-sm">Iniciar quiz</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="d-flex justify-content-between mt-4">
+      {% if tema_anterior %}
+        <a href="{% url 'courses:tema_detail' pk=tema_anterior.pk %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>{{ tema_anterior.titulo|truncatechars:30 }}
+        </a>
+      {% else %}
+        <div></div>
+      {% endif %}
+
+      {% if not progreso.completado %}
+        <form method="post" action="{% url 'courses:completar_tema' pk=tema.pk %}" id="completarForm">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success" id="completarBtn">
+            <i class="bi bi-check-circle me-1"></i>Marcar completado (+{{ tema.puntos_otorgados }} pts)
+          </button>
+        </form>
+      {% else %}
+        <span class="btn btn-success disabled"><i class="bi bi-check-circle-fill me-1"></i>Completado</span>
+      {% endif %}
+
+      {% if tema_siguiente %}
+        <a href="{% url 'courses:tema_detail' pk=tema_siguiente.pk %}" class="btn btn-primary">
+          {{ tema_siguiente.titulo|truncatechars:30 }}<i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      {% else %}
+        <a href="{% url 'courses:detail' pk=tema.curso.pk %}" class="btn btn-outline-primary">
+          <i class="bi bi-book me-1"></i>Ver curso
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">{{ tema.curso.nombre }}</h6>
+        {% with tema.curso.temas.all as todos_temas %}
+        <ul class="list-unstyled small">
+          {% for t in todos_temas %}
+          <li class="mb-2 {% if t.id == tema.id %}fw-semibold text-primary{% endif %}">
+            <i class="bi bi-{% if t.id == tema.id %}chevron-right{% else %}dot{% endif %} me-1"></i>
+            {% if t.id == tema.id %}
+              {{ t.titulo }}
+            {% else %}
+              <a href="{% url 'courses:tema_detail' pk=t.pk %}" class="text-muted text-decoration-none">{{ t.titulo }}</a>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('completarForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('completarBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando...';
+  fetch(this.action, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      btn.className = 'btn btn-success disabled';
+      btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Completado (+' + data.puntos_ganados + ' pts)';
+      // Small toast
+      const toast = document.createElement('div');
+      toast.className = 'position-fixed bottom-0 end-0 m-4 alert alert-success shadow-lg';
+      toast.innerHTML = '🎉 ¡+' + data.puntos_ganados + ' puntos ganados!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Marcar completado (+{{ tema.puntos_otorgados }} pts)';
+      alert(data.error || data.message || 'No se pudo completar el tema.');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Marcar completado (+{{ tema.puntos_otorgados }} pts)';
+    alert('Error al guardar el progreso. Inténtalo de nuevo.');
+  });
+});
+</script>
+{% endblock %}

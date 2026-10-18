@@ -1,0 +1,84 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{{ quiz.title }} | {{ course.nombre }}{% endblock %}
+{% block content %}
+  <p data-quiz-live-error role="alert" hidden>{% trans 'No se pudo actualizar la prueba. La actualización se ha detenido.' %}</p>
+  <section class="content-panel" data-quiz-live-region data-notification-item-target="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}">
+    <p class="eyebrow">{{ course.nombre }}</p>
+    <h1>{{ quiz.title }}</h1>
+    {% include 'lms/quiz_summary.html' %}
+    <span class="status">{{ quiz.get_status_display }}</span>
+    {% for phase in quiz_phase_labels %}<span class="status">{{ phase }}</span>{% endfor %}
+    {% if attempt_history %}
+      <a class="button button-secondary" href="#quiz-attempt-history" data-show-history aria-label="{% trans 'Estadísticas de la prueba' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> {% trans 'Estadísticas' %}</a>
+    {% endif %}
+    {% if answers_visible %}
+      <a class="button button-secondary" href="#quiz-solutions" data-show-solutions aria-label="{% trans 'Ver preguntas y soluciones' %}"><i class="bi bi-check2-square" aria-hidden="true"></i> {% trans 'Soluciones' %}</a>
+    {% endif %}
+    <details class="content-accordion-item" id="quiz-solutions" data-quiz-info="solutions">
+    <summary>{% trans 'Información de la prueba' %}</summary>
+    <div class="content-accordion-body">
+    <div class="prose">{{ quiz.description|linebreaks }}</div>
+    <dl>
+      <dt>{% trans 'Preguntas' %}</dt><dd>{{ question_count }}</dd>
+      <dt>{% trans 'Puntos máximos / mínimos para superar' %}</dt><dd>{{ maximum_points }} / {{ quiz.passing_score }}</dd>
+      {% if scaled_grading %}
+        <dt>{% trans 'Valor por acierto' %}</dt><dd>{{ question_value|floatformat:4 }}</dd>
+        <dt>{% trans 'Penalización por fallo' %}</dt><dd>{{ error_penalty|floatformat:4 }}</dd>
+        <dt>{% trans 'Penalización por respuesta en blanco' %}</dt><dd>{{ blank_penalty|floatformat:4 }}</dd>
+      {% endif %}
+      <dt>{% trans 'Duración (minutos; 0 sin límite)' %}</dt><dd>{{ quiz.duration_minutes }}</dd>
+      <dt>{% trans 'Intentos permitidos' %}</dt><dd>{{ quiz.max_attempts }}</dd>
+      <dt>{% trans 'Aula/clase' %}</dt><dd>{{ quiz.section|default:_('Todo el curso') }}</dd>
+    </dl>
+    {% include 'lms/quiz_dates.html' %}
+    </div></details>
+    {% if can_start_attempt %}
+      <form method="post" action="{% url 'lms:quiz_start' course_id=course.pk quiz_id=quiz.pk %}">{% csrf_token %}
+        <button class="button button-primary">{% trans 'Comenzar prueba' %}</button>
+      </form>
+    {% elif active_attempt and not teacher_view %}
+      <a class="button button-primary" href="{% url 'lms:quiz_attempt' course_id=course.pk quiz_id=quiz.pk attempt_id=active_attempt.pk %}">{% trans 'Continuar prueba' %}</a>
+    {% endif %}
+    {% include 'lms/quiz_attempt_history.html' %}
+    {% for grade in published_grades %}
+      <p>{% trans 'Tu nota' %}: <strong>{{ grade.grade }} / {{ grade.max_grade }}</strong> · {% if grade.attempt.is_passed %}{% trans 'Aprobado' %}{% else %}{% trans 'No aprobado' %}{% endif %}</p>
+    {% endfor %}
+    <div class="action-row">
+      {% if can_edit_quiz %}
+        <a class="button button-secondary" href="{% url 'lms:quiz_edit' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Editar prueba' %}</a>
+      {% endif %}
+      {% if can_edit_quiz and quiz.status == 'draft' %}
+        <form method="post" action="{% url 'lms:quiz_status' course_id=course.pk quiz_id=quiz.pk %}">{% csrf_token %}<button class="button button-primary" name="action" value="publish">{% trans 'Publicar prueba' %}</button></form>
+        <form method="post" action="{% url 'lms:quiz_status' course_id=course.pk quiz_id=quiz.pk %}">{% csrf_token %}<button class="button button-secondary" name="action" value="schedule">{% trans 'Programar prueba' %}</button></form>
+      {% elif teacher_view and quiz.status == 'scheduled' %}
+        <form method="post" action="{% url 'lms:quiz_status' course_id=course.pk quiz_id=quiz.pk %}">{% csrf_token %}<button class="button button-secondary" name="action" value="cancel_schedule">{% trans 'Cancelar programación' %}</button></form>
+      {% elif teacher_view and quiz.status == 'published' %}
+        <form method="post" action="{% url 'lms:quiz_status' course_id=course.pk quiz_id=quiz.pk %}">{% csrf_token %}<button class="button button-secondary" name="action" value="close">{% trans 'Cerrar prueba' %}</button></form>
+      {% endif %}
+      <a class="button button-secondary" href="{% url 'lms:course_area' course_id=course.pk area='quizzes' %}">{% trans 'Volver a Pruebas' %}</a>
+      {% if teacher_view %}<a class="button button-danger" href="{% url 'lms:quiz_delete' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Eliminar prueba' %}</a>{% endif %}
+      {% if can_reopen_quiz %}<a class="button button-secondary" href="{% url 'lms:quiz_reopen' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Reabrir prueba' %}</a>{% endif %}
+    </div>
+    {% if teacher_view %}<p class="quiet-note">{% trans 'Puedes editar borradores y pruebas publicadas mientras no tengan intentos. Al comenzar el primer intento, la configuración y las preguntas quedan bloqueadas.' %}</p>{% endif %}
+    {% if teacher_view or answers_visible %}
+      <details class="content-accordion-item">
+        <summary>{% if teacher_view %}{% trans 'Preguntas seleccionadas (vista docente)' %}{% else %}{% trans 'Respuestas publicadas' %}{% endif %} ({{ question_count }})</summary>
+        <div class="content-accordion-body">
+          {% for item in quiz_questions %}
+            <details class="content-accordion-item"><summary>{{ forloop.counter }} · {{ item.display_prompt }}</summary>
+              <div class="content-accordion-body">
+                <ol type="A">{% for option in item.question_version.options %}<li>{{ option }}</li>{% endfor %}</ol>
+                {% if answers_visible %}
+                  <p>{% trans 'Respuesta correcta' %}: {{ item.question_version.correct_answers|join:', ' }}</p>
+                  <p>{{ item.question_version.explanation }}</p>
+                {% endif %}
+                <p>{% trans 'Versión' %} {{ item.question_version.version_number }}</p>
+              </div>
+            </details>
+          {% empty %}<p>{% trans 'Sin preguntas.' %}</p>{% endfor %}
+        </div>
+      </details>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends "curriculum/sections/_form_base.html" %}
+{% block form_title %}{% if object %}Editar interés{% else %}<i class="bi bi-stars me-2 text-primary"></i>Nuevo interés{% endif %}{% endblock %}
+{% block back_url %}{% url 'curriculum:interest_list' %}{% endblock %}
+{% block cancel_url %}{% url 'curriculum:interest_list' %}{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Generador de gradientes{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Gradient Generator</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-md-4"><label class="form-label">Inicio</label><input type="text" name="start" value="{{ start|default:'#2563eb' }}" class="form-control"></div>
+            <div class="col-md-4"><label class="form-label">Fin</label><input type="text" name="end" value="{{ end|default:'#7c3aed' }}" class="form-control"></div>
+            <div class="col-md-4"><label class="form-label">Dirección</label><input type="text" name="direction" value="{{ direction|default:'135deg' }}" class="form-control"></div>
+            <div class="col-12"><button type="submit" class="btn btn-primary rounded-pill">Generar</button></div>
+          </form>
+
+          <div class="mt-4 rounded-4 p-5 text-white fw-bold fs-3" style="background: {{ gradient }}; min-height: 180px; display:flex; align-items:center; justify-content:center;">
+            Gradient preview
+          </div>
+
+          <pre class="mt-4 mb-0 p-3 bg-dark text-light rounded-4"><code>background: {{ gradient }};</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

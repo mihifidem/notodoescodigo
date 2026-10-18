@@ -1,0 +1,24 @@
+{% load i18n %}
+<form method="post" action="{{ request.get_full_path }}" data-drawer-form class="module-panel-form">
+  {% csrf_token %}
+  {% if panel_kind == 'schedule' %}
+    <input type="hidden" name="action" value="schedule">
+    <p>{% trans 'La duración es orientativa. Las fechas se aplican al activar la progresión secuencial en Configuraciones.' %}</p>
+    {{ schedule_form.as_p }}
+  {% else %}
+    <input type="hidden" name="action" value="content">
+    <p>{% if editing_content %}{% trans 'Selecciona la unidad formativa y las condiciones del recurso.' %}{% else %}{% trans 'Marca una o varias páginas, ficheros, pruebas y actividades. Se añadirán a la unidad seleccionada con las condiciones indicadas y en orden consecutivo.' %}{% endif %}</p>
+    {{ content_form.non_field_errors }}
+    {% for field in content_form %}
+      <div class="module-panel-field">
+        {{ field.label_tag }}{{ field }}
+        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+        {% if field.errors %}<div class="form-errors" role="alert">{{ field.errors }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+  <footer>
+    <button type="button" class="button button-secondary" data-drawer-close>{% trans 'Cancelar' %}</button>
+    <button type="submit" class="button button-primary">{% if panel_kind == 'schedule' %}{% trans 'Guardar planificación' %}{% elif editing_content %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Añadir contenido' %}{% endif %}</button>
+  </footer>
+</form>

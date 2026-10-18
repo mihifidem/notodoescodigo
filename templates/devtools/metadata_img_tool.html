@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Metadata image{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white py-3 px-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 mb-0">Metadata image</h2>
+            <a href="{% url 'devtools:hub' %}" class="btn btn-light btn-sm rounded-pill">
+              <i class="bi bi-arrow-left me-1"></i>Volver al menú
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="get" class="row g-3">
+            <div class="col-md-4"><label class="form-label">src</label><input type="text" name="src" value="{{ src }}" class="form-control"></div>
+            <div class="col-md-4"><label class="form-label">alt</label><input type="text" name="alt" value="{{ alt }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">width</label><input type="number" name="width" value="{{ width }}" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">height</label><input type="number" name="height" value="{{ height }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">loading</label><select name="loading" class="form-select"><option value="lazy" {% if loading == 'lazy' %}selected{% endif %}>lazy</option><option value="eager" {% if loading == 'eager' %}selected{% endif %}>eager</option></select></div>
+            <div class="col-12"><button type="submit" class="btn btn-success rounded-pill">Generar</button></div>
+          </form>
+          <pre class="mt-4 mb-0 p-3 bg-dark text-light rounded-4"><code>{{ html_snippet }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

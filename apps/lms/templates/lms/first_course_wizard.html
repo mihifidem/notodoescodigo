@@ -1,0 +1,36 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Crear mi primer curso" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a><span aria-hidden="true">/</span><a href="{% url 'lms:teacher_dashboard' %}">{% trans "Docente" %}</a><span aria-hidden="true">/</span><span aria-current="page">{% trans "Crear mi primer curso" %}</span></nav>
+
+  <section class="form-panel">
+    <p class="eyebrow">{% trans "ASISTENTE DE ARRANQUE" %}</p>
+    <h1>{% trans "Crear mi primer curso" %}</h1>
+    <p class="lede">{% trans "Configura una base real con un módulo, una estructura de 9 páginas y una configuración mínima para publicar el curso en minutos." %}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="field">
+        <label for="nombre">{% trans "Nombre del curso" %}</label>
+        <input class="lms-input" id="nombre" name="nombre" type="text" value="Mi primer curso" required>
+      </div>
+      <div class="field">
+        <label for="descripcion">{% trans "Descripción" %}</label>
+        <textarea class="lms-input" id="descripcion" name="descripcion" rows="4">Curso creado por el asistente de primer curso del Campus.</textarea>
+      </div>
+      <div class="field">
+        <label for="template">{% trans "Plantilla recomendada" %}</label>
+        <select class="lms-input" id="template" name="template">
+          <option value="basics" selected>{% trans "Fundamentos" %}</option>
+          <option value="project">{% trans "Proyecto" %}</option>
+          <option value="bootcamp">{% trans "Bootcamp" %}</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="button button-primary" type="submit">{% trans "Crear curso" %}</button>
+        <a class="button button-secondary" href="{% url 'lms:teacher_dashboard' %}">{% trans "Cancelar" %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

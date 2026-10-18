@@ -1,0 +1,53 @@
+{% load i18n %}
+<article id="forum-post-{{ query.pk }}" class="forum-post" data-thread-closed="{% if query.accepted_solution_id %}true{% else %}false{% endif %}">
+  <h1>{{ query.title|default:forum.title }}</h1>
+  <p class="quiet-note">{{ query.author.get_full_name|default:query.author.username }} · <time datetime="{{ query.created_at|date:'c' }}">{{ query.created_at|date:'j M Y, H:i' }}</time>{% if query.is_edited %} · {% trans 'Editada' %}{% endif %}</p>
+  <span class="status {% if query.accepted_solution_id %}status-published{% else %}status-draft{% endif %}">{% if query.accepted_solution_id %}{% trans 'Resuelta' %}{% else %}{% trans 'Sin resolver' %}{% endif %}</span>
+  {% if query.accepted_solution_id %}<p class="quiet-note">{% trans 'Hilo cerrado con una solución aceptada.' %}</p>{% endif %}
+  <div class="prose">{{ query.content|safe }}</div>
+  {% if can_manage and writable %}
+    {% include 'lms/forum_post_actions.html' with post=query %}
+  {% endif %}
+</article>
+<div class="section-heading">
+  <h2>{% trans 'Respuestas' %}</h2>
+  {% if can_view_replies %}<span class="count-pill forum-reply-count" data-reply-count="{{ reply_count }}">{% blocktrans count total=reply_count %}{{ total }} respuesta{% plural %}{{ total }} respuestas{% endblocktrans %}</span>{% endif %}
+</div>
+{% if not can_view_replies %}
+  <p class="quiet-note">{% trans 'Publica una respuesta para ver las respuestas de los demás.' %}</p>
+{% endif %}
+{% for post in replies %}
+  <article id="forum-post-{{ post.pk }}" class="forum-post content-panel {% if post.parent_id != query.pk %}forum-nested-reply{% endif %}">
+    {% if post.is_deleted %}
+      <p class="quiet-note">{% trans 'Respuesta eliminada.' %}</p>
+    {% else %}
+      <p class="quiet-note">{{ post.author.get_full_name|default:post.author.username }} · <time datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:'j M Y, H:i' }}</time>{% if post.is_edited %} · {% trans 'Editada' %}{% endif %}</p>
+      {% if post.parent_id != query.pk %}<p class="quiet-note">{% trans 'En respuesta a' %} <a href="#forum-post-{{ post.parent_id }}">{{ post.parent.author.get_full_name|default:post.parent.author.username }}</a></p>{% endif %}
+      {% if query.accepted_solution_id == post.pk %}<strong class="status status-published">{% trans 'Solución aceptada' %}</strong>{% endif %}
+      <div class="prose">{{ post.content|safe }}</div>
+      {% if post.can_manage and writable %}{% include 'lms/forum_post_actions.html' %}{% endif %}
+      {% if can_resolve %}
+        <form method="post" action="{% url 'lms:course_forum_solution' course_id=course.pk forum_id=forum.pk post_id=query.pk %}" class="action-row">
+          {% csrf_token %}
+          <input type="hidden" name="solution_id" value="{% if query.accepted_solution_id != post.pk %}{{ post.pk }}{% endif %}">
+          <button class="button button-secondary button-small" type="submit">{% if query.accepted_solution_id == post.pk %}{% trans 'Quitar solución y reabrir hilo' %}{% else %}{% trans 'Marcar como solución y cerrar hilo' %}{% endif %}</button>
+        </form>
+      {% endif %}
+      {% if writable and post.can_reply %}
+        <details>
+          <summary>{% trans 'Responder a esta respuesta' %}</summary>
+          <form method="post" action="{% url 'lms:course_forum_query' course_id=course.pk forum_id=forum.pk post_id=query.pk %}" class="stacked-form">
+            {% csrf_token %}
+            <input type="hidden" name="parent_id" value="{{ post.pk }}">
+            <label for="reply-{{ post.pk }}">{% trans 'Mensaje' %}</label>
+            <textarea id="reply-{{ post.pk }}" name="content" rows="3" required></textarea>
+            <button type="submit" class="button button-primary button-small">{% trans 'Responder' %}</button>
+            <a class="button button-secondary button-small" href="{% url 'lms:course_forum_query' course_id=course.pk forum_id=forum.pk post_id=query.pk %}">{% trans 'Cancelar' %}</a>
+          </form>
+        </details>
+      {% endif %}
+    {% endif %}
+  </article>
+{% empty %}
+  {% if can_view_replies %}<p class="quiet-note">{% trans 'Todavía no hay respuestas.' %}</p>{% endif %}
+{% endfor %}

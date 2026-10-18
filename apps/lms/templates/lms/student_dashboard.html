@@ -1,0 +1,199 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Espacio de aprendizaje" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{% trans "Mi aprendizaje" %}</span>
+  </nav>
+
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">{% trans "FRONT OFFICE DEL ALUMNO" %}</p>
+      <h1>{% blocktrans with name=request.user.get_short_name|default:request.user.username %}Hola, {{ name }}{% endblocktrans %}</h1>
+      <p class="lede">{% trans "Gestiona tus aulas, revisa lo más urgente y retoma tu progreso sin perder el ritmo." %}</p>
+    </div>
+    <a class="button button-primary" href="{% url 'courses:list' %}">{% trans "Explorar cursos" %}</a>
+  </section>
+
+  {% if next_course %}
+    <section class="student-focus content-panel" aria-labelledby="next-course-title">
+      <div>
+        <p class="eyebrow">{% trans "TU AULA ACTUAL" %}</p>
+        <h2 id="next-course-title">{{ next_course.nombre }}</h2>
+        <p>{{ next_course.descripcion|truncatewords:26 }}</p>
+        <div class="current-activity-actions">
+          <a class="button button-primary" href="{% url 'lms:course_detail' course_id=next_course.pk %}">{% trans "Continuar en el aula" %} <span aria-hidden="true">→</span></a>
+          {% if next_course.fecha_fin %}<span class="role-label">{% blocktrans with date=next_course.fecha_fin|date:'d M Y' %}Finaliza {{ date }}{% endblocktrans %}</span>{% endif %}
+        </div>
+      </div>
+      {% if progress_topics_total %}
+        <div class="progress-summary" role="progressbar" aria-label="{% trans 'Progreso del curso' %}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ progress_percentage }}">
+          <span class="progress-number">{{ progress_percentage }}%</span>
+          <span>{{ progress_topics_completed }} / {{ progress_topics_total }} {% trans "temas completados" %}</span>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  <div class="metrics-grid" style="margin-bottom: 28px;">
+    <div class="metric-card">
+      <span class="metric-label">{% trans "Aulas activas" %}</span>
+      <strong>{{ campus_stats.active }}</strong>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">{% trans "Suspendidas" %}</span>
+      <strong>{{ campus_stats.suspended }}</strong>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">{% trans "Completadas" %}</span>
+      <strong>{{ campus_stats.completed }}</strong>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">{% trans "Notificaciones" %}</span>
+      <strong>{{ campus_stats.unread_notifications }}</strong>
+    </div>
+  </div>
+
+  <div class="dashboard-columns">
+    <section class="section-block" aria-labelledby="student-courses-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{% trans "CAMPUS PERSONAL" %}</p>
+          <h2 id="student-courses-title">{% trans "Mis aulas" %}</h2>
+        </div>
+        <span class="count-pill">{{ memberships|length }} {% trans "aulas" %}</span>
+      </div>
+
+      {% if campus_cards %}
+        <div class="course-grid">
+          {% for item in campus_cards %}
+            {% with course=item.course membership=item.membership %}
+              <article class="course-card">
+                <div class="card-topline">
+                  <span class="status {% if membership.status == 'active' %}status-published{% elif membership.status == 'suspended' %}status-draft{% else %}status-published{% endif %}">
+                    {% if membership.status == 'active' %}{% trans "En curso" %}
+                    {% elif membership.status == 'suspended' %}{% trans "Suspendido" %}
+                    {% else %}{% trans "Completado" %}{% endif %}
+                  </span>
+                  <span class="role-label" style="border-color: {{ item.role_accent }}33; color: {{ item.role_accent }};">{{ item.role_label }}</span>
+                </div>
+
+                <h3><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a></h3>
+                <p>{{ course.descripcion|truncatewords:20 }}</p>
+
+                <div class="section-label" style="margin-bottom: 10px;">
+                  {% if item.next_due %}
+                    <strong>{% trans "Próxima entrega" %}:</strong> {{ item.next_due.titulo }} · {{ item.next_due.fecha_cierre|default:item.next_due.fecha_prueba|date:'d M' }}
+                  {% else %}
+                    {% trans "Sin entregas cercanas" %}
+                  {% endif %}
+                </div>
+
+                <div class="course-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto;">
+                  <span>{% trans "Progreso" %}: {{ item.progress_percent }}%</span>
+                  <span class="count-pill">{{ item.progress_completed }}/{{ item.progress_total }}</span>
+                </div>
+
+                {% if item.has_unread_course_alert %}
+                  <p class="quiet-note" style="margin-top: 10px; color: #b91c1c; font-weight: 700;">{% trans "Nuevo aviso" %}: {{ item.latest_announcement.title|default:_('Hay un nuevo anuncio en este curso.') }}</p>
+                {% elif item.latest_announcement %}
+                  <p class="quiet-note" style="margin-top: 10px;">{% trans "Último anuncio" %}: {{ item.latest_announcement.title }}</p>
+                {% endif %}
+
+                <a class="card-link" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Continuar" %} <span aria-hidden="true">→</span></a>
+              </article>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">▦</span>
+          <h3>{% trans "Aún no tienes cursos asignados" %}</h3>
+          <p>{% trans "Explora los cursos publicados para encontrar un nuevo reto." %}</p>
+          <a class="button button-secondary" href="{% url 'courses:list' %}">{% trans "Ver cursos disponibles" %}</a>
+        </div>
+      {% endif %}
+    </section>
+
+    <aside class="upcoming-panel" aria-labelledby="student-due-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{% trans "ORGANIZA TU SEMANA" %}</p>
+          <h2 id="student-due-title">{% trans "Próximas entregas" %}</h2>
+        </div>
+        <a class="text-link" href="{% url 'lms:global_area' area='calendar' %}">{% trans "Calendario" %}</a>
+      </div>
+
+      {% if upcoming_evaluations %}
+        <ul class="due-list">
+          {% for evaluation in upcoming_evaluations %}
+            <li>
+              <span class="due-icon" aria-hidden="true">◷</span>
+              <div>
+                <h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3>
+                <p>{% if evaluation.is_deadline %}{% trans "Cierra" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p>
+                <span class="due-state due-{{ evaluation.state }}">
+                  {% if evaluation.state == 'soon' %}{% trans "Pronto" %}
+                  {% elif evaluation.state == 'overdue' %}{% trans "Vencida" %}
+                  {% else %}{% trans "Programada" %}{% endif %}
+                </span>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state empty-state-compact"><p>{% trans "No tienes entregas próximas." %}</p></div>
+      {% endif %}
+    </aside>
+  </div>
+
+  <section class="section-block" aria-labelledby="campus-widgets-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">{% trans "RESUMEN" %}</p>
+        <h2 id="campus-widgets-title">{% trans "Actividad del campus" %}</h2>
+      </div>
+    </div>
+    <div class="course-grid">
+      <article class="content-panel">
+        <h3>{% trans "Mi agenda" %}</h3>
+        {% if agenda_events %}
+          <ul class="due-list">
+            {% for event in agenda_events %}
+              <li>
+                <span class="due-icon" aria-hidden="true">✦</span>
+                <div>
+                  <h3>{{ event.title }}</h3>
+                  <p>{{ event.starts_at|date:"j M, H:i" }}{% if event.course %} · {{ event.course.nombre }}{% endif %}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="quiet-note">{% trans "No tienes eventos en la próxima semana." %}</p>
+        {% endif %}
+      </article>
+
+      <article class="content-panel">
+        <h3>{% trans "Mensajes sin leer" %}</h3>
+        {% if unread_notifications %}
+          <ul class="due-list">
+            {% for notification in unread_notifications %}
+              <li>
+                <span class="due-icon" aria-hidden="true">◌</span>
+                <div>
+                  <h3>{{ notification.title }}</h3>
+                  <p>{{ notification.message|truncatechars:80 }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="quiet-note">{% trans "Todo está al día." %}</p>
+        {% endif %}
+      </article>
+    </div>
+  </section>
+{% endblock %}

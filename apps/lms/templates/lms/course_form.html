@@ -1,0 +1,136 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+{% block head %}
+  {{ block.super }}
+  <script src="{% static 'lms/slug.js' %}?v=20261013-course-name" defer></script>
+  {% if can_create_category %}<script src="{% static 'lms/course-category.js' %}?v=20261013" defer></script>{% endif %}
+{% endblock %}
+{% block title %}{{ form_title }} | NoTodoEsCódigo Campus{% endblock %}
+{% block content %}
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:dashboard' %}">{% trans "Mis aulas" %}</a>
+    {% if course %}<span aria-hidden="true">/</span><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>{% endif %}
+    <span aria-hidden="true">/</span><span aria-current="page">{{ form_title }}</span>
+  </nav>
+  <section class="form-panel">
+    <p class="eyebrow">{% trans "ESPACIO DOCENTE" %}</p>
+    <h1>{{ form_title }}</h1>
+    <p class="lede">{% if course %}{% trans "Actualiza la información de tu curso. Los cambios se registran en la auditoría." %}{% else %}{% trans "Empieza con lo esencial; el aula se creará como borrador." %}{% endif %}</p>
+
+    {% if course %}
+      <div class="editor-toolbar" aria-label="{% trans 'Acciones de edición del curso' %}">
+        <div class="stacked-actions">
+          <form method="post" class="inline-form-action">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_draft" />
+            <button class="button button-primary" type="submit">{% trans "Guardar borrador" %}</button>
+          </form>
+          <form method="post" class="inline-form-action">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="preview" />
+            <button class="button button-secondary" type="submit">{% trans "Vista previa" %}</button>
+          </form>
+          {% if can_publish %}
+            <form method="post" action="{% url 'lms:course_publish' course_id=course.pk %}" class="inline-form-action">
+              {% csrf_token %}
+              <button class="button button-secondary" type="submit">{% trans "Publicar aula" %}</button>
+            </form>
+          {% endif %}
+          <a class="button button-light" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Volver al curso" %}</a>
+          {% if request.user.is_staff %}<a class="button button-danger" href="{% url 'lms:course_delete' course_id=course.pk %}">{% trans 'Eliminar curso' %}</a>{% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate data-auto-slug data-auto-slug-source="nombre" data-lms-validation-url="{% url 'lms:form_field_validate' form_type='course' %}" data-course-id="{{ course.pk|default:'' }}" data-validation-failure-message="{% trans 'No se pudo validar el campo. Vuelve a intentarlo.' %}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span aria-hidden="true"> *</span><span class="visually-hidden">{% trans "obligatorio" %}</span>{% endif %}</label>
+          {% if field.help_text %}<p class="field-help" id="{{ field.id_for_label }}_helptext">{{ field.help_text }}</p>{% endif %}
+          {{ field }}
+          {% if field.name == 'categoria' and can_create_category %}
+            <button type="button" class="button button-light course-category-trigger" data-category-open><span aria-hidden="true">+</span> {% trans "Añadir categoría" %}</button>
+          {% endif %}
+          {% if field.errors %}<ul class="field-errors" id="id_{{ field.html_name }}_errors" role="alert">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      {% endfor %}
+      <div class="form-actions">
+        <button class="button button-primary" type="submit">{% if course %}{% trans "Guardar cambios" %}{% else %}{% trans "Crear borrador" %}{% endif %}</button>
+        {% if course %}<a class="button button-secondary" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Cancelar" %}</a>{% else %}<a class="button button-secondary" href="{% url 'lms:dashboard' %}">{% trans "Cancelar" %}</a>{% endif %}
+      </div>
+    </form>
+
+    {% if can_create_category %}
+    <dialog data-category-dialog aria-labelledby="category-dialog-title">
+      <h2 id="category-dialog-title">{% trans "Nueva categoría" %}</h2>
+      <form method="post" action="{% url 'lms:course_category_create' %}" data-category-form>
+        {% csrf_token %}
+        {{ category_form.as_p }}
+        <p data-category-error role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="submit" class="button button-primary">{% trans "Crear y seleccionar" %}</button>
+          <button type="button" class="button button-secondary" data-category-cancel>{% trans "Cancelar" %}</button>
+        </div>
+      </form>
+    </dialog>
+    {% endif %}
+
+    {% if course %}
+      <section class="content-panel" aria-labelledby="editor-settings-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{% trans "ORGANIZACIÓN" %}</p>
+            <h2 id="editor-settings-title">{% trans "Reordenar actividades" %}</h2>
+          </div>
+        </div>
+        {% if course_modules %}
+          <ol class="module-order-list">
+            {% for module in course_modules %}
+              <li class="module-order-item">
+                <strong>{{ forloop.counter }}. {{ module.title }}</strong>
+                <span>{{ module.summary|default:module.description|striptags|truncatechars:80 }}</span>
+                <form method="post" class="inline-order-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="reorder_modules" />
+                  <input type="hidden" name="module_id" value="{{ module.pk }}" />
+                  <button class="button button-light" type="submit" name="direction" value="up" aria-label="{% blocktrans with title=module.title %}Subir {{ title }}{% endblocktrans %}">↑</button>
+                  <button class="button button-light" type="submit" name="direction" value="down" aria-label="{% blocktrans with title=module.title %}Bajar {{ title }}{% endblocktrans %}">↓</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <div class="empty-state empty-state-compact">
+            <p>{% trans "Aún no hay módulos creados. Añade la primera unidad del aula para comenzar a organizarla." %}</p>
+          </div>
+        {% endif %}
+      </section>
+
+      <section class="content-panel" aria-labelledby="course-editor-history-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{% trans "AUDITORÍA" %}</p>
+            <h2 id="course-editor-history-title">{% trans "Historial del curso" %}</h2>
+          </div>
+        </div>
+        {% if recent_audit_events %}
+          <ul class="audit-list">
+            {% for event in recent_audit_events %}
+              <li>
+                <strong>{{ event.get_action_display|default:"Cambio" }}</strong>
+                <span>{{ event.metadata|default:"Actualización registrada" }}</span>
+                <time datetime="{{ event.created_at|date:'c' }}">{{ event.created_at|date:"d M Y, H:i" }}</time>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state empty-state-compact">
+            <p>{% trans "No hay cambios recientes en esta aula todavía." %}</p>
+          </div>
+        {% endif %}
+      </section>
+    {% endif %}
+  </section>
+{% endblock %}

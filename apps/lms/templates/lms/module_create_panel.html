@@ -1,0 +1,23 @@
+{% load i18n %}
+<details class="module-create-panel" data-module-create-panel>
+  <summary class="button button-secondary">{% if create_label %}{{ create_label }}{% else %}{% trans 'Nuevo módulo' %}{% endif %}</summary>
+  <div class="module-create-body">
+    <div class="field-block">
+      <label for="new-module-title">{% trans 'Nombre del módulo' %}</label>
+      <input id="new-module-title" name="titulo" form="module-create-form" type="text" class="lms-input" maxlength="200" required>
+    </div>
+    <div class="field-block">
+      <label for="new-module-content">{% trans 'Resumen o descripción' %}</label>
+      <textarea id="new-module-content" name="contenido" form="module-create-form" class="lms-input" rows="4"></textarea>
+    </div>
+    <div class="field-block">
+      <label for="new-module-order">{% trans 'Orden' %}</label>
+      <input id="new-module-order" name="orden" form="module-create-form" type="number" class="lms-input" min="0" value="{{ course.temas.count }}" required>
+    </div>
+    <div data-module-create-error role="alert" hidden></div>
+    <div class="action-row">
+      <button type="submit" form="module-create-form" class="button button-primary">{% trans 'Crear módulo' %}</button>
+      <button type="button" class="button button-secondary" data-module-create-cancel>{% trans 'Cancelar' %}</button>
+    </div>
+  </div>
+</details>

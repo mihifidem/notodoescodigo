@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Curriculum Vitae{% endblock %}
+
+{% block extra_css %}
+<style>
+  .section-card { transition: transform .15s, box-shadow .15s; }
+  .section-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+  .progress-ring { --size: 90px; width: var(--size); height: var(--size); }
+  .badge-done { background: #d1fae5; color: #065f46; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+
+  <!-- Page header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h1 class="h3 mb-0 fw-bold"><i class="bi bi-file-person me-2 text-primary"></i>Mi Curriculum Vitae</h1>
+      <p class="text-muted small mb-0">Rellena cada sección y crea perfiles personalizados para compartir.</p>
+    </div>
+    <a href="{% url 'curriculum:profile_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>Nuevo perfil
+    </a>
+  </div>
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center justify-content-between gap-3 flex-wrap">
+      <div>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>Importa tu CV desde PDF</h5>
+        <p class="text-muted small mb-0">Extraemos los datos localmente y podrás revisarlos antes de añadirlos.</p>
+      </div>
+      <a href="{% url 'curriculum:import_cv_pdf' %}" class="btn btn-outline-primary">
+        Subir PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Completeness progress -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center gap-4 flex-wrap">
+      <div class="position-relative" style="width:90px; height:90px; flex-shrink:0;">
+        <svg viewBox="0 0 36 36" style="width:90px;height:90px;transform:rotate(-90deg)">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#4f46e5"
+                  stroke-width="3"
+                  stroke-dasharray="{{ pct }} {{ 100|add:'-'|add:pct }}"
+                  stroke-linecap="round"/>
+        </svg>
+        <div class="position-absolute top-50 start-50 translate-middle fw-bold text-primary" style="font-size:1rem;">{{ pct }}%</div>
+      </div>
+      <div>
+        <h5 class="mb-0">Completitud del CV</h5>
+        <p class="text-muted mb-0">{{ done }} de {{ total }} secciones completadas</p>
+        {% if pct < 50 %}
+        <span class="badge bg-warning text-dark mt-1">¡Sigue completando para mejorar tu perfil!</span>
+        {% elif pct < 100 %}
+        <span class="badge bg-info text-dark mt-1">Buen progreso, casi completo</span>
+        {% else %}
+        <span class="badge bg-success mt-1">CV completo 🎉</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- CV Sections grid -->
+  <h5 class="fw-semibold mb-3">Secciones del CV</h5>
+  <div class="row g-3 mb-5">
+
+    {% include "curriculum/partials/_section_card.html" with icon="bi-person-vcard" title="Datos personales" desc="Nombre, contacto, ubicación..." done=sections.personal url="curriculum:personal_info" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-briefcase" title="Perfil profesional" desc="Profesión, resumen y objetivo" done=sections.perfil url="curriculum:professional_profile" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-building" title="Experiencia laboral" desc="Puestos, empresas y logros" done=sections.experiencia url="curriculum:work_experience_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-mortarboard" title="Formación académica" desc="Títulos y centros educativos" done=sections.educacion url="curriculum:education_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-patch-check" title="Formación complementaria" desc="Cursos, certificaciones, bootcamps" done=sections.formacion url="curriculum:training_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-lightning-charge" title="Habilidades" desc="Hard skills y soft skills" done=sections.habilidades url="curriculum:skill_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-translate" title="Idiomas" desc="Nivel y certificaciones" done=sections.idiomas url="curriculum:language_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-code-slash" title="Proyectos" desc="Portfolio y demos" done=sections.proyectos url="curriculum:project_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-trophy" title="Logros y reconocimientos" desc="Premios y méritos" done=sections.logros url="curriculum:achievement_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-heart" title="Voluntariado" desc="Organizaciones e impacto" done=sections.voluntariado url="curriculum:volunteering_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-share" title="Redes profesionales" desc="LinkedIn, GitHub, portfolio..." done=sections.redes url="curriculum:social_networks" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-stars" title="Intereses" desc="Aficiones y pasiones" done=sections.intereses url="curriculum:interest_list" %}
+    {% include "curriculum/partials/_section_card.html" with icon="bi-gear" title="Otros datos" desc="Teletrabajo, viajes, salario..." done=sections.otros url="curriculum:other_info" %}
+
+  </div>
+
+  {# ── Nexus DNA ─────────────────────────────────────────────────────────── #}
+  <h5 class="fw-semibold mb-3">Nexus DNA</h5>
+  <div class="card border-0 shadow-sm mb-5 section-card" style="border-left:4px solid #7C3AED;">
+    <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+           style="width:48px;height:48px;background:linear-gradient(135deg,#7C3AED,#5B21B6);">
+        <i class="bi bi-diagram-3 text-white fs-5"></i>
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-semibold" style="color:#1B3C59;">Tests de talento Nexus DNA</div>
+        <div class="small text-muted">
+          {% if nexus_entries_count %}
+            {{ nexus_entries_count }} test{{ nexus_entries_count|pluralize }} guardado{{ nexus_entries_count|pluralize }} ·
+            {{ nexus_visible_count }} visible{{ nexus_visible_count|pluralize }} en CV
+          {% else %}
+            Ningún test guardado todavía. Completa un test y guárdalo en tu CV.
+          {% endif %}
+        </div>
+      </div>
+      <a href="{% url 'curriculum:nexus_dna_list' %}"
+         class="btn btn-sm fw-semibold"
+         style="background:#7C3AED;color:#fff;border-radius:8px;">
+        <i class="bi bi-sliders me-1"></i>Gestionar
+      </a>
+    </div>
+  </div>
+
+  <!-- Profiles -->
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h5 class="fw-semibold mb-0">Mis perfiles públicos</h5>
+    <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-primary btn-sm">Ver todos</a>
+  </div>
+
+  {% if profiles %}
+  <div class="row g-3">
+    {% for profile in profiles %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <h6 class="fw-bold mb-1">{{ profile.nombre }}</h6>
+            {% if profile.is_public %}
+            <span class="badge bg-success-subtle text-success">Público</span>
+            {% else %}
+            <span class="badge bg-secondary-subtle text-secondary">Privado</span>
+            {% endif %}
+          </div>
+          <p class="text-muted small mb-2">
+            <i class="bi bi-link-45deg"></i>
+            opentowork.es/<strong>{{ profile.slug }}</strong>
+          </p>
+          <span class="badge bg-primary-subtle text-primary">{{ profile.get_template_display }}</span>
+        </div>
+        <div class="card-footer bg-transparent border-top-0 d-flex gap-2">
+          <a href="{{ profile.get_absolute_url }}" target="_blank" class="btn btn-sm btn-outline-success flex-fill">
+            <i class="bi bi-eye"></i> Ver
+          </a>
+          <a href="{% url 'curriculum:profile_edit' pk=profile.pk %}" class="btn btn-sm btn-outline-secondary flex-fill">
+            <i class="bi bi-pencil"></i> Editar
+          </a>
+          <a href="{% url 'curriculum_cv_pdf' slug=profile.slug %}" target="_blank" class="btn btn-sm btn-outline-danger flex-fill">
+            <i class="bi bi-filetype-pdf"></i> PDF
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-file-earmark-person" style="font-size:3rem;"></i>
+    <p class="mt-2">Aún no tienes perfiles. <a href="{% url 'curriculum:profile_create' %}">Crea tu primer perfil</a></p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Mis Ofertas de Trabajo</h2>
+<ul>
+  {% for offer in offers %}
+    <li>
+      <a href="{% url 'jobs:offer_candidates' offer.id %}">{{ offer.title }}</a>
+      <br>
+      <small>{{ offer.created_at|date:'SHORT_DATE_FORMAT' }}</small>
+      <br>
+      Skills: {{ offer.skills.all|join:', ' }}
+      <br>
+      Candidatos: {{ offer.applications.count }}
+    </li>
+  {% empty %}
+    <li>No tienes ofertas activas.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
