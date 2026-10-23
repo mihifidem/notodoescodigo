@@ -17,14 +17,14 @@ from django.urls import reverse
 from .models import CourseMembership, GradeEntry, Quiz, QuizAttempt
 from .policies import can_edit_course, is_course_member
 from .quiz_management import (
-    QuizConfigurationForm, QuizReopenForm, change_quiz_status, check_editable,
-    delete_quiz, reopen_quiz, save_quiz_configuration,
+    QuizConfigurationForm, QuizPassingScoreForm, QuizReopenForm, change_quiz_status, check_editable,
+    delete_quiz, reopen_quiz, save_quiz_configuration, update_quiz_passing_score,
 )
 from .quiz_attempts import (
     attempt_deadline, attempt_questions, begin_attempt, finish_attempt, require_student, update_attempt,
 )
 from .views import CourseContextMixin
-from .quiz_status import quiz_is_closed, quiz_solutions_visible, teacher_quiz_status
+from .quiz_status import quiz_grade_release_filter, quiz_grade_visible, quiz_is_closed, quiz_solutions_visible, teacher_quiz_status
 
 
 class QuizContextMixin(CourseContextMixin):
@@ -77,6 +77,34 @@ class QuizEditView(QuizContextMixin, View):
         return self.handle(request)
 
 
+class QuizPassingScoreView(QuizContextMixin, View):
+    def handle(self, request):
+        self.require_teacher()
+        quiz = self.get_quiz()
+        form = QuizPassingScoreForm(
+            request.POST if request.method == 'POST' else None,
+            quiz=quiz, initial={'passing_score': quiz.passing_score},
+        )
+        if request.method == 'POST' and form.is_valid():
+            try:
+                update_quiz_passing_score(
+                    course=self.course, actor=request.user, quiz_id=quiz.pk,
+                    passing_score=form.cleaned_data['passing_score'],
+                )
+            except ValidationError as error:
+                form.add_error(None, error)
+            else:
+                messages.success(request, _('Mínimo de aprobado actualizado. Los resultados calificados se han actualizado.'))
+                return redirect('lms:quiz_detail', course_id=self.course.pk, quiz_id=quiz.pk)
+        return render(request, 'lms/quiz_passing_score.html', self.context(quiz=quiz, form=form))
+
+    def get(self, request, *args, **kwargs):
+        return self.handle(request)
+
+    def post(self, request, *args, **kwargs):
+        return self.handle(request)
+
+
 class QuizDetailView(QuizContextMixin, View):
     def get(self, request, *args, **kwargs):
         quiz = self.get_quiz()
@@ -111,14 +139,28 @@ class QuizDetailView(QuizContextMixin, View):
         attempts = quiz.attempts.select_related('user', 'grade_entry').order_by('-started_at', '-pk')
         if not teacher:
             attempts = attempts.filter(user=request.user)
+        else:
+            from .campus import campus_settings, scoped_students
+            if campus_settings(self.course):
+                attempts = attempts.filter(user_id__in=scoped_students(request.user, self.course).values('user_id'))
         history = []
+        from .lifecycle import student_recipients
+        release_student_ids = {
+            student.pk for student in student_recipients(self.course, section_id=quiz.section_id)
+        } if teacher else set()
         for attempt in attempts:
             entry = getattr(attempt, 'grade_entry', None)
-            released = bool(
-                entry and entry.status == GradeEntry.Status.PUBLISHED and not entry.is_hidden
-                and quiz.publish_grade_at and quiz.publish_grade_at <= timezone.now()
-            )
-            history.append({'attempt': attempt, 'show_results': teacher or released})
+            released = quiz_grade_visible(entry)
+            history.append({
+                'attempt': attempt, 'show_results': teacher or released,
+                'can_release_results': (
+                    teacher and not quiz.publish_grade_at and not attempt.results_released_at
+                    and attempt.user_id != request.user.pk and attempt.status == QuizAttempt.Status.GRADED
+                    and attempt.user_id in release_student_ids
+                    and entry is not None and not entry.is_hidden
+                    and entry.status in (GradeEntry.Status.DRAFT, GradeEntry.Status.PUBLISHED)
+                ),
+            })
         active_attempt = quiz.attempts.filter(user=request.user, status=QuizAttempt.Status.IN_PROGRESS).first()
         eligible = CourseMembership.objects.filter(
             course=self.course, user=request.user, role=CourseMembership.Role.STUDENT,
@@ -147,12 +189,36 @@ class QuizDetailView(QuizContextMixin, View):
             attempt_history=history, active_attempt=active_attempt, can_start_attempt=can_start,
             answers_visible=answers_visible,
             published_grades=GradeEntry.objects.filter(
+                quiz_grade_release_filter(),
                 attempt__quiz=quiz, user=request.user, status=GradeEntry.Status.PUBLISHED,
                 is_hidden=False,
-            ).select_related('attempt') if quiz.publish_grade_at and quiz.publish_grade_at <= timezone.now() else GradeEntry.objects.none(),
+            ).select_related('attempt'),
             can_edit_quiz=teacher and quiz.status in (Quiz.Status.DRAFT, Quiz.Status.PUBLISHED) and not quiz.attempts.exists(),
             can_reopen_quiz=teacher and quiz_is_closed(quiz) and self.course.status == 'published',
         ))
+
+
+class QuizReleaseResultsView(QuizContextMixin, View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        self.require_teacher()
+        quiz = self.get_quiz()
+        get_object_or_404(QuizAttempt, pk=self.kwargs['attempt_id'], quiz=quiz)
+        from .quiz_results import release_attempt_results
+        try:
+            release_attempt_results(
+                course=self.course, actor=request.user, quiz_id=quiz.pk,
+                attempt_id=self.kwargs['attempt_id'],
+            )
+        except ValidationError as error:
+            messages.error(request, ' '.join(error.messages))
+        else:
+            messages.success(request, _('Resultado y solución publicados para el alumno.'))
+        return redirect(
+            reverse('lms:quiz_detail', kwargs={'course_id': self.course.pk, 'quiz_id': quiz.pk})
+            + '#quiz-attempt-history'
+        )
 
 
 class QuizStartView(QuizContextMixin, View):

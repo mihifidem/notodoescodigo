@@ -1,0 +1,6 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">No se ha realizado la acción</h1>
+<p class="alert alert-danger" role="alert">{{ error }}</p>
+<a href="{% url 'curriculum:ats_list' %}">Volver a mis análisis</a>
+{% endblock %}

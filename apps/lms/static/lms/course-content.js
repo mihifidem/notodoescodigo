@@ -16,7 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.querySelector(selector);
     if (!button) return;
     button.hidden = false;
-    button.addEventListener('click', function () { toggles.forEach(function (toggle) { expand(toggle, open); }); });
+    button.addEventListener('click', function () {
+      toggles.forEach(function (toggle) { expand(toggle, open); });
+      list.querySelectorAll('details.formative-unit').forEach(function (unit) { unit.open = open; });
+    });
   });
 
   const drawer = document.querySelector('[data-content-drawer]');

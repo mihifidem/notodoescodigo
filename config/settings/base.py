@@ -23,6 +23,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
 STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_BILLING_WEBHOOK_SECRET = env('STRIPE_BILLING_WEBHOOK_SECRET', default='')
+BILLING_PUBLIC_BASE_URL = env('BILLING_PUBLIC_BASE_URL', default='')
 PAYPAL_CLIENT_ID = env('PAYPAL_CLIENT_ID', default='')
 PAYPAL_CLIENT_SECRET = env('PAYPAL_CLIENT_SECRET', default='')
 PAYPAL_MODE = env('PAYPAL_MODE', default='sandbox')
@@ -82,6 +84,7 @@ LOCAL_APPS = [
     'apps.duckyclash',
     'apps.data_admin',
     'apps.devtools',
+    'apps.updates',
     'apps.lms',
 ]
 
@@ -199,6 +202,18 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+CERTIFICATIONS_EVIDENCE_MAX_BYTES = env.int(
+    'CERTIFICATIONS_EVIDENCE_MAX_BYTES',
+    default=0,
+)
+CERTIFICATIONS_ALLOWED_EVIDENCE_MIME_TYPES = env.list(
+    'CERTIFICATIONS_ALLOWED_EVIDENCE_MIME_TYPES',
+    default=['application/pdf', 'image/png', 'image/jpeg'],
+)
+CERTIFICATIONS_EXPIRY_WARNING_DAYS = env.int(
+    'CERTIFICATIONS_EXPIRY_WARNING_DAYS',
+    default=0,
+)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

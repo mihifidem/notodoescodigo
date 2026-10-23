@@ -1,11 +1,57 @@
 import re
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
 from django.utils.text import slugify
+
+
+class InternalPrompt(models.Model):
+    key = models.CharField('Clave interna', max_length=120)
+    title = models.CharField('Titulo', max_length=180)
+    description = models.TextField('Descripcion', blank=True)
+    version = models.CharField('Version', max_length=60, default='1.0')
+    content = models.TextField('Prompt')
+    variables = models.JSONField(
+        'Variables', default=list, blank=True,
+        help_text='Nombres de variables entre llaves, por ejemplo: ["nombre"]. No incluyas datos personales.',
+    )
+    active = models.BooleanField(
+        'Activo', default=False,
+        help_text='Solo una version activa por clave. Desactiva la anterior antes de activar otra.',
+    )
+    created_at = models.DateTimeField('Creado', auto_now_add=True)
+    updated_at = models.DateTimeField('Actualizado', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Prompt interno de IA'
+        verbose_name_plural = 'Prompts internos de IA'
+        ordering = ['key', '-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['key', 'version'], name='prompts_internal_key_version'),
+            models.UniqueConstraint(
+                fields=['key'], condition=models.Q(active=True), name='prompts_internal_active_key',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.key} v{self.version}'
+
+    def clean(self):
+        super().clean()
+        if (not isinstance(self.variables, list)
+                or any(not isinstance(name, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', name)
+                       for name in self.variables)
+                or len(set(self.variables)) != len(self.variables)):
+            raise ValidationError({'variables': 'Indica una lista de nombres de variables unicos.'})
+        if not self.content.strip():
+            raise ValidationError({'content': 'El prompt no puede estar vacio.'})
+        placeholders = set(re.findall(r'\{([A-Za-z_][A-Za-z0-9_]*)\}', self.content))
+        if self.variables and placeholders != set(self.variables):
+            raise ValidationError({'content': 'Las variables del texto deben coincidir con la lista de variables.'})
 
 
 def _auto_label(nombre):

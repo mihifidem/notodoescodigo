@@ -1,25 +1,46 @@
 {% extends 'lms/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{{ quiz.title }} | {{ course.nombre }}{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/knowledge-tech.css' %}">
+{% endblock %}
 {% block content %}
+<div class="billing-app knowledge-tech evaluations-tech quiz-detail-tech">
+  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
+    <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'lms:course_area' course_id=course.pk area='quizzes' %}">{% trans 'Pruebas' %}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ quiz.title }}</span>
+  </nav>
   <p data-quiz-live-error role="alert" hidden>{% trans 'No se pudo actualizar la prueba. La actualización se ha detenido.' %}</p>
-  <section class="content-panel" data-quiz-live-region data-notification-item-target="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}">
-    <p class="eyebrow">{{ course.nombre }}</p>
-    <h1>{{ quiz.title }}</h1>
-    {% include 'lms/quiz_summary.html' %}
-    <span class="status">{{ quiz.get_status_display }}</span>
-    {% for phase in quiz_phase_labels %}<span class="status">{{ phase }}</span>{% endfor %}
+  <section class="content-panel quiz-detail-panel" data-quiz-live-region data-notification-item-target="{% url 'lms:quiz_detail' course_id=course.pk quiz_id=quiz.pk %}">
+    <header class="page-heading">
+      <div>
+        <p class="eyebrow">{{ course.nombre }}</p>
+        <h1>{{ quiz.title }}</h1>
+        <div class="quiz-status-row">
+          <span class="status">{{ quiz.get_status_display }}</span>
+          {% for phase in quiz_phase_labels %}<span class="status">{{ phase }}</span>{% endfor %}
+        </div>
+      </div>
+    </header>
+    <div class="quiz-overview">{% include 'lms/quiz_summary.html' %}</div>
+    <div class="action-row quiz-shortcuts">
     {% if attempt_history %}
       <a class="button button-secondary" href="#quiz-attempt-history" data-show-history aria-label="{% trans 'Estadísticas de la prueba' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> {% trans 'Estadísticas' %}</a>
     {% endif %}
     {% if answers_visible %}
       <a class="button button-secondary" href="#quiz-solutions" data-show-solutions aria-label="{% trans 'Ver preguntas y soluciones' %}"><i class="bi bi-check2-square" aria-hidden="true"></i> {% trans 'Soluciones' %}</a>
     {% endif %}
+    </div>
     <details class="content-accordion-item" id="quiz-solutions" data-quiz-info="solutions">
     <summary>{% trans 'Información de la prueba' %}</summary>
     <div class="content-accordion-body">
     <div class="prose">{{ quiz.description|linebreaks }}</div>
-    <dl>
+    <dl class="quiz-detail-facts">
       <dt>{% trans 'Preguntas' %}</dt><dd>{{ question_count }}</dd>
       <dt>{% trans 'Puntos máximos / mínimos para superar' %}</dt><dd>{{ maximum_points }} / {{ quiz.passing_score }}</dd>
       {% if scaled_grading %}
@@ -45,6 +66,9 @@
       <p>{% trans 'Tu nota' %}: <strong>{{ grade.grade }} / {{ grade.max_grade }}</strong> · {% if grade.attempt.is_passed %}{% trans 'Aprobado' %}{% else %}{% trans 'No aprobado' %}{% endif %}</p>
     {% endfor %}
     <div class="action-row">
+      {% if teacher_view %}
+        <a class="button button-secondary" href="{% url 'lms:quiz_passing_score' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Cambiar mínimo de aprobado' %}</a>
+      {% endif %}
       {% if can_edit_quiz %}
         <a class="button button-secondary" href="{% url 'lms:quiz_edit' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Editar prueba' %}</a>
       {% endif %}
@@ -60,7 +84,7 @@
       {% if teacher_view %}<a class="button button-danger" href="{% url 'lms:quiz_delete' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Eliminar prueba' %}</a>{% endif %}
       {% if can_reopen_quiz %}<a class="button button-secondary" href="{% url 'lms:quiz_reopen' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Reabrir prueba' %}</a>{% endif %}
     </div>
-    {% if teacher_view %}<p class="quiet-note">{% trans 'Puedes editar borradores y pruebas publicadas mientras no tengan intentos. Al comenzar el primer intento, la configuración y las preguntas quedan bloqueadas.' %}</p>{% endif %}
+    {% if teacher_view %}<p class="quiet-note">{% trans 'Puedes editar borradores y pruebas publicadas mientras no tengan intentos. Después, solo puedes cambiar el mínimo de aprobado y actualizar los resultados; las preguntas y demás configuración permanecen bloqueadas.' %}</p>{% endif %}
     {% if teacher_view or answers_visible %}
       <details class="content-accordion-item">
         <summary>{% if teacher_view %}{% trans 'Preguntas seleccionadas (vista docente)' %}{% else %}{% trans 'Respuestas publicadas' %}{% endif %} ({{ question_count }})</summary>
@@ -81,4 +105,5 @@
       </details>
     {% endif %}
   </section>
+</div>
 {% endblock %}

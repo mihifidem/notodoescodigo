@@ -1,4 +1,5 @@
 {% extends 'duckyclash/base.html' %}
+{% load static %}
 {% block title %}Editar reto · DuckyClash{% endblock %}
 {% block clash_content %}
 <div class="container py-4">
@@ -10,6 +11,7 @@
             {% csrf_token %}
             {% include 'duckyclash/form_errors.html' %}
             {{ form.as_p }}
+            <script src="{% static 'duckyclash/catalog-selects.js' %}" defer></script>
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
             <a class="btn btn-outline-secondary" href="{% url 'duckyclash:challenge_detail' challenge.pk %}">Volver sin guardar</a>
         </form>

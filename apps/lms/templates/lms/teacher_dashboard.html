@@ -36,7 +36,7 @@
               <h2>{{ selected_course.nombre }}</h2>
               <span class="status {% if selected_course.lms_settings.archived %}status-draft{% elif selected_course.activo %}status-published{% else %}status-draft{% endif %}">{% if selected_course.lms_settings.archived %}{% trans "Archivado" %}{% elif selected_course.activo %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
             </div>
-            <p>{{ selected_course.descripcion|truncatewords:32 }}</p>
+            <p>{{ selected_course.descripcion_texto|truncatewords:32 }}</p>
             <div class="hero-actions">
               <a class="button button-light" href="{% url 'lms:course_detail' course_id=selected_course.pk %}">{% trans "Ver aula" %}</a>
               <a class="button button-light" href="{% url 'lms:course_edit' course_id=selected_course.pk %}">{% trans "Editar aula" %}</a>

@@ -16,217 +16,40 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.base import ContentFile, File
 from django.db import OperationalError
 from django.db.models import Avg, Count, Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.decorators.http import require_http_methods
+from django.utils.dateparse import parse_date
+from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import (
     CreateView, DetailView, UpdateView, TemplateView, View, ListView
 )
 
-from rest_framework import viewsets, permissions
+from rest_framework import permissions, viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import User, Notificacion
+from .access import access_snapshot, can
+from apps.prompts.internal import render_internal_prompt
+from .dashboard_models import PersonalGoal
+from .models import AccessMembership, RamaProfesional, User, Notificacion
 from .notifications import platform_notifications, set_platform_read
-from .forms import RegistroForm, PerfilForm
-from .serializers import UserSerializer, NotificacionSerializer
+from .forms import PersonalGoalForm, RegistroForm, PerfilForm
+from .serializers import (
+    NotificacionSerializer,
+    RamaProfesionalSerializer,
+    UserProfessionalBranchSerializer,
+    UserSerializer,
+)
 
 
-DUCKY_AVATAR_PROMPT = """Genera un avatar personalizado de \"Ducky\", la mascota de noNoTodoEsCódigo.com.
-
-REFERENCIAS:
-- Imagen A: fotografía del usuario. Utilízala únicamente para identificar y trasladar rasgos físicos visibles.
-- Imagen B: imagen oficial de Ducky. Esta imagen es la referencia PRINCIPAL y OBLIGATORIA para el estilo visual, diseño, composición, proporciones, colores y personalidad del personaje.
-
-OBJETIVO
-Crear una versión personalizada de Ducky que mantenga exactamente la misma identidad visual que la mascota original, pero incorporando algunos rasgos físicos reconocibles del usuario.
-
-El resultado debe parecer un miembro de una colección oficial de avatares de noNoTodoEsCódigo.com.
-
-Ducky debe seguir siendo claramente un pato ilustrado.
-NO crear un retrato humano.
-NO transformar literalmente la cara humana en un pato.
-NO alterar la identidad visual esencial de Ducky.
-
-ESTILO VISUAL
-Seguir fielmente la Imagen B.
-Mantener:
-- ilustración cartoon/vectorial limpia
-- formas simples y redondeadas
-- contornos gruesos y oscuros
-- colores sólidos y vivos
-- sombreado mínimo y suave
-- apariencia moderna de mascota tecnológica
-- composición frontal y simétrica
-- diseño amigable y reconocible incluso a tamaño pequeño
-
-Evitar:
-- realismo
-- estilo fotográfico
-- render 3D
-- aspecto Pixar
-- textura realista de plumas
-- exceso de detalle
-- anatomía humana
-- caricatura exagerada
-
-DUCKY
-Conservar siempre:
-- cuerpo amarillo de pato
-- cabeza redondeada
-- pico naranja
-- ojos grandes y expresivos
-- expresión simpática
-- gafas cuando formen parte del diseño base
-- cuerpo compacto
-- contorno oscuro característico
-- portátil delante del personaje
-- símbolo de programación </> visible y centrado en el portátil
-
-El portátil y el símbolo </> forman parte de la identidad visual del avatar y deben mantenerse en todas las generaciones.
-
-PERSONALIZACIÓN DEL USUARIO
-Analiza únicamente los rasgos físicos claramente visibles en la Imagen A.
-Traslada de forma simplificada al personaje:
-CABELLO
-- color
-- longitud
-- volumen
-- textura
-- peinado
-- raya
-- flequillo
-- rizos u ondas
-- entradas o ausencia de cabello cuando sean evidentes
-
-El cabello debe interpretarse utilizando formas gráficas simples compatibles con el estilo de Ducky.
-
-OJOS
-- adaptar el color de ojos cuando sea claramente visible
-- mantener siempre el diseño grande, simple y expresivo de los ojos de Ducky
-
-GAFAS
-Si el usuario lleva gafas:
-- reproducir aproximadamente la forma
-- grosor
-- color
-- estilo general
-
-Simplificarlas para mantener el estilo cartoon de Ducky.
-
-Si el usuario no lleva gafas, no añadir gafas salvo que sean una característica imprescindible e invariable del diseño oficial de Ducky.
-
-CEJAS Y VELLO FACIAL
-Si son claramente visibles y ayudan a reconocer al usuario:
-- incorporar cejas
-- barba
-- bigote
-- perilla
-
-Representarlos mediante formas muy simples.
-No crear pelo facial realista.
-
-TONALIDAD DE PIEL
-Utilizar la tonalidad visible de la piel únicamente como referencia secundaria para pequeñas zonas antropomórficas si el diseño lo permite.
-No sustituir el color amarillo característico de Ducky.
-Ducky debe continuar siendo principalmente amarillo.
-
-RASGOS FACIALES
-Se pueden trasladar de forma muy sutil:
-- forma general de la mirada
-- expresión
-- cejas
-- sonrisa
-- algunos rasgos visuales distintivos
-
-Nunca reproducir una cara humana sobre el pato.
-
-REGLA DE PRIORIDAD
-Cuando exista conflicto entre parecerse al usuario y mantener la identidad de Ducky, priorizar SIEMPRE la identidad visual de Ducky.
-
-Orden de prioridad:
-1. Identidad visual de Ducky.
-2. Estilo gráfico de la Imagen B.
-3. Silueta, proporciones y composición.
-4. Cabello del usuario.
-5. Gafas.
-6. Ojos.
-7. Cejas o vello facial.
-8. Otros rasgos físicos secundarios.
-
-COMPOSICIÓN
-- formato cuadrado 1:1
-- personaje centrado
-- vista frontal
-- cabeza completamente visible
-- parte superior del cuerpo visible
-- portátil en primer plano
-- símbolo </> centrado en el portátil
-- fondo blanco, gris muy claro o fondo simple idéntico al estilo de referencia
-- suficiente margen alrededor del personaje para permitir un recorte circular
-- sin elementos innecesarios alrededor
-
-CONSISTENCIA ENTRE USUARIOS
-Todas las imágenes generadas deben parecer variantes del MISMO personaje.
-
-Entre usuarios solo deberían cambiar principalmente:
-- cabello
-- ojos
-- gafas
-- cejas
-- barba o bigote
-- pequeños rasgos visuales distintivos
-
-No cambiar entre generaciones:
-- anatomía de Ducky
-- color amarillo principal
-- forma del pico
-- proporciones generales
-- estilo gráfico
-- portátil
-- símbolo </>
-- grosor de los contornos
-- composición general
-- lenguaje visual
-
-RESTRICCIONES
-No inferir ni representar:
-- etnia
-- nacionalidad
-- religión
-- profesión
-- personalidad
-- orientación sexual
-- ideología
-- edad exacta
-- género
-
-salvo que exista algún elemento visual estrictamente necesario para reproducir el aspecto visible del usuario.
-
-No exagerar rasgos físicos.
-No generar caricaturas ofensivas.
-No añadir accesorios que no aparezcan en la foto.
-No añadir textos, nombres, logotipos ni marcas.
-
-RESULTADO FINAL
-Un avatar limpio, simpático y reconocible de Ducky personalizado con los rasgos visuales principales del usuario, manteniendo una identidad gráfica completamente consistente con el resto de avatares de noNoTodoEsCódigo.com.
-
-Debe dar la sensación de:
-“Este es Ducky, pero personalizado para este usuario”.
-
-No:
-“Esta persona ha sido convertida literalmente en un pato”.
-
-Usuario: {nombre_usuario}
-Nombre para la referencia visual: {nombre_usuario}
-"""
 
 
 def admin_csv_manager(request):
@@ -328,7 +151,7 @@ def generar_avatar_ducky_con_ia(usuario, archivo=None):
         raise RuntimeError('La librería openai no está instalada.') from exc
 
     nombre_usuario = usuario.get_full_name() or usuario.username
-    prompt = DUCKY_AVATAR_PROMPT.format(nombre_usuario=nombre_usuario)
+    prompt = render_internal_prompt('users.ducky_avatar', nombre_usuario=nombre_usuario)
 
     try:
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
@@ -434,6 +257,26 @@ class LandingView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        from .billing_models import BillingConfiguration
+        from .billing_services import PLAN_PRICE_FIELDS
+        configuration = BillingConfiguration.current()
+        context['landing_pricing_plans'] = [
+            {
+                'name': plan.upper(),
+                'prices': [
+                    {
+                        'period': period,
+                        'label': label,
+                        'amount': getattr(configuration, PLAN_PRICE_FIELDS[(plan, period)]) if configuration else None,
+                    }
+                    for period, label in (
+                        ('monthly', 'mes'), ('semiannual', 'semestre'), ('annual', 'año'),
+                    )
+                ],
+            }
+            for plan in ('plus', 'pro')
+        ]
+        context['landing_pricing_currency'] = configuration.currency if configuration else None
         from apps.blog.models import PostBlog
 
         context['posts_destacados'] = (
@@ -518,177 +361,404 @@ class RegistroView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class DashboardView(LoginRequiredMixin, TemplateView):
-    """Main user dashboard."""
+class AccessSummaryView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/access_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['access'] = access_snapshot(self.request.user)
+        return context
+
+
+class BillingDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/billing.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from .access import effective_plan
+        from .billing_models import (
+            BillingConfiguration,
+            BillingOrder,
+            Charge,
+            Invoice,
+            MembershipContract,
+            ServiceProduct,
+            UserVoucher,
+        )
+        from .billing_services import PERIOD_MONTHS, billing_options, service_price
+        from .billing_models import BillingSubscription
+        from .billing_views import quote_token
+        from .stripe_billing import PLAN_RANK, subscriptions_available
+
+        user = self.request.user
+        plan = effective_plan(user)
+        options = billing_options()
+        subscriptions_enabled = subscriptions_available()
+        pending_subscription = BillingSubscription.objects.filter(user=user, status='pending').first()
+        context.update({
+            'subscriptions_enabled': subscriptions_enabled,
+            'pending_subscription': pending_subscription,
+            'subscriptions': BillingSubscription.objects.filter(
+                user=user, status__in=['active', 'past_due'],
+            ).select_related('initial_order').order_by('-created_at'),
+            'billing_options': options,
+            'membership_periods': PERIOD_MONTHS,
+            'billing_plan': plan,
+            'billing_configuration': BillingConfiguration.current(),
+            'membership_contracts': MembershipContract.objects.filter(
+                user=user,
+            ).order_by('-created_at')[:20],
+            'orders': BillingOrder.objects.filter(
+                user=user,
+            ).order_by('-created_at')[:20],
+            'charges': Charge.objects.filter(
+                user=user,
+            ).select_related('order').prefetch_related('payments', 'invoices').order_by('-created_at')[:20],
+            'invoices': Invoice.objects.filter(
+                user=user,
+            ).select_related('charge').order_by('-created_at')[:20],
+            'vouchers': UserVoucher.objects.filter(
+                user=user,
+            ).select_related('voucher').order_by('-granted_at')[:20],
+            'service_offerings': [
+                {
+                    'product': product,
+                    'price': service_price(product, plan),
+                    'can_order_free': (
+                        service_price(product, plan) == 0
+                        and product.fulfillment == ServiceProduct.Fulfillment.AUTOMATIC
+                        and bool(product.entitlement_code)
+                    ),
+                    'idempotency_key': uuid.uuid4(),
+                }
+                for product in ServiceProduct.objects.filter(is_active=True, base_price__isnull=False)
+            ],
+        })
+        context['membership_prices'] = [
+            {
+                'plan': plan,
+                'period': period,
+                'period_label': {
+                    'monthly': 'Mensual',
+                    'semiannual': 'Semestral',
+                    'annual': 'Anual',
+                }[period],
+                **options['prices'][f'{plan}_{period}'],
+                'is_upgrade': PLAN_RANK[plan] > PLAN_RANK[context['billing_plan']],
+                'quote': quote_token(user, plan, period, options['prices'][f'{plan}_{period}']['amount']),
+            }
+            for plan in ('plus', 'pro')
+            for period in PERIOD_MONTHS
+        ]
+        return context
+
+
+class FreeServiceOrderView(LoginRequiredMixin, View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        from .billing_services import BillingUnavailable, TERMS_VERSION, create_zero_cost_service_order
+
+        if request.POST.get('accept_terms') != 'yes':
+            messages.error(request, 'Debes aceptar las condiciones para continuar.')
+            return redirect('users:billing')
+        accepted_terms = {
+            'accepted': True,
+            'version': TERMS_VERSION,
+            'accepted_at': timezone.now().isoformat(),
+        }
+        try:
+            order = create_zero_cost_service_order(
+                user=request.user,
+                service_code=request.POST.get('service_code', ''),
+                idempotency_key=request.POST.get('idempotency_key', ''),
+                accepted_terms=accepted_terms,
+            )
+        except (BillingUnavailable, ValidationError) as exc:
+            detail = exc.messages[0] if isinstance(exc, ValidationError) else str(exc)
+            messages.error(request, detail)
+        else:
+            messages.success(request, f'El servicio se ha registrado con el pedido {order.pk}.')
+        return redirect('users:billing')
+
+
+class DashboardView(TemplateView):
+    """Personal dashboard with a data-free public demonstration."""
     template_name = 'dashboard/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        from .dashboard_services import dashboard_context, visitor_dashboard_context
 
-        from apps.analytics.models import RegistroActividad
-        from apps.bug_reports.models import BugReport
-        from apps.blog.models import LecturaPostUsuario
-        from apps.courses.models import InscripcionCurso, Progreso
-        from apps.ducky_arenas.models import UserProfileArenas
-        from apps.gamification.models import InsigniaUsuario, LogroUsuario, MisionUsuario
-        from apps.nexus.models import DNAProfile
-        from apps.rewards.models import CanjeRecompensa
-
-        inscripciones = InscripcionCurso.objects.filter(
-            usuario=user
-        ).select_related('curso').order_by('-fecha_inscripcion')[:4]
-
-        cursos_en_marcha = []
-        total_temas_completados = Progreso.objects.filter(usuario=user, completado=True).count()
-        for inscripcion in inscripciones:
-            total_temas = inscripcion.curso.temas.count()
-            temas_completados = Progreso.objects.filter(
-                usuario=user,
-                tema__curso=inscripcion.curso,
-                completado=True,
-            ).count()
-            cursos_en_marcha.append({
-                'curso': inscripcion.curso,
-                'total_temas': total_temas,
-                'temas_completados': temas_completados,
-                'porcentaje': int((temas_completados / total_temas) * 100) if total_temas else 0,
-            })
-
-        insignias_recientes = InsigniaUsuario.objects.filter(
-            usuario=user
-        ).select_related('insignia').order_by('-fecha_obtenida')[:6]
-
-        misiones_activas = MisionUsuario.objects.filter(
-            usuario=user, completada=False
-        ).select_related('mision').order_by('-fecha_asignada')[:3]
-
-        logros_recientes = LogroUsuario.objects.filter(
-            usuario=user
-        ).select_related('logro').order_by('-fecha_obtenido')[:6]
-
-        canjes_recientes = CanjeRecompensa.objects.filter(
-            usuario=user
-        ).select_related('recompensa').order_by('-fecha_canje')[:4]
-
-        lecturas_posts = LecturaPostUsuario.objects.filter(
-            usuario=user
-        ).select_related('post').order_by('-iniciada_en')[:8]
-
-        total_posts_vistos = LecturaPostUsuario.objects.filter(usuario=user).count()
-        total_posts_con_puntos = LecturaPostUsuario.objects.filter(
-            usuario=user,
-            puntos_otorgados=True,
-        ).count()
-
-        actividades = RegistroActividad.objects.filter(usuario=user).order_by('-timestamp')[:5]
-
-        mis_bugs_total = BugReport.objects.filter(alumno=user).count()
-        mis_bugs_validados = BugReport.objects.filter(
-            alumno=user,
-            estado=BugReport.ESTADO_VALIDADO,
-        ).count()
-
-        perfil_ducky = getattr(user, 'user_profile_arenas', None)
-        perfil_dna = getattr(user, 'dna_profile', None)
-
-        progreso_overall = 0
-        if total_temas_completados or user.puntos_totales:
-            total_temas_disponibles = Progreso.objects.filter(usuario=user).values_list('tema_id', flat=True)
-            total_temas_total = len(set(total_temas_disponibles))
-            if total_temas_total:
-                progreso_overall = int((total_temas_completados / total_temas_total) * 100)
-            else:
-                progreso_overall = min(100, int((user.puntos_totales / max(user.puntos_totales or 1, 300)) * 100))
-
-        next_mission = misiones_activas[0] if misiones_activas else None
-        next_course = cursos_en_marcha[0] if cursos_en_marcha else None
-
-        ranking_qs = User.objects.filter(is_active=True, is_staff=False).order_by('-puntos_totales', 'username')
-        ranking_posicion = None
-        for idx, ranked_user in enumerate(ranking_qs, start=1):
-            if ranked_user.pk == user.pk:
-                ranking_posicion = idx
-                break
-
-        summary_cards = [
-            {
-                'title': 'Ranking',
-                'value': f'#{ranking_posicion}' if ranking_posicion else 'Sin ranking',
-                'meta': f'{user.puntos_totales} pts acumulados',
-                'icon': 'bi-trophy',
-                'tone': 'primary',
-                'href': reverse('gamification:ranking'),
-            },
-            {
-                'title': 'Ducky Coins',
-                'value': perfil_ducky.duckCoins if perfil_ducky else 0,
-                'meta': 'Arena + recompensas',
-                'icon': 'bi-coin',
-                'tone': 'warning',
-                'href': reverse('ducky_arenas:rewards'),
-            },
-            {
-                'title': 'Insignias',
-                'value': insignias_recientes.count(),
-                'meta': 'Logros de tu camino',
-                'icon': 'bi-award',
-                'tone': 'success',
-                'href': reverse('gamification:insignias'),
-            },
-            {
-                'title': 'Puntos',
-                'value': user.puntos_totales,
-                'meta': 'Total acumulado',
-                'icon': 'bi-star-fill',
-                'tone': 'secondary',
-                'href': reverse('gamification:ranking'),
-            },
-        ]
-
-        if next_mission:
-            next_action = {
-                'title': next_mission.mision.titulo,
-                'description': next_mission.mision.descripcion,
-                'href': reverse('gamification:misiones'),
-                'badge': f'{next_mission.progreso}/{next_mission.mision.requisito_cantidad}',
-            }
-        elif next_course:
-            next_action = {
-                'title': next_course['curso'].nombre,
-                'description': 'Sigue avanzando en tu curso actual para mantener el ritmo.',
-                'href': reverse('courses:detail', args=[next_course['curso'].pk]),
-                'badge': f'{next_course["porcentaje"]}% completado',
-            }
+        if not user.is_authenticated:
+            context.update(visitor_dashboard_context(self.request))
         else:
-            next_action = {
-                'title': 'Explora cursos nuevos',
-                'description': 'Encuentra nuevos contenidos para continuar tu aprendizaje y ganar puntos.',
-                'href': reverse('courses:list'),
-                'badge': 'Nuevo reto',
-            }
+            context.update(dashboard_context(user))
+            from apps.gamification.ranking_services import dashboard_ranking_options
+            context['dashboard_rankings'] = dashboard_ranking_options(user)
+        return context
 
+
+class PersonalProgressView(TemplateView):
+    template_name = 'dashboard/progress.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if not user.is_authenticated:
+            context.update({
+                'is_demo': True,
+                'demo_progress': True,
+                'is_pro': False,
+                'is_plus': False,
+                'login_url': settings.LOGIN_URL,
+                'rows': [],
+                'goals': [],
+                'badges': [],
+                'summary': None,
+                'source_statuses': {
+                    'games': 'not_implemented',
+                    'employment': 'not_implemented',
+                },
+            })
+            return context
+
+        from .progress_services import personal_progress, compare_personal_progress
+
+        date_from_raw = self.request.GET.get('from', '')
+        date_to_raw = self.request.GET.get('to', '')
+        date_from = parse_date(date_from_raw) if date_from_raw else None
+        date_to = parse_date(date_to_raw) if date_to_raw else None
+        if date_from_raw and not date_from:
+            messages.error(self.request, 'La fecha inicial no es válida.')
+        if date_to_raw and not date_to:
+            messages.error(self.request, 'La fecha final no es válida.')
+        if date_from and date_to and date_from > date_to:
+            messages.error(self.request, 'La fecha inicial debe ser anterior o igual a la final.')
+            date_from = date_to = None
+        area = self.request.GET.get('area', 'all')
+        try:
+            progress = personal_progress(
+                user,
+                date_from=date_from,
+                date_to=date_to,
+                area=area,
+            )
+        except ValidationError as exc:
+            messages.error(self.request, exc.messages[0])
+            area = 'all'
+            progress = personal_progress(user, area=area)
+
+        is_pro = can(
+            user,
+            'view_plan_content',
+            required_plan=AccessMembership.Plan.PRO,
+        ).allowed
+        is_plus = can(
+            user,
+            'view_plan_content',
+            required_plan=AccessMembership.Plan.PLUS,
+        ).allowed
+        comparison = None
+        compare_requested = self.request.GET.get('compare') == '1'
+        if compare_requested:
+            if not is_pro:
+                raise PermissionDenied('La comparación de periodos requiere nivel PRO.')
+            if not date_from or not date_to:
+                messages.error(self.request, 'Selecciona las fechas del periodo actual para comparar.')
+            else:
+                comparison = compare_personal_progress(
+                    user,
+                    current_start=date_from,
+                    current_end=date_to,
+                )
+
+        context.update(progress)
         context.update({
-            'inscripciones': inscripciones,
-            'cursos_en_marcha': cursos_en_marcha,
-            'insignias_recientes': insignias_recientes,
-            'logros_recientes': logros_recientes,
-            'canjes_recientes': canjes_recientes,
-            'misiones_activas': misiones_activas,
-            'actividades': actividades,
-            'lecturas_posts': lecturas_posts,
-            'total_posts_vistos': total_posts_vistos,
-            'total_posts_con_puntos': total_posts_con_puntos,
-            'mis_bugs_total': mis_bugs_total,
-            'mis_bugs_validados': mis_bugs_validados,
-            'ducky_summary_cards': summary_cards,
-            'proxima_accion': next_action,
-            'ducky_profile': perfil_ducky,
-            'dna_profile': perfil_dna,
-            'dna_profile_url': reverse('nexus:student_my_dna') if perfil_dna else reverse('nexus:student_list'),
-            'results_url': reverse('nexus:student_list'),
+            'is_demo': False,
+            'is_pro': is_pro,
+            'is_plus': is_plus,
+            'login_url': settings.LOGIN_URL,
+            'selected_area': area,
+            'selected_from': date_from_raw,
+            'selected_to': date_to_raw,
+            'comparison': comparison,
+            'can_export': is_pro,
         })
         return context
+
+
+class PersonalProgressExportView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        if not can(
+            request.user,
+            'view_plan_content',
+            required_plan=AccessMembership.Plan.PRO,
+        ).allowed:
+            raise PermissionDenied('La exportación del resumen requiere nivel PRO.')
+        from .progress_services import personal_progress
+
+        date_from = parse_date(request.GET.get('from', '') or '')
+        date_to = parse_date(request.GET.get('to', '') or '')
+        if (request.GET.get('from') and not date_from) or (request.GET.get('to') and not date_to):
+            raise ValidationError('Las fechas de exportación no son válidas.')
+        if date_from and date_to and date_from > date_to:
+            raise ValidationError('La fecha inicial debe ser anterior o igual a la final.')
+        area = request.GET.get('area', 'all')
+        try:
+            progress = personal_progress(
+                request.user,
+                date_from=date_from,
+                date_to=date_to,
+                area=area,
+            )
+        except ValidationError as exc:
+            return HttpResponseBadRequest(exc.messages[0])
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="mi-progreso.csv"'
+        response.write('\ufeff')
+        writer = csv.writer(response)
+        def safe_cell(value):
+            text = str(value or '')
+            if text[:1] in {'=', '+', '-', '@', '\t', '\r'}:
+                return "'" + text
+            return text
+
+        writer.writerow(['Resumen personal de progreso', 'No es una certificación oficial'])
+        writer.writerow(['Generado', timezone.localtime(progress['generated_at']).isoformat()])
+        writer.writerow(['Periodo desde', date_from.isoformat() if date_from else ''])
+        writer.writerow(['Periodo hasta', date_to.isoformat() if date_to else ''])
+        writer.writerow(['Métrica', 'Valor', 'Unidad', 'Estado'])
+        summary = progress['summary']
+        metric_rows = [
+            ('Temas completados', summary['completed_lessons'], 'temas'),
+            ('Cursos completados', summary['completed_courses'], 'cursos'),
+            ('Intentos de evaluación', summary['quiz_attempts'], 'intentos'),
+            ('Evaluaciones Nexus completadas', summary['completed_nexus_tests'], 'evaluaciones'),
+            ('Insignias vigentes', summary['valid_badges'], 'insignias'),
+        ]
+        for label, value, unit in metric_rows:
+            writer.writerow([label, value if value is not None else 'No aplicable', unit])
+        writer.writerow([])
+        writer.writerow(['Actividad', 'Área', 'Fecha', 'Estado o resultado', 'Regla o fuente'])
+        for row in progress['rows']:
+            writer.writerow([
+                safe_cell(row['title']),
+                safe_cell(row['area']),
+                timezone.localtime(row['date']).isoformat() if row['date'] else '',
+                safe_cell(row['result']),
+                safe_cell(row['metric']),
+            ])
+        writer.writerow([])
+        writer.writerow(['Limitaciones', 'Solo fuentes personales disponibles; áreas no integradas se excluyen.'])
+        writer.writerow(['Datos privados de terceros', 'No incluidos'])
+        return response
+
+
+class PersonalGoalAccessMixin(LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and not can(
+            request.user,
+            'view_plan_content',
+            required_plan=AccessMembership.Plan.PRO,
+        ).allowed:
+            raise PermissionDenied('La gestión de objetivos personales requiere el nivel PRO.')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class PersonalGoalCreateView(PersonalGoalAccessMixin, CreateView):
+    model = PersonalGoal
+    form_class = PersonalGoalForm
+    template_name = 'dashboard/goal_form.html'
+    success_url = reverse_lazy('users:dashboard')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, 'Objetivo creado.')
+        return super().form_valid(form)
+
+
+class PersonalGoalUpdateView(PersonalGoalAccessMixin, UpdateView):
+    model = PersonalGoal
+    form_class = PersonalGoalForm
+    template_name = 'dashboard/goal_form.html'
+    success_url = reverse_lazy('users:dashboard')
+
+    def get_queryset(self):
+        return PersonalGoal.objects.filter(user=self.request.user, status=PersonalGoal.Status.ACTIVE)
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Objetivo actualizado.')
+        return super().form_valid(form)
+
+
+class PersonalGoalStateView(PersonalGoalAccessMixin, View):
+    http_method_names = ['post']
+
+    def post(self, request, pk, action, *args, **kwargs):
+        goal = get_object_or_404(
+            PersonalGoal,
+            pk=pk,
+            user=request.user,
+            status=PersonalGoal.Status.ACTIVE,
+        )
+        if action == 'complete':
+            goal.status = PersonalGoal.Status.COMPLETED
+            goal.completed_at = timezone.now()
+            message = 'Objetivo marcado como completado.'
+        elif action == 'archive':
+            goal.status = PersonalGoal.Status.ARCHIVED
+            goal.archived_at = timezone.now()
+            message = 'Objetivo archivado.'
+        else:
+            return HttpResponseBadRequest('Acción no válida.')
+        goal.full_clean()
+        goal.save(update_fields=['status', 'completed_at', 'archived_at', 'updated_at'])
+        messages.success(request, message)
+        return redirect('users:dashboard')
+
+
+class PersonalGoalExportView(PersonalGoalAccessMixin, View):
+    @staticmethod
+    def _safe_cell(value):
+        value = '' if value is None else str(value)
+        if value.lstrip()[:1] in {'=', '+', '-', '@', '\t', '\r'}:
+            return "'" + value
+        return value
+
+    def get(self, request, *args, **kwargs):
+        from .dashboard_services import goal_progress
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="mis-objetivos.csv"'
+        response.write('\ufeff')
+        writer = csv.writer(response)
+        writer.writerow([
+            'Título', 'Descripción', 'Seguimiento', 'Métrica', 'Avance actual',
+            'Objetivo', 'Etiqueta', 'Fecha objetivo', 'Estado',
+        ])
+        for goal in PersonalGoal.objects.filter(user=request.user).order_by('created_at'):
+            progress = goal_progress(request.user, goal)
+            writer.writerow([
+                self._safe_cell(goal.title),
+                self._safe_cell(goal.description),
+                goal.get_tracking_type_display(),
+                goal.get_source_metric_display() if goal.source_metric else '',
+                progress['current'] if progress['current'] is not None else '',
+                progress['target'] if progress['target'] is not None else '',
+                self._safe_cell(goal.target_label),
+                goal.target_date.isoformat() if goal.target_date else '',
+                goal.get_status_display(),
+            ])
+        return response
+
+
+class AccessSnapshotAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response(access_snapshot(request.user))
 
 
 class PerfilView(LoginRequiredMixin, DetailView):
@@ -712,6 +782,7 @@ class PerfilView(LoginRequiredMixin, DetailView):
         perfil = self.get_object()
         from apps.gamification.utils import get_insignias_activas_ids, get_insignias_visibles_para_usuario
         from apps.certifications.models import Certificado
+        from apps.lms.models import CourseCertificate
 
         insignias_list = list(get_insignias_visibles_para_usuario(perfil))
         activas_ids = get_insignias_activas_ids(perfil)
@@ -719,6 +790,27 @@ class PerfilView(LoginRequiredMixin, DetailView):
         context['total_insignias'] = len(insignias_list)
         context['total_insignias_activas'] = sum(1 for insignia in insignias_list if insignia.id in activas_ids)
         context['certificados'] = Certificado.objects.filter(usuario=perfil)
+        context['lms_certificados'] = CourseCertificate.objects.filter(
+            user=perfil,
+        ).select_related('course')
+        context['total_certificados'] = (
+            context['certificados'].count() + context['lms_certificados'].count()
+        )
+        from apps.certifications.models import UserCredential
+
+        claims = UserCredential.objects.filter(
+            user=perfil,
+            visibility='public',
+            archived_at__isnull=True,
+        ).order_by('-updated_at')
+        if perfil == self.request.user:
+            context['credenciales_publicas'] = UserCredential.objects.filter(
+                user=perfil,
+                archived_at__isnull=True,
+            ).order_by('-updated_at')
+        else:
+            context['credenciales_publicas'] = claims
+        context['es_propietario_perfil'] = perfil == self.request.user
         return context
 
 
@@ -750,10 +842,12 @@ class EditarPerfilView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        from .access import can
+        from .models import AccessRoleAssignment
 
         # Indicar si el aula está protegida (alumno con aula ya asignada)
         context['aula_protegida'] = (
-            user.role == 'alumno' and
+            can(user, 'access_role', AccessRoleAssignment.Role.ALUMNO).allowed and
             user.aula is not None and
             not user.is_staff
         )
@@ -876,6 +970,21 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     def me(self, request):
         return Response(UserSerializer(request.user).data)
 
+    @action(detail=False, methods=['patch'], url_path='professional-branch')
+    def professional_branch(self, request):
+        serializer = UserProfessionalBranchSerializer(
+            request.user,
+            data=request.data,
+            partial=False,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            'rama_principal': RamaProfesionalSerializer(
+                request.user.rama_principal,
+            ).data if request.user.rama_principal_id else None,
+        })
+
 
 class NotificacionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = NotificacionSerializer
@@ -889,3 +998,11 @@ class NotificacionViewSet(viewsets.ReadOnlyModelViewSet):
         notif = self.get_object()
         set_platform_read(self.get_queryset().filter(pk=notif.pk), read=True)
         return Response({'ok': True})
+
+
+class RamaProfesionalListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        branches = RamaProfesional.objects.filter(is_active=True)
+        return Response(RamaProfesionalSerializer(branches, many=True).data)

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{% if preview %}Vista previa{% elif snapshot.name %}{{ snapshot.name }}{% else %}{{ profile.nombre }}{% endif %} — CV{% endblock %}
+{% block extra_css %}
+<style>
+  .cv-catalog{--cv-accent:{{ brand_color|default:'#1d4ed8' }};max-width:960px;margin:2rem auto;background:#fff;color:#18212f;border-radius:1rem;box-shadow:0 12px 45px #0f172a18;overflow:hidden}
+  .cv-head{padding:2.5rem 3rem;border-bottom:4px solid var(--cv-accent)}
+  .cv-photo{width:112px;height:112px;object-fit:cover;border-radius:50%;float:right}
+  .cv-head h1{font-size:2.25rem;margin:0 0 .3rem}.cv-head p{margin:.25rem 0;color:#526174}
+  .cv-body{padding:1rem 3rem 3rem}.cv-section{margin-top:1.5rem}.cv-section h2{font-size:1rem;text-transform:uppercase;letter-spacing:.09em;color:var(--cv-accent);border-bottom:1px solid #dce3ec;padding-bottom:.45rem}
+  .cv-entry{padding:.7rem 0}.cv-entry h3{font-size:1.05rem;margin:0}.cv-entry p{white-space:pre-line;margin:.25rem 0;color:#475569}.cv-date{font-size:.85rem;color:#64748b}
+  .cv-skills,.cv-links{display:flex;flex-wrap:wrap;gap:.5rem}.cv-chip{border:1px solid #d6deea;border-radius:2rem;padding:.3rem .7rem;font-size:.9rem}
+  .renderer-minimalist .cv-head{font-family:Georgia,serif;border-bottom-width:1px}.renderer-classic .cv-head{background:#f8f2e7;color:#3e3023}
+  .renderer-professional .cv-head,.renderer-crm-workspace .cv-head{background:#eff6ff}
+  .renderer-dev-studio{background:#111827;color:#e5e7eb}.renderer-dev-studio .cv-head{background:#0b1220;border-color:#4ec9b0}.renderer-dev-studio .cv-head p,.renderer-dev-studio .cv-entry p{color:#cbd5e1}
+  .renderer-conversation .cv-head{background:#ecfdf5;border-color:#047857}.renderer-showcase .cv-head{background:#f5f3ff;border-color:#7c3aed}
+  .renderer-superoffer .cv-head{background:#fff7ed;border-color:#ea580c}.renderer-superoffer .cv-chip{background:#fff7ed}
+  .demo-ribbon{padding:.5rem 1rem;background:#fff3cd;color:#664d03;text-align:center}
+  @media(max-width:600px){.cv-catalog{margin:.5rem;border-radius:.5rem}.cv-head{padding:1.5rem}.cv-head h1{font-size:1.7rem}.cv-body{padding:.5rem 1.5rem 2rem}}
+</style>
+{% endblock %}
+{% block content %}
+<main class="cv-catalog renderer-{{ template_renderer }}">
+  {% if preview %}<div class="demo-ribbon">Vista previa{% if template_name %}: {{ template_name }}{% endif %}. Datos de ejemplo ficticios.</div>{% endif %}
+  <header class="cv-head">
+    {% if snapshot.photo_url %}<img class="cv-photo" src="{{ snapshot.photo_url }}" alt="Fotografía de {{ snapshot.name }}">{% endif %}
+    <h1>{{ snapshot.name }}</h1>
+    {% if snapshot.profession %}<p class="fs-5">{{ snapshot.profession }}</p>{% endif %}
+    {% if snapshot.location %}<p>{{ snapshot.location }}</p>{% endif %}
+    {% if snapshot.email or snapshot.phone %}<p>{% if snapshot.email %}{{ snapshot.email }}{% endif %}{% if snapshot.email and snapshot.phone %} · {% endif %}{% if snapshot.phone %}{{ snapshot.phone }}{% endif %}</p>{% endif %}
+    {% if snapshot.summary %}<p class="mt-3">{{ snapshot.summary }}</p>{% endif %}
+  </header>
+  <div class="cv-body">
+    {% if snapshot.experiences %}
+    <section class="cv-section"><h2>Experiencia</h2>{% for item in snapshot.experiences %}<article class="cv-entry"><h3>{{ item.puesto }}{% if item.empresa %} · {{ item.empresa }}{% endif %}</h3><div class="cv-date">{{ item.fecha_inicio }}{% if item.trabajo_actual == 'True' %} — Actualidad{% elif item.fecha_fin %} — {{ item.fecha_fin }}{% endif %}{% if item.ubicacion %} · {{ item.ubicacion }}{% endif %}</div><p>{{ item.descripcion }}{% if item.logros %}<br>{{ item.logros }}{% endif %}</p></article>{% endfor %}</section>
+    {% endif %}
+    {% if snapshot.education or snapshot.training %}
+    <section class="cv-section"><h2>Formación</h2>{% for item in snapshot.education %}<article class="cv-entry"><h3>{{ item.titulo }}</h3><p>{{ item.centro }}{% if item.fecha_inicio %} · {{ item.fecha_inicio }}{% endif %}{% if item.fecha_fin %} — {{ item.fecha_fin }}{% endif %}</p></article>{% endfor %}{% for item in snapshot.training %}<article class="cv-entry"><h3>{{ item.nombre }}</h3><p>{{ item.entidad }} {{ item.descripcion }}</p></article>{% endfor %}</section>
+    {% endif %}
+    {% if snapshot.skills %}<section class="cv-section"><h2>Habilidades</h2><div class="cv-skills">{% for item in snapshot.skills %}<span class="cv-chip">{{ item.nombre }}</span>{% endfor %}</div></section>{% endif %}
+    {% if snapshot.languages %}<section class="cv-section"><h2>Idiomas</h2>{% for item in snapshot.languages %}<div class="cv-entry">{{ item.idioma }} · {{ item.nivel }}</div>{% endfor %}</section>{% endif %}
+    {% if snapshot.projects %}<section class="cv-section"><h2>Proyectos</h2>{% for item in snapshot.projects %}<article class="cv-entry"><h3>{{ item.nombre }}</h3><p>{{ item.descripcion }} {{ item.tecnologias }}{% if item.link %}<br><a href="{{ item.link }}" rel="nofollow noopener">Ver proyecto</a>{% endif %}</p></article>{% endfor %}</section>{% endif %}
+    {% if snapshot.achievements %}<section class="cv-section"><h2>Logros</h2>{% for item in snapshot.achievements %}<article class="cv-entry"><h3>{{ item.titulo }}</h3><p>{{ item.descripcion }}</p></article>{% endfor %}</section>{% endif %}
+    {% if snapshot.volunteering %}<section class="cv-section"><h2>Voluntariado</h2>{% for item in snapshot.volunteering %}<article class="cv-entry"><h3>{{ item.funcion }} · {{ item.organizacion }}</h3><p>{{ item.impacto }}</p></article>{% endfor %}</section>{% endif %}
+    {% if snapshot.links %}<section class="cv-section"><h2>Enlaces</h2><div class="cv-links">{% for item in snapshot.links %}<a class="cv-chip" href="{{ item.url }}" rel="nofollow noopener">{{ item.label }}</a>{% endfor %}</div></section>{% endif %}
+  </div>
+</main>
+{% endblock %}

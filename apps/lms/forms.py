@@ -183,6 +183,13 @@ class CourseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['descripcion'].widget = ProseEditorWidget(
+            preset='configurable', config=PROSE_EDITOR_CONFIG,
+        )
+        self.fields['descripcion'].label = _('Descripción larga')
+        self.fields['descripcion'].help_text = _(
+            'Da formato con títulos, negrita, cursiva, listas, enlaces y tablas.'
+        )
         self.fields['categoria'].queryset = CourseCategory.objects.filter(activa=True)
         self.fields['slug'].help_text = _(
             'Se genera automáticamente a partir del nombre del curso, separando las palabras con guiones. '
@@ -201,6 +208,15 @@ class CourseForm(forms.ModelForm):
             field.widget.attrs['aria-describedby'] = (
                 f'id_{name}_helptext id_{name}_errors'
             )
+
+    def clean_descripcion(self):
+        from django.utils.html import strip_tags
+        from .models import sanitize_html_content
+
+        content = sanitize_html_content(self.cleaned_data['descripcion'])
+        if not strip_tags(content).replace('\xa0', ' ').strip():
+            raise forms.ValidationError(_('Escribe la descripción del curso.'))
+        return content
 
     def clean_slug(self):
         slug = (self.cleaned_data.get('slug') or '').strip()

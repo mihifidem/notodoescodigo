@@ -17,6 +17,10 @@
 .lms-theme .formative-unit-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; background: var(--lms-bg); }
 .lms-theme .formative-unit-heading h3 { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
 .lms-theme .formative-unit-heading .learning-module-tools { flex-wrap: wrap; font-size: 12px; }
+.lms-theme .formative-unit > summary { cursor: pointer; list-style: none; }
+.lms-theme .formative-unit > summary h3 { flex: 1; min-width: 0; }
+.lms-theme .formative-unit > summary:focus-visible { outline: 2px solid #4387e8; outline-offset: 2px; }
+.lms-theme .formative-unit-actions { padding: 12px; flex-wrap: wrap; font-size: 12px; }
 .lms-theme .formative-unit-description { padding: 0 12px; font-size: 12px; overflow-wrap: anywhere; }
 .lms-theme .learning-content-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 47px; border-bottom: 1px solid var(--lms-border); border-left: 3px solid transparent; font-size: 12px; }
 .lms-theme .learning-content-row.is-published { border-left-color: #159447; }

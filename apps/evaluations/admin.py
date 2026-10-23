@@ -187,8 +187,16 @@ class PromptCorreccionAdmin(admin.ModelAdmin):
     list_display = ('scope', 'version', 'activo', 'actualizado_en', 'descripcion_corta')
     list_filter = ('scope', 'activo')
     search_fields = ('version', 'descripcion', 'system_prompt')
-    list_editable = ('activo',)
-    readonly_fields = ('creado_en', 'actualizado_en')
+    readonly_fields = ('scope', 'version', 'activo', 'descripcion', 'system_prompt', 'creado_en', 'actualizado_en')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
     fieldsets = (
         (None, {
             'fields': ('scope', 'version', 'activo', 'descripcion'),
@@ -196,8 +204,8 @@ class PromptCorreccionAdmin(admin.ModelAdmin):
         ('Prompt de sistema', {
             'fields': ('system_prompt',),
             'description': (
-                'Este texto se envía como mensaje de sistema a la IA antes de la corrección. '
-                'Activa un prompt para que sea el que se use en nuevas correcciones de ese tipo.'
+                'Archivo historico. Los prompts de correccion se gestionan ahora en '
+                'Prompts > Prompts internos de IA (claves evaluations.system.*).'
             ),
         }),
         ('Auditoría', {

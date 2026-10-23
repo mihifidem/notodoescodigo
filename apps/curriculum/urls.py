@@ -1,10 +1,32 @@
 """URL configuration for the Curriculum Vitae builder app."""
 from django.urls import path
 from . import views
+from . import letter_views
+from . import ats_views
 
 app_name = 'curriculum'
 
 urlpatterns = [
+    path('verificar/demo/', ats_views.ats_demo, name='ats_demo'),
+    path('verificar/', ats_views.ats_list, name='ats_list'),
+    path('verificar/nuevo/', ats_views.ats_new, name='ats_new'),
+    path('verificar/fuente/<uuid:pk>/', ats_views.ats_review, name='ats_review'),
+    path('verificar/fuente/<uuid:pk>/original/', ats_views.ats_original, name='ats_original'),
+    path('verificar/fuente/<uuid:pk>/descartar/', ats_views.ats_discard_source, name='ats_discard_source'),
+    path('verificar/comparar/', ats_views.ats_compare, name='ats_compare'),
+    path('verificar/comparativa/<uuid:pk>/', ats_views.ats_comparison, name='ats_comparison'),
+    path('verificar/informe/<uuid:pk>/', ats_views.ats_detail, name='ats_detail'),
+    path('verificar/informe/<uuid:pk>/pdf/<str:extent>/', ats_views.ats_download, name='ats_download'),
+    path('verificar/informe/<uuid:pk>/ia/', ats_views.ats_ai, name='ats_ai'),
+    path('verificar/informe/<uuid:pk>/accion/<str:action>/', ats_views.ats_action, name='ats_action'),
+    path('cartas/demo/', letter_views.letter_demo, name='letter_demo'),
+    path('cartas/', letter_views.letter_list, name='letter_list'),
+    path('cartas/nueva/', letter_views.letter_new, name='letter_new'),
+    path('cartas/confirmar/', letter_views.letter_confirm, name='letter_confirm'),
+    path('cartas/<uuid:pk>/', letter_views.letter_detail, name='letter_detail'),
+    path('cartas/<uuid:pk>/generar/', letter_views.letter_generate, name='letter_generate'),
+    path('cartas/<uuid:pk>/version/<int:version>/<str:format>/', letter_views.letter_download, name='letter_download'),
+    path('cartas/<uuid:pk>/accion/<str:action>/', letter_views.letter_action, name='letter_action'),
     # Dashboard
     path('', views.dashboard, name='dashboard'),
     path('importar-pdf/', views.import_cv_pdf, name='import_cv_pdf'),
@@ -75,9 +97,19 @@ urlpatterns = [
 
     # Profiles
     path('perfiles/', views.profile_list, name='profile_list'),
+    path('plantillas/', views.template_catalog, name='template_catalog'),
+    path('plantillas/<slug:code>/vista-previa/', views.template_preview, name='template_preview'),
     path('perfiles/crear/', views.profile_create, name='profile_create'),
     path('perfiles/<int:pk>/editar/', views.profile_edit, name='profile_edit'),
     path('perfiles/<int:pk>/contenido/', views.profile_edit_items, name='profile_edit_items'),
+    path('perfiles/<int:pk>/previsualizar/', views.profile_preview, name='profile_preview'),
+    path('perfiles/<int:pk>/pdf/', views.private_profile_pdf, name='profile_private_pdf'),
+    path('perfiles/<int:pk>/publicar/', views.profile_publish, name='profile_publish'),
+    path('perfiles/<int:pk>/hacer-privado/', views.profile_unpublish, name='profile_unpublish'),
+    path('perfiles/<int:pk>/duplicar/', views.profile_duplicate, name='profile_duplicate'),
+    path('perfiles/<int:pk>/archivar/', views.profile_archive, name='profile_archive'),
+    path('perfiles/<int:pk>/restaurar/', views.profile_restore, name='profile_restore'),
+    path('perfiles/ajustar-publicaciones/', views.profile_reconcile, name='profile_reconcile'),
     path('perfiles/<int:pk>/eliminar/', views.profile_delete, name='profile_delete'),
 
     # Nexus DNA

@@ -35,45 +35,11 @@
             </div>
           </div>
 
-          <p class="text-muted mb-4">
-            Este informe contiene una interpretación profesional de tus resultados. Desbloquéalo con una compra segura para ver el análisis completo.
-          </p>
-
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <form method="post" action="{% url 'nexus:checkout_informe_stripe' informe.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold">
-                  <i class="bi bi-credit-card me-2"></i>Pagar con Stripe
-                </button>
-              </form>
-            </div>
-            <div class="col-md-6">
-              <form method="post" action="{% url 'nexus:checkout_informe_paypal' informe.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-primary w-100 py-3 fw-semibold">
-                  <i class="bi bi-paypal me-2"></i>Pagar con PayPal
-                </button>
-              </form>
-            </div>
+          <div class="alert alert-warning mb-4" role="status">
+            <strong>Checkout temporalmente no disponible.</strong>
+            No se aceptan pagos hasta validar la notificación del proveedor en el servidor. Una redirección de
+            Stripe o PayPal no confirma por sí sola el pago, y los datos de prueba no conceden acceso.
           </div>
-
-          {% if debug %}
-          <div class="border border-warning rounded p-3 bg-warning-subtle mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
-              <div>
-                <div class="fw-semibold text-warning-emphasis">Modo desarrollo</div>
-                <small class="text-muted">Botón temporal para saltarse el pago durante pruebas.</small>
-              </div>
-              <form method="post" action="{% url 'nexus:checkout_informe_dev_skip' informe.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-warning fw-semibold">
-                  <i class="bi bi-fast-forward-circle me-2"></i>Saltarse pago
-                </button>
-              </form>
-            </div>
-          </div>
-          {% endif %}
 
           <div class="mt-4 d-flex justify-content-center">
             <form method="post" action="{% url 'nexus:delete_informe' informe.pk %}" class="d-inline">
@@ -85,7 +51,7 @@
           </div>
 
           <div class="small text-muted mt-4">
-            <i class="bi bi-shield-check me-2"></i>Pago seguro • Acceso inmediato • Informe disponible para descarga/impresión
+            El precio mostrado es informativo. No se ha iniciado ningún cobro.
           </div>
         </div>
       </div>

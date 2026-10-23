@@ -40,19 +40,44 @@
           <div class="form-text">Solo letras, números, guiones y guiones bajos. Sin espacios.</div>
         </div>
 
+        {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
         <div class="mb-3">
-          <label class="form-label fw-semibold" for="{{ form.templatecv.id_for_label }}">{{ form.templatecv.label }}</label>
-          {{ form.templatecv }}
-          {% if form.templatecv.errors %}<div class="invalid-feedback d-block">{{ form.templatecv.errors }}</div>{% endif %}
-          <div class="form-text">Elige un template personalizado de la lista.</div>
+          <label class="form-label fw-semibold" for="{{ form.profile_template.id_for_label }}">{{ form.profile_template.label }}</label>
+          {{ form.profile_template }}
+          {% if form.profile_template.errors %}<div class="invalid-feedback d-block">{{ form.profile_template.errors }}</div>{% endif %}
+          <div class="form-text"><a href="{% url 'curriculum:template_catalog' %}" target="_blank" rel="noopener">Explorar las nueve plantillas y ver demostraciones</a>. El plan controla el acceso; la rama solo recomienda.</div>
         </div>
-        <div class="row g-3 mb-3">
-          <div class="col-sm-6 d-flex align-items-center gap-3 pt-4">
-            <div class="form-check">
-              {{ form.is_public }}
-              <label class="form-check-label" for="{{ form.is_public.id_for_label }}">Perfil público</label>
-            </div>
-          </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.rama_principal.id_for_label }}">{{ form.rama_principal.label }}</label>
+          {{ form.rama_principal }}
+          {% if form.rama_principal.errors %}<div class="invalid-feedback d-block">{{ form.rama_principal.errors }}</div>{% endif %}
+          <div class="form-text">{{ form.rama_principal.help_text }}</div>
+        </div>
+        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Datos específicos de esta versión</h6>
+        <p class="small text-muted">Si dejas un campo vacío se usará el dato correspondiente de tu CV principal. Estos cambios no modifican otras versiones publicadas.</p>
+        {% for field in form %}
+        {% if field.name == 'display_name' or field.name == 'professional_headline' or field.name == 'presentation' or field.name == 'profile_location' or field.name == 'contact_email' or field.name == 'contact_phone' %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.brand_color.id_for_label }}">Color de marca</label>
+          {{ form.brand_color }}
+          {% if form.brand_color.errors %}<div class="invalid-feedback d-block">{{ form.brand_color.errors }}</div>{% endif %}
+        </div>
+
+        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Privacidad de datos personales</h6>
+        <p class="small text-muted">Los datos de contacto y la foto no se publican salvo que los selecciones.</p>
+        <div class="row g-2">
+          {% for field in form %}
+          {% if field.name == 'show_email' or field.name == 'show_phone' or field.name == 'show_location' or field.name == 'show_photo' %}
+          <div class="col-sm-6"><div class="form-check">{{ field }}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label></div></div>
+          {% endif %}
+          {% endfor %}
         </div>
 
         <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Secciones visibles</h6>
@@ -77,48 +102,6 @@
     </div>
   </div>
 
-  <!-- Template preview -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-transparent border-bottom fw-semibold">Vista previa de plantillas</div>
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <div class="border rounded p-2 text-center">
-            <div class="bg-white border-bottom mb-2 p-1" style="font-size:.7rem; color:#6b7280; font-family:Georgia,serif;">
-              <strong style="color:#1a1a2e;">Ada Lovelace</strong><br>
-              <small>Desarrolladora</small>
-            </div>
-            <div class="text-muted" style="font-size:.65rem;">MINIMALISTA</div>
-            <small class="text-muted d-block">(Tipografía serif, limpio)</small>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="border rounded p-2 text-center bg-dark text-light">
-            <div class="mb-2 p-1" style="font-size:.65rem; font-family:monospace; color:#4ec9b0;">
-              <span style="color:#c586c0;">const</span> <span style="color:#9cdcfe;">dev</span> = {<br>
-              &nbsp;&nbsp;<span style="color:#ce9178;">"name"</span>: <span style="color:#ce9178;">"Ada"</span><br>
-              }
-            </div>
-            <div class="text-muted" style="font-size:.65rem;">TECH (VSCode)</div>
-            <small class="text-muted d-block">(Dark, monoespaciada)</small>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="border rounded overflow-hidden p-0 text-center">
-            <div class="p-2" style="background:#1a365d; color:#fff; font-size:.7rem; font-family:'Raleway',sans-serif;">
-              <strong>Ada Lovelace</strong><br>
-              <small style="color:#c9973a;">DESARROLLADORA</small>
-            </div>
-            <div class="p-2 d-flex gap-1 justify-content-center" style="font-size:.65rem; color:#6b7280;">
-              <div style="background:#1a365d; width:35%; height:30px;"></div>
-              <div style="flex:1; height:30px; background:#f7fafc;"></div>
-            </div>
-            <div class="text-muted pb-1" style="font-size:.65rem;">CLÁSICO</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>

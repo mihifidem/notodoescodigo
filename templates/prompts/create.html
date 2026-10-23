@@ -36,12 +36,24 @@
                 <label class="form-label fw-semibold" for="{{ form.categoria.id_for_label }}">Categoría</label>
                 {{ form.categoria }}
                 {% if form.categoria.errors %}<div class="text-danger small mt-1">{{ form.categoria.errors }}</div>{% endif %}
+                <details class="mt-2"{% if form.nueva_categoria.value or form.nueva_categoria.errors %} open{% endif %}>
+                  <summary>Crear categoría</summary>
+                  {{ form.nueva_categoria.label_tag }}{{ form.nueva_categoria }}
+                  <div class="form-text">{{ form.nueva_categoria.help_text }}</div>
+                  {{ form.nueva_categoria.errors }}
+                </details>
               </div>
 
               <div class="mb-3">
                 <label class="form-label fw-semibold" for="{{ form.subcategoria.id_for_label }}">Subcategoría</label>
                 {{ form.subcategoria }}
                 {% if form.subcategoria.errors %}<div class="text-danger small mt-1">{{ form.subcategoria.errors }}</div>{% endif %}
+                <details class="mt-2"{% if form.nueva_subcategoria.value or form.nueva_subcategoria.errors %} open{% endif %}>
+                  <summary>Crear subcategoría</summary>
+                  {{ form.nueva_subcategoria.label_tag }}{{ form.nueva_subcategoria }}
+                  <div class="form-text">{{ form.nueva_subcategoria.help_text }}</div>
+                  {{ form.nueva_subcategoria.errors }}
+                </details>
               </div>
 
               <div class="mb-3">

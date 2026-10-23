@@ -14,8 +14,7 @@ from django.utils import timezone
 from apps.evaluations.models import Evaluacion
 from apps.lms.policies import is_course_member
 from apps.lms.services import EnrollmentUnavailable, enroll_student
-from apps.lms.module_progression import module_complete, module_lock_reason, sequential_enabled
-
+from apps.lms.module_progression import module_complete, module_lock_reason as lms_module_lock_reason, sequential_enabled
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -28,6 +27,13 @@ from .serializers import (
     CursoSerializer, TemaSerializer, InscripcionSerializer,
     ProgresoSerializer, QuizSerializer, ResultadoQuizSerializer,
 )
+
+
+def module_lock_reason(module, user):
+    from apps.lms.campus import campus_settings
+    if campus_settings(module.curso):
+        raise PermissionDenied('Este curso requiere los materiales versionados del Campus.')
+    return lms_module_lock_reason(module, user)
 
 
 def get_cursos_permitidos(usuario):
@@ -60,6 +66,13 @@ class CursoDetailView(LoginRequiredMixin, DetailView):
     model = Curso
     template_name = 'courses/detail.html'
     context_object_name = 'curso'
+
+    def get(self, request, *args, **kwargs):
+        course = self.get_object()
+        from apps.lms.campus import campus_settings
+        if campus_settings(course):
+            return redirect('lms:campus_course', course_id=course.pk)
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return self.request.user.get_cursos_disponibles()
@@ -574,6 +587,7 @@ class TemaViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = Tema.objects.filter(curso__activo=True).select_related('curso')
+        queryset = queryset.exclude(curso__lms_settings__campus_enabled=True)
         return queryset.exclude(pk__in=[
             module.pk for module in queryset
             if sequential_enabled(module.curso) and module_lock_reason(module, self.request.user)

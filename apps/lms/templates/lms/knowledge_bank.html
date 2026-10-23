@@ -29,7 +29,7 @@
     <form method="get" class="action-row">
       <label>{% trans 'Buscar' %}<input name="q" value="{{ search }}"></label>
       <label>{% trans 'Estado' %}<select name="status"><option value="">{% trans 'Todos' %}</option>{% for value,label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
-      <label>{% trans 'Dificultad' %}<select name="difficulty"><option value="">{% trans 'Todas' %}</option><option value="1" {% if difficulty == '1' %}selected{% endif %}>{% trans 'Básica' %}</option><option value="2" {% if difficulty == '2' %}selected{% endif %}>{% trans 'Media' %}</option><option value="3" {% if difficulty == '3' %}selected{% endif %}>{% trans 'Avanzada' %}</option></select></label>
+      <label>{% trans 'Dificultad' %}<select name="difficulty"><option value="">{% trans 'Todas' %}</option>{% for value,label in difficulties %}<option value="{{ value }}" {% if difficulty == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
       <button class="button button-secondary" type="submit">{% trans 'Filtrar' %}</button>
     </form>
     {% if bank.status != 'archived' %}
@@ -58,6 +58,7 @@
           <p><strong>{% trans 'Respuesta correcta' %}:</strong> {{ question.current_version.correct_answers|join:', ' }}</p>
           <p>{{ question.current_version.explanation }}</p>
           <p class="quiet-note">{% trans 'Versión' %} {{ question.current_version.version_number }} · {{ question.points }} {% trans 'puntos' %} · {{ question.created_by.get_full_name|default:question.created_by.username }}</p>
+          <p class="quiet-note">{% trans 'Dificultad' %}: {{ question.difficulty }} / 5 · {% trans 'Módulo / unidad formativa' %}: {{ question.formative_unit|default:'—' }}</p>
           {% if bank.status != 'archived' %}
             <div class="action-row">
               <a class="button button-secondary" href="{% url 'lms:knowledge_question_edit' course_id=course.pk bank_id=bank.pk question_id=question.pk %}">{% trans 'Editar' %}</a>

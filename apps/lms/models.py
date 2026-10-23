@@ -12,8 +12,9 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.urls import reverse
 
 from .storage import PrivateMediaStorage
 from django.db.models import Max
@@ -60,6 +61,13 @@ def sanitize_html_content(value):
         if tag.name == 'a' and not tag.get('href'):
             tag.unwrap()
     return str(soup)
+
+
+def html_content_text(value):
+    soup = BeautifulSoup(value or '', 'html.parser')
+    for tag in soup.find_all(['head', 'style', 'script', 'template']):
+        tag.decompose()
+    return soup.get_text(separator='\n', strip=True)
 
 
 def has_page_styles(value):
@@ -490,6 +498,42 @@ class CourseSettingsLMS(models.Model):
     starts_at = models.DateTimeField(_('inicio exacto'), blank=True, null=True)
     ends_at = models.DateTimeField(_('fin exacto'), blank=True, null=True)
     sequential_modules = models.BooleanField(_('progresión secuencial de módulos'), default=False)
+    campus_enabled = models.BooleanField(default=False)
+    campus_version = models.CharField(max_length=80, blank=True)
+    campus_free = models.BooleanField(default=False)
+    campus_included_plan = models.CharField(
+        max_length=4, blank=True, choices=[('', 'No incluido'), ('plus', 'PLUS'), ('pro', 'PRO')],
+    )
+    campus_entitlement_code = models.SlugField(max_length=100, blank=True)
+    campus_certificate_included = models.BooleanField(default=False)
+    campus_issuer = models.ForeignKey(
+        'certifications.CredentialIssuer', on_delete=models.PROTECT, null=True, blank=True,
+        related_name='campus_courses',
+    )
+    campus_max_submission_bytes = models.PositiveBigIntegerField(null=True, blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.campus_enabled:
+            if not self.campus_version.strip():
+                raise ValidationError({'campus_version': _('Indica la versión educativa del curso.')})
+            if self.campus_certificate_included and (
+                not self.campus_issuer_id or not self.campus_issuer.is_active
+            ):
+                raise ValidationError({'campus_issuer': _('El certificado necesita un emisor activo.')})
+        if self.pk:
+            previous = type(self).objects.get(pk=self.pk)
+            protected = (
+                'campus_enabled', 'campus_version', 'campus_certificate_included', 'campus_issuer_id',
+            )
+            if any(getattr(previous, key) != getattr(self, key) for key in protected) and (
+                self.course.lms_memberships.exclude(learning_contract={}).exists()
+            ):
+                raise ValidationError(_('Hay matrículas con contrato congelado. Se requiere una migración educativa explícita.'))
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('configuración del curso LMS')
@@ -636,6 +680,15 @@ class CourseMembership(models.Model):
     joined_at = models.DateTimeField(_('incorporado'), null=True, blank=True)
     completed_at = models.DateTimeField(_('completado'), null=True, blank=True)
     dropped_at = models.DateTimeField(_('baja'), null=True, blank=True)
+    learning_contract = models.JSONField(default=dict, blank=True, editable=False)
+    access_origin = models.CharField(max_length=32, blank=True, editable=False)
+    last_content = models.ForeignKey(
+        'ModuleContent', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+', editable=False,
+    )
+    last_accessed_at = models.DateTimeField(null=True, blank=True, editable=False)
+    content_completed_at = models.DateTimeField(null=True, blank=True, editable=False)
+    passed_at = models.DateTimeField(null=True, blank=True, editable=False)
     created_at = models.DateTimeField(_('creado'), auto_now_add=True)
     updated_at = models.DateTimeField(_('actualizado'), auto_now=True)
 
@@ -679,6 +732,16 @@ class CourseMembership(models.Model):
 
     def __str__(self):
         return f'{self.user} — {self.course} ({self.get_role_display()})'
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            previous = type(self).objects.filter(pk=self.pk).values('learning_contract', 'section_id').first()
+            if previous and previous['learning_contract'] and (
+                previous['learning_contract'] != self.learning_contract
+                or previous['section_id'] != self.section_id
+            ):
+                raise ValidationError(_('El contrato y grupo de una matrícula Campus no pueden cambiar sin migración auditada.'))
+        super().save(*args, **kwargs)
 
 
 class LearningEvent(models.Model):
@@ -1488,7 +1551,8 @@ class CourseCertificate(models.Model):
 
     def get_validation_url(self):
         site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
-        return f'{site_url.rstrip("/")}/certificaciones/verificar/{self.certificate_code}/'
+        path = reverse('certifications:lms_validate', args=[self.certificate_code])
+        return f'{site_url.rstrip("/")}{path}'
 
     def revoke(self, *, reason=''):
         self.status = self.Status.REVOKED
@@ -1864,7 +1928,7 @@ class FileAsset(models.Model):
         PUBLIC = 'public', _('Público')
 
     ALLOWED_EXTENSIONS = {
-        '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.mp4', '.webm', '.mp3', '.wav',
+        '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.mp4', '.webm', '.mp3', '.wav', '.m4a',
         '.zip', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.txt', '.html', '.svg', '.ppt', '.pptx',
     }
 
@@ -1965,6 +2029,9 @@ class FileAsset(models.Model):
 
     def user_can_access(self, user):
         if not user or not user.is_authenticated:
+            return False
+        from .campus import material_access
+        if not material_access(user, self.course).allowed:
             return False
         if user.is_superuser or user.has_perm('lms.manage_platform'):
             return True
@@ -2127,6 +2194,10 @@ class Page(models.Model):
     @property
     def has_own_styles(self):
         return has_page_styles(self.content)
+
+    @property
+    def content_intro(self):
+        return ' '.join(html_content_text(self.content).split())
 
     def is_currently_published(self, *, now=None):
         now = now or timezone.now()
@@ -3023,6 +3094,10 @@ class QuestionTag(models.Model):
 
 
 class Question(models.Model):
+    DIFFICULTY_CHOICES = (
+        (1, _('Básica')), (2, _('Media')), (3, _('Avanzada')), (4, _('Experta')), (5, _('Muy experta')),
+    )
+
     class Type(models.TextChoices):
         SINGLE_CHOICE = 'single_choice', _('Opción única')
         MULTIPLE_CHOICE = 'multiple_choice', _('Opción múltiple')
@@ -3059,6 +3134,14 @@ class Question(models.Model):
         related_name='lms_questions',
         verbose_name=_('tema'),
     )
+    formative_unit = models.ForeignKey(
+        'FormativeUnit',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='knowledge_questions',
+        verbose_name=_('unidad formativa'),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -3075,7 +3158,9 @@ class Question(models.Model):
         choices=Type.choices,
         default=Type.SINGLE_CHOICE,
     )
-    difficulty = models.PositiveSmallIntegerField(_('dificultad'), default=1)
+    difficulty = models.PositiveSmallIntegerField(
+        _('dificultad'), default=1, validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
     points = models.PositiveIntegerField(_('puntos'), default=1)
     penalty = models.DecimalField(_('penalización'), max_digits=5, decimal_places=2, default=0)
     status = models.CharField(
@@ -3101,8 +3186,22 @@ class Question(models.Model):
         verbose_name = _('pregunta')
         verbose_name_plural = _('preguntas')
         ordering = ['difficulty', 'pk']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(difficulty__gte=1, difficulty__lte=5),
+                name='lms_question_difficulty_1_5',
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.topic_id and self.bank_id and self.topic.curso_id != self.bank.course_id:
+            raise ValidationError({'topic': _('El módulo debe pertenecer al curso del banco.')})
+        if self.formative_unit_id and self.formative_unit.module_id != self.topic_id:
+            raise ValidationError({'formative_unit': _('La unidad formativa debe pertenecer al módulo de la pregunta.')})
 
     def save(self, *args, **kwargs):
+        self.clean()
         if not self.slug:
             self.slug = slugify(self.title or self.question_type or 'pregunta')
         super().save(*args, **kwargs)
@@ -3493,8 +3592,8 @@ class Quiz(models.Model):
                 'course': self.course,
                 'grade': total_score,
                 'max_grade': total_possible or Decimal('0'),
-                'status': GradeEntry.Status.PUBLISHED if self.publish_grade_at and timestamp >= self.publish_grade_at else GradeEntry.Status.DRAFT,
-                'published_at': timestamp if self.publish_grade_at and timestamp >= self.publish_grade_at else None,
+                'status': GradeEntry.Status.PUBLISHED if attempt.results_released_at or (self.publish_grade_at and timestamp >= self.publish_grade_at) else GradeEntry.Status.DRAFT,
+                'published_at': attempt.results_released_at or (timestamp if self.publish_grade_at and timestamp >= self.publish_grade_at else None),
             },
         )
         return grade_entry
@@ -3571,6 +3670,9 @@ class QuizAttempt(models.Model):
     started_at = models.DateTimeField(_('iniciado en'), null=True, blank=True)
     submitted_at = models.DateTimeField(_('enviado en'), null=True, blank=True)
     graded_at = models.DateTimeField(_('calificado en'), null=True, blank=True)
+    results_released_at = models.DateTimeField(
+        _('resultado y solución enviados en'), null=True, blank=True, editable=False,
+    )
     deadline_at = models.DateTimeField(_('plazo final'), null=True, blank=True)
     score = models.DecimalField(_('puntuación'), max_digits=8, decimal_places=2, default=0)
     is_passed = models.BooleanField(_('aprobado'), default=False)
@@ -4135,6 +4237,8 @@ class FormativeUnit(models.Model):
         super().clean()
         if self.pk and self.contents.exclude(module_id=self.module_id).exists():
             raise ValidationError({'module': _('Mueve primero los recursos; una unidad con recursos no puede cambiar de módulo.')})
+        if self.pk and self.knowledge_questions.exclude(topic_id=self.module_id).exists():
+            raise ValidationError({'module': _('Reclasifica primero las preguntas; la unidad no puede cambiar de módulo.')})
 
 
 class ModuleContent(models.Model):

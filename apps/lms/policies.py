@@ -18,9 +18,12 @@ ACTIVE_READ_STATUSES = (
 
 
 def is_platform_admin(user):
-    if not user.is_authenticated:
-        return False
-    return user.is_superuser or user.has_perm('lms.manage_platform')
+    from apps.users.access import is_platform_admin as has_platform_access
+
+    return bool(
+        user.is_authenticated
+        and (user.is_superuser or user.has_perm('lms.manage_platform') or has_platform_access(user))
+    )
 
 
 def is_course_teacher(user, course):
@@ -46,29 +49,28 @@ def is_course_owner(user, course):
 
 
 def can_edit_course(user, course):
-    if not user.is_authenticated:
-        return False
-    return (
-        is_platform_admin(user)
-        or user.has_perm('courses.change_curso')
-        or is_course_teacher(user, course)
-    )
+    from apps.users.access import can
+
+    return can(user, 'edit_course', course).allowed
 
 
 def can_delete_course(user):
-    return user.is_authenticated and user.is_active and user.is_staff
+    from apps.users.access import can
+
+    return can(user, 'delete_course').allowed
 
 
 def can_view_course(user, course):
-    if not user.is_authenticated:
-        return False
-    if is_platform_admin(user) or course.activo:
-        return True
-    return is_course_member(user, course) or can_edit_course(user, course)
+    from apps.users.access import can
+
+    return can(user, 'view_course', course).allowed
 
 
 def can_enroll(user, course):
     if not user.is_authenticated or not course.activo:
+        return False
+    from .campus import campus_settings, course_right
+    if campus_settings(course) and not course_right(user, course).allowed:
         return False
     settings = getattr(course, 'lms_settings', None)
     publication_status = getattr(course, 'status', '') or ''
@@ -89,22 +91,17 @@ def can_enroll(user, course):
 
 
 def can_publish_course(user, course):
-    if not user.is_authenticated:
-        return False
-    return (
-        is_platform_admin(user)
-        or user.has_perm('courses.change_curso')
-        or is_course_owner(user, course)
-        or (
-            is_course_teacher(user, course)
-            and user.has_perm('lms.publish_course')
-        )
-    )
+    from apps.users.access import can
+
+    return can(user, 'publish_course', course).allowed
 
 
 def is_course_member(user, course):
     if not user.is_authenticated:
         return False
+    from .campus import campus_settings, material_access
+    if campus_settings(course):
+        return material_access(user, course).allowed
     status = CourseMembership.objects.filter(
         user=user,
         course=course,

@@ -14,6 +14,9 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
+from apps.users.access import can
+from apps.users.models import AccessRoleAssignment
+
 from .models import DevToolConfig, DevToolVote
 
 
@@ -90,13 +93,16 @@ def _user_can_access_devtool(user, slug):
     if not config.is_active:
         return False
 
-    if user and user.is_authenticated and user.is_staff:
+    if user and user.is_authenticated and (
+        user.is_staff or can(user, 'manage_access').allowed
+    ):
         return True
 
     if config.is_private:
-        if not user or not user.is_authenticated:
-            return False
-        return getattr(user, 'role', None) in {'premium', 'alumno'}
+        return (
+            can(user, 'view_plan_content', required_plan='pro').allowed
+            or can(user, 'access_role', AccessRoleAssignment.Role.ALUMNO).allowed
+        )
 
     return True
 
@@ -392,7 +398,11 @@ class DevToolsHubView(TemplateView):
             'botones', 'layout', 'json', 'base64', 'texto', 'text_counter', 'hash',
             'css_vars', 'breakpoints', 'metadata_img', 'qr', 'url_shortener',
         ]
-        can_manage = self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.is_superuser)
+        can_manage = (
+            self.request.user.is_authenticated
+            and (self.request.user.is_staff or can(self.request.user, 'manage_access').allowed)
+        )
+        context['can_manage_tools'] = can_manage
         visible_tool_slugs = [
             slug for slug in tool_slugs
             if can_manage or _user_can_access_devtool(self.request.user, slug)

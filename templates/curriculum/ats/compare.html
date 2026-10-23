@@ -1,0 +1,9 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Comparar versiones</h1>
+<p>Elige informes del mismo perfil o confirma que tus archivos corresponden al mismo CV. Deben usar la misma oferta y reglas compatibles. La comparación determinista no consume energía.</p>
+<form method="post" class="ats-form card card-body">
+  {% csrf_token %}{% include "curriculum/letters/fields.html" %}
+  <button type="submit" class="btn btn-primary">Comparar evidencias y observaciones</button>
+</form>
+{% endblock %}

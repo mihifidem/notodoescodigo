@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Estado de la mejora de plan{% endblock %}
+{% block content %}
+<section class="container py-4" aria-labelledby="payment-title">
+  <h1 class="h3" id="payment-title">Estado de tu mejora a {{ subscription.initial_order.membership_plan|upper }}</h1>
+  {% if subscription.initial_order.status == 'paid' %}
+    <p role="status">Pago confirmado. Tu membresía se ha activado para el periodo pagado.</p>
+  {% elif subscription.status == 'canceled' %}
+    <p role="status">Esta contratación está cancelada. Consulta el detalle en facturación.</p>
+  {% else %}
+    <p role="status">Estamos esperando la confirmación del proveedor. Volver de Stripe no acredita el cobro ni activa tu plan. No vuelvas a pagar si ya has completado el pago.</p>
+    <a class="btn btn-outline-primary" href="{% url 'users:subscription_return' subscription.pk %}">Actualizar estado</a>
+  {% endif %}
+  <a class="btn btn-primary" href="{% url 'users:billing' %}">Volver a membresías y facturación</a>
+</section>
+{% endblock %}

@@ -1,55 +1,45 @@
 """Forms for the users app."""
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 from allauth.account.forms import ResetPasswordForm, ResetPasswordKeyForm
 
-from .models import Aula, User
-
-
-CODIGO_ACCESO_ALUMNO = '010819'
+from .dashboard_models import PersonalGoal
+from .models import RamaProfesional, User
 
 
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(required=True, label='Correo electrónico')
     first_name = forms.CharField(max_length=30, required=True, label='Nombre')
     last_name = forms.CharField(max_length=30, required=True, label='Apellidos')
-    codigo_acceso = forms.CharField(
-        required=True,
-        label='Código de acceso',
-        help_text='Introduce el código que te haya facilitado el centro.',
-    )
-    aula = forms.ModelChoiceField(
-        queryset=Aula.objects.order_by('nombre'),
+    rama_principal = forms.ModelChoiceField(
+        queryset=RamaProfesional.objects.none(),
         required=False,
-        label='Aula',
-        empty_label='Selecciona un aula',
+        empty_label='Sin seleccionar',
+        label='Rama profesional principal',
+        help_text='Es una preferencia para personalizar recomendaciones. Inglés no acredita un nivel ni una profesión.',
     )
 
     class Meta:
         model = User
         fields = (
-            'username', 'first_name', 'last_name', 'email',
-            'codigo_acceso', 'aula', 'password1', 'password2',
+            'username', 'first_name', 'last_name', 'email', 'password1', 'password2',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['rama_principal'].queryset = RamaProfesional.objects.filter(
+            is_active=True,
+        )
         for field_name, field in self.fields.items():
             css = 'form-select' if isinstance(field.widget, forms.Select) else 'form-control'
             field.widget.attrs['class'] = css
-        self.fields['aula'].widget.attrs['disabled'] = 'disabled'
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        codigo_acceso = (self.cleaned_data.get('codigo_acceso') or '').strip()
-
-        if codigo_acceso == CODIGO_ACCESO_ALUMNO:
-            user.role = 'alumno'
-            user.aula = self.cleaned_data.get('aula')
-        else:
-            user.role = 'basic'
-            user.aula = None
+        user.role = 'usuario'
+        user.rama_principal = self.cleaned_data.get('rama_principal')
 
         if commit:
             user.save()
@@ -57,15 +47,12 @@ class RegistroForm(UserCreationForm):
 
 
 class PerfilForm(forms.ModelForm):
-    codigo_acceso_alumno = forms.CharField(
-        required=False,
-        label='Codigo de validacion alumno',
-        help_text='Introduce 010819 para habilitar el aula y validar el rol alumno.',
-    )
-
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'bio', 'avatar', 'fecha_nacimiento', 'aula')
+        fields = (
+            'first_name', 'last_name', 'email', 'bio', 'avatar',
+            'fecha_nacimiento', 'rama_principal', 'aula',
+        )
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 3}),
             'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
@@ -76,99 +63,89 @@ class PerfilForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self._original_aula = getattr(self.instance, 'aula', None)
         self._original_role = getattr(self.instance, 'role', None)
-        self._user = kwargs.get('instance')
-
-        is_alumno = getattr(self.instance, 'role', None) == 'alumno'
-        has_aula = self._original_aula is not None
-
-        if is_alumno and has_aula:
-            self.fields.pop('codigo_acceso_alumno', None)
+        self._can_manage_aula = self.instance.is_superuser or self.instance.has_perm('users.change_user')
+        branch_queryset = RamaProfesional.objects.filter(is_active=True)
+        if self.instance.rama_principal_id and not self.instance.rama_principal.is_active:
+            branch_queryset = RamaProfesional.objects.filter(
+                Q(is_active=True) | Q(pk=self.instance.rama_principal_id)
+            )
+        self.fields['rama_principal'].queryset = branch_queryset
+        self.fields['rama_principal'].required = False
+        self.fields['rama_principal'].empty_label = 'Sin seleccionar'
+        self.fields['rama_principal'].help_text = (
+            'La rama solo personaliza recomendaciones; no cambia tu plan ni tus roles. '
+            'Inglés no certifica nivel de idioma ni profesión.'
+        )
 
         for field_name, field in self.fields.items():
-            if field_name == 'aula':
+            if field_name in {'aula', 'rama_principal'}:
                 field.widget.attrs['class'] = 'form-select'
             else:
                 field.widget.attrs['class'] = field.widget.attrs.get('class', 'form-control')
 
-        if 'codigo_acceso_alumno' in self.fields:
-            self.fields['codigo_acceso_alumno'].widget.attrs.update(
-                {'placeholder': 'Codigo alumno'}
-            )
-
-        # Control de disponibilidad del campo aula
-        is_staff = getattr(self.instance, 'is_staff', False)
-
-        if is_staff:
-            # Admin siempre puede cambiar el aula
-            self.fields['aula'].widget.attrs['data-alumno'] = 'true'
-        elif is_alumno and has_aula:
-            # Alumno con aula asignada: no puede cambiarla
-            self.fields['aula'].widget.attrs['disabled'] = 'disabled'
-            self.fields['aula'].widget.attrs['title'] = 'Tu aula no puede ser modificada. Contacta al administrador si necesitas cambiarla.'
-        elif is_alumno and not has_aula:
-            # Alumno sin aula: puede seleccionar al introducir código
+        if self._can_manage_aula:
             self.fields['aula'].widget.attrs['data-alumno'] = 'true'
         else:
-            # No-alumno (basic/premium): deshabilitado hasta introducir código
             self.fields['aula'].widget.attrs['disabled'] = 'disabled'
 
     def clean(self):
         cleaned_data = super().clean()
-        codigo = (cleaned_data.get('codigo_acceso_alumno') or '').strip()
-
-        if codigo and codigo != CODIGO_ACCESO_ALUMNO:
-            self.add_error('codigo_acceso_alumno', 'Codigo incorrecto.')
-
-        # Lógica de aula según rol y estado actual
-        is_alumno = getattr(self.instance, 'role', None) == 'alumno'
-        is_staff = getattr(self.instance, 'is_staff', False)
-        has_aula = self._original_aula is not None
-
-        if is_staff:
-            # Admin puede cambiar siempre
-            pass
-        elif is_alumno and has_aula:
-            # Alumno con aula asignada: preservar el aula original
+        if not self._can_manage_aula:
             cleaned_data['aula'] = self._original_aula
-        elif is_alumno and not has_aula:
-            # Alumno sin aula: permitir si código es válido
-            if codigo == CODIGO_ACCESO_ALUMNO:
-                cleaned_data['aula'] = cleaned_data.get('aula') or self._original_aula
-            else:
-                cleaned_data['aula'] = self._original_aula
-        else:
-            # No-alumno: solo permitir si código es válido
-            if codigo == CODIGO_ACCESO_ALUMNO:
-                cleaned_data['aula'] = cleaned_data.get('aula') or self._original_aula
-            else:
-                cleaned_data['aula'] = self._original_aula
-
         return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        codigo = (self.cleaned_data.get('codigo_acceso_alumno') or '').strip()
-        is_staff = getattr(user, 'is_staff', False)
-        has_aula = self._original_aula is not None
-
-        if is_staff:
-            # Admin puede cambiar el rol y aula
-            user.aula = self.cleaned_data.get('aula') or self._original_aula
-        elif hasattr(self.instance, 'role') and self.instance.role == 'alumno' and has_aula:
-            # Alumno con aula asignada: NO cambiar el aula
-            user.aula = self._original_aula
-        elif codigo == CODIGO_ACCESO_ALUMNO:
-            # Código válido: permitir cambios
-            user.role = 'alumno'
+        if self._can_manage_aula:
             user.aula = self.cleaned_data.get('aula') or self._original_aula
         else:
-            # Preservar valores originales
             user.role = self._original_role or user.role
             user.aula = self._original_aula
+        user.rama_principal = self.cleaned_data.get('rama_principal')
 
         if commit:
             user.save()
         return user
+
+
+class PersonalGoalForm(forms.ModelForm):
+    class Meta:
+        model = PersonalGoal
+        fields = (
+            'title',
+            'description',
+            'tracking_type',
+            'source_metric',
+            'current_value',
+            'target_value',
+            'target_label',
+            'target_date',
+        )
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'current_value': forms.NumberInput(attrs={'min': '0', 'step': '0.01'}),
+            'target_value': forms.NumberInput(attrs={'min': '0.01', 'step': '0.01'}),
+            'target_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault(
+                'class',
+                'form-select' if isinstance(field.widget, forms.Select) else 'form-control',
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
+
+    def save(self, commit=True):
+        goal = super().save(commit=False)
+        goal.full_clean(exclude=['user', 'created_at', 'updated_at', 'completed_at', 'archived_at'])
+        if commit:
+            goal.save()
+        return goal
 
 
 def _add_bootstrap_classes(form):

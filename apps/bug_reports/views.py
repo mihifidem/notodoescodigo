@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.users.access import can
+from apps.users.models import AccessRoleAssignment
 from apps.users.models import Notificacion
 
 from .forms import BugReportCreateForm, BugReportReviewForm
@@ -16,12 +18,13 @@ from .models import BugReport
 class AlumnoOnlyMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         user = self.request.user
-        return user.is_authenticated and not user.is_staff and user.role == 'alumno'
+        return can(user, 'access_role', AccessRoleAssignment.Role.ALUMNO).allowed
 
 
 class AdminOnlyMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.is_superuser or user.has_perm('bug_reports.change_bugreport')
 
 
 
@@ -36,7 +39,7 @@ class BugReportPublicListView(ListView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             raise PermissionDenied
-        if not (request.user.is_staff or getattr(request.user, 'role', None) == 'alumno'):
+        if not can(request.user, 'access_role', AccessRoleAssignment.Role.ALUMNO).allowed:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 

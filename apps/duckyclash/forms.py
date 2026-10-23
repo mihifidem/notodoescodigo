@@ -21,16 +21,46 @@ class SectorCategoryChoiceField(forms.ModelChoiceField):
         return f'{obj.sector} / {obj.nombre}' if obj.sector_id else f'Sin sector / {obj.nombre}'
 
 
+class DependentSelect(forms.Select):
+    def __init__(self, parent_field, **kwargs):
+        self.parent_field = parent_field
+        super().__init__(**kwargs)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        if value and hasattr(value, 'instance'):
+            option['attrs']['data-parent'] = str(getattr(value.instance, self.parent_field) or '')
+        return option
+
+
+class CategoryCreateForm(forms.ModelForm):
+    use_required_attribute = False
+
+    class Meta:
+        model = CourseCategory
+        fields = ['sector', 'nombre', 'descripcion']
+        widgets = {
+            'sector': forms.Select(attrs={'class': 'form-select'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['sector'].required = True
+        self.fields['sector'].label = 'Ramo / sector'
+
+
 class SubcategoryCreateForm(forms.ModelForm):
     use_required_attribute = False
     sector = forms.ModelChoiceField(
         label='Sector', queryset=CourseSector.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
-        help_text='El sector pertenece a la categoría. Se asigna desde la administración de categorías.',
+        help_text='Selecciona el ramo y después una de sus categorías.',
     )
     category = SectorCategoryChoiceField(
         label='Categoría de la nueva subcategoría', queryset=CourseCategory.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=DependentSelect('sector_id', attrs={'class': 'form-select'}),
     )
 
     class Meta:
@@ -143,17 +173,21 @@ class ScheduleForm(forms.Form):
 
 
 class PrivateChallengeForm(ScheduleForm):
+    sector = forms.ModelChoiceField(
+        label='Ramo / sector', queryset=CourseSector.objects.all(), required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )
     opponent = forms.CharField(
         label='Nombre de usuario del rival', strip=True,
         widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
     )
     category = forms.ModelChoiceField(
         label='Categoría', queryset=CourseCategory.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=DependentSelect('sector_id', attrs={'class': 'form-select'}),
     )
     subcategory = forms.ModelChoiceField(
         label='Subcategoría', queryset=ChallengeSubcategory.objects.none(), required=False,
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=DependentSelect('category_id', attrs={'class': 'form-select'}),
     )
     landscape = forms.ModelChoiceField(
         label='Paisaje', queryset=Landscape.objects.none(),
@@ -170,7 +204,7 @@ class PrivateChallengeForm(ScheduleForm):
         self.actor = actor
         self.fields['opponent'].max_length = get_user_model()._meta.get_field(get_user_model().USERNAME_FIELD).max_length
         self.fields['opponent'].validators.append(MaxLengthValidator(self.fields['opponent'].max_length))
-        self.fields['category'].queryset = CourseCategory.objects.filter(activa=True)
+        self.fields['category'].queryset = CourseCategory.objects.filter(activa=True).select_related('sector')
         self.fields['subcategory'].queryset = ChallengeSubcategory.objects.filter(active=True, category__activa=True)
         era = era_for_xp(actor.puntos_totales)
         self.fields['landscape'].queryset = Landscape.objects.filter(active=True, era=era.code)
@@ -185,7 +219,11 @@ class PrivateChallengeForm(ScheduleForm):
         self.fields['lifetime'].choices = choices
         if choices and self.fields['lifetime'].initial not in {minutes for minutes, _ in choices}:
             self.fields['lifetime'].initial = choices[-1][0]
-        self.order_fields(['opponent', 'category', 'subcategory', 'date', 'time', 'stake', 'landscape', 'lifetime'])
+        if not self.is_bound and self.initial.get('category'):
+            self.initial.setdefault('sector', CourseCategory.objects.filter(
+                pk=self.initial['category'],
+            ).values_list('sector_id', flat=True).first())
+        self.order_fields(['opponent', 'sector', 'category', 'subcategory', 'date', 'time', 'stake', 'landscape', 'lifetime'])
 
     def clean_opponent(self):
         username = self.cleaned_data['opponent']
@@ -199,6 +237,8 @@ class PrivateChallengeForm(ScheduleForm):
     def clean(self):
         data = super().clean()
         category, subcategory = data.get('category'), data.get('subcategory')
+        if data.get('sector') and category and category.sector_id != data['sector'].pk:
+            self.add_error('category', 'La categoría no pertenece al ramo seleccionado.')
         if category and subcategory and subcategory.category_id != category.pk:
             self.add_error('subcategory', 'La subcategoría no pertenece a esta categoría.')
         if data.get('scheduled_at') and data.get('lifetime'):
@@ -254,7 +294,7 @@ class OpenChallengeForm(PrivateChallengeForm):
         super().__init__(*args, actor=actor, **kwargs)
         del self.fields['opponent']
         del self.fields['lifetime']
-        self.order_fields(['category', 'subcategory', 'date', 'time', 'stake', 'landscape', 'expiry_date', 'expiry_time'])
+        self.order_fields(['sector', 'category', 'subcategory', 'date', 'time', 'stake', 'landscape', 'expiry_date', 'expiry_time'])
 
     def clean(self):
         data = super().clean()

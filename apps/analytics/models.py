@@ -14,6 +14,7 @@ class RegistroActividad(models.Model):
         ('mision_completada', 'Misión completada'),
         ('cv_seccion', 'Sección de CV completada'),
         ('bug_validado', 'Bug validado'),
+        ('nexus_completed', 'Evaluación Nexus completada (participación)'),
     ]
 
     usuario = models.ForeignKey(

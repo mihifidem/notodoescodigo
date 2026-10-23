@@ -1,0 +1,19 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}Mis grupos docentes | Campus{% endblock %}
+{% block content %}
+<section class="content-panel">
+  <h1>{% trans "Mis grupos docentes" %}</h1>
+  <p>{% trans "Solo cursos y alumnos asignados. Una membresía PRO no concede permisos docentes." %}</p>
+  {% for row in teaching_courses %}
+    <article class="content-panel">
+      <h2>{{ row.course.nombre }}{% if row.section %} · {{ row.section.title }}{% endif %}</h2>
+      <a href="{% url 'lms:course_area' course_id=row.course.pk area='activities' %}">{% trans "Revisar actividades y entregas autorizadas" %}</a>
+      <ul>{% for student in row.students %}
+        <li>{{ student.membership.user.get_full_name|default:student.membership.user.username }} · {{ student.progress.completed }}/{{ student.progress.total }} {% trans "requisitos cumplidos" %}</li>
+      {% empty %}<li>{% trans "No hay alumnos asignados en este ámbito." %}</li>{% endfor %}</ul>
+    </article>
+  {% empty %}<p>{% trans "No tienes asignaciones docentes Campus." %}</p>{% endfor %}
+  <p>{% trans "Gestión por academia pendiente del vínculo organizativo del catálogo. El rol academia por sí solo no abre expedientes ni permite asignaciones." %}</p>
+</section>
+{% endblock %}

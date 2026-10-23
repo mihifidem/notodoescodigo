@@ -1,0 +1,54 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Informe: {{ report.source.title }}</h1>
+<p>Fuente: {{ report.source.source_label }} · {{ report.created_at|date:"DATETIME_FORMAT" }}</p>
+<p>Criterios: {{ report.configuration.criteria_version }} / configuración {{ report.configuration.version }}. Alcance guardado: {{ report.scope }}. Vista: {{ scope }}.</p>
+<p class="small text-break">Huella texto revisado: {{ report.content_hash }}</p>
+<p>Estado: {% if report.status == "partial" %}Parcial: revisa las limitaciones de extracción{% else %}Completado para las reglas solicitadas; sin IA{% endif %}{% if report.archived %} · Archivado{% endif %}.</p>
+<p>{{ report.result.summary }}</p>
+<p>{{ report.result.coverage }}</p>
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a class="btn btn-outline-primary" href="{% url 'curriculum:ats_download' pk=report.pk extent='summary' %}">PDF resumen</a>
+  {% if scope != "basic" %}<a class="btn btn-outline-primary" href="{% url 'curriculum:ats_download' pk=report.pk extent='full' %}">PDF informe completo</a>{% endif %}
+  <a href="{% url 'curriculum:ats_review' pk=report.source_id %}" class="btn btn-outline-secondary">Nueva revisión del texto original</a>
+</div>
+<h2 class="h4">Estructura, legibilidad textual y recomendaciones</h2>
+{% if scope == "pro" %}<p>Priorización determinista: primero avisos de formato o extracción; después información editorial. No es una puntuación global.</p>{% endif %}
+{% include "curriculum/ats/findings.html" %}
+<h2 class="h4">Comparación con la oferta</h2>
+{% if report.offer_text %}
+<p>Coincidencias textuales: {{ report.result.requirement_counts.explicit }} líneas con términos encontrados; {{ report.result.requirement_counts.review }} parciales; {{ report.result.requirement_counts.not_found }} sin evidencia; {{ report.result.requirement_counts.not_evaluable }} no evaluables.</p>
+{% if scope != "basic" %}
+{% for requirement in report.result.requirements %}
+<article class="border rounded p-3 mb-3">
+  <h3 class="h6">{{ requirement.text }}</h3><p>{{ requirement.type }} · Regla textual</p>
+  <p>{{ requirement.explanation }}</p>
+  <p>Evidencia: {{ requirement.evidence|default:"No encontrada en el texto autorizado" }}</p>
+  <p>Palabras clave: {{ requirement.keywords|join:", " }}. Encontradas: {{ requirement.matched_keywords|join:", "|default:"Ninguna" }}.</p>
+  <p>{{ requirement.recommendation }}</p>
+</article>
+{% endfor %}
+{% else %}
+<ul>{% for requirement in report.result.requirements %}{% if requirement.state == "not_found" or requirement.state == "not_evaluable" %}<li>{{ requirement.text }} — {{ requirement.explanation }}</li>{% endif %}{% endfor %}</ul>
+<p>El desglose completo por requisito y evidencias requiere PLUS, PRO o un derecho compatible; los avisos importantes no se ocultan.</p>
+{% endif %}
+{% else %}<p>Sin oferta: no se calculó afinidad ni se inventaron requisitos.</p>{% endif %}
+<h2 class="h4">Limitaciones y procedencia</h2>
+<ul>{% for limit in report.result.limitations %}<li>{{ limit }}</li>{% endfor %}</ul>
+<p class="alert alert-warning">{{ ai_message }}</p>
+<button class="btn btn-outline-secondary" disabled>Solicitar análisis semántico IA (pendiente)</button>
+{% if scope == "pro" %}<button class="btn btn-outline-secondary" disabled>Reformular con IA (pendiente)</button>{% endif %}
+<details class="mt-3"><summary>Texto exacto revisado y oferta conservados</summary>
+  <pre>{{ report.reviewed_text }}</pre>
+  <h3 class="h6">Oferta</h3><pre>{{ report.offer_text|default:"Sin oferta" }}</pre>
+  {% if report.offer_url %}<p>Referencia no leída: {{ report.offer_url }}</p>{% endif %}
+</details>
+<div class="d-flex flex-wrap gap-2 mt-4">
+<form method="post" action="{% url 'curriculum:ats_action' pk=report.pk action='archive' %}">{% csrf_token %}<button type="submit" class="btn btn-outline-secondary">Archivar informe</button></form>
+{% if report.archived %}<form method="post" action="{% url 'curriculum:ats_action' pk=report.pk action='restore' %}">{% csrf_token %}<button type="submit" class="btn btn-outline-secondary">Restaurar</button></form>{% endif %}
+</div>
+<details class="mt-3"><summary>Eliminar informe y fuente si no tiene más informes</summary>
+<p>No modifica el perfil de origen ni devuelve energía. No hay versiones compartidas desde este módulo.</p>
+<form method="post" action="{% url 'curriculum:ats_action' pk=report.pk action='delete' %}">{% csrf_token %}<button type="submit" class="btn btn-outline-danger">Eliminar este informe privado</button></form>
+</details>
+{% endblock %}

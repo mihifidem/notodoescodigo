@@ -36,6 +36,7 @@ urlpatterns = [
     path('data-admin/', include('apps.data_admin.urls', namespace='data_admin')),
     path('devtools/', include('apps.devtools.urls', namespace='devtools')),
     path('lms/', include('apps.lms.urls', namespace='lms')),
+    path('actualizaciones/', include('apps.updates.urls', namespace='updates')),
 
     # Public CV URLs (opentowork.es/slug style)
     path('opentowork/<slug:slug>/', public_cv, name='curriculum_public_cv'),

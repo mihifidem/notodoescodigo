@@ -1,7 +1,13 @@
 {% extends 'lms/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{{ activity.title }} | {{ course.nombre }}{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/knowledge-tech.css' %}">
+{% endblock %}
 {% block content %}
+<div class="billing-app knowledge-tech evaluations-tech activity-detail-tech">
   <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
     <a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a>
     <span aria-hidden="true">/</span>
@@ -9,37 +15,48 @@
     <span aria-hidden="true">/</span><span aria-current="page">{{ activity.title }}</span>
   </nav>
   <p data-quiz-live-error role="alert" hidden>{% trans 'No se pudo actualizar la actividad. La actualización se ha detenido.' %}</p>
-  <section class="content-panel" data-quiz-live-region data-notification-item-target="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}" aria-live="polite">
-    <h1>{{ activity.title }}</h1>
-    {% if activity.reference_code %}<p class="quiet-note">{% trans 'Referencia' %}: {{ activity.reference_code }}</p>{% endif %}
-    <span class="status">{{ activity_state_label }}</span>
-    {% if activity.module %}<span class="tag">{{ activity.module.titulo }}</span>{% endif %}
-    <div class="prose">{{ activity.safe_description|safe|linebreaksbr }}</div>
-    <h2>{% trans 'Instrucciones' %}</h2>
-    <div class="prose">{{ activity.safe_instructions|safe|linebreaksbr }}</div>
-    <div class="meta-row">
+  <section class="content-panel activity-detail-panel" data-quiz-live-region data-notification-item-target="{% url 'lms:course_activity_detail' course_id=course.pk activity_id=activity.pk %}" aria-live="polite">
+    <header class="page-heading">
+      <div>
+        <p class="eyebrow">{{ course.nombre }}</p>
+        <h1>{{ activity.title }}</h1>
+        {% if activity.reference_code %}<p class="lede">{% trans 'Referencia' %}: {{ activity.reference_code }}</p>{% endif %}
+        <div class="activity-status-row">
+          <span class="status">{{ activity_state_label }}</span>
+          {% if activity.module %}<span class="tag">{{ activity.module.titulo }}</span>{% endif %}
+        </div>
+      </div>
+    </header>
+    <div class="activity-content-card prose">{{ activity.safe_description|safe|linebreaksbr }}</div>
+    <section class="activity-content-card" aria-labelledby="activity-instructions-title">
+      <h2 id="activity-instructions-title">{% trans 'Instrucciones' %}</h2>
+      <div class="prose">{{ activity.safe_instructions|safe|linebreaksbr }}</div>
+    </section>
+    <div class="meta-row activity-meta">
       {% if activity.starts_at %}<span>{% trans 'Inicio' %}: {{ activity.starts_at|date:'j M Y, H:i' }}</span>{% endif %}
       {% if activity.due_at %}<span>{% trans 'Entrega hasta' %}: {{ activity.due_at|date:'j M Y, H:i' }}</span>{% endif %}
       {% if activity.is_evaluable %}<span>{{ activity.points }} {% trans 'puntos' %}</span>{% endif %}
     </div>
     {% if teacher_view %}
-      <a class="button button-secondary" href="{% url 'lms:course_activity_edit' course_id=course.pk activity_id=activity.pk %}">{% trans 'Editar actividad' %}</a>
+      <div class="action-row"><a class="button button-secondary" href="{% url 'lms:course_activity_edit' course_id=course.pk activity_id=activity.pk %}">{% trans 'Editar actividad' %}</a></div>
     {% endif %}
     {% if solution_visible and activity.solution %}
+      <section class="activity-content-card activity-solution">
       <h2>{% trans 'Solución disponible' %}</h2>
       <div class="prose">{{ activity.safe_solution|safe }}</div>
+      </section>
     {% endif %}
     <h2>{% if teacher_view %}{% trans 'Entregas del alumnado' %}{% else %}{% trans 'Mis entregas' %}{% endif %}</h2>
     {% for row in submission_rows %}
-      <article class="content-panel">
+      <article class="content-panel activity-submission-card">
         {% if teacher_view %}<h3>{{ row.submission.user.get_full_name|default:row.submission.user.username }}</h3>{% endif %}
         <p>{% trans 'Versión' %} {{ row.submission.version }} · {% if row.feedback_visible and row.submission.feedback_published %}{% trans 'Evaluada' %}{% else %}{% trans 'Entregada, pendiente de evaluación' %}{% endif %} · {{ row.submission.submitted_at|date:'j M Y, H:i' }}</p>
         <div>{{ row.submission.text_answer|linebreaks }}</div>
         {% for attachment in row.submission.attachments.all %}
-          <a href="{% url 'lms:course_activity_attachment' course_id=course.pk activity_id=activity.pk attachment_id=attachment.pk %}">{{ attachment.file_name }}</a>
+          <a class="activity-attachment" href="{% url 'lms:course_activity_attachment' course_id=course.pk activity_id=activity.pk attachment_id=attachment.pk %}"><i class="bi bi-paperclip" aria-hidden="true"></i> {{ attachment.file_name }}</a>
         {% endfor %}
         {% if row.feedback_visible and row.submission.feedback_published %}
-          <p>{% trans 'Tu nota' %}: {{ row.submission.grade }} / {{ activity.points }}</p>
+          <p class="activity-grade">{% trans 'Tu nota' %}: {{ row.submission.grade }} / {{ activity.points }}</p>
           <div>{{ row.submission.feedback|linebreaks }}</div>
         {% endif %}
         {% if row.can_grade %}
@@ -49,25 +66,30 @@
     {% empty %}<p>{% trans 'Todavía no hay entregas.' %}</p>{% endfor %}
   </section>
   {% if not teacher_view %}
-    <section class="form-panel" data-activity-delivery-region data-closed-message="{% trans 'El plazo de entrega ha finalizado. Tu texto se conserva, pero ya no puedes enviar la entrega.' %}">
+    <section class="form-panel activity-delivery-panel" data-activity-delivery-region data-closed-message="{% trans 'La entrega ya no está disponible. Si ya la enviaste, no puedes volver a enviarla. Puedes consultar tu historial.' %}">
       <p data-activity-closed role="status" hidden></p>
       <h2>{% trans 'Entregar actividad' %}</h2>
       {{ form.non_field_errors }}
       {% if can_submit %}
-        <p>{% trans 'Puedes enviar texto, un archivo o ambos. Una nueva entrega reemplaza la anterior; conservamos el historial hasta la fecha límite.' %}</p>
+        <p>{% trans 'Puedes enviar texto, un archivo o ambos. Solo se permite una entrega por actividad; revisa tu respuesta antes de enviarla.' %}</p>
         <form method="post" enctype="multipart/form-data" class="stacked-form" data-activity-submission-form{% if form.errors %} data-dirty="true"{% endif %}>
           {% csrf_token %}
           {% for field in form %}
+            {% if field.is_hidden %}{{ field }}{% else %}
             <div class="field-block">
               <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
               {% for error in field.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
             </div>
+            {% endif %}
           {% endfor %}
           <button class="button button-primary" type="submit">{% trans 'Enviar entrega' %}</button>
         </form>
+      {% elif has_submitted %}
+        <p role="status">{% trans 'Ya has enviado esta actividad. No se permiten nuevas entregas. Puedes consultar tu entrega y su evaluación publicada.' %}</p>
       {% else %}
         <p>{% trans 'La entrega no está abierta. Puedes consultar aquí tu historial y tu evaluación publicada.' %}</p>
       {% endif %}
     </section>
   {% endif %}
+</div>
 {% endblock %}

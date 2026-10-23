@@ -1,0 +1,42 @@
+.lms-theme .lms-content .course-form-tech .billing-hero h1 { color: #f4f8ff; }
+.lms-theme .lms-content .course-form-tech .billing-eyebrow { color: #a7d8ff; }
+.lms-theme .lms-content .course-form-tech .course-form-intro { color: #c7ddf4; line-height: 1.7; margin-bottom: 0; }
+.lms-theme .lms-content .course-form-tech .billing-plan-badge span { color: #c7ddf4; }
+.lms-theme .lms-content .course-form-tech .billing-plan-badge strong { color: #fff; }
+.lms-theme .lms-content .course-form-tech :is(.form-panel, .content-panel, dialog) {
+  max-width: none;
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 1px solid var(--billing-border);
+  border-radius: 1.1rem;
+  background: var(--billing-surface);
+  color: var(--billing-text);
+  box-shadow: 0 8px 28px #1539650c;
+}
+.lms-theme .lms-content .course-form-tech :is(h2, label) { color: var(--billing-text); }
+.lms-theme .lms-content .course-form-tech :is(.field-help, .breadcrumbs, .audit-list span) { color: var(--billing-muted); }
+.lms-theme .lms-content .course-form-tech .field { margin-bottom: 1.5rem; min-width: 0; }
+.lms-theme .lms-content .course-form-tech :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea) {
+  max-width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--billing-border);
+  border-radius: .65rem;
+  background: var(--billing-surface);
+  color: var(--billing-text);
+}
+.lms-theme .lms-content .course-form-tech :is(input, select, textarea):focus-visible { outline: 2px solid #4387e8; outline-offset: 2px; }
+.lms-theme .lms-content .course-form-tech .button { border-radius: .65rem; min-height: 42px; }
+.lms-theme .lms-content .course-form-tech .button-primary { background: #2563eb; border: 1px solid #2563eb; color: #fff; }
+.lms-theme .lms-content .course-form-tech .button-primary:hover { background: #1d4ed8; }
+.lms-theme .lms-content .course-form-tech :is(.button-secondary, .button-light) { background: var(--billing-tint); border: 1px solid var(--billing-border); color: var(--billing-text); }
+.course-form-tech .form-actions,
+.course-form-tech .stacked-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.course-form-tech .billing-hero > div { min-width: 0; }
+.course-form-tech .billing-hero,
+.course-form-tech .form-panel { overflow-wrap: anywhere; }
+.course-form-tech .rich-editor-shell { min-width: 0; max-width: 100%; }
+.course-form-tech .rich-editor-shell .ProseMirror { overflow-x: auto; }
+.course-form-tech dialog { width: min(560px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; }
+.course-form-tech dialog::backdrop { background: #0d2043a6; }
+@media (max-width: 575px) {
+  .course-form-tech .form-actions > .button { flex: 1 1 auto; text-align: center; }
+}

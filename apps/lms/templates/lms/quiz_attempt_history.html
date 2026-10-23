@@ -8,6 +8,7 @@
         {% if teacher_view %}<th>{% trans 'Alumno' %}</th>{% endif %}
         <th>{% trans 'Inicio' %}</th><th>{% trans 'Entrega' %}</th><th>{% trans 'Estado' %}</th>
         <th>{% trans 'Acertadas' %}</th><th>{% trans 'Falladas' %}</th><th>{% trans 'En blanco' %}</th><th>{% trans 'Nota' %}</th>
+        {% if teacher_view %}<th>{% trans 'Publicación de resultados' %}</th>{% endif %}
       </tr></thead>
       <tbody>
         {% for row in attempt_history %}
@@ -22,6 +23,20 @@
             <td>{{ row.attempt.blank_count|default_if_none:'—' }}</td>
             <td>{{ row.attempt.score }} / {{ row.attempt.grade_entry.max_grade }} {% if row.attempt.is_passed %}({% trans 'Aprobado' %}){% else %}({% trans 'No aprobado' %}){% endif %}</td>
           {% else %}<td colspan="4">{% trans 'Resultados pendientes de publicación' %}</td>{% endif %}
+          {% if teacher_view %}
+            <td>
+              {% if row.can_release_results %}
+                <form method="post" action="{% url 'lms:quiz_release_results' course_id=course.pk quiz_id=quiz.pk attempt_id=row.attempt.pk %}">
+                  {% csrf_token %}
+                  <button class="button button-primary quiz-release-button" type="submit">{% trans 'Enviar resultado y solución' %}</button>
+                </form>
+              {% elif row.attempt.results_released_at %}
+                {% trans 'Resultado y solución enviados' %} · {{ row.attempt.results_released_at|date:'d/m/Y H:i' }}
+              {% elif quiz.publish_grade_at %}
+                {% trans 'Publicación programada' %}: {{ quiz.publish_grade_at|date:'d/m/Y H:i' }}
+              {% endif %}
+            </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>

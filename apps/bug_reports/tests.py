@@ -4,7 +4,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from apps.analytics.models import RegistroActividad
-from apps.users.models import Aula, Notificacion
+from apps.users.models import AccessRoleAssignment, Aula, Notificacion
 
 from .models import BugReport
 
@@ -24,15 +24,20 @@ class BugReportsPermissionsAndRewardsTests(TestCase):
             role='alumno',
             aula=self.aula,
         )
+        AccessRoleAssignment.objects.get_or_create(
+            user=self.alumno,
+            role=AccessRoleAssignment.Role.ALUMNO,
+        )
         self.basic_user = user_model.objects.create_user(
             username='basic_bug',
             password='test1234',
-            role='basic',
+            role='usuario',
         )
         self.admin = user_model.objects.create_user(
             username='admin_bug',
             password='test1234',
             is_staff=True,
+            is_superuser=True,
         )
 
     def test_alumno_puede_ver_y_crear_bug(self):

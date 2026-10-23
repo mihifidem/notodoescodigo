@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Membresías y facturación{% endblock %}
+{% block page_title %}Membresías y facturación{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}">{% endblock %}
+
+{% block content %}
+<section class="container-fluid py-3 billing-app" aria-labelledby="billing-heading">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+      <header class="billing-hero">
+        <div>
+          <p class="billing-eyebrow">Tu cuenta · Tu siguiente nivel</p>
+          <h1 id="billing-heading">Membresías y <span>facturación</span></h1>
+          <p>Elige cómo quieres avanzar. Gestiona tu plan y consulta tus pagos desde un único lugar.</p>
+        </div>
+        <div class="billing-plan-badge">
+          <i class="bi bi-layers" aria-hidden="true"></i>
+          <span>Tu plan actual<strong>{{ billing_plan|upper }}</strong></span>
+        </div>
+      </header>
+      <nav class="billing-nav" aria-label="Secciones de membresías y facturación">
+        <a href="#mejorar-plan"><i class="bi bi-arrow-up-right-circle" aria-hidden="true"></i> Mejorar plan</a>
+        <a href="#billing-services">Servicios</a>
+        <a href="#billing-contracts">Contratos</a>
+        <a href="#billing-orders">Pedidos y pagos</a>
+      </nav>
+      <div class="billing-trust">
+        <span><i class="bi bi-shield-lock" aria-hidden="true"></i> Solo datos de tu cuenta</span>
+        <span><i class="bi bi-credit-card" aria-hidden="true"></i> Checkout alojado en Stripe</span>
+        <span><i class="bi bi-sliders" aria-hidden="true"></i> Gestiona tu renovación</span>
+      </div>
+
+      {% if messages %}
+        <div aria-live="polite">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="mejorar-plan">Mejora tu plan</h2>
+          <p class="text-muted">Plan actual: <strong>{{ billing_plan|upper }}</strong>. Las tarifas aparecen solo cuando una versión aprobada está activa.</p>
+          <p>Suscripción con renovación automática por el periodo elegido. El nuevo plan comienza al confirmarse el pago. Puedes cancelar futuras renovaciones desde esta página, conservando el periodo pagado.</p>
+          <p>La mejora se cobra por un periodo completo, <strong>sin prorrateo ni devolución del periodo anterior</strong>. Si tienes una suscripción anterior del portal, dejaremos de renovarla al confirmar el nuevo pago. No se cambia tu plan por abrir el checkout o volver de Stripe.</p>
+          {% if pending_subscription %}
+            <div class="alert alert-warning">
+              <p>Tienes una contratación pendiente. Si ya has pagado, espera la confirmación de Stripe antes de iniciar otra.</p>
+              <div class="d-flex gap-2 flex-wrap">
+                <form method="post" action="{% url 'users:subscription_resume' pending_subscription.pk %}">
+                  {% csrf_token %}<button class="btn btn-primary" type="submit">Continuar pago pendiente</button>
+                </form>
+                <form method="post" action="{% url 'users:subscription_cancel' pending_subscription.pk %}">
+                  {% csrf_token %}<button class="btn btn-outline-secondary" type="submit">Cancelar contratación pendiente</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+          {% if billing_configuration %}
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <caption class="visually-hidden">Tarifas vigentes de membresías</caption>
+                <thead><tr><th scope="col">Plan</th><th scope="col">Periodicidad</th><th scope="col">Precio por periodo</th><th scope="col">Contratar</th></tr></thead>
+                <tbody>
+                  {% for item in membership_prices %}
+                    <tr>
+                      <td>{{ item.plan|upper }}</td>
+                      <td>{{ item.period_label }}</td>
+                      <td>{% if item.configured %}{{ item.amount|floatformat:2 }} {{ item.currency }}{% else %}No configurado{% endif %}</td>
+                      <td>
+                        {% if not item.is_upgrade %}
+                          Plan actual o inferior
+                        {% elif item.configured and item.amount != '0.00' and subscriptions_enabled and not pending_subscription %}
+                          <form method="post" action="{% url 'users:subscribe' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="quote" value="{{ item.quote }}">
+                            <div class="form-check mb-2">
+                              <input class="form-check-input" id="membership-{{ item.plan }}-{{ item.period }}" type="checkbox" name="accept_terms" value="yes" required>
+                              <label class="form-check-label small" for="membership-{{ item.plan }}-{{ item.period }}">
+                                Acepto el cobro de {{ item.amount|floatformat:2 }} {{ item.currency }} y su renovación {{ item.period_label|lower }} automática, con las condiciones indicadas.
+                              </label>
+                            </div>
+                            <button class="btn btn-primary btn-sm" type="submit">Subir a {{ item.plan|upper }} y pagar con Stripe</button>
+                          </form>
+                        {% elif pending_subscription %}
+                          Finaliza o cancela tu pago pendiente
+                        {% else %}
+                          Contratación pendiente de configuración
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0">No hay tarifas aprobadas activas. No se puede contratar ni se iniciará ningún cobro.</p>
+          {% endif %}
+          {% if not subscriptions_enabled %}
+            <p class="small text-muted mb-0">El checkout no está disponible: falta habilitar Stripe con sus credenciales y webhook de suscripciones. No se iniciará ningún cobro.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% for subscription in subscriptions %}
+        <div class="card mb-4">
+          <div class="card-body">
+            <h2 class="h5">Suscripción {{ subscription.initial_order.membership_plan|upper }}</h2>
+            <p>{{ subscription.initial_order.total|floatformat:2 }} {{ subscription.initial_order.currency }} · {{ subscription.initial_order.get_billing_period_display }} · {{ subscription.get_status_display }}</p>
+            {% if subscription.period_ends_at %}<p>Periodo pagado hasta {{ subscription.period_ends_at|date:"j F Y H:i" }}.</p>{% endif %}
+            {% if subscription.status == 'past_due' %}<p role="alert">La renovación tiene un pago pendiente. El plan no se prolonga hasta confirmar el cobro.</p>{% endif %}
+            {% if subscription.cancel_at_period_end %}
+              <p>Renovación cancelada. Tu acceso se mantiene hasta el vencimiento del periodo pagado.</p>
+              {% if subscription.can_reactivate_renewal %}
+                <form method="post" action="{% url 'users:subscription_reactivate' subscription.pk %}">
+                  {% csrf_token %}
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="renewal-{{ subscription.pk }}" name="accept_renewal" value="yes" required>
+                    <label class="form-check-label" for="renewal-{{ subscription.pk }}">Acepto volver a activar la renovación automática de {{ subscription.initial_order.total|floatformat:2 }} {{ subscription.initial_order.currency }} por periodo {{ subscription.initial_order.get_billing_period_display|lower }}. El próximo cobro será al vencimiento del periodo actual; no se cobra de nuevo ahora.</label>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Reactivar renovación automática</button>
+                </form>
+              {% endif %}
+            {% else %}
+              <form method="post" action="{% url 'users:subscription_cancel' subscription.pk %}">
+                {% csrf_token %}<button class="btn btn-outline-danger" type="submit">Cancelar renovación automática</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="billing-services">Servicios</h2>
+          {% if service_offerings %}
+            <div class="row g-3">
+              {% for offering in service_offerings %}
+                <div class="col-12 col-md-6">
+                  <article class="border rounded p-3 h-100">
+                    <h3 class="h6">{{ offering.product.name }}</h3>
+                    {% if offering.product.description %}<p>{{ offering.product.description }}</p>{% endif %}
+                    <p class="mb-2"><strong>{{ offering.price|floatformat:2 }} {{ offering.product.currency }}</strong></p>
+                    {% if offering.product.conditions %}<p class="small text-muted">{{ offering.product.conditions }}</p>{% endif %}
+                    {% if offering.can_order_free %}
+                      <form method="post" action="{% url 'users:free_service_order' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="service_code" value="{{ offering.product.code }}">
+                        <input type="hidden" name="idempotency_key" value="{{ offering.idempotency_key }}">
+                        <div class="form-check mb-3">
+                          <input class="form-check-input" type="checkbox" name="accept_terms" value="yes" id="terms-{{ offering.product.pk }}" required>
+                          <label class="form-check-label" for="terms-{{ offering.product.pk }}">Solicito este servicio sin coste y acepto las condiciones indicadas.</label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">Solicitar servicio</button>
+                      </form>
+                    {% else %}
+                      <p class="small text-muted mb-0">La compra no está disponible. No se iniciará ningún cargo hasta habilitar un proveedor y un flujo de entrega verificados.</p>
+                    {% endif %}
+                  </article>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="mb-0 text-muted">No hay servicios publicados en este momento.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5">Bonos</h2>
+          {% if vouchers %}
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead><tr><th scope="col">Código</th><th scope="col">Descuento</th><th scope="col">Estado</th><th scope="col">Vigencia</th></tr></thead>
+                <tbody>
+                  {% for grant in vouchers %}
+                    <tr>
+                      <td>{{ grant.voucher.code }}</td>
+                      <td>{{ grant.voucher.discount_percent|floatformat:2 }}%</td>
+                      <td>{{ grant.get_status_display }}</td>
+                      <td>{% if grant.effective_expiry %}{{ grant.effective_expiry|date:"j F Y H:i" }}{% else %}Sin fecha registrada{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="small text-muted mb-0">Los bonos no se aplican automáticamente ni están disponibles para las suscripciones recurrentes.</p>
+          {% else %}
+            <p class="mb-0 text-muted">No tienes bonos asignados.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="billing-contracts">Contratos</h2>
+          {% if membership_contracts %}
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead><tr><th scope="col">Plan</th><th scope="col">Periodo</th><th scope="col">Estado</th><th scope="col">Vigencia hasta</th><th scope="col">Importe</th></tr></thead>
+                <tbody>
+                  {% for contract in membership_contracts %}
+                    <tr>
+                      <td>{{ contract.plan|upper }}</td>
+                      <td>{{ contract.get_billing_period_display }}</td>
+                      <td>{{ contract.get_status_display }}</td>
+                      <td>{% if contract.period_ends_at %}{{ contract.period_ends_at|date:"j F Y H:i" }}{% else %}Sin fecha registrada{% endif %}</td>
+                      <td>{{ contract.contracted_price|floatformat:2 }} {{ contract.currency }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0 text-muted">No hay contratos de membresía registrados.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h5" id="billing-orders">Pedidos</h2>
+          {% if orders %}
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead><tr><th scope="col">Número</th><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col">Total</th></tr></thead>
+                <tbody>
+                  {% for order in orders %}
+                    <tr>
+                      <td>{{ order.pk }}</td>
+                      <td>{{ order.created_at|date:"j F Y H:i" }}</td>
+                      <td>{{ order.get_kind_display }}</td>
+                      <td>{{ order.get_status_display }}</td>
+                      <td>{{ order.total|floatformat:2 }} {{ order.currency }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No hay pedidos asociados a tu cuenta.</p>
+          {% endif %}
+          <h2 class="h5 mt-4">Cargos y documentos</h2>
+          {% if charges %}
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead><tr><th scope="col">Fecha</th><th scope="col">Concepto</th><th scope="col">Estado del cargo</th><th scope="col">Importe</th><th scope="col">Pago verificado</th><th scope="col">Factura</th></tr></thead>
+                <tbody>
+                  {% for charge in charges %}
+                    <tr>
+                      <td>{{ charge.created_at|date:"j F Y H:i" }}</td>
+                      <td>{{ charge.concept }}</td>
+                      <td>{{ charge.get_status_display }}</td>
+                      <td>{{ charge.total|floatformat:2 }} {{ charge.currency }}</td>
+                      <td>{% for payment in charge.payments.all %}{{ payment.amount|floatformat:2 }} {{ payment.currency }}{% empty %}Sin pago confirmado{% endfor %}</td>
+                      <td>{% for invoice in charge.invoices.all %}{{ invoice.get_status_display }}{% empty %}No emitida{% endfor %}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0 text-muted">No hay cargos ni pedidos asociados a tu cuenta.</p>
+          {% endif %}
+          <p class="small text-muted mt-3 mb-0">La emisión fiscal está desactivada hasta completar la configuración y verificación necesarias.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

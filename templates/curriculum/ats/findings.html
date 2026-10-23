@@ -1,0 +1,9 @@
+{% for finding in findings %}
+<article class="border rounded p-3 mb-3">
+  <h3 class="h6">{{ finding.category }} · {% if finding.severity == "warning" %}Revisar{% else %}Información{% endif %} · Regla determinista</h3>
+  <p>{{ finding.description }}</p>
+  {% if scope != "basic" and finding.evidence %}<p>Evidencia: <code class="text-break">{{ finding.evidence }}</code></p>{% endif %}
+  <p>Acción: {{ finding.recommendation }}</p>
+  <p class="small text-muted">{{ finding.limitation }}</p>
+</article>
+{% empty %}<p>No se detectaron observaciones con estas reglas y datos; no significa compatibilidad ATS garantizada.</p>{% endfor %}

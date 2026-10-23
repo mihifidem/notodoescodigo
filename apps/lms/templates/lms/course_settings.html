@@ -1,4 +1,11 @@
 {% load i18n %}
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">{{ course.nombre }}</p>
+    <h1>{% trans 'Configuraciones del curso' %}</h1>
+    <p class="lede">{% trans 'Gestiona los detalles, las secciones y las opciones de tu aula.' %}</p>
+  </div>
+</header>
 <div class="course-settings-layout">
   <div class="course-settings-main">
     <nav class="settings-tabs" aria-label="{% trans 'Configuraciones del curso' %}">
@@ -7,7 +14,7 @@
       <a href="{% url 'lms:course_area' course_id=course.pk area='settings' %}#settings-options">{% trans 'Opciones del curso' %}</a>
     </nav>
     {% if settings_tab == 'sections' %}
-      <h1>{% trans 'Secciones de la asignatura' %}</h1>
+      <h2>{% trans 'Secciones de la asignatura' %}</h2>
       <ul class="settings-sections">
         {% for section in settings_sections %}
           <li><strong>{{ section.title }}</strong><span>{% if section.is_active %}{% trans 'Activa' %}{% else %}{% trans 'Inactiva' %}{% endif %}</span>{% if section.description %}<p>{{ section.description }}</p>{% endif %}</li>
@@ -15,7 +22,7 @@
       </ul>
       <a href="{% url 'lms:course_area' course_id=course.pk area='people' %}?tab=groups">{% trans 'Ver participantes por sección' %}</a>
     {% else %}
-      <div class="settings-heading"><h1>{% trans 'Detalles de la asignatura' %}</h1><span class="status {% if course.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ course.get_status_display }}</span></div>
+      <div class="settings-heading"><h2>{% trans 'Detalles de la asignatura' %}</h2><span class="status {% if course.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ course.get_status_display }}</span></div>
       <form method="post" enctype="multipart/form-data" class="settings-form" novalidate>
         {% csrf_token %}
         {% if settings_form.non_field_errors %}<div class="form-errors" role="alert">{{ settings_form.non_field_errors }}</div>{% endif %}

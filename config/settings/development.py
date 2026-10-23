@@ -3,12 +3,39 @@ from .base import *  # noqa
 
 DEBUG = True
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv(
+            "POSTGRES_DB",
+            "ntec_db",
+        ),
+        "USER": os.getenv(
+            "POSTGRES_USER",
+            "ntec_user",
+        ),
+        "PASSWORD": os.getenv(
+            "POSTGRES_PASSWORD",
+            "",
+        ),
+        "HOST": os.getenv(
+            "POSTGRES_HOST",
+            "localhost",
+        ),
+        "PORT": os.getenv(
+            "POSTGRES_PORT",
+            "5433",
+        ),
     }
 }
+
 
 # Use console backend in dev so emails appear in the terminal
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

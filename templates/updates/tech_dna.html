@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ section_title }} · {{ actualizacion.titulo }}{% endblock %}
+{% block page_title %}{{ section_title }}{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+{% endblock %}
+{% block content %}
+<main class="billing-app container py-4">
+  <header class="billing-hero mb-4">
+    <div>
+      <p class="billing-eyebrow">{{ section_title }} · {{ actualizacion.referencia }}</p>
+      <h1>{{ actualizacion.titulo }}</h1>
+      <p>{{ actualizacion.get_estado_display }}</p>
+    </div>
+  </header>
+  <section class="card shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <h2 class="h5">Información de la actualización</h2>
+      <div>{{ actualizacion.descripcion|linebreaks }}</div>
+      <dl class="row mt-4 mb-0">
+        <dt class="col-sm-4">Fecha de inicio</dt>
+        <dd class="col-sm-8"><time datetime="{{ actualizacion.fecha_inicio|date:'Y-m-d' }}">{{ actualizacion.fecha_inicio|date:'d/m/Y' }}</time></dd>
+        <dt class="col-sm-4">Fecha de fin prevista</dt>
+        <dd class="col-sm-8"><time datetime="{{ actualizacion.fecha_fin|date:'Y-m-d' }}">{{ actualizacion.fecha_fin|date:'d/m/Y' }}</time></dd>
+      </dl>
+    </div>
+  </section>
+</main>
+{% endblock %}

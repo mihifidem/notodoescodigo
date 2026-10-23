@@ -197,6 +197,11 @@ class DashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
 class StudentDashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
     template_name = 'lms/student_dashboard.html'
 
+    def get(self, request, *args, **kwargs):
+        if CourseMembership.objects.filter(user=request.user, course__lms_settings__campus_enabled=True).exists():
+            return redirect('lms:campus')
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_base_context())
@@ -333,6 +338,11 @@ class StudentDashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
 
 class TeacherDashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
     template_name = 'lms/teacher_dashboard.html'
+
+    def get(self, request, *args, **kwargs):
+        if teacher_memberships(request.user).filter(course__lms_settings__campus_enabled=True).exists():
+            return redirect('lms:campus_teaching')
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -973,6 +983,13 @@ class CourseDetailView(CourseContextMixin, DetailView):
     context_object_name = 'course'
     template_name = 'lms/course_detail.html'
 
+    def get(self, request, *args, **kwargs):
+        course = get_object_or_404(Curso, pk=kwargs['course_id'])
+        from .campus import campus_settings
+        if campus_settings(course) and not can_edit_course(request.user, course):
+            return redirect('lms:campus_course', course_id=course.pk)
+        return super().get(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
         return self.get_course()
 
@@ -1090,14 +1107,26 @@ class CourseAreaView(CourseContextMixin, DetailView):
         teacher_view = can_edit_course(self.request.user, course)
         if not teacher_view and area_key not in STUDENT_AREA_KEYS:
             raise PermissionDenied
+        from .campus import campus_settings
+        if campus_settings(course) and teacher_view and area_key in ('people', 'grades', 'analytics', 'reports'):
+            assignment = CourseMembership.objects.filter(
+                course=course, user=self.request.user, status=CourseMembership.Status.ACTIVE,
+            ).first()
+            if assignment and assignment.section_id:
+                raise PermissionDenied(_('Consulta solo tus alumnos asignados en Mis grupos docentes.'))
         if not teacher_view and not is_course_member(self.request.user, course):
             raise PermissionDenied
         self.area = next(item for item in COURSE_AREAS if item[0] == area_key)
         return course
 
     def get(self, request, *args, **kwargs):
+        course = self.get_course()
+        from .campus import campus_settings
+        if campus_settings(course) and not can_edit_course(request.user, course) and kwargs['area'] in (
+            'content', 'activities', 'quizzes', 'files', 'syllabus', 'pages',
+        ):
+            return redirect('lms:campus_course', course_id=course.pk)
         if self.kwargs['area'] == 'pages':
-            course = self.get_object()
             return redirect('lms:course_pages', course_id=course.pk)
         response = super().get(request, *args, **kwargs)
         if self.kwargs['area'] == 'grades' and request.GET.get('export') == 'csv':
@@ -1238,6 +1267,8 @@ class CourseAreaView(CourseContextMixin, DetailView):
                 question_count=Count('questions'),
                 review_count=Count('questions', filter=Q(questions__current_version__metadata__has_key='csv_review')),
             )
+            from .selectors import group_question_banks
+            context['question_bank_groups'] = group_question_banks(context['question_banks'])
         elif area_key == 'activities':
             from .activity_workflow import activity_state, feedback_visible
             context['area_message'] = gettext('Actividades de aprendizaje, instrucciones y fechas de entrega.')
@@ -1246,6 +1277,10 @@ class CourseAreaView(CourseContextMixin, DetailView):
                 if not is_course_member(self.request.user, self.object):
                     raise PermissionDenied
                 activities = activities.exclude(status=LearningActivity.Status.DRAFT)
+                from .campus import campus_settings
+                if campus_settings(self.object):
+                    from .activity_workflow import can_read_activity
+                    activities = [activity for activity in activities if can_read_activity(self.request.user, activity)]
             context['learning_activities'] = activities
             for activity in activities:
                 activity.display_state = {
@@ -1281,6 +1316,12 @@ class CourseAreaView(CourseContextMixin, DetailView):
             practical_activities = LearningActivity.objects.filter(course=self.object, is_evaluable=True)
             if not context['teacher_view']:
                 practical_activities = practical_activities.exclude(status=LearningActivity.Status.DRAFT)
+                from .campus import campus_settings
+                if campus_settings(self.object):
+                    from .activity_workflow import can_read_activity
+                    practical_activities = [
+                        activity for activity in practical_activities if can_read_activity(self.request.user, activity)
+                    ]
             context['practical_activities'] = practical_activities
             quizzes = Quiz.objects.filter(course=self.object).annotate(
                 question_count=Count('questions', distinct=True),
@@ -1680,6 +1721,8 @@ class CourseFileDownloadView(LoginRequiredMixin, View):
             filename=asset.file_name or asset.title,
         )
         response['Content-Type'] = asset.mime_type or 'application/octet-stream'
+        response['Cache-Control'] = 'private, no-store'
+        response['X-Content-Type-Options'] = 'nosniff'
         from .module_progression import record_open
         record_open(asset, request.user)
         if inline_mode:
@@ -2246,6 +2289,7 @@ class CoursePagesListView(LoginRequiredMixin, CoursePageMixin, TemplateView):
                 page for page in pages
                 if page.visibility != Page.Visibility.TEACHERS
                 and page.is_currently_published()
+                and page.user_can_view(self.request.user)
             ]
         if query and teacher_view:
             pages = pages.filter(title__icontains=query)

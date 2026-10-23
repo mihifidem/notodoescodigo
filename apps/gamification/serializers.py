@@ -3,9 +3,36 @@ from .models import Insignia, InsigniaUsuario, Logro, LogroUsuario, Mision, Misi
 
 
 class InsigniaSerializer(serializers.ModelSerializer):
+    current_version = serializers.SerializerMethodField()
+
     class Meta:
         model = Insignia
-        fields = ['id', 'nombre', 'descripcion', 'imagen', 'tipo', 'requisito_valor', 'visible']
+        fields = [
+            'id',
+            'code',
+            'nombre',
+            'descripcion',
+            'imagen',
+            'tipo',
+            'category',
+            'issuer_name',
+            'requisito_valor',
+            'visible',
+            'current_version',
+        ]
+
+    def get_current_version(self, obj):
+        from .badge_services import current_badge_version
+
+        version = current_badge_version(obj)
+        if version is None:
+            return None
+        return {
+            'version': version.version,
+            'rule_type': version.rule_type,
+            'requirements': version.public_requirements,
+            'threshold': version.threshold,
+        }
 
 
 class InsigniaUsuarioSerializer(serializers.ModelSerializer):
@@ -13,7 +40,7 @@ class InsigniaUsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InsigniaUsuario
-        fields = ['id', 'insignia', 'fecha_obtenida']
+        fields = ['id', 'insignia', 'fecha_obtenida', 'achieved_at', 'issuer_name', 'status']
 
 
 class LogroSerializer(serializers.ModelSerializer):

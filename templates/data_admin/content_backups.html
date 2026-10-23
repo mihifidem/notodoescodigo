@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Copias de seguridad de contenido{% endblock %}
+{% block content %}
+<main class="container py-4" aria-labelledby="backups-title">
+  <h1 id="backups-title" class="h3">Copias de seguridad JSON</h1>
+  <p>Administración de prompts, blog y enlaces. Descarga una copia antes de restaurar datos.</p>
+  <div class="alert alert-info">
+    Las copias contienen contenido y sus categorías y etiquetas, incluidas sus relaciones.
+    No incluyen cuentas, contraseñas, lecturas, valoraciones, accesos ni puntos.
+    Las imágenes se guardan como rutas: los archivos físicos deben copiarse aparte.
+    Guarda estos JSON en un lugar privado: pueden contener contenido no publicado o restringido.
+  </div>
+  <div class="row g-3 mb-4">
+    {% for section in sections %}
+    <div class="col-12 col-md-4">
+      <section class="card h-100"><div class="card-body">
+        <h2 class="h5">{{ section.name }}</h2>
+        <p>Descarga el contenido de esta sección en un archivo JSON.</p>
+        <form method="post" action="{% url 'data_admin:content_backup_download' section.key %}">
+          {% csrf_token %}<button class="btn btn-primary" type="submit">Descargar copia de {{ section.name }}</button>
+        </form>
+      </div></section>
+    </div>
+    {% endfor %}
+  </div>
+  <section class="card"><div class="card-body">
+    <h2 class="h4">Cargar copia y restaurar</h2>
+    <p>Selecciona la misma sección que contiene el JSON. Se actualizan las filas con el mismo ID y se insertan las que faltan; no se borran filas adicionales. Las relaciones de etiquetas de las filas restauradas se recuperan desde la copia.</p>
+    <p>Solo se admiten copias de este formato y esquema, de hasta 10 MB y 10.000 filas. Deben proceder de esta misma instalación: un ID coincidente de otra base podría sobrescribir contenido distinto. Las referencias a usuarios deben existir.</p>
+    <p>Si algún registro no es válido, se revierte toda la restauración. No se conceden puntos ni se modifica la actividad de usuarios.</p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-warning" type="submit">Cargar backup y restaurar sección</button>
+    </form>
+  </div></section>
+  <a class="btn btn-link mt-3" href="{% url 'users:dashboard' %}">Volver a mi dashboard</a>
+</main>
+{% endblock %}

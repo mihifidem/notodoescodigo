@@ -10,7 +10,7 @@ from django.views import View
 
 from apps.courses.models import Tema
 from .forms import FormativeUnitForm, ModuleContentBatchForm, ModuleContentForm, ModuleScheduleForm
-from .models import AuditEvent, FormativeUnit, ModuleContent, ModuleContentProgress, ModuleSchedule
+from .models import AuditEvent, CourseMembership, FormativeUnit, ModuleContent, ModuleContentProgress, ModuleSchedule
 from .module_progression import content_lock_reason
 from .policies import can_edit_course, is_course_member
 from .views import CourseContextMixin
@@ -148,6 +148,12 @@ class ModuleContentCompleteView(CourseContextMixin, View):
             raise PermissionDenied(reason)
         if not is_course_member(request.user, course) or can_edit_course(request.user, course) or item.criterion != ModuleContent.Criterion.MANUAL:
             raise PermissionDenied(_('Este contenido no admite finalización manual para este usuario.'))
+        from .campus import campus_settings
+        if campus_settings(course) and not CourseMembership.objects.filter(
+            course=course, user=request.user, role=CourseMembership.Role.STUDENT,
+            status__in=(CourseMembership.Status.ACTIVE, CourseMembership.Status.COMPLETED),
+        ).exists():
+            raise PermissionDenied(_('Solo el alumnado puede registrar finalización.'))
         progress = ModuleContentProgress.objects.filter(content=item, user=request.user, opened_at__isnull=False).first()
         if not progress:
             messages.error(request, _('Abre el contenido antes de marcarlo como completado.'))
@@ -156,4 +162,6 @@ class ModuleContentCompleteView(CourseContextMixin, View):
                 progress.completed_at = timezone.now()
                 progress.save(update_fields=['completed_at'])
             messages.success(request, _('Contenido completado.'))
+        if campus_settings(course):
+            return redirect('lms:campus_course', course_id=course.pk)
         return redirect('lms:course_area', course_id=course.pk, area='content')

@@ -26,17 +26,18 @@
       {% if row.reason %}<p class="module-lock-message" role="status">{{ row.reason }}</p>
       {% else %}
         {% for unit_row in row.units %}
-        <section class="formative-unit" aria-labelledby="unit-title-{{ unit_row.unit.pk }}">
-          <div class="formative-unit-heading">
+        <details class="formative-unit" aria-labelledby="unit-title-{{ unit_row.unit.pk }}">
+          <summary class="formative-unit-heading">
             <h3 id="unit-title-{{ unit_row.unit.pk }}">{{ unit_row.unit.title }}</h3>
+          </summary>
+          <div class="formative-unit-body">
             {% if teacher_view %}
-            <div class="learning-module-tools">
+            <div class="learning-module-tools formative-unit-actions">
               <a href="{% url 'lms:formative_unit_contents' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}?panel=content" data-content-panel data-panel-title="{% trans 'Añadir recursos a la unidad' %}">{% trans 'Añadir recursos' %}</a>
               <a href="{% url 'lms:formative_unit_edit' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}" data-content-panel data-panel-title="{% trans 'Editar unidad formativa' %}">{% trans 'Editar unidad' %}</a>
               <a href="{% url 'lms:formative_unit_contents' course_id=course.pk module_id=row.module.pk unit_id=unit_row.unit.pk %}">{% trans 'Gestionar recursos' %}</a>
             </div>
             {% endif %}
-          </div>
           {% if unit_row.unit.description %}<p class="formative-unit-description">{{ unit_row.unit.description|linebreaksbr }}</p>{% endif %}
         {% for item in unit_row.items %}
           <div class="learning-content-row{% if item.published %} is-published{% endif %}{% if item.reason %} is-locked{% endif %}">
@@ -57,7 +58,8 @@
             {% endif %}
           </div>
         {% empty %}<p class="module-empty">{% trans 'No hay recursos en esta unidad formativa.' %}</p>{% endfor %}
-        </section>
+          </div>
+        </details>
         {% empty %}<p class="module-empty">{% trans 'Todavía no hay unidades formativas con recursos disponibles.' %}</p>{% endfor %}
         <div class="module-open-link"><a href="{% url 'courses:tema_detail' row.module.pk %}">{% trans 'Abrir módulo' %}</a></div>
       {% endif %}

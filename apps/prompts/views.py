@@ -3,12 +3,15 @@ import re
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import IntegrityError, transaction
 from django.db.models import Avg, Count, Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
+
+from apps.users.access import can
 
 from .forms import PromptForm
 from .models import (
@@ -28,15 +31,11 @@ from .models import (
 def _es_premium(usuario):
     if not usuario.is_authenticated:
         return False
-    return usuario.is_staff or getattr(usuario, 'role', None) == 'premium'
+    return can(usuario, 'view_plan_content', required_plan='pro').allowed
 
 
 def _es_registrado_valido(usuario):
-    if not usuario.is_authenticated:
-        return False
-    if usuario.is_staff:
-        return True
-    return getattr(usuario, 'role', '') in {'alumno', 'basic', 'freemium', 'premium'}
+    return can(usuario, 'view_registered_content').allowed
 
 
 def _puede_ver_prompt(usuario, prompt):
@@ -305,7 +304,13 @@ class PromptCreateView(AdminPromptRequiredMixin, CreateView):
     success_url = '/prompts/'
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        try:
+            with transaction.atomic():
+                form.create_taxonomy()
+                response = super().form_valid(form)
+        except IntegrityError:
+            form.add_error(None, 'No se ha guardado el prompt por un conflicto de datos. Comprueba si la categoría o subcategoría ya existe y vuelve a intentarlo.')
+            return self.form_invalid(form)
         messages.success(self.request, 'Prompt creado correctamente.')
         return response
 

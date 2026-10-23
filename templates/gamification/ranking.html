@@ -1,71 +1,137 @@
 {% extends 'base.html' %}
-{% block title %}Ranking — MihiTraining{% endblock %}
-{% block page_title %}Ranking de Alumnos{% endblock %}
-
+{% load static %}
+{% block title %}Rankings — Ducky Me{% endblock %}
+{% block page_title %}Rankings públicos{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">{% endblock %}
 {% block content %}
-{% if mi_posicion %}
-<div class="alert alert-primary d-flex align-items-center gap-3 mb-4">
-  <i class="bi bi-trophy-fill fs-3 text-warning"></i>
-  <div>Tu posición actual en el ranking: <strong>#{{ mi_posicion }}</strong></div>
-</div>
-{% endif %}
+<main class="container-fluid px-3 px-lg-4 py-4 billing-app personal-tech" aria-labelledby="rankings-heading">
+  <header class="billing-hero mb-4">
+    <div>
+      <p class="billing-eyebrow">Retos · Comunidad · Evolución</p>
+      <h1 id="rankings-heading"><span>Rankings</span></h1>
+      <p>Cada clasificación utiliza una métrica y una temporada publicadas. Tu progreso personal no depende de participar.</p>
+    </div>
+    <div class="billing-plan-badge"><i class="bi bi-trophy" aria-hidden="true"></i><span>Participación<strong>Opcional</strong></span></div>
+  </header>
+  {% if messages %}
+    {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>{% endfor %}
+  {% endif %}
 
-<div class="card border-0 shadow-sm">
-  <div class="card-body p-0">
-    <table class="table table-hover mb-0">
-      <thead class="table-light">
-        <tr>
-          <th class="ps-4">#</th>
-          <th>Alumno</th>
-          <th>Nivel</th>
-          <th class="text-end">Puntos</th>
-          <th class="text-end pe-4">Racha</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for alumno in ranking %}
-        <tr {% if alumno == request.user %}class="table-primary"{% endif %}>
-          <td class="ps-4 fw-bold text-muted">
-            {% with forloop.counter as pos %}
-              {% if pos == 1 %}🥇{% elif pos == 2 %}🥈{% elif pos == 3 %}🥉{% else %}{{ pos }}{% endif %}
-            {% endwith %}
-          </td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              {% if alumno.avatar %}
-                <img src="{{ alumno.avatar.url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;" alt="">
-              {% else %}
-                <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" style="width:32px;height:32px;">
-                  <span class="text-white small fw-bold">{{ alumno.username|first|upper }}</span>
-                </div>
-              {% endif %}
-              <div>
-                <div class="fw-semibold small">{{ alumno.get_full_name|default:alumno.username }}</div>
-                <div class="text-muted" style="font-size:.7rem;">@{{ alumno.username }}</div>
-              </div>
+  {% if rankings %}
+    <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="ranking-select-title">
+      <div class="card-body">
+        <h2 id="ranking-select-title" class="h5 fw-bold">Clasificación disponible</h2>
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="ranking">Ranking</label>
+            <select class="form-select" id="ranking" name="ranking">
+              {% for ranking in rankings %}<option value="{{ ranking.slug }}" {% if selected_ranking.pk == ranking.pk %}selected{% endif %}>{{ ranking.name }}</option>{% endfor %}
+            </select>
+          </div>
+          {% if seasons %}
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="season">Temporada</label>
+              <select class="form-select" id="season" name="season">
+                {% for season in seasons %}<option value="{{ season.pk }}" {% if selected_season.pk == season.pk %}selected{% endif %}>{{ season.name }} · {{ season.get_status_display }}</option>{% endfor %}
+              </select>
             </div>
-          </td>
-          <td><span class="badge bg-secondary text-uppercase">{{ alumno.nivel }}</span></td>
-          <td class="text-end fw-bold text-warning">{{ alumno.puntos_totales }}</td>
-          <td class="text-end pe-4 text-danger"><i class="bi bi-fire me-1"></i>{{ alumno.streak }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+          {% endif %}
+          <div class="col-12 col-md-auto"><button class="btn btn-primary" type="submit">Consultar</button></div>
+        </form>
+      </div>
+    </section>
 
-{% if is_paginated %}
-<nav class="mt-4">
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+    {% if selected_ranking %}
+      <section class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <div>
+              <h2 class="h3 fw-bold">{{ selected_ranking.name }}</h2>
+              <p>{{ selected_ranking.description }}</p>
+              <p class="small text-muted mb-0">Métrica: {{ metric_label }} · Unidad: {{ selected_ranking.unit }} · Ámbito público · Empates comparten posición; alias solo, orden alfabético solo organiza la tabla.</p>
+            </div>
+            {% if selected_season %}
+              <div class="text-lg-end">
+                <span class="badge {% if selected_season.status == 'closed' %}text-bg-secondary{% else %}text-bg-success{% endif %}">{{ selected_season.get_status_display }}</span>
+                <div class="small mt-2">{{ selected_season.name }}: {{ selected_season.starts_on|date:'d M Y' }} – {{ selected_season.ends_on|date:'d M Y' }}</div>
+                {% if selected_season.calculated_at %}<div class="small text-muted">Calculado {{ selected_season.calculated_at|date:'d M Y, H:i' }}</div>{% endif %}
+              </div>
+            {% endif %}
+          </div>
+          {% if selected_season and selected_season.rule_version %}
+            <div class="alert alert-light border mt-3 mb-0">
+              <strong>Regla v{{ selected_season.rule_version.version }}:</strong> {{ selected_season.rule_version.formula_description }}
+              <div class="small text-muted mt-1">Solo se cuentan resultados confirmados dentro de las fechas de temporada; incidencias pendientes o excluidas no puntúan. Los reintentos no aplican a estas métricas de eventos únicos.</div>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      {% if request.user.is_authenticated and selected_season and can_manage_participation %}
+        <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="participation-title">
+          <div class="card-body">
+            <h2 id="participation-title" class="h5 fw-bold">Tu participación</h2>
+            {% if participation and participation.is_active %}
+              <p>Participas con el alias <strong>{{ participation.alias }}</strong>. En el ranking solo se publican ese alias y el número de {{ selected_ranking.unit }} de esta métrica.{% if selected_season.status == 'closed' %} Puedes retirar el consentimiento también para esta clasificación histórica.{% endif %}</p>
+              <form method="post" action="{% url 'gamification:ranking_participation' slug=selected_ranking.slug %}">
+                {% csrf_token %}<input type="hidden" name="enabled" value="false">
+                <button class="btn btn-outline-danger" type="submit">Salir de este ranking</button>
+              </form>
+              {% if can_join %}
+                <form method="post" action="{% url 'gamification:ranking_participation' slug=selected_ranking.slug %}" class="row g-2 mt-2">
+                  {% csrf_token %}<input type="hidden" name="enabled" value="true">
+                  <div class="col-12 col-md-5"><label class="form-label" for="alias">Cambiar alias público</label><input class="form-control" id="alias" name="alias" maxlength="40" required value="{{ participation.alias }}"></div>
+                  <div class="col-12 col-md-auto align-self-end"><button class="btn btn-outline-primary" type="submit">Guardar alias</button></div>
+                </form>
+              {% endif %}
+            {% elif can_join %}
+              <p>La participación es opcional. Si la activas, se mostrarán el alias que elijas y el resultado de esta métrica únicamente. No se publican correo, nombre, historial, resultados Nexus ni insignias.</p>
+              <form method="post" action="{% url 'gamification:ranking_participation' slug=selected_ranking.slug %}" class="row g-2 align-items-end">
+                {% csrf_token %}<input type="hidden" name="enabled" value="true">
+                <div class="col-12 col-md-5"><label class="form-label" for="alias">Alias público</label><input class="form-control" id="alias" name="alias" maxlength="40" required autocomplete="nickname"></div>
+                <div class="col-12 col-md-auto"><button class="btn btn-primary" type="submit">Participar voluntariamente</button></div>
+              </form>
+            {% endif %}
+          </div>
+        </section>
+      {% elif not request.user.is_authenticated %}
+        <p class="small text-muted">Como visitante puedes consultar este ranking público. No se crea un perfil ni se te añade a la clasificación.</p>
+      {% endif %}
+
+      {% if selected_season %}
+        {% if my_position %}<div class="alert alert-primary" role="status">Tu posición: <strong>{{ my_position }}</strong>. La posición compartida refleja solo puntuaciones iguales.</div>{% endif %}
+        <section class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+              <caption class="visually-hidden">Clasificación de {{ selected_ranking.name }}, temporada {{ selected_season.name }}</caption>
+              <thead><tr><th scope="col">Posición</th><th scope="col">Alias</th><th scope="col" class="text-end">Resultado ({{ selected_ranking.unit }})</th></tr></thead>
+              <tbody>
+                {% for row in ranking_rows %}
+                  <tr><th scope="row">{{ row.position }}</th><td>{{ row.alias }}</td><td class="text-end fw-semibold">{{ row.score }}</td></tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-center text-muted py-4">Aún no hay participantes activos o resultados verificados para esta temporada.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+          </div>
+        </section>
+        {% if is_paginated %}
+          <nav class="mt-3" aria-label="Paginación del ranking"><ul class="pagination">
+            {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?ranking={{ selected_ranking.slug }}&season={{ selected_season.pk }}&page={{ page_obj.previous_page_number }}">Anterior</a></li>{% endif %}
+            <li class="page-item active"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?ranking={{ selected_ranking.slug }}&season={{ selected_season.pk }}&page={{ page_obj.next_page_number }}">Siguiente</a></li>{% endif %}
+          </ul></nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-secondary" role="status">El ranking está configurado, pero no tiene una temporada pública activa o cerrada.</div>
+      {% endif %}
     {% endif %}
-    <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+  {% else %}
+    <section class="text-center py-5">
+      <i class="bi bi-trophy fs-1 text-muted" aria-hidden="true"></i>
+      <h2 class="h4 mt-3">No hay rankings publicados</h2>
+      <p class="text-muted">No se muestra una clasificación hasta que ADMIN publique su métrica, regla versionada y temporada.</p>
+    </section>
+  {% endif %}
+</main>
 {% endblock %}

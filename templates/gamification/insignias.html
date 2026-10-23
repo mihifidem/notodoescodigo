@@ -1,145 +1,225 @@
 {% extends 'base.html' %}
-{% block title %}Insignias — MihiTraining{% endblock %}
-{% block page_title %}Insignias{% endblock %}
+{% load static %}
+{% block title %}Mis logros e insignias — MihiTraining{% endblock %}
+{% block page_title %}Mis logros{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/badges.css' %}">{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    {% if user.is_staff %}
-      <h5 class="fw-bold mb-0">Todas las insignias</h5>
-      <small class="text-muted">
-        {{ total_insignias }} insignia{{ total_insignias|pluralize }}
-        {% if filtro_tipo_curso_id or filtro_curso_id %}<span class="badge bg-info text-dark ms-1">filtradas</span>{% endif %}
-      </small>
-    {% else %}
-      <h5 class="fw-bold mb-0">Tus insignias</h5>
-      <small class="text-muted">{{ total_obtenidas }} de {{ total_insignias }} desbloqueadas</small>
-    {% endif %}
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    {% if user.is_staff %}
-      <a href="{% url 'gamification:crear_insignia' %}" class="btn btn-sm btn-primary">
-        <i class="bi bi-patch-plus me-1"></i> Nueva insignia
-      </a>
-    {% else %}
-      <div class="progress" style="width:200px;height:12px;">
-        {% widthratio total_obtenidas total_insignias 100 as pct %}
-        <div class="progress-bar bg-warning" style="width:{{ pct }}%;"></div>
-      </div>
-    {% endif %}
-  </div>
-</div>
-
-{% if user.is_staff %}
-<form method="get" class="mb-4 p-3 bg-light rounded border">
-  <div class="row g-2 align-items-end">
-    <div class="col-sm-auto">
-      <label class="form-label small fw-semibold mb-1">Tipo de curso</label>
-      <select name="tipo_curso" class="form-select form-select-sm">
-        <option value="">Todos los tipos</option>
-        {% for tc in tipos_curso %}
-          <option value="{{ tc.id }}" {% if filtro_tipo_curso_id == tc.id|stringformat:"s" %}selected{% endif %}>{{ tc.nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-sm-auto">
-      <label class="form-label small fw-semibold mb-1">Curso</label>
-      <select name="curso" class="form-select form-select-sm">
-        <option value="">Todos los cursos</option>
-        {% for c in cursos %}
-          <option value="{{ c.id }}" {% if filtro_curso_id == c.id|stringformat:"s" %}selected{% endif %}>
-            {{ c.nombre }}{% if c.tipo_curso %} — {{ c.tipo_curso.nombre }}{% endif %}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-sm-auto">
-      <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel me-1"></i>Filtrar</button>
-      <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
-    </div>
-  </div>
-</form>
-{% endif %}
-
-<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
-  {% if insignias_con_estado %}
-    {% for insignia, obtenida in insignias_con_estado %}
-  <div class="col">
-    <div class="card border-0 shadow-sm text-center p-3 h-100 insignia-card {% if not obtenida %}insignia-bloqueada{% endif %}">
-      {% if insignia.imagen %}
-        <img src="{{ insignia.imagen.url }}" class="rounded-circle mx-auto mb-2 insignia-avatar {% if not obtenida %}grayscale{% endif %}" width="148" height="148" style="object-fit:cover;" alt="{{ insignia.nombre }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-        <div class="rounded-circle align-items-center justify-content-center mx-auto mb-2 insignia-fallback {% if obtenida %}bg-primary{% else %}bg-secondary{% endif %}" style="width:148px;height:148px;display:none;">
-          <i class="bi bi-award text-white fs-1"></i>
-        </div>
+<main class="container-fluid px-3 px-lg-4 py-4 billing-app badges-app" aria-labelledby="badges-heading">
+  <header class="billing-hero mb-3">
+    <div>
+      <p class="billing-eyebrow">Aprende · Avanza · Destaca</p>
+      <h1 id="badges-heading">Mis logros e <span>insignias</span></h1>
+      {% if is_visitor %}
+        <p>Catálogo público de distintivos internos de la plataforma. No son certificaciones oficiales externas.</p>
       {% else %}
-        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-2
-                    {% if obtenida %}bg-primary{% else %}bg-secondary{% endif %}"
-             style="width:148px;height:148px;">
-           <i class="bi bi-award text-white fs-1"></i>
-        </div>
-      {% endif %}
-      <div class="fw-semibold small">{{ insignia.nombre }}</div>
-      <div class="text-muted" style="font-size:.72rem;">{{ insignia.descripcion|truncatewords:12 }}</div>
-      {% if obtenida %}
-        <span class="badge bg-success mt-2">✓ Desbloqueada</span>
-      {% else %}
-        <span class="badge bg-secondary mt-2">Bloqueada</span>
+        <p>{{ total_vigentes }} insignia{{ total_vigentes|pluralize }} vigente{{ total_vigentes|pluralize }} en tu colección.</p>
       {% endif %}
     </div>
-  </div>
-    {% endfor %}
-  {% else %}
-    <div class="col-12">
-      <div class="text-center py-5 text-muted">
-        <i class="bi bi-award fs-1 d-block mb-3 opacity-50"></i>
-        {% if user.is_staff %}
-          <p class="mb-0">No hay insignias que coincidan con los filtros seleccionados.</p>
-        {% else %}
-          <p class="mb-0">Aún no estás inscrito en ningún curso.<br>
-            <a href="{% url 'courses:list' %}" class="text-decoration-none">Explora el catálogo</a> para descubrir insignias disponibles.
-          </p>
+    <div class="billing-plan-badge">
+      <i class="bi bi-award" aria-hidden="true"></i>
+      {% if is_visitor %}<span>Descubre el catálogo<strong>Logros</strong></span>
+      {% else %}<span>Insignias vigentes<strong>{{ total_vigentes }}</strong></span>{% endif %}
+    </div>
+  </header>
+    <nav class="badges-actions d-flex flex-wrap gap-2 mb-3" aria-label="Acciones de insignias">
+      {% if user.is_authenticated %}
+        <a class="btn btn-outline-primary" href="{% url 'users:dashboard' %}">Volver a Ducky Me</a>
+        {% if can_manage_catalog %}
+          <a class="btn btn-primary" href="{% url 'gamification:crear_insignia' %}">Crear insignia o propuesta</a>
         {% endif %}
-      </div>
-    </div>
+        {% if can_manage_global_catalog %}
+          <a class="btn btn-outline-secondary" href="{% url 'gamification:auditoria_insignias' %}">Auditoría</a>
+        {% endif %}
+        <a class="btn btn-outline-secondary" href="{% url 'gamification:coleccion_publica' username=user.username %}">Ver mi colección pública</a>
+      {% else %}
+        <a class="btn btn-primary" href="{% url 'users:registro' %}?next={{ request.path|urlencode }}">Crear cuenta FREE</a>
+        <a class="btn btn-outline-primary" href="{{ login_url }}">Iniciar sesión</a>
+      {% endif %}
+    </nav>
+  <p class="badges-notice"><i class="bi bi-shield-check" aria-hidden="true"></i> Distintivos internos, no certificaciones oficiales. {% if is_visitor %}El catálogo público no muestra el progreso privado de otras personas.{% else %}Tú eliges qué insignias mostrar en tu colección pública.{% endif %}</p>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
+    {% endfor %}
   {% endif %}
-</div>
-{% endblock %}
 
-{% block extra_css %}
-<style>
-  .grayscale { filter: grayscale(100%); }
+  <section class="card badges-filters mb-4" aria-labelledby="filters-title">
+    <div class="card-body p-3">
+      <h2 id="filters-title" class="h6 fw-bold">Filtrar colección y catálogo</h2>
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="q">Buscar</label>
+          <input class="form-control" type="search" id="q" name="q" value="{{ selected_search }}" placeholder="Nombre o descripción">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="category">Categoría</label>
+          <select class="form-select" id="category" name="category">
+            <option value="">Todas</option>
+            {% for value, label in categories %}
+              <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if user.is_authenticated %}
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="origin">Origen</label>
+            <select class="form-select" id="origin" name="origin">
+              <option value="">Todos</option>
+              {% for value, label in origin_choices %}
+                <option value="{{ value }}" {% if selected_origin == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label" for="from">Desde</label>
+            <input class="form-control" type="date" id="from" name="from" value="{{ selected_from }}">
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label" for="to">Hasta</label>
+            <input class="form-control" type="date" id="to" name="to" value="{{ selected_to }}">
+          </div>
+          {% if show_history %}<input type="hidden" name="history" value="1">{% endif %}
+        {% endif %}
+        <div class="col-12 col-md-auto">
+          <button class="btn btn-primary" type="submit">Aplicar</button>
+          <a class="btn btn-outline-secondary" href="{% url 'gamification:insignias' %}{% if show_history %}?history=1{% endif %}">Limpiar</a>
+        </div>
+      </form>
+      {% if user.is_authenticated %}
+        <form method="get" class="mt-3">
+          <input type="hidden" name="category" value="{{ selected_category }}">
+          <input type="hidden" name="q" value="{{ selected_search }}">
+          <input type="hidden" name="origin" value="{{ selected_origin }}">
+          <input type="hidden" name="from" value="{{ selected_from }}">
+          <input type="hidden" name="to" value="{{ selected_to }}">
+          {% if show_history %}
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Ocultar concesiones revocadas</button>
+          {% else %}
+            <input type="hidden" name="history" value="1">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Incluir concesiones revocadas en mi historial privado</button>
+          {% endif %}
+        </form>
+      {% endif %}
+    </div>
+  </section>
 
-  .insignia-card {
-    border: 1px solid rgba(15, 23, 42, 0.08);
-  }
-
-  .insignia-avatar {
-    border: 2px solid rgba(15, 23, 42, 0.08);
-  }
-
-  .insignia-bloqueada {
-    opacity: 0.78;
-  }
-
-  [data-bs-theme="dark"] .insignia-card {
-    background: #111827;
-    border-color: rgba(148, 163, 184, 0.24);
-  }
-
-  [data-bs-theme="dark"] .insignia-avatar {
-    border-color: rgba(148, 163, 184, 0.35);
-  }
-
-  [data-bs-theme="dark"] .insignia-bloqueada {
-    opacity: 0.9;
-  }
-
-  .insignia-fallback {
-    border: 2px solid rgba(15, 23, 42, 0.08);
-  }
-
-  [data-bs-theme="dark"] .insignia-fallback {
-    border-color: rgba(148, 163, 184, 0.35);
-  }
-</style>
+  {% if badge_cards %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 badges-grid">
+      {% for item in badge_cards %}
+        <div class="col">
+          <article class="card h-100 badges-card">
+            <div class="card-body p-4 d-flex flex-column">
+              <div class="d-flex align-items-start gap-3">
+                {% if item.badge.imagen %}
+                  <img src="{{ item.badge.imagen.url }}" width="64" height="64" class="rounded-circle border flex-shrink-0" style="object-fit:cover" alt="{{ item.badge.texto_alternativo|default:item.badge.nombre }}">
+                {% else %}
+                  <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:64px;height:64px" role="img" aria-label="{{ item.badge.nombre }}">
+                    <i class="bi bi-award fs-3" aria-hidden="true"></i>
+                  </div>
+                {% endif %}
+                <div class="min-w-0">
+                  <h2 class="h5 fw-bold mb-1"><a href="{{ item.detail_url }}" class="text-decoration-none">{{ item.badge.nombre }}</a></h2>
+                  <div class="small text-muted">{{ item.badge.get_category_display }} · Emite: {{ item.badge.issuer_name }}</div>
+                </div>
+              </div>
+              <p class="text-muted small mt-3">{{ item.badge.descripcion|truncatewords:30 }}</p>
+              {% if item.progress.status == 'earned' or item.progress.status == 'valid' %}
+                <p class="mb-2"><span class="badge text-bg-success">Vigente · Obtenida</span></p>
+                {% if item.progress.award.fecha_obtenida %}
+                  <p class="small text-muted">Registrada el {{ item.progress.award.fecha_obtenida|date:'d M Y' }}{% if item.progress.award.achieved_at %}; conseguida el {{ item.progress.award.achieved_at|date:'d M Y' }}{% endif %}</p>
+                {% endif %}
+                {% if item.progress.award.origin %}<p class="small text-muted mb-2">Origen: {{ item.progress.award.get_origin_display }}</p>{% endif %}
+                {% if user.is_authenticated %}
+                  <form method="post" action="{% url 'gamification:visibilidad_insignia' pk=item.progress.award.pk %}" class="mt-auto">
+                    {% csrf_token %}
+                    <input type="hidden" name="is_public" value="{% if item.progress.award.is_public %}false{% else %}true{% endif %}">
+                    <button class="btn btn-sm {% if item.progress.award.is_public %}btn-outline-secondary{% else %}btn-outline-primary{% endif %}" type="submit">
+                      {% if item.progress.award.is_public %}Retirar del perfil público{% else %}Mostrar en mi colección pública{% endif %}
+                    </button>
+                  </form>
+                {% endif %}
+              {% elif item.progress.status == 'revoked' %}
+                <p class="mb-2"><span class="badge text-bg-danger">Revocada</span></p>
+                {% if item.progress.award.revocation_reason %}<p class="small text-muted">{{ item.progress.award.revocation_reason }}</p>{% endif %}
+              {% elif item.progress.status == 'eligible' %}
+                <p class="mb-2"><span class="badge text-bg-info">Requisito cumplido · pendiente de registro</span></p>
+                <p class="small text-muted">La concesión queda vigente cuando se registra el evento verificado del módulo.</p>
+              {% elif item.progress.status == 'in_progress' %}
+                <p class="mb-2"><span class="badge text-bg-info">En progreso</span></p>
+                {% if item.progress.current is not None %}
+                  <p class="small mb-2">Avance verificable: {{ item.progress.current }} / {{ item.progress.target }}</p>
+                  {% if item.progress.percent is not None %}
+                    <div class="progress mb-2" style="height:8px" role="progressbar" aria-label="Progreso de {{ item.badge.nombre }}" aria-valuenow="{{ item.progress.percent }}" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-bar" style="width:{{ item.progress.percent }}%"></div>
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <p class="small text-muted">La condición se comprueba al completar la actividad.</p>
+                {% endif %}
+              {% elif item.progress.status == 'pending' %}
+                <p class="mb-2"><span class="badge text-bg-secondary">Pendiente</span></p>
+                {% if item.progress.current is not None %}
+                  <p class="small mb-2">Avance verificable: {{ item.progress.current }} / {{ item.progress.target }}</p>
+                  {% if item.progress.percent is not None %}
+                    <div class="progress mb-2" style="height:8px" role="progressbar" aria-label="Progreso de {{ item.badge.nombre }}" aria-valuenow="{{ item.progress.percent }}" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-bar" style="width:{{ item.progress.percent }}%"></div>
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <p class="small text-muted">Requisito binario: consulta la condición antes de continuar.</p>
+                {% endif %}
+              {% elif item.progress.status == 'not_calculable' or item.progress.status == 'not_available' %}
+                <p class="mb-2"><span class="badge text-bg-warning">Progreso no calculable</span></p>
+                <p class="small text-muted">La fuente o el requisito todavía no permiten calcular tu avance.</p>
+              {% endif %}
+              {% if item.progress.version %}
+                <p class="small text-muted mt-auto">Requisitos v{{ item.progress.version.version }}: {{ item.progress.version.public_requirements }}</p>
+              {% endif %}
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <a class="btn btn-sm btn-outline-primary" href="{{ item.detail_url }}">Ver detalle</a>
+                {% if item.progress.action_url and item.progress.status != 'earned' %}
+                  <a class="btn btn-sm btn-primary" href="{{ item.progress.action_url }}">Continuar actividad</a>
+                {% endif %}
+                {% if can_manage_catalog %}
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'gamification:editar_insignia' pk=item.badge.pk %}">Editar</a>
+                  {% if can_manage_global_catalog and item.badge.status != 'published' and item.badge.status != 'archived' %}
+                    <form method="post" action="{% url 'gamification:estado_insignia' pk=item.badge.pk action='publish' %}">
+                      {% csrf_token %}<button class="btn btn-sm btn-outline-success" type="submit">Publicar</button>
+                    </form>
+                  {% endif %}
+                  {% if item.badge.issue_method == 'manual' and item.badge.status == 'published' %}
+                    <a class="btn btn-sm btn-outline-success" href="{% url 'gamification:conceder_insignia' pk=item.badge.pk %}">Conceder</a>
+                  {% endif %}
+                  {% if item.badge.status != 'archived' %}
+                    <form method="post" action="{% url 'gamification:estado_insignia' pk=item.badge.pk action='archive' %}">
+                      {% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Archivar</button>
+                    </form>
+                  {% endif %}
+                {% endif %}
+              </div>
+              {% if item.progress.award and can_manage_catalog %}
+                <a class="btn btn-sm btn-outline-danger mt-2" href="{% url 'gamification:revocar_insignia' pk=item.progress.award.pk %}">Revocar concesión</a>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="text-center py-5 badges-empty" aria-labelledby="empty-title">
+      <i class="bi bi-award fs-1 text-primary" aria-hidden="true"></i>
+      <h2 id="empty-title" class="h4 mt-3">Aún no hay insignias para mostrar</h2>
+      {% if is_visitor %}
+        <p class="text-muted">El catálogo público no tiene distintivos publicados en este momento.</p>
+      {% elif show_history %}
+        <p class="text-muted">No hay concesiones que coincidan con estos filtros.</p>
+      {% else %}
+        <p class="text-muted">Completa actividades verificables para descubrir logros. Tus avances se comprobarán desde los módulos de origen.</p>
+        <a class="btn btn-primary" href="{% url 'courses:list' %}">Explorar cursos</a>
+      {% endif %}
+    </section>
+  {% endif %}
+</main>
 {% endblock %}

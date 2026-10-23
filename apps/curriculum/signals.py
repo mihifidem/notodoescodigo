@@ -5,7 +5,7 @@ Awards gamification points the FIRST time each CV section is completed.
 The points come from the awards catalog model, so the values are centralized
 and read from Seccion.puntos_base instead of being duplicated in this file.
 """
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 
 from apps.rewards.models import Seccion
@@ -13,6 +13,7 @@ from .models import (
     PersonalInfo, ProfessionalProfile, SocialNetwork, OtherInfo,
     WorkExperience, Education, ComplementaryTraining, Skill, Language,
     Project, Achievement, Volunteering, Interest,
+    CoverLetter, LetterGeneration, LetterOffer,
 )
 
 NOMBRES_SECCION = {
@@ -166,3 +167,13 @@ def on_volunteering_saved(sender, instance, created, **kwargs):
 def on_interest_saved(sender, instance, created, **kwargs):
     if created and instance.cv.interests.count() == 1:
         _award_cv_points(instance.cv.user, 'intereses')
+
+
+@receiver(pre_delete, sender=CoverLetter)
+def clear_deleted_letter_snapshot(sender, instance, using, **kwargs):
+    LetterGeneration.objects.using(using).filter(letter_id=instance.pk).update(input_snapshot={})
+
+
+@receiver(post_delete, sender=CoverLetter)
+def remove_deleted_letter_offer(sender, instance, using, **kwargs):
+    LetterOffer.objects.using(using).filter(pk=instance.offer_id).delete()

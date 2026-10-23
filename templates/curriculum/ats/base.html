@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Verificar CV — Ducky Profile{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">{% endblock %}
+{% block content %}
+<div class="container py-4 billing-app personal-tech" style="max-width:1100px">
+  {% block ats_hero %}{% endblock %}
+  <nav aria-label="Verificar CV" class="billing-nav">
+    <a href="{% url 'curriculum:ats_list' %}">Mis análisis</a>
+    <a href="{% url 'curriculum:ats_new' %}">Nuevo análisis</a>
+    <a href="{% url 'curriculum:ats_compare' %}">Comparar versiones</a>
+    <a href="{% url 'curriculum:ats_demo' %}">Demo ficticia</a>
+  </nav>
+  <p class="alert alert-info">Revisión orientativa. No certifica superar un ATS ni garantiza entrevistas o contratación.</p>
+  {% block ats_content %}{% endblock %}
+</div>
+<style>
+  .personal-tech .ats-form input:not([type="checkbox"]):not([type="hidden"]), .personal-tech .ats-form select, .personal-tech .ats-form textarea { width:100%; max-width:100%; }
+  .personal-tech .ats-form :focus-visible { outline:3px solid #2563eb; outline-offset:3px; }
+  .personal-tech pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+</style>
+<script>
+(() => {
+  const form = document.querySelector('[data-ats-editor]');
+  if (!form) return;
+  let dirty = form.dataset.unsaved === 'true';
+  form.addEventListener('input', () => { dirty = true; });
+  form.addEventListener('submit', () => {
+    dirty = false;
+    form.setAttribute('aria-busy', 'true');
+    form.querySelector('button[type="submit"]').disabled = true;
+    form.querySelector('[data-submit-status]').textContent = 'Procesando comprobaciones locales…';
+  });
+  window.addEventListener('beforeunload', event => {
+    if (dirty) { event.preventDefault(); event.returnValue = ''; }
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<h2>Demo ficticia de interacción</h2>
+<p>No es una evaluación ni un instrumento validado. No produce rasgos, scores o informes personales. No crea cuenta ni historial; el resultado solo existe en esta respuesta de tu sesión de navegación.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Ver ejemplo</button></form>
+{% if answer %}<p role="status">{{ answer }} Este es un ejemplo de revisión de respuesta, no una interpretación.</p>{% endif %}
+{% endblock %}

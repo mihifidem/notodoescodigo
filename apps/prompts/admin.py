@@ -3,11 +3,26 @@ from django.contrib import admin
 from .models import (
     CategoriaPrompt,
     HashtagPrompt,
+    InternalPrompt,
     Prompt,
     PromptFavorito,
     SubcategoriaPrompt,
     ValoracionPrompt,
 )
+
+
+@admin.register(InternalPrompt)
+class InternalPromptAdmin(admin.ModelAdmin):
+    list_display = ('key', 'title', 'version', 'active', 'updated_at')
+    list_filter = ('active',)
+    search_fields = ('key', 'title', 'description', 'content')
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('key', 'title', 'description', 'version', 'content', 'variables', 'active', 'created_at', 'updated_at')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return (*self.readonly_fields, 'key', 'variables')
+        return self.readonly_fields
 
 
 @admin.register(CategoriaPrompt)

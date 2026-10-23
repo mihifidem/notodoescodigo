@@ -1,24 +1,37 @@
 {% extends 'lms/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{% trans "Mis aulas" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/campus-tech.css' %}">
+{% endblock %}
 {% block content %}
-  <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
-    <span aria-current="page">{% trans "Inicio" %}</span>
-  </nav>
-  <section class="page-heading">
+<main class="billing-app personal-tech campus-tech classrooms-tech" aria-labelledby="classrooms-heading">
+  <header class="billing-hero mb-4">
     <div>
-      <p class="eyebrow">{% trans "TU ESPACIO DE APRENDIZAJE" %}</p>
-      <h1>{% blocktrans with name=request.user.get_short_name|default:request.user.username %}Hola, {{ name }}{% endblocktrans %}</h1>
-      <p class="lede">{% trans "Retoma tus aulas o descubre nuevos cursos para seguir avanzando." %}</p>
+      <p class="billing-eyebrow">{% trans "Ducky Academy · Tu espacio de aprendizaje" %}</p>
+      <h1 id="classrooms-heading">{% trans "Mis aulas" %} <span>· {% blocktrans with name=request.user.get_short_name|default:request.user.username %}Hola, {{ name }}{% endblocktrans %}</span></h1>
+      <p class="campus-intro">{% trans "Retoma tus aulas o descubre nuevos cursos para seguir avanzando." %}</p>
     </div>
-    {% if can_create_course %}<a class="button button-primary" href="{% url 'lms:course_create' %}"><span aria-hidden="true">＋</span> {% trans "Crear aula" %}</a>{% endif %}
-  </section>
+    <div class="billing-plan-badge">
+      <i class="bi bi-mortarboard" aria-hidden="true"></i>
+      <span>{% trans "Tu espacio personal" %}<strong>{{ course_count }} {% trans "aulas" %}</strong></span>
+    </div>
+  </header>
+  <nav class="billing-nav" aria-label="{% trans 'Navegación de mis aulas' %}">
+    <a href="#my-courses"><i class="bi bi-journal-bookmark" aria-hidden="true"></i>{% trans "Mis aulas" %}</a>
+    <a href="#discover-courses"><i class="bi bi-compass" aria-hidden="true"></i>{% trans "Explora cursos" %}</a>
+    <a href="{% url 'lms:campus' %}"><i class="bi bi-backpack" aria-hidden="true"></i>{% trans "Campus" %}</a>
+    {% if can_create_course %}<a href="{% url 'lms:course_create' %}"><i class="bi bi-plus-circle" aria-hidden="true"></i>{% trans "Crear aula" %}</a>{% endif %}
+  </nav>
 
   {% if show_onboarding %}
     <section class="onboarding-banner" aria-labelledby="welcome-title">
       <div class="onboarding-icon" aria-hidden="true">✦</div>
       <div><p class="eyebrow">{% trans "BIENVENIDO AL CAMPUS" %}</p><h2 id="welcome-title">{% trans "Tu siguiente aprendizaje empieza aquí" %}</h2><p>{% trans "Explora los cursos publicados y abre un aula para ver sus contenidos y actividades." %}</p></div>
-      <a class="button button-light" href="#discover-courses">{% trans "Explorar cursos" %}</a>
+      <a class="btn btn-outline-primary" href="#discover-courses">{% trans "Explorar cursos" %}</a>
     </section>
   {% endif %}
 
@@ -36,7 +49,7 @@
               <span class="role-label">{{ membership.get_role_display }}</span>
             </div>
             <h3><a href="{% url 'lms:course_detail' course_id=membership.course.pk %}">{{ membership.course.nombre }}</a></h3>
-            <p>{{ membership.course.descripcion|truncatewords:22|default:_("Un aula para aprender y compartir conocimiento.") }}</p>
+            <p>{{ membership.course.descripcion_texto|truncatewords:22|default:_("Un aula para aprender y compartir conocimiento.") }}</p>
             {% if membership.section %}<p class="section-label">{% trans "Sección" %}: {{ membership.section.title }}</p>{% endif %}
             <a class="card-link" href="{% url 'lms:course_detail' course_id=membership.course.pk %}">{% trans "Entrar al aula" %} <span aria-hidden="true">→</span></a>
           </article>
@@ -45,7 +58,7 @@
           <article class="course-card">
             <div class="card-topline"><span class="status status-published">{% trans "Curso actual" %}</span><span class="role-label">{% trans "Alumno" %}</span></div>
             <h3><a href="{% url 'lms:course_detail' course_id=enrollment.curso.pk %}">{{ enrollment.curso.nombre }}</a></h3>
-            <p>{{ enrollment.curso.descripcion|truncatewords:22|default:_("Continúa donde lo dejaste.") }}</p>
+            <p>{{ enrollment.curso.descripcion_texto|truncatewords:22|default:_("Continúa donde lo dejaste.") }}</p>
             <a class="card-link" href="{% url 'lms:course_detail' course_id=enrollment.curso.pk %}">{% trans "Continuar aprendiendo" %} <span aria-hidden="true">→</span></a>
           </article>
         {% endfor %}
@@ -67,7 +80,7 @@
           <article class="course-card">
             <div class="card-topline"><span class="status status-published">{% trans "Publicado" %}</span>{% if course.destacado %}<span class="role-label">{% trans "Destacado" %}</span>{% endif %}</div>
             <h3><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a></h3>
-            <p>{{ course.descripcion|truncatewords:22|default:_("Descubre los contenidos de esta aula.") }}</p>
+            <p>{{ course.descripcion_texto|truncatewords:22|default:_("Descubre los contenidos de esta aula.") }}</p>
             <p class="course-meta">{% if course.fecha_fin %}{% trans "Finaliza" %} <time datetime="{{ course.fecha_fin|date:'Y-m-d' }}">{{ course.fecha_fin|date:"j M Y" }}</time>{% else %}{% trans "Acceso disponible" %}{% endif %}</p>
             <a class="card-link" href="{% url 'lms:course_detail' course_id=course.pk %}">{% trans "Conocer el curso" %} <span aria-hidden="true">→</span></a>
           </article>
@@ -77,4 +90,5 @@
       <div class="empty-state empty-state-compact"><p>{% trans "No hay nuevos cursos publicados por ahora." %}</p></div>
     {% endif %}
   </section>
+</main>
 {% endblock %}

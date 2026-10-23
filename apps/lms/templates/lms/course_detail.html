@@ -5,9 +5,11 @@
 {% block extra_css %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'lms/course-home.css' %}?v=20261013">
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/course-detail-tech.css' %}">
 {% endblock %}
 {% block content %}
-<div class="course-reference-home">
+<div class="course-reference-home billing-app course-detail-tech">
   <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
     <a href="{% url 'lms:dashboard' %}">{% trans "Mis aulas" %}</a><span aria-hidden="true">/</span><span aria-current="page">{{ course.nombre }}</span>
   </nav>
@@ -23,11 +25,11 @@
       <div class="section-heading"><h2 id="recent-announcements-title">{% trans "Anuncios recientes" %}</h2><a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}">{% trans "Ver todos" %}</a></div>
       {% for announcement in recent_announcements %}
       <article class="recent-announcement-row">
-        <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% else %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% endif %}</span>
+        <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% elif announcement.author %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% else %}<i class="bi bi-megaphone"></i>{% endif %}</span>
         <div class="announcement-excerpt">
           <h3><a href="{% url 'lms:course_area' course_id=course.pk area='announcements' %}#announcement-{{ announcement.pk }}">{{ announcement.title }}</a></h3>
           <p>{{ announcement.content|striptags|truncatechars:130 }}</p>
-          <small>{{ announcement.author.get_full_name|default:announcement.author.username }}</small>
+          <small>{% if announcement.author %}{{ announcement.author.get_full_name|default:announcement.author.username }}{% else %}{% trans "Equipo docente" %}{% endif %}</small>
         </div>
         <time datetime="{{ announcement.publish_at|default:announcement.created_at|date:'c' }}">{{ announcement.publish_at|default:announcement.created_at|date:'j M Y, H:i' }}</time>
       </article>
@@ -37,10 +39,10 @@
     <div class="hero-content">
       <p class="eyebrow">{% trans "AULA NoTodoEsCódigo" %}</p>
       <div class="hero-title-row">
-        <h1>{{ course.nombre }}</h1>
+        <h1 id="course-detail-heading">{{ course.nombre }}</h1>
         <span class="status {% if course_archived %}status-draft{% elif course.activo %}status-published{% else %}status-draft{% endif %}">{% if course_archived %}{% trans "Archivado" %}{% elif course.activo %}{% trans "Publicado" %}{% else %}{% trans "Borrador" %}{% endif %}</span>
       </div>
-      <p class="hero-summary">{{ course.descripcion|truncatewords:30 }}</p>
+      <p class="hero-summary">{{ course.descripcion_texto|truncatewords:30 }}</p>
       <div class="teacher-rail" aria-label="{% trans 'Profesores del curso' %}">
         {% if course_teachers %}
           <span class="eyebrow">{% trans "DOCENTES" %}</span>
@@ -107,7 +109,7 @@
         </div>
       </div>
       <div class="page-body">
-        <p>{{ course.descripcion|default:course.resumen }}</p>
+        {% if course.descripcion %}<div class="prose">{{ course.descripcion_html|safe }}</div>{% else %}<p>{{ course.resumen }}</p>{% endif %}
       </div>
       <div class="action-row compact">
         <a class="button button-primary" href="{% url 'lms:course_area' course_id=course.pk area='content' %}">{% trans "Explorar contenido" %}</a>

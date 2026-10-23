@@ -9,7 +9,11 @@
     <i class="bi bi-file-person me-1"></i>CV Tracker
   </a>
 
+  {% if perms.updates.view_proximaactualizacion or perms.updates.change_proximaactualizacion %}
+  <a href="{% url 'admin:updates_proximaactualizacion_changelist' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-list-check me-1" aria-hidden="true"></i>Próximas actualizaciones
   </a>
+  {% endif %}
 </div>
 
 <!-- KPI row -->

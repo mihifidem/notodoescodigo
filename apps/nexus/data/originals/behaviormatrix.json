@@ -1,0 +1,2174 @@
+{
+  "schema": 1,
+  "family": "behaviormatrix",
+  "sources": {
+    "behaviormatrix.html": "3d8b467aeb41880a45e3c7266324746a38ee3a7c03b7fc3c90b95e64c1e8b286"
+  },
+  "source_notice": "Banco BM interno elegido expresamente: el JSON externo contiene dimensiones TM incompatibles.",
+  "labels": {
+    "BM01": "Execution Drive",
+    "BM02": "Accountability",
+    "BM03": "Adaptability",
+    "BM04": "Collaboration",
+    "BM05": "Initiative",
+    "BM06": "Decision Behavior",
+    "BM07": "Consistency",
+    "BM08": "Pressure Response",
+    "SCENARIOS": "Escenarios",
+    "VALIDATION": "Validación"
+  },
+  "archetypes": {
+    "Strategic Executor": {
+      "color": "#F97316",
+      "icon": "⚙️",
+      "bm_key": "BM01",
+      "chip1": "Ejecución",
+      "chip2": "Decisión",
+      "chip3": "Foco",
+      "desc": "Combinas velocidad de ejecución con criterio sólido. Conviertes decisiones en resultados tangibles con consistencia y propósito claro."
+    },
+    "Resilient Achiever": {
+      "color": "#3B82F6",
+      "icon": "🛡️",
+      "bm_key": "BM08",
+      "chip1": "Resiliencia",
+      "chip2": "Resultados",
+      "chip3": "Presión",
+      "desc": "Mantienes alto rendimiento incluso bajo presión extrema. Tu fortaleza conductual se convierte en diferencial en contextos críticos."
+    },
+    "Accountable Driver": {
+      "color": "#1E3A8A",
+      "icon": "🎯",
+      "bm_key": "BM02",
+      "chip1": "Ownership",
+      "chip2": "Compromiso",
+      "chip3": "Confianza",
+      "desc": "Asumes compromisos y los cumples con integridad en todo contexto. Eres referente de confianza donde el ownership es clave."
+    },
+    "Adaptive Catalyst": {
+      "color": "#8B5CF6",
+      "icon": "🔄",
+      "bm_key": "BM03",
+      "chip1": "Adaptación",
+      "chip2": "Cambio",
+      "chip3": "Flexibilidad",
+      "desc": "Te adelantas al cambio y lo aprovechas como ventaja competitiva. Tu flexibilidad conductual es una fortaleza en entornos dinámicos."
+    },
+    "Collaborative Builder": {
+      "color": "#14B8A6",
+      "icon": "🤝",
+      "bm_key": "BM04",
+      "chip1": "Equipo",
+      "chip2": "Cooperación",
+      "chip3": "Sinergia",
+      "desc": "Construyes confianza y alineas esfuerzos colectivos con naturalidad. Potencias el desempeño grupal desde la colaboración activa."
+    },
+    "Initiative Pioneer": {
+      "color": "#38BDF8",
+      "icon": "🚀",
+      "bm_key": "BM05",
+      "chip1": "Proactividad",
+      "chip2": "Autonomía",
+      "chip3": "Acción",
+      "desc": "Te anticipas a las necesidades sin esperar instrucciones. Tu iniciativa genera ventaja competitiva y reduce tiempos de respuesta."
+    },
+    "Decisive Operator": {
+      "color": "#EF4444",
+      "icon": "♟️",
+      "bm_key": "BM06",
+      "chip1": "Decisión",
+      "chip2": "Criterio",
+      "chip3": "Claridad",
+      "desc": "Decides con rapidez y criterio en situaciones complejas. Tu capacidad de juicio reduce incertidumbre y acelera resultados organizacionales."
+    },
+    "Consistent Guardian": {
+      "color": "#22C55E",
+      "icon": "🧱",
+      "bm_key": "BM07",
+      "chip1": "Disciplina",
+      "chip2": "Constancia",
+      "chip3": "Seguimiento",
+      "desc": "Mantienes estándares y ritmo con disciplina operativa sostenida. Tu consistencia garantiza calidad y predictibilidad en la ejecución."
+    }
+  },
+  "questions": {
+    "BM01": [
+      {
+        "id": "BM01_01",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tienes una idea clara sobre cómo mejorar un proceso. ¿Cuál es tu primer paso?",
+        "options": [
+          "Ejecuto un prototipo rápido para validar de inmediato",
+          "Diseño un plan detallado antes de dar cualquier paso",
+          "Consulto con el equipo y espero consenso antes de actuar",
+          "Aguardo que me asignen formalmente la tarea"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_02",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tengo un objetivo claro, actúo con rapidez y sin esperar que me lo pidan.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_03",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tienes tres tareas importantes y tiempo limitado. ¿Cómo gestionas la situación?",
+        "options": [
+          "Priorizo por impacto y ejecuto sin pausas hasta completarlas",
+          "Planifico un orden claro y cumplo cada una metodicamente",
+          "Delego lo que puedo para avanzar en paralelo",
+          "Pido ampliación de plazo para hacer todas con calidad"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_04",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy conocido por mi capacidad de llevar proyectos a buen término aunque haya obstáculos.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_05",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Detectas una oportunidad de mejora fuera de tu responsabilidad directa. ¿Qué haces?",
+        "options": [
+          "La ejecuto y comunico los resultados al terminar",
+          "La propongo formalmente a quien corresponda",
+          "La comento informalmente pero no avanzo sin autorización",
+          "No intervengo si no está dentro de mi área de responsabilidad"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_06",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Suelo demorar las tareas cuando no tengo todos los detalles necesarios.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM01_07",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Soy referente para mi equipo cuando se trata de convertir ideas en resultados concretos.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM01_08",
+        "dim": "BM01",
+        "dim_label": "Execution Drive",
+        "phase": "Fase 1",
+        "phase_name": "Impulso de Ejecución",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cuál describe mejor tu nivel de Execution Drive en el trabajo diario?",
+        "options": [
+          "Alto y sostenido: ejecuto con velocidad y calidad de forma consistente",
+          "Sólido: ejecuto bien aunque a veces necesito más tiempo del ideal",
+          "Intermedio: cumplo lo asignado pero no suelo ir más allá",
+          "En desarrollo: me cuesta mantener el ritmo de ejecución"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM02": [
+      {
+        "id": "BM02_01",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cometes un error que impacta negativamente a tu equipo. ¿Cómo reaccionas?",
+        "options": [
+          "Lo reconozco, asumo la responsabilidad y propongo solución de inmediato",
+          "Lo reconozco pero espero que otros gestionen las consecuencias",
+          "Busco factores externos que expliquen lo ocurrido",
+          "Evito hablar del tema hasta que se resuelva por sí solo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_02",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando asumo un compromiso, lo cumplo independientemente de los obstáculos que surjan.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_03",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo necesita alguien que lidere un proyecto de alta visibilidad con riesgo elevado. ¿Qué haces?",
+        "options": [
+          "Me postulo y acepto la responsabilidad con confianza",
+          "Lo hago si recibo apoyo claro de mi responsable",
+          "Prefiero colaborar activamente sin liderar formalmente",
+          "Evito el protagonismo en proyectos de alto riesgo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_04",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento responsable de los resultados del equipo, no solo de mi parte individual.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_05",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Un proyecto que lideraste no alcanza los resultados esperados. ¿Qué haces?",
+        "options": [
+          "Analizo las causas, comunico los resultados con transparencia y propongo correcciones",
+          "Comunico los resultados pero espero instrucciones sobre cómo corregir",
+          "Minimizo el impacto en los reportes para evitar consecuencias",
+          "Transfiero la responsabilidad a factores externos del equipo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_06",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando algo sale mal en mi área, mi primer impulso es buscar a quién responsabilizar.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM02_07",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Las personas de mi entorno me perciben como alguien de palabra que cumple siempre sus compromisos.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM02_08",
+        "dim": "BM02",
+        "dim_label": "Accountability",
+        "phase": "Fase 2",
+        "phase_name": "Responsabilidad y Ownership",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo defines tu nivel de Accountability en tu trabajo actual?",
+        "options": [
+          "Muy alto: asumo resultados completos con transparencia y propósito",
+          "Alto: soy responsable aunque a veces busco contexto antes de actuar",
+          "Moderado: cumplo lo asignado pero prefiero validar antes de asumir más",
+          "En desarrollo: me cuesta asumir responsabilidad cuando el riesgo es alto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM03": [
+      {
+        "id": "BM03_01",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa cambia la estrategia y ello afecta significativamente tu trabajo actual. ¿Cómo reaccionas?",
+        "options": [
+          "Me adapto rápido y busco oportunidades en el nuevo contexto",
+          "Analizo el impacto y ajusto mi plan de forma metódica",
+          "Necesito tiempo para procesar antes de adaptarme",
+          "El cambio me genera resistencia y prefiero continuidad"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_02",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento cómodo trabajando en entornos de alta incertidumbre y cambio frecuente.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_03",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Te asignan una tarea nueva que requiere habilidades que aún no tienes. ¿Qué haces?",
+        "options": [
+          "La acepto y aprendo activamente sobre la marcha",
+          "La acepto y me formo antes de comenzar a ejecutar",
+          "La negocio para reducir su alcance o plazos",
+          "La rechaza o solicito que se reasigne a alguien con más experiencia"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_04",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando las reglas del juego cambian, ajusto mi forma de trabajar con rapidez y sin resistencia.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_05",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Tu equipo adopta una nueva metodología que difiere de tu forma habitual de trabajar. ¿Cómo actúas?",
+        "options": [
+          "La adopto con entusiasmo y ayudo a que otros también lo hagan",
+          "La implemento con disciplina aunque prefiero mis métodos anteriores",
+          "La sigo en lo formal pero mantengo mi forma de trabajar en lo posible",
+          "Me cuesta y busco formas de mantener el enfoque anterior"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_06",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero entornos estables donde las reglas y procesos no cambien con frecuencia.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM03_07",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Soy de los primeros en mi equipo en adoptar nuevas formas de trabajar.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM03_08",
+        "dim": "BM03",
+        "dim_label": "Adaptability",
+        "phase": "Fase 3",
+        "phase_name": "Adaptación al Cambio",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo describes tu capacidad de Adaptability en contextos de cambio organizacional?",
+        "options": [
+          "Muy alta: el cambio me activa y lo conviero en ventaja",
+          "Alta: me adapto bien aunque necesito algo de tiempo inicial",
+          "Moderada: me adapto pero el proceso me genera cierta tensión",
+          "En desarrollo: el cambio frecuente afecta mi rendimiento"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM04": [
+      {
+        "id": "BM04_01",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo tiene opiniones muy diversas sobre cómo resolver un problema. ¿Cómo actúas?",
+        "options": [
+          "Facilito la discusión y busco síntesis del mejor enfoque colectivo",
+          "Propongo mi visión con datos y la defiendo con criterio",
+          "Escucho pero prefiero no tomar postura activamente",
+          "Prefiero resolver el problema de forma independiente en este caso"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_02",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Invierto tiempo activamente en apoyar a mis compañeros aunque no sea mi responsabilidad directa.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_03",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Un colega está bloqueado en una tarea y eso no impacta directamente tu trabajo. ¿Qué haces?",
+        "options": [
+          "Le ofrezco ayuda concreta sin que me lo pida",
+          "Le pregunto si necesita apoyo y cómo puedo contribuir",
+          "Espero que él pida ayuda cuando lo considere necesario",
+          "No intervengo para no interferir en su autonomía de trabajo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_04",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando trabajo en equipo, el resultado colectivo es más importante para mí que el reconocimiento individual.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_05",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Hay un conflicto entre dos miembros del equipo que está afectando el rendimiento colectivo. ¿Cómo intervienes?",
+        "options": [
+          "Facilito un espacio de diálogo y busco una solución que funcione para todos",
+          "Hablo con cada parte por separado y propongo un punto de encuentro",
+          "Escalo el conflicto al responsable para que lo gestione",
+          "Espero que el tiempo lo resuelva sin intervenir"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_06",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero trabajar de forma independiente y autónoma más que de forma colaborativa.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM04_07",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi equipo me reconoce como alguien que construye un ambiente de confianza y cooperación activa.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM04_08",
+        "dim": "BM04",
+        "dim_label": "Collaboration",
+        "phase": "Fase 4",
+        "phase_name": "Trabajo en Equipo",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo describes tu nivel de Collaboration en el trabajo actual?",
+        "options": [
+          "Muy alto: soy un conector activo que multiplica el valor del equipo",
+          "Alto: colaboro bien y ayudo a otros cuando lo necesitan",
+          "Moderado: colaboro cuando es necesario pero prefiero trabajar con autonomía",
+          "En desarrollo: el trabajo en equipo frecuente me resulta desafiante"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM05": [
+      {
+        "id": "BM05_01",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Identificas una mejora en un proceso de tu área que nadie más ha detectado. ¿Qué haces?",
+        "options": [
+          "La implemento directamente y comunico el resultado al terminar",
+          "La documento y la propongo formalmente con plan de acción",
+          "La menciono en una reunión pero espero autorización para avanzar",
+          "Espero que la dirección lo detecte y tome la iniciativa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_02",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Actúo antes de que me lo pidan cuando veo algo que necesita atención o puede mejorarse.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_03",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo describes mejor tu patrón habitual de trabajo?",
+        "options": [
+          "Busco constantemente nuevas formas de aportar valor sin que me lo pidan",
+          "Cumplo bien mis responsabilidades y propongo mejoras de forma ocasional",
+          "Me enfoco en hacer muy bien lo que me asignan formalmente",
+          "Prefiero actuar cuando tengo instrucciones claras y precisas"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_04",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Suelo proponer ideas o mejoras sin que nadie me lo solicite.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_05",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Hay una tarea que nadie ha reclamado y que podría generar alto impacto. ¿Qué haces?",
+        "options": [
+          "La asumo y la ejecuto con autonomía",
+          "La propongo formalmente para que se asigne a quien corresponda",
+          "Señalo que existe pero no tomo acción directa",
+          "Espero que alguien con más autoridad la reclame"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_06",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Necesito que me digan específicamente qué hacer para poder actuar con seguridad.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM05_07",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi entorno profesional me reconoce como alguien que se adelanta a los problemas antes de que ocurran.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM05_08",
+        "dim": "BM05",
+        "dim_label": "Initiative",
+        "phase": "Fase 5",
+        "phase_name": "Proactividad y Autonomía",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cuál describe mejor tu nivel de Initiative en tu trabajo actual?",
+        "options": [
+          "Muy alto: genero acción autónoma y propongo mejoras de forma continua",
+          "Alto: tomo iniciativa frecuentemente aunque a veces espero el momento adecuado",
+          "Moderado: actúo por iniciativa propia en algunas áreas pero no de forma sistemática",
+          "En desarrollo: prefiero actuar cuando tengo instrucciones o validación previa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM06": [
+      {
+        "id": "BM06_01",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes tomar una decisión importante con información incompleta y poco tiempo disponible. ¿Qué haces?",
+        "options": [
+          "Decido con la información disponible asumiendo el riesgo de forma consciente",
+          "Recolecto el mínimo necesario y decido con agilidad",
+          "Pospongo hasta tener suficiente certeza para actuar",
+          "Escalo la decisión a alguien con más autoridad o información"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_02",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Mis decisiones suelen ser rápidas, claras y bien recibidas por mi equipo.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_03",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tienes dos opciones válidas y contradictorias para resolver un problema. ¿Cómo decides?",
+        "options": [
+          "Evalúo impacto y riesgo y elijo con criterio propio",
+          "Busco consenso del equipo antes de tomar postura",
+          "Tiendo a aplazar si no hay una opción claramente superior",
+          "Delego la decisión a quien tenga más experiencia en ese contexto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_04",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando me equivoco en una decisión, aprendo rápido y corrijo el rumbo sin resistencia.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_05",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Debes elegir entre dos rutas estratégicas con impacto opuesto sobre el equipo. ¿Qué prioriza tu criterio?",
+        "options": [
+          "El impacto a largo plazo con riesgo calculado y asumido",
+          "La opción de menor riesgo con impacto moderado sostenible",
+          "La opción más aceptada por el equipo para mantener cohesión",
+          "Pospongo la decisión hasta tener más información o validación externa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_06",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La incertidumbre me paraliza y prefiero no decidir hasta tener todos los datos posibles.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM06_07",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi criterio de decisión es consistente y las personas a mi alrededor lo perciben como fiable.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM06_08",
+        "dim": "BM06",
+        "dim_label": "Decision Behavior",
+        "phase": "Fase 6",
+        "phase_name": "Toma de Decisiones",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cuál describe mejor tu Decision Behavior en situaciones de alta ambigüedad?",
+        "options": [
+          "Muy sólido: decido con criterio aunque no tenga todos los datos",
+          "Sólido: decido bien aunque me lleva más tiempo de lo ideal",
+          "Moderado: me cuesta decidir bajo incertidumbre y suelo buscar validación",
+          "En desarrollo: la ambigüedad reduce significativamente mi capacidad de decisión"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM07": [
+      {
+        "id": "BM07_01",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tienes un hábito profesional importante que estás intentando consolidar. ¿Cuál es tu patrón real?",
+        "options": [
+          "Lo mantengo con disciplina diaria independientemente de las circunstancias",
+          "Lo aplico con regularidad aunque con algunos altibajos ocasionales",
+          "Me cuesta mantenerlo durante períodos de alta carga de trabajo",
+          "Suelo perderlo y retomarlo de forma irregular sin un sistema claro"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_02",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Mi rendimiento se mantiene estable incluso cuando el entorno es caótico o desorganizado.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_03",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo gestionas compromisos que requieren esfuerzo sostenido durante semanas o meses?",
+        "options": [
+          "Establezco rutinas claras y las ejecuto con regularidad sistemática",
+          "Me mantengo constante aunque con algunos altibajos naturales",
+          "Necesito recordatorios y apoyo externo para sostener el ritmo",
+          "Me cuesta mantener el ritmo y suelo perder impulso en el tiempo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_04",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Las personas que trabajan conmigo saben que pueden contar con mi constancia y seguimiento.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_05",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Tienes múltiples tareas con plazos largos y sin supervisión directa. ¿Qué pasa con tu ejecución?",
+        "options": [
+          "Mantengo el ritmo con disciplina propia sin necesitar supervisión",
+          "Avanzo bien aunque de vez en cuando necesito recordatorios propios",
+          "El ritmo baja cuando no hay plazos inminentes ni supervisión",
+          "Me cuesta mantener el avance cuando no hay presión externa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_06",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi rendimiento varía bastante dependiendo de mi estado de ánimo o del contexto.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM07_07",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Soy capaz de mantener altos estándares de trabajo de forma sostenida en el tiempo.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM07_08",
+        "dim": "BM07",
+        "dim_label": "Consistency",
+        "phase": "Fase 7",
+        "phase_name": "Constancia y Disciplina",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cuál describe mejor tu Consistency en el trabajo diario?",
+        "options": [
+          "Muy alta: soy predecible positivamente y mantengo estándares con disciplina",
+          "Alta: soy constante aunque mi rendimiento varía en contextos de alta presión",
+          "Moderada: soy constante en lo prioritario pero pierdo ritmo en lo secundario",
+          "En desarrollo: me cuesta mantener constancia sin supervisión o estructura externa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "BM08": [
+      {
+        "id": "BM08_01",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo enfrenta una crisis con plazos muy ajustados y alto impacto organizacional. ¿Cómo respondes?",
+        "options": [
+          "Aumento mi foco y rendimiento de forma natural ante la presión",
+          "Me organizo y ejecuto con calma aunque siento tensión interna",
+          "Necesito apoyo externo para mantener el desempeño en situaciones críticas",
+          "La presión afecta negativamente mi rendimiento y toma de decisiones"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_02",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Bajo presión intensa, mantengo la claridad de pensamiento y tomo buenas decisiones.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_03",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Recibes críticas duras sobre tu trabajo frente a tu equipo. ¿Cómo reaccionas?",
+        "options": [
+          "Las analizo con objetividad y actúo sobre lo válido con rapidez",
+          "Me afectan momentáneamente pero me recupero y aprendo rápido",
+          "Me cuesta desconectarme emocionalmente del impacto durante cierto tiempo",
+          "Tienden a desmotivarme durante un período significativo de tiempo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_04",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Las situaciones de alta incertidumbre me impulsan más que me frenan.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_05",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Llevas semanas con carga máxima de trabajo y sin señales de que baje. ¿Cuál es tu patrón?",
+        "options": [
+          "Mantengo el rendimiento y gestiono la energía de forma consciente",
+          "El rendimiento baja algo pero me recupero con pequeños ajustes",
+          "Necesito redefinir prioridades y reducir carga para sostenerme",
+          "La sobrecarga prolongada deteriora tanto mi rendimiento como mi bienestar"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_06",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La presión sostenida me desconcentra y reduce la calidad de mi trabajo.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "BM08_07",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi equipo me percibe como una referencia de estabilidad cuando el entorno se vuelve caótico.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "BM08_08",
+        "dim": "BM08",
+        "dim_label": "Pressure Response",
+        "phase": "Fase 8",
+        "phase_name": "Resiliencia bajo Presión",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cuál describe mejor tu Pressure Response en situaciones de alta demanda?",
+        "options": [
+          "Muy alta: la presión activa mi mejor versión de forma consistente",
+          "Alta: respondo bien aunque experimento tensión que gestiono con eficacia",
+          "Moderada: mantengo el rendimiento pero la presión me afecta de forma perceptible",
+          "En desarrollo: la presión alta deteriora mi rendimiento y bienestar de forma notable"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "SCENARIOS": [
+      {
+        "id": "SC_01",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Tu equipo recibe un cambio urgente de prioridades que invalida el trabajo de la última semana.",
+        "text": "¿Cómo reaccionas?",
+        "options": [
+          "Reordeno, comunico el cambio y ejecuto de inmediato",
+          "Defino un plan de transición con el equipo antes de avanzar",
+          "Espero lineamientos completos antes de dar cualquier paso",
+          "Mantengo el plan anterior hasta recibir instrucciones formales"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_02",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Un miembro del equipo no entrega lo comprometido y tú asumes la consecuencia ante dirección.",
+        "text": "¿Qué haces?",
+        "options": [
+          "Asumo la responsabilidad ante dirección y resuelvo internamente",
+          "Comunico lo ocurrido con transparencia y propongo plan de corrección",
+          "Señalo al responsable ante dirección para ser transparente",
+          "Minimizo el impacto del problema en la comunicación a dirección"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_03",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Recibes dos solicitudes urgentes simultáneas de dos responsables distintos. Solo puedes atender una.",
+        "text": "¿Cómo decides?",
+        "options": [
+          "Evalúo impacto, decido y comunico con criterio claro a ambos",
+          "Consulto con ambos responsables para que prioricen ellos",
+          "Atiendo la que llegó primero sin entrar en más análisis",
+          "Espero hasta que la situación se resuelva por sí sola"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_04",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Un proceso crítico del equipo empieza a fallar y tú no eres el responsable directo.",
+        "text": "¿Qué haces primero?",
+        "options": [
+          "Tomo acción inmediata para contener el impacto",
+          "Informo al responsable y le ofrezco apoyo concreto",
+          "Documento lo observado y espero que el responsable actúe",
+          "Espero a ver si el responsable lo detecta y resuelve"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_05",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Llevas tres semanas con carga máxima y recibes una tarea adicional de alta importancia.",
+        "text": "¿Cómo la gestionas?",
+        "options": [
+          "La asumo, ajusto prioridades y gestiono mi energía con disciplina",
+          "La acepto y renegocio plazos de otras tareas para equilibrar la carga",
+          "La acepto pero advierto que la calidad puede verse afectada",
+          "La rechazo indicando que mi capacidad está al límite"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_06",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Surge resistencia activa al cambio en el equipo que tú lideras.",
+        "text": "¿Cómo intervienes?",
+        "options": [
+          "Alineo la visión, escucho las resistencias y acompaño el proceso",
+          "Escucho a cada persona individualmente y ajusto la estrategia",
+          "Escalo la situación al responsable superior para que actúe",
+          "Mantengo el cambio sin entrar en debate para no perder momentum"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_07",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Descubres que un colega está ocultando un error grave que puede impactar al cliente.",
+        "text": "¿Qué haces?",
+        "options": [
+          "Hablo con el colega directamente y le animo a comunicarlo; si no, lo reporto yo",
+          "Reporto el problema directamente a quien corresponda",
+          "Espero que el colega lo comunique por su cuenta",
+          "Evito involucrarme para no generar conflicto interpersonal"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_08",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tienes la posibilidad de proponer una mejora que reducirá el trabajo de tu equipo un 40%, pero requiere convencer a dirección.",
+        "text": "¿Qué haces?",
+        "options": [
+          "Preparo el caso, cuantifico el impacto y lo presento con convicción",
+          "Lo propongo de forma informal para ir tanteando el terreno",
+          "Espero el momento ideal para presentarlo con más contexto",
+          "No lo presento para evitar generar expectativas que no puedo cumplir"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_09",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Eres el único del equipo que ha detectado un riesgo importante en el proyecto. El equipo no lo ve.",
+        "text": "¿Cómo actúas?",
+        "options": [
+          "Comunico el riesgo con claridad y datos aunque genere fricción",
+          "Lo menciono una vez y dejo que el equipo decida si lo atiende",
+          "Espero a que otros lo detecten para no parecer alarmista",
+          "No lo menciono para no entorpecer el ritmo del proyecto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_10",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios",
+        "phase": "Fase 9",
+        "phase_name": "Escenarios Conductuales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tu manager te pide que entregues en 2 días algo que normalmente lleva una semana. La calidad importa.",
+        "text": "¿Qué haces?",
+        "options": [
+          "Negocio el alcance para entregar calidad en el plazo dado",
+          "Lo intento con lo que tengo y comunico los riesgos de calidad",
+          "Entrego lo que pueda sin advertir sobre la calidad reducida",
+          "Comunico que no es posible sin comprometer los estándares"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "VAL_01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Respondo este tipo de evaluaciones con atención y consistencia.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VAL_02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Suelo responder sin leer completamente cada pregunta.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando una pregunta es compleja, ¿qué haces normalmente?",
+        "options": [
+          "La leo completa y respondo con criterio",
+          "Respondo rápido para avanzar",
+          "Elijo al azar si dudo",
+          "La salto mentalmente y continúo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VAL_04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Mantengo el mismo nivel de concentración durante todo el test.",
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VAL_05",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Contesto pensando en proyectar una imagen ideal más que en mi conducta real.",
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_06",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Si no estoy seguro de una respuesta, ¿qué haces?",
+        "options": [
+          "Elijo la opción más cercana a mi conducta real",
+          "Elijo la opción socialmente mejor vista",
+          "Repito el mismo patrón de respuesta",
+          "Marco cualquier opción para terminar"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "BM01",
+        "BM01_01"
+      ],
+      [
+        "BM01",
+        "BM01_02"
+      ],
+      [
+        "BM02",
+        "BM02_01"
+      ],
+      [
+        "BM02",
+        "BM02_02"
+      ],
+      [
+        "BM03",
+        "BM03_01"
+      ],
+      [
+        "BM03",
+        "BM03_02"
+      ],
+      [
+        "BM04",
+        "BM04_01"
+      ],
+      [
+        "BM04",
+        "BM04_02"
+      ],
+      [
+        "BM05",
+        "BM05_01"
+      ],
+      [
+        "BM05",
+        "BM05_02"
+      ],
+      [
+        "BM06",
+        "BM06_01"
+      ],
+      [
+        "BM06",
+        "BM06_02"
+      ],
+      [
+        "BM07",
+        "BM07_01"
+      ],
+      [
+        "BM07",
+        "BM07_02"
+      ],
+      [
+        "BM08",
+        "BM08_01"
+      ],
+      [
+        "BM08",
+        "BM08_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ]
+    ],
+    "advanced": [
+      [
+        "BM01",
+        "BM01_01"
+      ],
+      [
+        "BM01",
+        "BM01_02"
+      ],
+      [
+        "BM01",
+        "BM01_03"
+      ],
+      [
+        "BM01",
+        "BM01_04"
+      ],
+      [
+        "BM02",
+        "BM02_01"
+      ],
+      [
+        "BM02",
+        "BM02_02"
+      ],
+      [
+        "BM02",
+        "BM02_03"
+      ],
+      [
+        "BM02",
+        "BM02_04"
+      ],
+      [
+        "BM03",
+        "BM03_01"
+      ],
+      [
+        "BM03",
+        "BM03_02"
+      ],
+      [
+        "BM03",
+        "BM03_03"
+      ],
+      [
+        "BM03",
+        "BM03_04"
+      ],
+      [
+        "BM04",
+        "BM04_01"
+      ],
+      [
+        "BM04",
+        "BM04_02"
+      ],
+      [
+        "BM04",
+        "BM04_03"
+      ],
+      [
+        "BM04",
+        "BM04_04"
+      ],
+      [
+        "BM05",
+        "BM05_01"
+      ],
+      [
+        "BM05",
+        "BM05_02"
+      ],
+      [
+        "BM05",
+        "BM05_03"
+      ],
+      [
+        "BM05",
+        "BM05_04"
+      ],
+      [
+        "BM06",
+        "BM06_01"
+      ],
+      [
+        "BM06",
+        "BM06_02"
+      ],
+      [
+        "BM06",
+        "BM06_03"
+      ],
+      [
+        "BM06",
+        "BM06_04"
+      ],
+      [
+        "BM07",
+        "BM07_01"
+      ],
+      [
+        "BM07",
+        "BM07_02"
+      ],
+      [
+        "BM07",
+        "BM07_03"
+      ],
+      [
+        "BM07",
+        "BM07_04"
+      ],
+      [
+        "BM08",
+        "BM08_01"
+      ],
+      [
+        "BM08",
+        "BM08_02"
+      ],
+      [
+        "BM08",
+        "BM08_03"
+      ],
+      [
+        "BM08",
+        "BM08_04"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_03"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ],
+      [
+        "SCENARIOS",
+        "SC_01"
+      ],
+      [
+        "SCENARIOS",
+        "SC_02"
+      ],
+      [
+        "SCENARIOS",
+        "SC_03"
+      ],
+      [
+        "SCENARIOS",
+        "SC_04"
+      ],
+      [
+        "SCENARIOS",
+        "SC_05"
+      ],
+      [
+        "SCENARIOS",
+        "SC_06"
+      ]
+    ],
+    "premium": [
+      [
+        "BM01",
+        "BM01_01"
+      ],
+      [
+        "BM01",
+        "BM01_02"
+      ],
+      [
+        "BM01",
+        "BM01_03"
+      ],
+      [
+        "BM01",
+        "BM01_04"
+      ],
+      [
+        "BM01",
+        "BM01_05"
+      ],
+      [
+        "BM01",
+        "BM01_06"
+      ],
+      [
+        "BM01",
+        "BM01_07"
+      ],
+      [
+        "BM01",
+        "BM01_08"
+      ],
+      [
+        "BM02",
+        "BM02_01"
+      ],
+      [
+        "BM02",
+        "BM02_02"
+      ],
+      [
+        "BM02",
+        "BM02_03"
+      ],
+      [
+        "BM02",
+        "BM02_04"
+      ],
+      [
+        "BM02",
+        "BM02_05"
+      ],
+      [
+        "BM02",
+        "BM02_06"
+      ],
+      [
+        "BM02",
+        "BM02_07"
+      ],
+      [
+        "BM02",
+        "BM02_08"
+      ],
+      [
+        "BM03",
+        "BM03_01"
+      ],
+      [
+        "BM03",
+        "BM03_02"
+      ],
+      [
+        "BM03",
+        "BM03_03"
+      ],
+      [
+        "BM03",
+        "BM03_04"
+      ],
+      [
+        "BM03",
+        "BM03_05"
+      ],
+      [
+        "BM03",
+        "BM03_06"
+      ],
+      [
+        "BM03",
+        "BM03_07"
+      ],
+      [
+        "BM03",
+        "BM03_08"
+      ],
+      [
+        "BM04",
+        "BM04_01"
+      ],
+      [
+        "BM04",
+        "BM04_02"
+      ],
+      [
+        "BM04",
+        "BM04_03"
+      ],
+      [
+        "BM04",
+        "BM04_04"
+      ],
+      [
+        "BM04",
+        "BM04_05"
+      ],
+      [
+        "BM04",
+        "BM04_06"
+      ],
+      [
+        "BM04",
+        "BM04_07"
+      ],
+      [
+        "BM04",
+        "BM04_08"
+      ],
+      [
+        "BM05",
+        "BM05_01"
+      ],
+      [
+        "BM05",
+        "BM05_02"
+      ],
+      [
+        "BM05",
+        "BM05_03"
+      ],
+      [
+        "BM05",
+        "BM05_04"
+      ],
+      [
+        "BM05",
+        "BM05_05"
+      ],
+      [
+        "BM05",
+        "BM05_06"
+      ],
+      [
+        "BM05",
+        "BM05_07"
+      ],
+      [
+        "BM05",
+        "BM05_08"
+      ],
+      [
+        "BM06",
+        "BM06_01"
+      ],
+      [
+        "BM06",
+        "BM06_02"
+      ],
+      [
+        "BM06",
+        "BM06_03"
+      ],
+      [
+        "BM06",
+        "BM06_04"
+      ],
+      [
+        "BM06",
+        "BM06_05"
+      ],
+      [
+        "BM06",
+        "BM06_06"
+      ],
+      [
+        "BM06",
+        "BM06_07"
+      ],
+      [
+        "BM06",
+        "BM06_08"
+      ],
+      [
+        "BM07",
+        "BM07_01"
+      ],
+      [
+        "BM07",
+        "BM07_02"
+      ],
+      [
+        "BM07",
+        "BM07_03"
+      ],
+      [
+        "BM07",
+        "BM07_04"
+      ],
+      [
+        "BM07",
+        "BM07_05"
+      ],
+      [
+        "BM07",
+        "BM07_06"
+      ],
+      [
+        "BM07",
+        "BM07_07"
+      ],
+      [
+        "BM07",
+        "BM07_08"
+      ],
+      [
+        "BM08",
+        "BM08_01"
+      ],
+      [
+        "BM08",
+        "BM08_02"
+      ],
+      [
+        "BM08",
+        "BM08_03"
+      ],
+      [
+        "BM08",
+        "BM08_04"
+      ],
+      [
+        "BM08",
+        "BM08_05"
+      ],
+      [
+        "BM08",
+        "BM08_06"
+      ],
+      [
+        "BM08",
+        "BM08_07"
+      ],
+      [
+        "BM08",
+        "BM08_08"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_03"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ],
+      [
+        "VALIDATION",
+        "VAL_05"
+      ],
+      [
+        "VALIDATION",
+        "VAL_06"
+      ],
+      [
+        "SCENARIOS",
+        "SC_01"
+      ],
+      [
+        "SCENARIOS",
+        "SC_02"
+      ],
+      [
+        "SCENARIOS",
+        "SC_03"
+      ],
+      [
+        "SCENARIOS",
+        "SC_04"
+      ],
+      [
+        "SCENARIOS",
+        "SC_05"
+      ],
+      [
+        "SCENARIOS",
+        "SC_06"
+      ],
+      [
+        "SCENARIOS",
+        "SC_07"
+      ],
+      [
+        "SCENARIOS",
+        "SC_08"
+      ],
+      [
+        "SCENARIOS",
+        "SC_09"
+      ],
+      [
+        "SCENARIOS",
+        "SC_10"
+      ]
+    ]
+  }
+}

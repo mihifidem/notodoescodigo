@@ -66,11 +66,13 @@ def grade_scaled_attempt(quiz, attempt, *, timestamp):
     attempt.save(update_fields=[
         'score', 'is_passed', 'status', 'graded_at', 'correct_count', 'wrong_count', 'blank_count', 'updated_at',
     ])
-    published = bool(quiz.publish_grade_at and timestamp >= quiz.publish_grade_at)
+    published = bool(
+        attempt.results_released_at or (quiz.publish_grade_at and timestamp >= quiz.publish_grade_at)
+    )
     entry, _created = GradeEntry.objects.update_or_create(attempt=attempt, defaults={
         'user': attempt.user, 'course': quiz.course, 'grade': total, 'max_grade': Decimal(10),
         'status': GradeEntry.Status.PUBLISHED if published else GradeEntry.Status.DRAFT,
         'is_published': published,
-        'published_at': timestamp if published else None,
+        'published_at': attempt.results_released_at or (timestamp if published else None),
     })
     return entry

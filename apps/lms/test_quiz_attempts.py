@@ -35,6 +35,37 @@ class StudentQuizTests(TestCase):
         self.client.force_login(self.student)
         return quiz
 
+    def test_quiz_detail_tech_modern_preserves_role_controls(self):
+        from bs4 import BeautifulSoup
+
+        quiz = self.published_quiz()
+        for user in (self.teacher, self.student):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(self.url('quiz_detail', quiz))
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'css/billing.css')
+                self.assertContains(response, 'lms/knowledge-tech.css')
+                html = BeautifulSoup(response.content, 'html.parser')
+                wrapper = html.select_one('.billing-app.knowledge-tech.quiz-detail-tech')
+                self.assertIsNotNone(wrapper)
+                live = wrapper.select_one('[data-quiz-live-region]')
+                self.assertEqual(live.select_one('.page-heading h1').text, quiz.title)
+                self.assertIsNotNone(live.select_one('.quiz-overview'))
+                self.assertIsNotNone(live.select_one('.quiz-detail-facts'))
+                self.assertIsNotNone(live.select_one('details[data-quiz-info="solutions"]'))
+                self.assertEqual(wrapper.select_one('[aria-current="page"]').text, quiz.title)
+                if user == self.teacher:
+                    self.assertContains(response, self.url('quiz_edit', quiz))
+                    self.assertContains(response, self.url('quiz_delete', quiz))
+                    self.assertContains(response, 'value="close"')
+                else:
+                    self.assertContains(response, 'Comenzar prueba')
+                    self.assertNotContains(response, self.url('quiz_edit', quiz))
+                    self.assertNotContains(response, self.url('quiz_delete', quiz))
+                    self.assertNotContains(response, 'OPCION SECRETA')
+                    self.assertNotContains(response, 'SOLUCION SECRETA')
+
     def start(self, quiz):
         response = self.client.post(self.url('quiz_start', quiz))
         attempt = quiz.attempts.get(user=self.student)

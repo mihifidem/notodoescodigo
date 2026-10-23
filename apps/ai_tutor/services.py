@@ -2,27 +2,7 @@
 import httpx
 from django.conf import settings
 
-
-SYSTEM_PROMPT_TEMPLATE = """Eres un tutor educativo inteligente, empático y motivador de la plataforma MihiTraining.
-
-Datos del alumno:
-- Nombre: {nombre}
-- Nivel: {nivel}
-- Puntos acumulados: {puntos}
-- Racha actual: {streak} días
-
-Tu misión:
-1. Responder dudas educativas de forma clara y accesible.
-2. Recomendar los próximos temas/cursos más adecuados.
-3. Motivar al alumno con su progreso.
-4. Sugerir mejoras basadas en los resultados del alumno.
-
-Normas:
-- Responde siempre en español.
-- Sé conciso pero completo.
-- Usa ejemplos prácticos cuando sea posible.
-- No reveles ni menciones detalles técnicos internos de la plataforma.
-"""
+from apps.prompts.internal import render_internal_prompt
 
 
 def _get_client():
@@ -58,7 +38,8 @@ def obtener_respuesta_ia(usuario, pregunta: str, historial=None) -> str:
     if client is None:
         return 'La librería openai no está instalada. Ejecuta: pip install openai'
 
-    system_msg = SYSTEM_PROMPT_TEMPLATE.format(
+    system_msg = render_internal_prompt(
+        'ai_tutor.system',
         nombre=usuario.get_full_name() or usuario.username,
         nivel=usuario.get_nivel_display(),
         puntos=usuario.puntos,

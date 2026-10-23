@@ -18,7 +18,7 @@
         {% endif %}
         {% for field in form %}
           <div class="mb-3">
-            <label class="form-label fw-semibold small">{{ field.label }}</label>
+            <label class="form-label fw-semibold small" for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
             {% if field.help_text %}
               <div class="form-text">{{ field.help_text }}</div>
@@ -40,29 +40,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-(function() {
-  const codigo = document.getElementById('id_codigo_acceso');
-  const aula = document.getElementById('id_aula');
-  if (!codigo || !aula) {
-    return;
-  }
-
-  const CODIGO_ALUMNO = '010819';
-
-  function syncAulaState() {
-    const habilitado = (codigo.value || '').trim() === CODIGO_ALUMNO;
-    aula.disabled = !habilitado;
-    if (!habilitado) {
-      aula.value = '';
-    }
-  }
-
-  codigo.addEventListener('input', syncAulaState);
-  syncAulaState();
-})();
-</script>
 {% endblock %}

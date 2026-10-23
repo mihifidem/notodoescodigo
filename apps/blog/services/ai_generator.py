@@ -4,29 +4,9 @@ import logging
 
 from django.conf import settings
 
+from apps.prompts.internal import render_internal_prompt
+
 logger = logging.getLogger(__name__)
-
-_SYSTEM_PROMPT = """
-Eres un redactor experto en tecnología y educación digital.
-Tu misión es transformar un artículo técnico en un post de blog profesional en ESPAÑOL.
-
-REGLAS:
-- Responde ÚNICAMENTE con un JSON válido, sin markdown ni texto extra.
-- El contenido debe ser 100% original, no una traducción literal.
-- Usa un tono cercano, motivador y didáctico.
-- contenido_publico: introducción gancho + 2-3 secciones principales (min 300 palabras).
-- contenido_privado: análisis en profundidad, ejemplos avanzados, consejos pro (min 200 palabras).
-- hashtags: entre 3 y 6 etiquetas relevantes sin el símbolo #.
-
-FORMATO DE RESPUESTA:
-{
-  "titulo": "Título optimizado SEO en español (max 80 caracteres)",
-  "resumen": "Resumen atractivo de 2-3 frases (max 200 caracteres)",
-  "contenido_publico": "Contenido principal en Markdown",
-  "contenido_privado": "Contenido premium en Markdown",
-  "hashtags": ["tag1", "tag2", "tag3"]
-}
-"""
 
 
 def generar_contenido(titulo_original: str, contenido_original: str) -> dict | None:
@@ -48,10 +28,10 @@ def generar_contenido(titulo_original: str, contenido_original: str) -> dict | N
         logger.error("[ai_generator] Librería openai no instalada.")
         return None
 
-    user_msg = (
-        f"TÍTULO ORIGINAL: {titulo_original}\n\n"
-        f"CONTENIDO ORIGINAL:\n{contenido_original[:4000]}"  # límite de tokens
+    user_msg = render_internal_prompt(
+        'blog.user', titulo_original=titulo_original, contenido_original=contenido_original[:4000],
     )
+    system_msg = render_internal_prompt('blog.system')
 
     logger.info("[ai_generator] Procesando: %s", titulo_original[:60])
 
@@ -59,7 +39,7 @@ def generar_contenido(titulo_original: str, contenido_original: str) -> dict | N
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
             max_tokens=2000,
@@ -93,10 +73,7 @@ def generar_imagen_dall_e(titulo: str) -> bytes | None:
         import urllib.request
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-        prompt = (
-            f"Ilustración digital moderna y profesional para un artículo de blog titulado: "
-            f"'{titulo}'. Estilo minimalista, colores vibrantes, sin texto."
-        )
+        prompt = render_internal_prompt('blog.image', titulo=titulo)
         logger.info("[ai_generator] Generando imagen DALL·E para: %s", titulo[:60])
 
         response = client.images.generate(

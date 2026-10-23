@@ -1,9 +1,20 @@
 from django.urls import path
 from . import views
+from . import versioned_views as versioned
 
 app_name = 'nexus'
 
 urlpatterns = [
+    path('catalogo/', versioned.catalog, name='catalog'),
+    path('evaluacion/<int:pk>/', versioned.info, name='versioned_info'),
+    path('evaluacion/<int:pk>/comenzar/', versioned.start, name='versioned_start'),
+    path('intento/<int:pk>/', versioned.take, name='versioned_take'),
+    path('intento/<int:pk>/borrar/', versioned.delete_attempt, name='versioned_delete'),
+    path('intento/<int:pk>/informe/', versioned.report, name='versioned_report'),
+    path('intento/<int:pk>/objetivo/', versioned.goal, name='versioned_goal'),
+    path('intento/<int:pk>/ia/', versioned.ai, name='versioned_ai'),
+    path('historial/', versioned.history, name='versioned_history'),
+    path('evolucion/', versioned.evolution, name='versioned_evolution'),
     # ── Dashboard admin ───────────────────────────────────────────────────────
     path('', views.NexusDashboardView.as_view(), name='dashboard'),
 
@@ -38,16 +49,16 @@ urlpatterns = [
     path('recursos/<int:pk>/eliminar/', views.RecursoDeleteView.as_view(), name='recurso_delete'),
 
     # ── Demo / acceso libre (sin login) ──────────────────────────────────────
-    path('demo/',                         views.DemoListView.as_view(),       name='demo_list'),
-    path('demo/test/<int:pk>/',           views.DemoTestView.as_view(),       name='demo_take'),
-    path('demo/enviar/<int:pk>/',         views.DemoEnviarView.as_view(),     name='demo_submit'),
-    path('demo/resultados/',              views.DemoResultadosView.as_view(), name='demo_results'),
+    path('demo/',                         versioned.demo,       name='demo_list'),
+    path('demo/test/<int:pk>/',           versioned.demo,       name='demo_take'),
+    path('demo/enviar/<int:pk>/',         versioned.demo,     name='demo_submit'),
+    path('demo/resultados/',              versioned.demo, name='demo_results'),
 
     # ── Área alumnos (login requerido, sin restricción de staff) ─────────────
     path('mis-tests/', views.AlumnoListaTestsView.as_view(), name='student_list'),
     path('test/<int:pk>/info/', views.TestInfoView.as_view(), name='test_info'),
-    path('test/<int:pk>/', views.RealizarTestView.as_view(), name='student_take'),
-    path('sesion/<int:pk>/enviar/', views.EnviarTestView.as_view(), name='student_submit'),
+    path('test/<int:pk>/', versioned.legacy_take_unavailable, name='student_take'),
+    path('sesion/<int:pk>/enviar/', versioned.legacy_submit_unavailable, name='student_submit'),
     path('sesion/<int:pk>/resultados/', views.ResultadosTestView.as_view(), name='student_results'),
     path('sesion/<int:pk>/guardar-perfil/', views.GuardarEnPerfilView.as_view(), name='student_save_profile'),
     path('sesion/<int:pk>/borrar/', views.BorrarSesionView.as_view(), name='student_delete_session'),
@@ -55,8 +66,8 @@ urlpatterns = [
     path('mi-dna/', views.MiDNAView.as_view(), name='student_my_dna'),
 
     # ── Informes ─────────────────────────────────────────────────────────────
-    path('sesion/<int:pk>/guardar-informe/', views.GuardarInformeView.as_view(), name='guardar_informe'),
-    path('sesion/<int:pk>/generar-informe-ai/', views.GenerarInformeAIView.as_view(), name='generar_informe_ai'),
+    path('sesion/<int:pk>/guardar-informe/', versioned.legacy_report_unavailable, name='guardar_informe'),
+    path('sesion/<int:pk>/generar-informe-ai/', versioned.legacy_ai_unavailable, name='generar_informe_ai'),
     path('informe/<int:pk>/checkout/', views.CheckoutInformeView.as_view(), name='checkout_informe'),
     path('informe/<int:pk>/checkout/stripe/', views.StripeCheckoutView.as_view(), name='checkout_informe_stripe'),
     path('informe/<int:pk>/checkout/paypal/', views.PayPalCheckoutView.as_view(), name='checkout_informe_paypal'),

@@ -1,0 +1,11 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Nuevo análisis</h1>
+<p>Elige una sola fuente. Se capturará una copia privada que podrás revisar antes de analizar. No se modifica tu CV.</p>
+<p>Formato admitido: PDF, hasta {{ config.max_pdf_bytes }} bytes y {{ config.max_pages }} páginas, o texto pegado. Máximo {{ config.max_text_chars }} caracteres. No se ejecutan OCR, scripts ni enlaces.</p>
+<form method="post" enctype="multipart/form-data" class="ats-form card card-body" data-ats-editor>
+  {% csrf_token %}{% include "curriculum/letters/fields.html" %}
+  <button type="submit" class="btn btn-primary">Extraer y revisar sin consumo</button>
+  <p data-submit-status role="status"></p>
+</form>
+{% endblock %}

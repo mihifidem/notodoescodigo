@@ -94,23 +94,70 @@ class ActivityStudentWorkflowTests(TestCase):
             'course_id': self.course.pk, 'activity_id': activity.pk, **kwargs,
         })
 
-    def test_student_can_submit_and_replace_until_deadline_with_private_history(self):
+    def test_student_can_submit_only_once_even_before_deadline(self):
         activity = self.activity()
         self.client.force_login(self.student)
         detail = self.url('course_activity_detail', activity)
         self.assertContains(self.client.get(detail), 'Enviar entrega')
         self.assertRedirects(self.client.post(detail, {'text_answer': 'Primera versión'}), detail)
-        self.assertRedirects(self.client.post(detail, {'text_answer': 'Segunda versión'}), detail)
+        self.assertNotContains(self.client.get(detail), 'Enviar entrega')
+        response = self.client.post(detail, {'text_answer': 'Segunda versión'})
+        self.assertContains(response, 'No se permiten nuevas entregas')
         submissions = Submission.objects.filter(assignment__learning_activity=activity).order_by('version')
-        self.assertEqual(list(submissions.values_list('version', flat=True)), [1, 2])
-        self.assertEqual(submissions.last().text_answer, 'Segunda versión')
+        self.assertEqual(list(submissions.values_list('version', flat=True)), [1])
+        self.assertEqual(submissions.last().text_answer, 'Primera versión')
+        assignment = submissions.first().assignment
+        assignment.allow_resubmission = True
+        assignment.max_attempts = 0
+        assignment.save()
+        self.assertContains(self.client.post(detail, {'text_answer': 'Intento forzado'}), 'No se permiten nuevas entregas')
         self.assertContains(self.client.get(detail), 'Primera versión')
         activity.due_at = timezone.now()
         activity.save(update_fields=['due_at'])
         response = self.client.post(detail, {'text_answer': 'Fuera de plazo'})
-        self.assertContains(response, 'No se puede entregar')
-        self.assertEqual(submissions.count(), 2)
+        self.assertContains(response, 'No se permiten nuevas entregas')
+        self.assertEqual(submissions.count(), 1)
         self.assertNotContains(self.client.get(detail), 'Enviar entrega')
+
+    def test_activity_detail_tech_modern_preserves_roles_and_live_regions(self):
+        from bs4 import BeautifulSoup
+
+        activity = self.activity(
+            reference_code='PEC-M1-01', description='<p>Resumen de la practica</p>',
+            instructions='<p>Instrucciones de entrega</p>', solution='SOLUCION PRIVADA',
+            solution_release_at=timezone.now() + timedelta(days=2),
+        )
+        detail = self.url('course_activity_detail', activity)
+        for user in (self.teacher, self.student):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(detail)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'css/billing.css')
+                self.assertContains(response, 'lms/knowledge-tech.css')
+                html = BeautifulSoup(response.content, 'html.parser')
+                wrapper = html.select_one('.billing-app.knowledge-tech.activity-detail-tech')
+                self.assertIsNotNone(wrapper)
+                live = wrapper.select_one('[data-quiz-live-region]')
+                self.assertEqual(live.select_one('.page-heading h1').text, activity.title)
+                self.assertIn('PEC-M1-01', live.select_one('.page-heading').text)
+                self.assertIn('Resumen de la practica', live.text)
+                self.assertIn('Instrucciones de entrega', live.text)
+                self.assertIsNotNone(live.select_one('.activity-meta'))
+                if user == self.teacher:
+                    self.assertContains(response, self.url('course_activity_edit', activity))
+                    self.assertIsNone(wrapper.select_one('[data-activity-delivery-region]'))
+                    self.assertContains(response, 'SOLUCION PRIVADA')
+                else:
+                    delivery = wrapper.select_one('[data-activity-delivery-region]')
+                    self.assertIsNotNone(delivery)
+                    form = delivery.select_one('form[data-activity-submission-form]')
+                    self.assertEqual(form['enctype'], 'multipart/form-data')
+                    self.assertIsNotNone(form.select_one('[name="csrfmiddlewaretoken"]'))
+                    self.assertIsNotNone(form.select_one('[name="text_answer"]'))
+                    self.assertIsNotNone(form.select_one('[type="file"]'))
+                    self.assertNotContains(response, self.url('course_activity_edit', activity))
+                    self.assertNotContains(response, 'SOLUCION PRIVADA')
 
     def test_student_files_are_private_and_invalid_files_do_not_create_submissions(self):
         activity = self.activity()
@@ -143,6 +190,30 @@ class ActivityStudentWorkflowTests(TestCase):
             })
             self.assertContains(response, 'Extensión de archivo no permitida')
             self.assertEqual(Submission.objects.count(), 1)
+
+    def test_student_can_submit_m4a_audio(self):
+        activity = self.activity()
+        detail = self.url('course_activity_detail', activity)
+        self.client.force_login(self.student)
+        content = b'\x00\x00\x00\x20ftypM4A \x00\x00\x00\x00M4A '
+        field = SubmissionAttachment._meta.get_field('file')
+        with TemporaryDirectory() as folder, patch.object(
+            field, 'storage', PrivateMediaStorage(location=folder),
+        ):
+            for name in ('respuesta.m4a', 'RESPUESTA.M4A'):
+                with self.subTest(name=name):
+                    activity = self.activity()
+                    detail = self.url('course_activity_detail', activity)
+                    self.assertRedirects(self.client.post(detail, {
+                        'file': SimpleUploadedFile(name, content, content_type='audio/mp4'),
+                    }), detail)
+                    attachment = SubmissionAttachment.objects.get(file_name=name)
+                    response = self.client.get(self.url(
+                        'course_activity_attachment', activity, attachment_id=attachment.pk,
+                    ))
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(b''.join(response.streaming_content), content)
+                    response.close()
 
     def test_grades_feedback_and_solution_obey_release_dates_and_are_private(self):
         now = timezone.now()

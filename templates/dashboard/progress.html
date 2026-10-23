@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Mi progreso — Ducky Me{% endblock %}
+{% block page_title %}Mi progreso{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">{% endblock %}
+
+{% block content %}
+<main class="container-fluid px-3 px-lg-4 py-4 billing-app personal-tech" aria-labelledby="progress-heading">
+  <header class="billing-hero">
+    <div>
+      <p class="billing-eyebrow">Tu evolución · Paso a paso</p>
+      <h1 id="progress-heading">Mi <span>progreso</span></h1>
+      {% if is_demo %}
+        <p>Demostración fija; no consulta ni conserva historial personal de visitantes.</p>
+      {% else %}
+        <p>Indicadores personales calculados desde actividades verificadas. Generado {{ generated_at|date:'d M Y, H:i' }}.</p>
+      {% endif %}
+    </div>
+    <div class="billing-plan-badge"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i><span>{% if is_demo %}Vista de ejemplo<strong>Demo</strong>{% else %}Tu historial<strong>Privado</strong>{% endif %}</span></div>
+  </header>
+    <nav class="tech-actions" aria-label="Acciones de progreso">
+      <a class="btn btn-outline-primary" href="{% url 'users:dashboard' %}">Volver a Ducky Me</a>
+      <a class="btn btn-outline-primary" href="{% url 'gamification:ranking' %}">Consultar rankings</a>
+      {% if can_export %}<a class="btn btn-primary" href="{% url 'users:progress_export' %}?area={{ selected_area|default:'all' }}&from={{ selected_from }}&to={{ selected_to }}">Exportar resumen CSV</a>{% endif %}
+    </nav>
+
+  {% if messages %}
+    {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>{% endfor %}
+  {% endif %}
+
+  {% if is_demo %}
+    <section class="alert alert-info" role="note">
+      <h2 class="h5">Ejemplo de progreso</h2>
+      <p class="mb-2">Los indicadores siguientes ilustran el formato y no son actividad real:</p>
+      <ul class="mb-0"><li>Temas completados: demostración</li><li>Objetivos personales: demostración</li><li>Historial y comparaciones: disponibles al iniciar sesión, según el nivel de acceso</li></ul>
+      <div class="mt-3 d-flex gap-2"><a class="btn btn-primary" href="{% url 'users:registro' %}">Crear cuenta FREE</a><a class="btn btn-outline-primary" href="{{ LOGIN_URL }}">Iniciar sesión</a></div>
+    </section>
+  {% else %}
+    <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="filter-title">
+      <div class="card-body">
+        <h2 id="filter-title" class="h5 fw-bold">Filtrar mi historial</h2>
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="area">Área</label>
+            <select class="form-select" id="area" name="area">
+              <option value="all" {% if selected_area == 'all' %}selected{% endif %}>Todas las fuentes disponibles</option>
+              <option value="formation" {% if selected_area == 'formation' %}selected{% endif %}>Formación</option>
+              <option value="competencies" {% if selected_area == 'competencies' %}selected{% endif %}>Competencias (privado)</option>
+              <option value="games" {% if selected_area == 'games' %}selected{% endif %}>Juegos (integración pendiente)</option>
+              <option value="employment" {% if selected_area == 'employment' %}selected{% endif %}>Empleo (integración pendiente)</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label" for="from">Desde</label>
+            <input class="form-control" type="date" id="from" name="from" value="{{ selected_from }}">
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label" for="to">Hasta</label>
+            <input class="form-control" type="date" id="to" name="to" value="{{ selected_to }}">
+          </div>
+          <div class="col-12 col-md-2 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Aplicar</button>
+            <a class="btn btn-outline-secondary" href="{% url 'users:progress' %}">Limpiar</a>
+          </div>
+          {% if is_pro %}
+            <div class="col-12">
+              <button class="btn btn-sm btn-outline-primary" type="submit" name="compare" value="1">Comparar con el periodo anterior (PRO)</button>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </section>
+
+    <section class="mb-4" aria-labelledby="metrics-title">
+      <h2 id="metrics-title" class="h4 fw-bold mb-3">Indicadores personales</h2>
+      {% if summary.has_source_data %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+          {% if summary.completed_lessons is not None %}
+            <div class="col"><article class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body"><div class="small text-muted">Temas completados</div><div class="display-6 fw-bold">{{ summary.completed_lessons }}</div><p class="small text-muted mb-0">Fuente: progreso de cursos completado.</p></div></article></div>
+          {% endif %}
+          {% if summary.completed_courses is not None %}
+            <div class="col"><article class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body"><div class="small text-muted">Cursos completados</div><div class="display-6 fw-bold">{{ summary.completed_courses }}</div><p class="small text-muted mb-0">Fuente: matrícula marcada como completada.</p></div></article></div>
+          {% endif %}
+          {% if summary.quiz_attempts is not None %}
+            <div class="col"><article class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body"><div class="small text-muted">Intentos de evaluación</div><div class="display-6 fw-bold">{{ summary.quiz_attempts }}</div><p class="small text-muted mb-0">Cada resultado enviado es un intento verificado; no se suma como puntos.</p></div></article></div>
+          {% endif %}
+          {% if summary.completed_nexus_tests is not None %}
+            <div class="col"><article class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body"><div class="small text-muted">Evaluaciones Nexus</div><div class="display-6 fw-bold">{{ summary.completed_nexus_tests }}</div><p class="small text-muted mb-0">Solo sesiones propias completadas; informes y respuestas no se exponen.</p></div></article></div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="alert alert-secondary" role="status">No hay actividad verificada en este periodo y área. Cero actividad no significa que falten datos.</div>
+      {% endif %}
+      {% if is_plus %}
+        <p class="small text-muted mt-2">Actividad registrada este mes: {{ summary.monthly_activities }} eventos de actividad disponibles.</p>
+      {% else %}
+        <p class="small text-muted mt-2">El resumen mensual ampliado está disponible con PLUS o PRO. Tu historial personal básico se conserva.</p>
+      {% endif %}
+      <p class="small text-muted">Insignias vigentes: {{ summary.valid_badges }}. Este valor procede de las concesiones registradas, no de una puntuación.</p>
+    </section>
+
+    {% if comparison %}
+      <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="comparison-title">
+        <div class="card-body">
+          <h2 id="comparison-title" class="h4 fw-bold">Comparación entre periodos (PRO)</h2>
+          <p class="text-muted">Actual: {{ comparison.current_start|date:'d M Y' }} – {{ comparison.current_end|date:'d M Y' }}. Anterior: {{ comparison.previous_start|date:'d M Y' }} – {{ comparison.previous_end|date:'d M Y' }}.</p>
+          <div class="table-responsive"><table class="table table-sm align-middle">
+            <caption class="visually-hidden">Comparación de métricas personales entre periodos equivalentes</caption>
+            <thead><tr><th scope="col">Indicador</th><th scope="col">Anterior</th><th scope="col">Actual</th><th scope="col">Cambio</th></tr></thead>
+            <tbody>
+              {% for key, metric in comparison.metrics.items %}
+                <tr><th scope="row">{% if key == 'completed_lessons' %}Temas completados{% elif key == 'completed_courses' %}Cursos completados{% else %}Intentos de evaluación{% endif %}</th><td>{{ metric.previous }}</td><td>{{ metric.current }}</td><td>{{ metric.difference }}{% if metric.percent_change is not None %} ({{ metric.percent_change|floatformat:1 }}%){% else %} (sin porcentaje: el periodo anterior es cero){% endif %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table></div>
+          <p class="small text-muted mb-0">La comparación cuantifica eventos; no demuestra una competencia profesional ni ajusta diferencias de dificultad.</p>
+        </div>
+      </section>
+    {% endif %}
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xl-7">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="history-title">
+          <div class="card-body p-0">
+            <div class="p-4 pb-2"><h2 id="history-title" class="h4 fw-bold">Historial verificable</h2><p class="small text-muted mb-0">Actividad propia, ordenada por fecha. Las respuestas completas no se incluyen.</p></div>
+            {% if rows %}
+              <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <caption class="visually-hidden">Historial personal de progreso</caption>
+                <thead><tr><th scope="col">Fecha</th><th scope="col">Actividad</th><th scope="col">Área y fuente</th><th scope="col">Resultado</th></tr></thead>
+                <tbody>{% for row in rows %}
+                  <tr><td><time datetime="{{ row.date|date:'c' }}">{{ row.date|date:'d M Y, H:i' }}</time></td><td><div class="fw-semibold">{{ row.title }}</div><div class="small text-muted">{{ row.description }}</div>{% if row.url %}<a class="small" href="{{ row.url }}">Abrir detalle autorizado</a>{% endif %}</td><td>{{ row.area }}<div class="small text-muted">{{ row.metric }}</div></td><td>{{ row.result }}{% if row.version %}<div class="small text-muted">Versión: {{ row.version }}</div>{% endif %}</td></tr>
+                {% endfor %}</tbody>
+              </table></div>
+            {% else %}
+              <p class="text-muted px-4 pb-4">No hay eventos registrados para los filtros elegidos. Continúa una actividad formativa para empezar tu historial.</p>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+      <div class="col-12 col-xl-5">
+        <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="goals-title">
+          <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center"><h2 id="goals-title" class="h4 fw-bold mb-0">Mis objetivos</h2><a class="btn btn-sm btn-outline-primary" href="{% url 'users:dashboard' %}#personal-goals">Gestionar en Ducky Me</a></div>
+            {% if goals %}
+              <ul class="list-group list-group-flush mt-2">{% for item in goals %}
+                <li class="list-group-item px-0">
+                  <div class="d-flex justify-content-between gap-2"><strong>{{ item.goal.title }}</strong><span class="badge text-bg-secondary">{{ item.goal.get_status_display }}</span></div>
+                  {% if item.goal.description %}<p class="small text-muted mb-1">{{ item.goal.description }}</p>{% endif %}
+                  {% if item.progress.current is not None %}<p class="small mb-1">{{ item.progress.current }} / {{ item.progress.target }}{% if item.goal.target_label %} {{ item.goal.target_label }}{% endif %}</p>{% endif %}
+                  {% if item.progress.percent is not None %}<div class="progress" style="height:8px" role="progressbar" aria-label="Progreso de {{ item.goal.title }}" aria-valuenow="{{ item.progress.percent }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ item.progress.percent }}%"></div></div>{% endif %}
+                  <div class="small text-muted mt-1">{{ item.goal.get_tracking_type_display }}{% if item.goal.source_metric %} · Fuente: {{ item.goal.get_source_metric_display }}{% endif %}{% if item.goal.target_date %} · Fecha objetivo: {{ item.goal.target_date|date:'d M Y' }}{% endif %}</div>
+                </li>
+              {% endfor %}</ul>
+            {% else %}<p class="text-muted mt-3 mb-0">Todavía no tienes objetivos activos o completados.</p>{% endif %}
+          </div>
+        </section>
+
+        <section class="card border-0 shadow-sm rounded-4" aria-labelledby="areas-title">
+          <div class="card-body">
+            <h2 id="areas-title" class="h4 fw-bold">Áreas y fuentes</h2>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0"><strong>Formación</strong><span class="d-block small text-muted">Cursos, temas y resultados de quizzes propios.</span></li>
+              <li class="list-group-item px-0"><strong>Competencias</strong><span class="d-block small text-muted">Sesiones Nexus completadas; resultados privados, no puntuación pública.</span></li>
+              <li class="list-group-item px-0"><strong>Juegos</strong><span class="d-block small text-muted">Integración de resultados competitivos pendiente; no se simulan marcas.</span></li>
+              <li class="list-group-item px-0"><strong>Empleo</strong><span class="d-block small text-muted">No conectado a una fuente de candidaturas propietaria.</span></li>
+            </ul>
+            <p class="small text-muted mt-3 mb-0">No se infieren horas de estudio ni se agregan porcentajes de evaluaciones distintas.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

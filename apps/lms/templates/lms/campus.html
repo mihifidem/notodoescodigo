@@ -1,0 +1,91 @@
+{% extends 'lms/base.html' %}
+{% load i18n static %}
+{% block title %}Campus | Ducky Academy{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/campus-tech.css' %}">
+{% endblock %}
+{% block content %}
+<main class="billing-app personal-tech campus-tech" aria-labelledby="campus-heading">
+  <header class="billing-hero mb-4">
+    <div>
+      <p class="billing-eyebrow">{% trans "Ducky Academy · Tu espacio de aprendizaje" %}</p>
+      <h1 id="campus-heading">{% trans "Campus" %} <span>· {% trans "Mis cursos" %}</span></h1>
+      <p class="campus-intro">{% trans "Aprende, continúa tus actividades y consulta tus resultados privados. La matrícula y el derecho de acceso son independientes." %}</p>
+    </div>
+    <div class="billing-plan-badge">
+      <i class="bi bi-backpack" aria-hidden="true"></i>
+      {% if request.user.is_authenticated %}
+        <span>{% trans "Tu plan de acceso" %}<strong>{{ campus_plan|upper }}</strong></span>
+      {% else %}
+        <span>{% trans "Descubre tu próximo paso" %}<strong>{% trans "Aprende" %}</strong></span>
+      {% endif %}
+    </div>
+  </header>
+  {% if not request.user.is_authenticated %}
+    <section class="card campus-empty mb-4" aria-labelledby="campus-login-heading">
+      <div class="card-body">
+        <i class="bi bi-person-lock campus-empty-icon" aria-hidden="true"></i>
+        <h2 id="campus-login-heading">{% trans "Tu aprendizaje empieza aquí" %}</h2>
+        <p class="text-muted">{% trans "Inicia sesión para consultar tus cursos. No mostramos expedientes ni guardamos progreso de visitantes." %}</p>
+        <a class="btn btn-primary" href="{{ campus_login_url }}?next={{ request.path|urlencode }}">{% trans "Iniciar sesión" %}</a>
+      </div>
+    </section>
+  {% else %}
+    <nav class="billing-nav" aria-label="{% trans 'Mi aprendizaje' %}">
+      <a href="{% url 'certifications:list' %}"><i class="bi bi-patch-check" aria-hidden="true"></i>{% trans "Mis certificaciones" %}</a>
+      <a href="{% url 'users:progress' %}"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i>{% trans "Mi progreso" %}</a>
+      <a href="{% url 'lms:campus_teaching' %}"><i class="bi bi-people" aria-hidden="true"></i>{% trans "Mis grupos docentes" %}</a>
+      {% if campus_plan == 'pro' %}<a href="{% url 'users:goal_create' %}"><i class="bi bi-bullseye" aria-hidden="true"></i>{% trans "Mis objetivos" %}</a>{% endif %}
+    </nav>
+    <div class="campus-section-heading">
+      <h2 id="campus-courses-heading">{% trans "Tu itinerario de aprendizaje" %}</h2>
+      <span class="badge campus-count">{{ campus_rows|length }} {% trans "cursos" %}</span>
+    </div>
+    <section class="row g-4 mb-4" aria-labelledby="campus-courses-heading">
+      {% for row in campus_rows %}
+        <div class="col-12 col-lg-6">
+          <article class="card campus-course h-100" aria-labelledby="campus-course-{{ row.course.pk }}">
+            <div class="card-body d-flex flex-column">
+              <div class="campus-course-heading">
+                <span class="campus-course-icon"><i class="bi bi-journal-bookmark" aria-hidden="true"></i></span>
+                <h3 id="campus-course-{{ row.course.pk }}">{{ row.course.nombre }}</h3>
+              </div>
+              {% if row.membership %}
+                <p class="small text-muted">{% trans "Matrícula" %}: {{ row.membership.get_status_display }}
+                  {% if row.membership.section %} · {{ row.membership.section.title }}{% endif %}
+                </p>
+              {% else %}<p class="small text-muted">{% trans "Matrícula anterior · historial conservado" %}</p>{% endif %}
+              {% if row.progress %}
+                <div class="campus-progress">
+                  <p>{% trans "Requisitos cumplidos" %}: <strong>{{ row.progress.completed }}/{{ row.progress.total }} ({{ row.progress.percent }}%)</strong></p>
+                  <progress value="{{ row.progress.percent }}" max="100" aria-label="{% trans 'Progreso en' %} {{ row.course.nombre }}">{{ row.progress.percent }}%</progress>
+                  {% if campus_plan == 'plus' or campus_plan == 'pro' %}
+                    <p class="small text-muted">{% trans "Pendientes" %}: {{ row.progress.missing|length }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if row.reason %}<p class="campus-access-note" role="status"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>{{ row.reason }}</p>{% endif %}
+              <a class="btn btn-outline-primary mt-auto align-self-start" href="{{ row.url }}">{% trans "Ver curso y estado de acceso" %}<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
+            </div>
+          </article>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="card campus-empty">
+            <div class="card-body">
+              <i class="bi bi-journal-plus campus-empty-icon" aria-hidden="true"></i>
+              <h3>{% trans "Tu próximo curso te espera" %}</h3>
+              <p class="text-muted">{% trans "Todavía no tienes cursos. Inscríbete mediante los flujos disponibles del catálogo." %}</p>
+              <a class="btn btn-primary" href="{% url 'courses:list' %}">{% trans "Explorar cursos" %}</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+  <p class="campus-notice"><i class="bi bi-info-circle me-2" aria-hidden="true"></i>{% trans "Aprender no consume Energía Ducky. Ayuda IA no disponible: pendiente de integración energética." %}</p>
+</main>
+{% endblock %}

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.core.exceptions import PermissionDenied, ValidationError
+from apps.users.access import is_platform_admin
 from .models import (
     NexusModule, Question, AnswerOption, Assessment,
     AssessmentSession, UserAnswer, ModuleResult, DNAProfile,
@@ -146,3 +148,104 @@ class DimensionDefinicionAdmin(admin.ModelAdmin):
         (None, {'fields': ['test_tipo', 'label', 'icono', 'orden']}),
         ('Descripción general', {'fields': ['descripcion']}),
     ]
+
+
+# Editorial permissions do not grant access to private assessments or reports.
+for private_model in (AssessmentSession, DNAProfile, SesionTest, InformeTest):
+    admin.site.unregister(private_model)
+
+
+from .models import NexusAIOperation, NexusEditorialEvent, NexusFamily, NexusModality, NexusVersion
+
+
+class EditorialAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return is_platform_admin(request.user) and super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        return is_platform_admin(request.user) and super().has_view_permission(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return is_platform_admin(request.user) and super().has_change_permission(request, obj)
+
+    def has_add_permission(self, request):
+        return is_platform_admin(request.user) and super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(NexusFamily)
+class NexusFamilyAdmin(EditorialAdmin):
+    list_display = ['name', 'code', 'active', 'order']
+    list_filter = ['active']
+
+    def get_readonly_fields(self, request, obj=None):
+        return ['code'] if obj else []
+
+
+@admin.register(NexusModality)
+class NexusModalityAdmin(NexusFamilyAdmin):
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(NexusVersion)
+class NexusVersionAdmin(EditorialAdmin):
+    list_display = ['title', 'family', 'mode', 'version', 'status', 'is_fixture', 'published_at']
+    list_filter = ['family', 'mode', 'status', 'is_fixture']
+    readonly_fields = ['snapshot', 'published_at', 'created_at', 'updated_at']
+    actions = None
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.published_at:
+            return [field.name for field in obj._meta.fields if field.name not in ('status', 'change_reason')]
+        return self.readonly_fields
+
+    def save_model(self, request, obj, form, change):
+        previous = NexusVersion.objects.get(pk=obj.pk) if change else None
+        changed_publication = obj.status in ('published', 'archived') and (
+            previous is None or previous.status != obj.status
+        )
+        if changed_publication and not request.user.has_perm('nexus.publish_nexusversion'):
+            raise PermissionDenied('Se necesita permiso específico de publicación Nexus.')
+        obj.save(editorial_actor=request.user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        parent_form = super().get_form(request, obj, **kwargs)
+
+        class EditorialForm(parent_form):
+            def clean(self):
+                cleaned = super().clean()
+                if cleaned.get('status') in ('published', 'archived'):
+                    if not request.user.has_perm('nexus.publish_nexusversion'):
+                        raise ValidationError('Necesitas el permiso específico de publicación.')
+                    if not cleaned.get('change_reason'):
+                        raise ValidationError('Indica un motivo de publicación o archivo.')
+                return cleaned
+        return EditorialForm
+
+
+@admin.register(NexusEditorialEvent)
+class NexusEditorialEventAdmin(EditorialAdmin):
+    list_display = ['version', 'actor', 'action', 'created_at']
+    readonly_fields = ['version', 'actor', 'action', 'reason', 'created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(NexusAIOperation)
+class NexusAIOperationAdmin(EditorialAdmin):
+    list_display = ['id', 'task', 'status', 'error', 'created_at']
+    fields = ['id', 'task', 'status', 'error', 'created_at']
+    readonly_fields = fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

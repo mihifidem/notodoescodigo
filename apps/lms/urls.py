@@ -1,10 +1,13 @@
 from django.urls import path
 
-from . import activity_views, forum_views, knowledge_views, lifecycle_views, module_views, quiz_views, views
+from . import activity_views, campus_views, forum_views, knowledge_views, lifecycle_views, module_views, quiz_views, views
 
 app_name = 'lms'
 
 urlpatterns = [
+    path('campus/', campus_views.CampusView.as_view(), name='campus'),
+    path('campus/teaching/', campus_views.CampusTeachingView.as_view(), name='campus_teaching'),
+    path('campus/courses/<int:course_id>/', campus_views.CampusCourseView.as_view(), name='campus_course'),
     path('courses/<int:course_id>/modules/<int:module_id>/contents/', module_views.ModuleContentsView.as_view(), name='module_contents'),
     path('courses/<int:course_id>/modules/<int:module_id>/units/new/', module_views.FormativeUnitView.as_view(), name='formative_unit_create'),
     path('courses/<int:course_id>/modules/<int:module_id>/units/<int:unit_id>/edit/', module_views.FormativeUnitView.as_view(), name='formative_unit_edit'),
@@ -33,9 +36,11 @@ urlpatterns = [
     path('courses/<int:course_id>/quizzes/create/', quiz_views.QuizEditView.as_view(), name='quiz_create'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/', quiz_views.QuizDetailView.as_view(), name='quiz_detail'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/edit/', quiz_views.QuizEditView.as_view(), name='quiz_edit'),
+    path('courses/<int:course_id>/quizzes/<int:quiz_id>/passing-score/', quiz_views.QuizPassingScoreView.as_view(), name='quiz_passing_score'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/reopen/', quiz_views.QuizReopenView.as_view(), name='quiz_reopen'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/start/', quiz_views.QuizStartView.as_view(), name='quiz_start'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/attempts/<int:attempt_id>/', quiz_views.QuizAttemptView.as_view(), name='quiz_attempt'),
+    path('courses/<int:course_id>/quizzes/<int:quiz_id>/attempts/<int:attempt_id>/release/', quiz_views.QuizReleaseResultsView.as_view(), name='quiz_release_results'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/delete/', quiz_views.QuizDeleteView.as_view(), name='quiz_delete'),
     path('courses/<int:course_id>/quizzes/<int:quiz_id>/status/', quiz_views.QuizStatusView.as_view(), name='quiz_status'),
     path('courses/<int:course_id>/knowledge/create/', knowledge_views.BankEditView.as_view(), name='knowledge_create'),

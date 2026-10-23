@@ -6,7 +6,10 @@ import django.db.models.deletion
 
 
 def cleanup_partial_lms_0004_schema(apps, schema_editor):
-    """Recover a partially created LMS schema before the migration continues."""
+    """Recover a partially created legacy SQLite schema before continuing."""
+    if schema_editor.connection.vendor != 'sqlite':
+        return
+
     with schema_editor.connection.cursor() as cursor:
         for table_name in [
             'lms_coursesettingslms',

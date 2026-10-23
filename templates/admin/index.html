@@ -74,6 +74,18 @@
 {% block content %}
 <h1>{% translate 'Site administration' %}</h1>
 
+{% if perms.updates.view_proximaactualizacion or perms.updates.change_proximaactualizacion %}
+<div class="module">
+  <h2>Próximas actualizaciones · Cosas pendientes</h2>
+  <p>
+    <a href="{% url 'admin:updates_proximaactualizacion_changelist' %}">Ver y gestionar próximas actualizaciones</a>
+  </p>
+  {% if perms.updates.add_proximaactualizacion %}
+  <p><a href="{% url 'admin:updates_proximaactualizacion_add' %}" class="addlink">Añadir próxima actualización</a></p>
+  {% endif %}
+</div>
+{% endif %}
+
 {# ── Módulo de acceso rápido Corrección IA ── #}
 {% url 'admin:evaluations_evaluacion_changelist' as url_eval_list %}
 {% url 'admin:evaluations_evaluacion_add' as url_eval_add %}

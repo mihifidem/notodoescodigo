@@ -85,7 +85,7 @@ class BankEditView(KnowledgeMixin, View):
 class BankDetailView(KnowledgeMixin, View):
     def get(self, request, *args, **kwargs):
         bank = self.get_bank()
-        questions = bank.questions.select_related('current_version')
+        questions = bank.questions.select_related('current_version', 'formative_unit__module')
         search = request.GET.get('q', '').strip()
         if search:
             questions = questions.filter(Q(title__icontains=search) | Q(current_version__prompt__icontains=search))
@@ -93,7 +93,7 @@ class BankDetailView(KnowledgeMixin, View):
         if status in Question.Status.values:
             questions = questions.filter(status=status)
         difficulty = request.GET.get('difficulty', '')
-        if difficulty in ('1', '2', '3'):
+        if difficulty in {str(value) for value, label in Question.DIFFICULTY_CHOICES}:
             questions = questions.filter(difficulty=int(difficulty))
         for question in questions:
             version = question.current_version
@@ -104,6 +104,7 @@ class BankDetailView(KnowledgeMixin, View):
         return render(request, 'lms/knowledge_bank.html', self.context(
             bank=bank, questions=questions, search=search, status=status, difficulty=difficulty,
             statuses=Question.Status.choices,
+            difficulties=Question.DIFFICULTY_CHOICES,
             review_count=bank.questions.filter(current_version__metadata__has_key='csv_review').count(),
         ))
 
@@ -173,7 +174,7 @@ class QuestionEditView(KnowledgeMixin, View):
             messages.error(request, ' '.join(error.messages))
             return redirect('lms:knowledge_bank', course_id=self.course.pk, bank_id=bank.pk)
         return render(request, 'lms/knowledge_form.html', self.context(
-            bank=bank, form=BankQuestionForm(initial=initial), heading=_('Editar pregunta') if question else _('Crear pregunta'),
+            bank=bank, form=BankQuestionForm(initial=initial, bank=bank), heading=_('Editar pregunta') if question else _('Crear pregunta'),
             csv_review=question.current_version.metadata.get('csv_review') if question and question.current_version else None,
         ))
 
@@ -186,7 +187,7 @@ class QuestionEditView(KnowledgeMixin, View):
             except ValidationError as error:
                 messages.error(request, ' '.join(error.messages))
                 return redirect('lms:knowledge_bank', course_id=self.course.pk, bank_id=bank.pk)
-        form = BankQuestionForm(request.POST)
+        form = BankQuestionForm(request.POST, bank=bank)
         if form.is_valid():
             try:
                 save_bank_question(bank=bank, actor=request.user, data=form.cleaned_data, question=question)

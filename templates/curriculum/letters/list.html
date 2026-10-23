@@ -1,0 +1,39 @@
+{% extends "curriculum/letters/base.html" %}
+{% block letter_hero %}
+<header class="billing-hero">
+  <div>
+    <p class="billing-eyebrow">Tu voz · Tu siguiente oportunidad</p>
+    <h1>Mis cartas de <span>presentación</span></h1>
+    <p>Privadas para tu cuenta. Editar, copiar y descargar no consume Energía Ducky.</p>
+  </div>
+  <div class="billing-plan-badge"><i class="bi bi-envelope-paper" aria-hidden="true"></i><span>Tu espacio<strong>Privado</strong></span></div>
+</header>
+{% endblock %}
+{% block letter_content %}
+<div class="alert alert-warning" role="status">{{ availability.message }}</div>
+<a class="btn btn-primary mb-3" href="{% url 'curriculum:letter_new' %}">Nueva carta</a>
+<form method="get" class="tech-search mb-3">
+  <label class="form-label" for="letter-search">Buscar por título</label>
+  <input class="form-control" id="letter-search" name="q" value="{{ query }}" maxlength="200">
+  <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+</form>
+<div class="row g-3">
+{% for letter in page_obj %}
+  <article class="col-12 col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h2 class="h5"><a href="{% url 'curriculum:letter_detail' pk=letter.pk %}">{{ letter.title }}</a></h2>
+      <p>{{ letter.offer.position|default:"Puesto no indicado" }} · {{ letter.offer.company|default:"Empresa no indicada" }}</p>
+      <p>Perfil: {{ letter.reviewed_snapshot.profile_name }} · {{ letter.get_language_display }} · {{ letter.get_status_display }}</p>
+      <p class="small">Actualizada: {{ letter.updated_at|date:"DATETIME_FORMAT" }}</p>
+    </div></div>
+  </article>
+{% empty %}
+  <p>No hay cartas que mostrar. Crea un borrador privado o consulta la demostración.</p>
+{% endfor %}
+</div>
+<nav aria-label="Páginas de cartas" class="mt-4">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&amp;q={{ query|urlencode }}">Anterior</a>{% endif %}
+  <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&amp;q={{ query|urlencode }}">Siguiente</a>{% endif %}
+</nav>
+{% endblock %}

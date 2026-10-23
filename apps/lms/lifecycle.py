@@ -160,7 +160,7 @@ def process_quiz(quiz_id, *, now):
         Q(status=QuizAttempt.Status.SUBMITTED) |
         Q(status=QuizAttempt.Status.IN_PROGRESS, deadline_at__lte=now) |
         Q(status=QuizAttempt.Status.IN_PROGRESS, quiz__status=Quiz.Status.CLOSED),
-    ).exclude(answers__manual_review=True).distinct()
+    ).exclude(answers__manual_review=True)
     for attempt in attempts:
         if not attempt.submitted_at:
             attempt.submitted_at = now
@@ -253,6 +253,14 @@ def process_activity(activity_id, *, now):
 def complete_student(course_id, user_id, *, now):
     course = Curso.objects.select_for_update().get(pk=course_id)
     membership = CourseMembership.objects.select_for_update().filter(course=course, user_id=user_id).first()
+    from .campus import campus_settings, refresh_completion
+    if campus_settings(course):
+        if not membership or not membership.learning_contract:
+            return False
+        previously_passed = bool(membership.passed_at)
+        refresh_completion(membership.pk)
+        membership.refresh_from_db()
+        return bool(membership.passed_at) and not previously_passed
     if membership and (membership.role != CourseMembership.Role.STUDENT or membership.status != CourseMembership.Status.ACTIVE):
         return False
     enrollment = InscripcionCurso.objects.select_for_update().filter(curso=course, usuario_id=user_id).first()

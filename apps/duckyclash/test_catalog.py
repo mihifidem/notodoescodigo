@@ -11,8 +11,9 @@ from django.urls import reverse
 
 from . import test_private_challenges as private_tests
 from apps.courses.models import CourseCategory, CourseSector
-from .forms import LandscapeCreateForm, SubcategoryCreateForm, SubcategoryAdminForm
+from .forms import LandscapeCreateForm, SubcategoryCreateForm, SubcategoryAdminForm, PrivateChallengeForm
 from .models import Challenge, ChallengeSubcategory, Landscape
+from .characters import era_for_xp
 
 
 @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
@@ -34,6 +35,97 @@ class ChallengeCatalogTests(TestCase):
         stream = BytesIO()
         Image.new('RGB', size).save(stream, format=format)
         return SimpleUploadedFile(name, stream.getvalue(), content_type='image/png')
+
+    def test_admin_creates_category_inline_and_keeps_challenge_inputs(self):
+        from apps.users.models import AccessRoleAssignment
+        AccessRoleAssignment.objects.create(user=self.creator, role='admin')
+        response = self.client.post(self.create_url, self.post_data(
+            catalog_action='category', **{
+                'new_category-sector': self.sector.pk,
+                'new_category-nombre': 'Nueva categoría de retos',
+                'new_category-descripcion': 'Catálogo compartido',
+            },
+        ))
+        self.assertEqual(response.status_code, 200)
+        category = CourseCategory.objects.get(nombre='Nueva categoría de retos')
+        self.assertEqual(category.sector_id, self.sector.pk)
+        self.assertEqual(response.context['form'].data['category'], str(category.pk))
+        self.assertEqual(response.context['form'].data['sector'], str(self.sector.pk))
+        self.assertEqual(str(response.context['form'].data['stake']), '20')
+        self.assertFalse(Challenge.objects.exists())
+        self.assertEqual(private_tests.FakeBankGateway.calls, [])
+        self.assertContains(response, 'Guardar categoría')
+        self.assertContains(response, 'catalog-selects.js')
+
+    def test_non_admin_cannot_create_category(self):
+        response = self.client.post(self.create_url, {
+            'catalog_action': 'category', 'new_category-sector': self.sector.pk,
+            'new_category-nombre': 'Forbidden',
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(CourseCategory.objects.filter(nombre='Forbidden').exists())
+
+    def test_admin_creates_subcategory_without_model_permission(self):
+        from apps.users.models import AccessRoleAssignment
+        AccessRoleAssignment.objects.create(user=self.creator, role='admin')
+        response = self.client.post(reverse('duckyclash:open_create'), self.post_data(
+            catalog_action='subcategory', **{
+                'new_subcategory-sector': self.sector.pk,
+                'new_subcategory-category': self.category.pk,
+                'new_subcategory-name': 'Subcategoría ADMIN',
+            },
+        ))
+        self.assertEqual(response.status_code, 200)
+        entry = ChallengeSubcategory.objects.get(name='Subcategoría ADMIN')
+        self.assertEqual(response.context['form'].data['subcategory'], str(entry.pk))
+        self.assertEqual(response.context['form'].data['sector'], str(self.sector.pk))
+        self.assertEqual(private_tests.FakeBankGateway.calls, [])
+        self.assertFalse(Challenge.objects.exists())
+
+    def test_category_duplicate_or_missing_sector_is_not_saved(self):
+        from apps.users.models import AccessRoleAssignment
+        AccessRoleAssignment.objects.create(user=self.creator, role='admin')
+        for sector, name, field in [
+            ('', 'Sin ramo', 'sector'),
+            (self.sector.pk, self.category.nombre, 'nombre'),
+        ]:
+            with self.subTest(field=field):
+                response = self.client.post(self.create_url, self.post_data(
+                    catalog_action='category', **{
+                        'new_category-sector': sector, 'new_category-nombre': name,
+                    },
+                ))
+                self.assertEqual(response.status_code, 400)
+                self.assertIn(field, response.context['category_form'].errors)
+                self.assertEqual(CourseCategory.objects.count(), 1)
+                self.assertFalse(Challenge.objects.exists())
+                self.assertEqual(private_tests.FakeBankGateway.calls, [])
+
+    def test_challenge_rejects_category_from_another_sector(self):
+        other = CourseSector.objects.create(nombre='Other sector')
+        form = PrivateChallengeForm(self.post_data(sector=other.pk), actor=self.creator)
+        self.assertFalse(form.is_valid())
+        self.assertIn('category', form.errors)
+
+    def test_option_parents_allow_browser_to_filter_hierarchy(self):
+        response = self.client.get(self.create_url)
+        self.assertContains(response, f'data-parent="{self.sector.pk}"')
+        self.assertContains(response, f'data-parent="{self.category.pk}"')
+        self.assertContains(response, 'id_sector')
+        response = self.client.get(reverse('duckyclash:open_create'))
+        self.assertContains(response, 'catalog-selects.js')
+
+    @override_settings(
+        DUCKYCLASH_BANK_GATEWAY='apps.duckyclash.test_private_challenges.FakeBankGateway',
+        DUCKYCLASH_PAYMENT_GATEWAY='',
+    )
+    def test_edit_infers_sector_and_loads_dependent_selects(self):
+        challenge = private_tests.PrivateChallengeTests.create(self)
+        response = self.client.get(reverse('duckyclash:challenge_edit', args=[challenge.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial['sector'], self.sector.pk)
+        self.assertEqual(response.context['form']['category'].value(), self.category.pk)
+        self.assertContains(response, 'catalog-selects.js')
 
     def test_permissions_and_csrf(self):
         for action, permission in [('subcategory', 'add_challengesubcategory'), ('landscape', 'add_landscape')]:
@@ -134,6 +226,7 @@ class ChallengeCatalogTests(TestCase):
         with tempfile.TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media):
             response = self.client.post(reverse('duckyclash:open_create'), {
                 'catalog_action': 'landscape', 'new_landscape-name': 'Bosque',
+                'new_landscape-era': era_for_xp(self.creator.puntos_totales).code,
                 'new_landscape-image': self.image(),
             })
             self.assertEqual(response.status_code, 200)

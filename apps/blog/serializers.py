@@ -1,5 +1,7 @@
 """Serializers para la API del blog."""
 from rest_framework import serializers
+from apps.users.access import can
+from apps.users.models import AccessMembership
 from drf_spectacular.utils import extend_schema_field
 
 from .models import CategoriaBlog, HashtagBlog, PostBlog
@@ -59,10 +61,15 @@ class PostBlogDetailSerializer(PostBlogListSerializer):
         )
 
     def _es_premium(self, usuario):
-        """Puede ver contenido_privado: cualquier usuario registrado con rol válido."""
-        if not usuario or not usuario.is_authenticated:
-            return False
-        return usuario.is_staff or getattr(usuario, 'role', '') in {'alumno', 'freemium', 'premium'}
+        """El contenido privado solo se incluye para membresías PLUS o PRO vigentes."""
+        return bool(
+            usuario
+            and can(
+                usuario,
+                'view_plan_content',
+                required_plan=AccessMembership.Plan.PLUS,
+            ).allowed
+        )
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_contenido_privado(self, obj):

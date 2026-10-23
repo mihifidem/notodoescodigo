@@ -200,6 +200,12 @@ def progress_by_course(user, course_ids):
         completed = min(done.get(course_id, 0), total)
         percent = round(completed * 100 / total) if total else 0
         result[course_id] = (completed, total, percent)
+    from .campus import learning_status
+    for membership in CourseMembership.objects.filter(
+        user=user, course_id__in=course_ids, course__lms_settings__campus_enabled=True,
+    ).select_related('user'):
+        status = learning_status(membership)
+        result[membership.course_id] = (status['completed'], status['total'], status['percent'])
     return result
 
 def course_learning_summary(course):
@@ -296,3 +302,14 @@ def upcoming_for_student(user, course_ids):
         'fecha_prueba',
         'titulo',
     )[:8]
+def group_question_banks(banks):
+    import re
+
+    groups = {}
+    for bank in banks:
+        match = re.fullmatch(r'(.+?)\s+([1-5])\s*/\s*5', bank.title.strip())
+        title = match.group(1).strip() if match else bank.title
+        group = groups.setdefault(title, {'title': title, 'banks': []})
+        group['banks'].append(bank)
+    return list(groups.values())
+

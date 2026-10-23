@@ -1,0 +1,1548 @@
+{
+  "schema": 1,
+  "family": "careernavigator",
+  "sources": {
+    "careernavigator.html": "acf773e0c23e42958c3180c2d6e349b8d412d01cce66c1d4bdde36469a6a1307"
+  },
+  "source_notice": "",
+  "labels": {
+    "CN01": "Growth Mindset",
+    "CN02": "Liderazgo Emergente",
+    "CN03": "Inteligencia Relacional",
+    "CN04": "Resiliencia Profesional",
+    "CN05": "Visión Estratégica",
+    "CN06": "Aprendizaje Continuo",
+    "CN07": "Ejecución con Impacto",
+    "CN08": "Agilidad e Innovación",
+    "CN09": "Comunicación de Impacto",
+    "CN10": "Presencia y Posicionamiento",
+    "SCENARIOS": "Escenarios",
+    "VALIDATION": "Validación"
+  },
+  "archetypes": {
+    "Growth Leader": {
+      "color": "#16A34A",
+      "icon": "🌱",
+      "chip1": "Crecimiento",
+      "chip2": "Liderazgo",
+      "chip3": "Impacto",
+      "desc": "Tu mentalidad de crecimiento y capacidad de liderazgo te impulsan a transformar entornos. Creces mientras haces crecer a otros."
+    },
+    "Career Architect": {
+      "color": "#0D9488",
+      "icon": "🏗️",
+      "chip1": "Estrategia",
+      "chip2": "Visión",
+      "chip3": "Diseño",
+      "desc": "Diseñas tu carrera con precisión estratégica. Cada decisión tiene propósito y cada paso es intencional hacia tu visión de largo plazo."
+    },
+    "Resilient Pioneer": {
+      "color": "#6366F1",
+      "icon": "🔥",
+      "chip1": "Resiliencia",
+      "chip2": "Valentía",
+      "chip3": "Adaptación",
+      "desc": "Te levantas más fuerte de cada caída. Tu resiliencia te permite tomar riesgos que otros evitan y explorar terrenos desconocidos."
+    },
+    "Network Maven": {
+      "color": "#0EA5E9",
+      "icon": "🕸️",
+      "chip1": "Networking",
+      "chip2": "Influencia",
+      "chip3": "Relaciones",
+      "desc": "Las personas son tu superpoder. Construyes relaciones genuinas que generan oportunidades, colaboración y capital social sostenido."
+    },
+    "Impact Executor": {
+      "color": "#D97706",
+      "icon": "⚡",
+      "chip1": "Ejecución",
+      "chip2": "Resultados",
+      "chip3": "Foco",
+      "desc": "Transformas estrategia en resultados concretos. Tu capacidad de ejecución impecable te hace indispensable en cualquier equipo."
+    },
+    "Learning Machine": {
+      "color": "#EC4899",
+      "icon": "🧠",
+      "chip1": "Aprendizaje",
+      "chip2": "Curiosidad",
+      "chip3": "Adaptación",
+      "desc": "El aprendizaje continuo es tu ventaja competitiva. Te mantienes siempre en la frontera del conocimiento de tu campo."
+    },
+    "Visible Expert": {
+      "color": "#7C3AED",
+      "icon": "📡",
+      "chip1": "Visibilidad",
+      "chip2": "Expertise",
+      "chip3": "Marca",
+      "desc": "Eres reconocido como referente en tu área. Tu marca personal te abre puertas y atrae oportunidades de forma proactiva."
+    },
+    "Agile Innovator": {
+      "color": "#F97316",
+      "icon": "🚀",
+      "chip1": "Innovación",
+      "chip2": "Agilidad",
+      "chip3": "Creatividad",
+      "desc": "Navegas el cambio con soltura e introduces innovación en todo lo que haces. Ves oportunidades donde otros ven obstáculos."
+    }
+  },
+  "questions": {
+    "CN01": [
+      {
+        "id": "GM01",
+        "dim": "CN01",
+        "dim_label": "Mentalidad de Crecimiento",
+        "phase": "Fase 1",
+        "phase_name": "Mentalidad de Crecimiento",
+        "type": "likert",
+        "versions": [],
+        "text": "Cuando fallo en algo importante, lo veo como una oportunidad de aprendizaje más que como un fracaso definitivo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "GM02",
+        "dim": "CN01",
+        "dim_label": "Mentalidad de Crecimiento",
+        "phase": "Fase 1",
+        "phase_name": "Mentalidad de Crecimiento",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando recibes feedback negativo sobre tu trabajo, ¿cuál es tu primera reacción?",
+        "scenario": null,
+        "options": [
+          "Lo analizo en detalle para extraer aprendizajes concretos",
+          "Lo proceso emocionalmente y luego busco qué mejorar",
+          "Lo escucho pero me cuesta integrarlo si me parece injusto",
+          "Me afecta negativamente y tardo en recuperarme"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "GM03",
+        "dim": "CN01",
+        "dim_label": "Mentalidad de Crecimiento",
+        "phase": "Fase 1",
+        "phase_name": "Mentalidad de Crecimiento",
+        "type": "likert",
+        "versions": [
+          "essential"
+        ],
+        "text": "Creo que mis habilidades y talentos son fijos y difíciles de cambiar significativamente.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "GM04",
+        "dim": "CN01",
+        "dim_label": "Mentalidad de Crecimiento",
+        "phase": "Fase 1",
+        "phase_name": "Mentalidad de Crecimiento",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo reaccionas cuando alguien de tu equipo logra algo que tú no has conseguido aún?",
+        "scenario": null,
+        "options": [
+          "Me alegro sinceramente y le pido que me enseñe cómo lo hizo",
+          "Lo observo con curiosidad para aprender de su enfoque",
+          "Me motiva pero internamente me genera cierta presión",
+          "Me genera incomodidad aunque trato de disimularlo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "GM05",
+        "dim": "CN01",
+        "dim_label": "Mentalidad de Crecimiento",
+        "phase": "Fase 1",
+        "phase_name": "Mentalidad de Crecimiento",
+        "type": "likert",
+        "versions": [],
+        "text": "Busco activamente desafíos que estén por encima de mi nivel actual de habilidades.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN02": [
+      {
+        "id": "LE01",
+        "dim": "CN02",
+        "dim_label": "Liderazgo Emergente",
+        "phase": "Fase 2",
+        "phase_name": "Liderazgo Emergente",
+        "type": "likert",
+        "versions": [],
+        "text": "En reuniones de equipo, suelo tomar la iniciativa de estructurar la conversación cuando no hay claridad.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "LE02",
+        "dim": "CN02",
+        "dim_label": "Liderazgo Emergente",
+        "phase": "Fase 2",
+        "phase_name": "Liderazgo Emergente",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo gestionas un conflicto entre dos miembros del equipo que te afecta directamente?",
+        "scenario": null,
+        "options": [
+          "Lo abordo directamente con ambas partes para facilitar una solución conjunta",
+          "Hablo por separado con cada uno para entender sus perspectivas",
+          "Espero que lo resuelvan solos a menos que escale demasiado",
+          "Lo comunico a mi responsable para que lo gestione"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "LE03",
+        "dim": "CN02",
+        "dim_label": "Liderazgo Emergente",
+        "phase": "Fase 2",
+        "phase_name": "Liderazgo Emergente",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tengo dificultades para delegar tareas importantes porque prefiero hacerlas yo mismo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "LE04",
+        "dim": "CN02",
+        "dim_label": "Liderazgo Emergente",
+        "phase": "Fase 2",
+        "phase_name": "Liderazgo Emergente",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Un proyecto clave va mal y el equipo está desanimado. Tú no eres el líder formal. ¿Qué haces?",
+        "scenario": "El equipo lleva 3 semanas sin resultados visibles. El ambiente es tenso y nadie sabe qué hacer.",
+        "options": [
+          "Propongo una reunión de reencuadre y sugiero un plan de acción concreto",
+          "Apoyo al líder formal con ideas y energía positiva sin sobrepasar mi rol",
+          "Hablo con las personas clave individualmente para levantar el ánimo",
+          "Espero instrucciones claras del liderazgo antes de actuar"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "LE05",
+        "dim": "CN02",
+        "dim_label": "Liderazgo Emergente",
+        "phase": "Fase 2",
+        "phase_name": "Liderazgo Emergente",
+        "type": "likert",
+        "versions": [],
+        "text": "Me siento cómodo tomando decisiones importantes con información incompleta cuando el contexto lo requiere.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN03": [
+      {
+        "id": "IR01",
+        "dim": "CN03",
+        "dim_label": "Inteligencia Relacional",
+        "phase": "Fase 3",
+        "phase_name": "Inteligencia Relacional",
+        "type": "likert",
+        "versions": [],
+        "text": "Mantengo relaciones profesionales genuinas con personas fuera de mi equipo directo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "IR02",
+        "dim": "CN03",
+        "dim_label": "Inteligencia Relacional",
+        "phase": "Fase 3",
+        "phase_name": "Inteligencia Relacional",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo construyes tu red profesional de forma habitual?",
+        "scenario": null,
+        "options": [
+          "La cultivo continuamente con conversaciones de valor y seguimiento regular",
+          "La activo principalmente cuando necesito algo concreto",
+          "Tengo contactos pero raramente los mantengo activos",
+          "No invierto demasiado en networking, prefiero el trabajo en profundidad"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "IR03",
+        "dim": "CN03",
+        "dim_label": "Inteligencia Relacional",
+        "phase": "Fase 3",
+        "phase_name": "Inteligencia Relacional",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me cuesta leer las emociones e intenciones de las personas en situaciones profesionales complejas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "IR04",
+        "dim": "CN03",
+        "dim_label": "Inteligencia Relacional",
+        "phase": "Fase 3",
+        "phase_name": "Inteligencia Relacional",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué estrategia usas para influir en una decisión importante sin tener autoridad formal?",
+        "scenario": null,
+        "options": [
+          "Construyo coaliciones, comparto datos convincentes y creo consenso gradual",
+          "Presento mi caso con argumentos sólidos directamente a quien decide",
+          "Espero el momento adecuado y expreso mi opinión cuando se me pregunta",
+          "Me resulta difícil influir sin tener autoridad formal"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "IR05",
+        "dim": "CN03",
+        "dim_label": "Inteligencia Relacional",
+        "phase": "Fase 3",
+        "phase_name": "Inteligencia Relacional",
+        "type": "likert",
+        "versions": [],
+        "text": "Adapto mi estilo de comunicación según la persona con la que interactúo profesionalmente.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN04": [
+      {
+        "id": "RP01",
+        "dim": "CN04",
+        "dim_label": "Resiliencia Profesional",
+        "phase": "Fase 4",
+        "phase_name": "Resiliencia Profesional",
+        "type": "likert",
+        "versions": [],
+        "text": "Cuando enfrento periodos de alta presión laboral, mantengo mi rendimiento y bienestar de forma sostenida.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "RP02",
+        "dim": "CN04",
+        "dim_label": "Resiliencia Profesional",
+        "phase": "Fase 4",
+        "phase_name": "Resiliencia Profesional",
+        "type": "abcd",
+        "versions": [],
+        "text": "Pierdes un proyecto o ascenso en el que habías invertido mucho. ¿Cómo lo gestionas?",
+        "scenario": null,
+        "options": [
+          "Lo proceso, extraigo aprendizajes y me reoriento con energía renovada",
+          "Lo vivo con intensidad pero me recupero en días y sigo adelante",
+          "Me afecta bastante y tardo semanas en recuperar el impulso",
+          "Me cuesta mucho superarlo y me pregunto si vale la pena intentarlo de nuevo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "RP03",
+        "dim": "CN04",
+        "dim_label": "Resiliencia Profesional",
+        "phase": "Fase 4",
+        "phase_name": "Resiliencia Profesional",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "La incertidumbre sobre el futuro de mi carrera me genera ansiedad que afecta mi desempeño actual.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "RP04",
+        "dim": "CN04",
+        "dim_label": "Resiliencia Profesional",
+        "phase": "Fase 4",
+        "phase_name": "Resiliencia Profesional",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa anuncia una reestructuración que afecta directamente a tu puesto. ¿Cuál es tu respuesta?",
+        "scenario": "La reorganización implica que tu rol podría desaparecer o cambiar significativamente en los próximos meses.",
+        "options": [
+          "Busco información activamente, mapeo opciones y propongo mi valor en el nuevo esquema",
+          "Mantengo la calma, hago bien mi trabajo y espero claridad antes de actuar",
+          "Me preparo en paralelo para buscar oportunidades fuera si es necesario",
+          "Me genera mucha angustia y me cuesta mantener el foco en el trabajo diario"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "RP05",
+        "dim": "CN04",
+        "dim_label": "Resiliencia Profesional",
+        "phase": "Fase 4",
+        "phase_name": "Resiliencia Profesional",
+        "type": "likert",
+        "versions": [],
+        "text": "Soy capaz de recuperar rápidamente mi motivación después de experiencias profesionales difíciles.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN05": [
+      {
+        "id": "VS01",
+        "dim": "CN05",
+        "dim_label": "Visión Estratégica",
+        "phase": "Fase 5",
+        "phase_name": "Visión Estratégica",
+        "type": "likert",
+        "versions": [],
+        "text": "Tengo clara la dirección de mi carrera a 3-5 años y actúo consistentemente hacia esa visión.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VS02",
+        "dim": "CN05",
+        "dim_label": "Visión Estratégica",
+        "phase": "Fase 5",
+        "phase_name": "Visión Estratégica",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo tomas decisiones importantes sobre tu carrera profesional?",
+        "scenario": null,
+        "options": [
+          "Evalúo opciones con criterios claros alineados a mi visión de largo plazo",
+          "Consulto con mentores y personas de confianza antes de decidir",
+          "Me dejo llevar por las oportunidades que van surgiendo",
+          "Las decisiones grandes me generan parálisis y tiendo a postponerlas"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VS03",
+        "dim": "CN05",
+        "dim_label": "Visión Estratégica",
+        "phase": "Fase 5",
+        "phase_name": "Visión Estratégica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me cuesta conectar mis acciones cotidianas con objetivos de carrera de largo plazo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VS04",
+        "dim": "CN05",
+        "dim_label": "Visión Estratégica",
+        "phase": "Fase 5",
+        "phase_name": "Visión Estratégica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo posicionas tu valor diferencial en el mercado laboral de tu sector?",
+        "scenario": null,
+        "options": [
+          "Tengo un posicionamiento claro y lo comunico activa y consistentemente",
+          "Sé cuál es mi valor pero no lo comunico demasiado proactivamente",
+          "No tengo muy claro cuál es mi diferencial frente a otros profesionales",
+          "No pienso mucho en posicionamiento, prefiero dejar que el trabajo hable"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VS05",
+        "dim": "CN05",
+        "dim_label": "Visión Estratégica",
+        "phase": "Fase 5",
+        "phase_name": "Visión Estratégica",
+        "type": "likert",
+        "versions": [],
+        "text": "Soy capaz de identificar con claridad las tendencias de mi sector que afectarán mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN06": [
+      {
+        "id": "AC01",
+        "dim": "CN06",
+        "dim_label": "Aprendizaje Continuo",
+        "phase": "Fase 6",
+        "phase_name": "Aprendizaje Continuo",
+        "type": "likert",
+        "versions": [],
+        "text": "Dedico tiempo regularmente a aprender habilidades nuevas relevantes para mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AC02",
+        "dim": "CN06",
+        "dim_label": "Aprendizaje Continuo",
+        "phase": "Fase 6",
+        "phase_name": "Aprendizaje Continuo",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo gestionas tu desarrollo profesional de forma activa?",
+        "scenario": null,
+        "options": [
+          "Tengo un plan de desarrollo claro y lo ejecuto con consistencia",
+          "Aprendo según surgen las necesidades del trabajo sin plan definido",
+          "Leo artículos y asisto a eventos pero sin un plan estructurado",
+          "El desarrollo profesional lo gestiona principalmente mi empresa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AC03",
+        "dim": "CN06",
+        "dim_label": "Aprendizaje Continuo",
+        "phase": "Fase 6",
+        "phase_name": "Aprendizaje Continuo",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Prefiero quedarme en áreas donde ya soy experto/a antes que explorar terrenos desconocidos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "AC04",
+        "dim": "CN06",
+        "dim_label": "Aprendizaje Continuo",
+        "phase": "Fase 6",
+        "phase_name": "Aprendizaje Continuo",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo integras el aprendizaje en tu rutina laboral semanal?",
+        "scenario": null,
+        "options": [
+          "Tengo tiempo bloqueado cada semana específicamente para aprender y experimentar",
+          "Aprendo durante proyectos reales aunque no lo planifique explícitamente",
+          "Aprendo en momentos muertos o cuando siento curiosidad puntual",
+          "Casi nunca encuentro tiempo para formación dentro de la semana laboral"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AC05",
+        "dim": "CN06",
+        "dim_label": "Aprendizaje Continuo",
+        "phase": "Fase 6",
+        "phase_name": "Aprendizaje Continuo",
+        "type": "likert",
+        "versions": [],
+        "text": "Busco activamente feedback de personas que tienen perspectivas diferentes a la mía.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN07": [
+      {
+        "id": "EJ01",
+        "dim": "CN07",
+        "dim_label": "Ejecución con Impacto",
+        "phase": "Fase 6",
+        "phase_name": "Ejecución con Impacto",
+        "type": "likert",
+        "versions": [],
+        "text": "Consistentemente termino lo que empiezo y cumplo mis compromisos con el equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "EJ02",
+        "dim": "CN07",
+        "dim_label": "Ejecución con Impacto",
+        "phase": "Fase 6",
+        "phase_name": "Ejecución con Impacto",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo priorizas cuando tienes múltiples proyectos urgentes e importantes al mismo tiempo?",
+        "scenario": null,
+        "options": [
+          "Evalúo impacto y urgencia, establezco prioridades claras y comunico los trade-offs",
+          "Ataco primero lo más urgente aunque no sea lo más importante estratégicamente",
+          "Intento avanzar en todo a la vez aunque sea con menor profundidad en cada uno",
+          "Me cuesta priorizar y termino sintiéndome abrumado sin avanzar bien en ninguno"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "EJ03",
+        "dim": "CN07",
+        "dim_label": "Ejecución con Impacto",
+        "phase": "Fase 6",
+        "phase_name": "Ejecución con Impacto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me distraigo con facilidad y me cuesta mantener el foco en proyectos complejos de largo plazo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "CN08": [
+      {
+        "id": "AI01",
+        "dim": "CN08",
+        "dim_label": "Agilidad e Innovación",
+        "phase": "Fase 7",
+        "phase_name": "Agilidad e Innovación",
+        "type": "likert",
+        "versions": [],
+        "text": "Me adapto con rapidez a cambios inesperados en mi entorno laboral sin perder el hilo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AI02",
+        "dim": "CN08",
+        "dim_label": "Agilidad e Innovación",
+        "phase": "Fase 7",
+        "phase_name": "Agilidad e Innovación",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu empresa cambia de dirección estratégica radicalmente, ¿cuál es tu actitud?",
+        "scenario": null,
+        "options": [
+          "Me adapto rápido, busco entender la nueva dirección y contribuyo activamente",
+          "Necesito tiempo para entender el cambio antes de comprometerme plenamente",
+          "Lo acepto externamente pero internamente me cuesta si no comparto el nuevo rumbo",
+          "Los cambios grandes me generan resistencia y necesito mucho tiempo para adaptarme"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AI03",
+        "dim": "CN08",
+        "dim_label": "Agilidad e Innovación",
+        "phase": "Fase 7",
+        "phase_name": "Agilidad e Innovación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Propongo frecuentemente ideas nuevas o mejoras a procesos aunque nadie me lo haya pedido.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "AI04",
+        "dim": "CN08",
+        "dim_label": "Agilidad e Innovación",
+        "phase": "Fase 7",
+        "phase_name": "Agilidad e Innovación",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa te da un trimestre para explorar un proyecto de innovación sin restricciones. ¿Cómo lo aprovechas?",
+        "scenario": "Tienes recursos, tiempo y apoyo para explorar lo que consideres más valioso para la organización.",
+        "options": [
+          "Diseño un experimento claro con hipótesis, métricas y aprendizajes definidos",
+          "Exploro a fondo un problema real que he identificado sin resolver en la empresa",
+          "Estudio las mejores prácticas del sector para traer ideas probadas",
+          "Me resulta difícil arrancar sin objetivos claros y entregables definidos"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN09": [
+      {
+        "id": "CO01",
+        "dim": "CN09",
+        "dim_label": "Comunicación de Impacto",
+        "phase": "Fase 7",
+        "phase_name": "Comunicación de Impacto",
+        "type": "likert",
+        "versions": [],
+        "text": "Soy capaz de comunicar ideas complejas de forma clara y convincente a audiencias diversas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CO02",
+        "dim": "CN09",
+        "dim_label": "Comunicación de Impacto",
+        "phase": "Fase 7",
+        "phase_name": "Comunicación de Impacto",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo presentas un proyecto importante ante la dirección de tu empresa?",
+        "scenario": null,
+        "options": [
+          "Adapto el mensaje al lenguaje y prioridades del liderazgo con narrativa de impacto",
+          "Presento los datos y hechos de forma estructurada y clara",
+          "Explico detalladamente el trabajo realizado y las conclusiones",
+          "Tiendo a ponerme nervioso y me cuesta sintetizar lo esencial"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CO03",
+        "dim": "CN09",
+        "dim_label": "Comunicación de Impacto",
+        "phase": "Fase 7",
+        "phase_name": "Comunicación de Impacto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Evito el conflicto en conversaciones difíciles aunque eso implique no decir lo que pienso.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CO04",
+        "dim": "CN09",
+        "dim_label": "Comunicación de Impacto",
+        "phase": "Fase 7",
+        "phase_name": "Comunicación de Impacto",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tienes que dar feedback difícil a alguien con quien trabajas estrechamente. ¿Cómo lo haces?",
+        "scenario": null,
+        "options": [
+          "Lo doy directamente, con evidencia concreta, empatía y enfoque en el futuro",
+          "Lo preparo cuidadosamente y busco el momento adecuado para tener impacto real",
+          "Lo doy de forma suavizada para no dañar la relación",
+          "Lo evito si no me lo piden explícitamente para no crear tensión"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "CN10": [
+      {
+        "id": "PP01",
+        "dim": "CN10",
+        "dim_label": "Presencia y Posicionamiento",
+        "phase": "Fase 8",
+        "phase_name": "Presencia y Posicionamiento",
+        "type": "likert",
+        "versions": [],
+        "text": "Tengo una presencia profesional reconocible en mi sector que abre oportunidades activamente.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "PP02",
+        "dim": "CN10",
+        "dim_label": "Presencia y Posicionamiento",
+        "phase": "Fase 8",
+        "phase_name": "Presencia y Posicionamiento",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cómo gestionas tu marca personal de forma habitual?",
+        "scenario": null,
+        "options": [
+          "La cultivo activamente con contenido, visibilidad y narrativa consistente",
+          "La gestiono de forma reactiva cuando surgen oportunidades concretas",
+          "Tengo presencia pero no la gestiono de manera estratégica",
+          "No me preocupa la marca personal, prefiero que el trabajo hable por sí solo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "PP03",
+        "dim": "CN10",
+        "dim_label": "Presencia y Posicionamiento",
+        "phase": "Fase 8",
+        "phase_name": "Presencia y Posicionamiento",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me incomoda destacar o visibilizar mis logros aunque sean relevantes para mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "PP04",
+        "dim": "CN10",
+        "dim_label": "Presencia y Posicionamiento",
+        "phase": "Fase 8",
+        "phase_name": "Presencia y Posicionamiento",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cuál es tu estrategia para que las oportunidades importantes lleguen a ti de forma proactiva?",
+        "scenario": null,
+        "options": [
+          "Construyo relaciones de valor, comparto conocimiento y mantengo visibilidad constante",
+          "Hago mi trabajo excelente y confío en que eso genera oportunidades naturalmente",
+          "Activo mi red cuando necesito algo específico aunque no la cultive de forma continua",
+          "Las oportunidades llegan principalmente por el azar o la coincidencia"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "PP05",
+        "dim": "CN10",
+        "dim_label": "Presencia y Posicionamiento",
+        "phase": "Fase 8",
+        "phase_name": "Presencia y Posicionamiento",
+        "type": "likert",
+        "versions": [],
+        "text": "Soy reconocido/a como referente en al menos un área dentro de mi entorno profesional.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "SCENARIOS": [
+      {
+        "id": "SC_01",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios de Carrera",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios de Carrera",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Te ofrecen una promoción importante pero implica liderar un equipo nuevo y un proyecto de alto riesgo con poca claridad estratégica.",
+        "text": "¿Qué decides?",
+        "options": [
+          "Acepto el reto, confío en mi capacidad de adaptación y de construir el equipo",
+          "Negocio condiciones: acepto si me dan apoyo claro y métricas de éxito definidas",
+          "Pido tiempo para evaluar bien antes de decidir, necesito más información",
+          "Lo declino si el nivel de incertidumbre es demasiado alto para mí"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_02",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios de Carrera",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios de Carrera",
+        "type": "scenario",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "scenario": "Llevas 5 años en una empresa estable con buen salario. Te llega una oferta de una startup con mejor proyección pero más riesgo e incertidumbre económica.",
+        "text": "¿Cuál es tu razonamiento?",
+        "options": [
+          "Evalúo la oportunidad de aprendizaje y crecimiento por encima de la estabilidad",
+          "Negocio el mejor paquete posible antes de decidir nada",
+          "Me quedo si la empresa actual puede ofrecerme desarrollo similar",
+          "La estabilidad es prioritaria para mí, el riesgo no merece la pena"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_03",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios de Carrera",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios de Carrera",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tu responsable reconoce públicamente el trabajo de otro compañero en un proyecto en el que tú contribuiste de forma fundamental.",
+        "text": "¿Cómo actúas?",
+        "options": [
+          "Lo hablo directamente con mi responsable en privado de forma asertiva",
+          "Lo menciono en el siguiente contexto apropiado para visibilizar mi contribución",
+          "Lo anoto mentalmente para considerarlo en conversaciones de desarrollo futuras",
+          "Lo dejo pasar para no generar tensión aunque me afecte internamente"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_04",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios de Carrera",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios de Carrera",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Descubres que una habilidad core de tu rol actual va a ser automatizada en 18 meses según tendencias del sector.",
+        "text": "¿Cuál es tu plan?",
+        "options": [
+          "Inicio inmediatamente un proceso de reskilling hacia las habilidades del futuro del rol",
+          "Lo analizo y diseño un plan de transición gradual con hitos claros",
+          "Espero a ver cómo evoluciona el mercado antes de invertir en cambiar de dirección",
+          "Me genera mucha ansiedad y no sé muy bien por dónde empezar"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "VAL_01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Prefiero hacer las cosas como siempre las he hecho antes que arriesgarme con métodos nuevos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [],
+        "text": "Si pudieras diseñar tu carrera ideal para los próximos 5 años, ¿cuál sería el elemento más importante?",
+        "scenario": null,
+        "options": [
+          "Crecimiento continuo, aprendizaje e impacto real en algo que importe",
+          "Equilibrio entre desarrollo profesional, bienestar y vida personal",
+          "Estabilidad económica, seguridad y buen ambiente de trabajo",
+          "Reconocimiento, status y visibilidad en mi sector"
+        ],
+        "is_reverse": false,
+        "is_mirror": false,
+        "is_attention_check": true
+      },
+      {
+        "id": "VAL_03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "El éxito profesional depende principalmente de factores externos fuera de mi control.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cuál de las siguientes frases describe mejor tu relación con el desarrollo de carrera?",
+        "scenario": null,
+        "options": [
+          "Mi carrera es un proyecto que diseño, gestiono y potencio activamente",
+          "Mi carrera avanza cuando el entorno me da las oportunidades adecuadas",
+          "Mi carrera es importante pero otras prioridades compiten con su desarrollo",
+          "El concepto de gestionar la carrera me resulta artificioso o ajeno"
+        ],
+        "is_reverse": false,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_05",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [],
+        "text": "Generalmente evito situaciones donde pueda ser evaluado o juzgado por otros.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "CN01",
+        "GM01"
+      ],
+      [
+        "CN01",
+        "GM02"
+      ],
+      [
+        "CN02",
+        "LE01"
+      ],
+      [
+        "CN02",
+        "LE02"
+      ],
+      [
+        "CN03",
+        "IR01"
+      ],
+      [
+        "CN03",
+        "IR02"
+      ],
+      [
+        "CN04",
+        "RP01"
+      ],
+      [
+        "CN04",
+        "RP02"
+      ],
+      [
+        "CN05",
+        "VS01"
+      ],
+      [
+        "CN05",
+        "VS02"
+      ],
+      [
+        "CN06",
+        "AC01"
+      ],
+      [
+        "CN06",
+        "AC02"
+      ],
+      [
+        "CN07",
+        "EJ01"
+      ],
+      [
+        "CN08",
+        "AI01"
+      ],
+      [
+        "CN08",
+        "AI02"
+      ],
+      [
+        "CN09",
+        "CO01"
+      ],
+      [
+        "CN09",
+        "CO02"
+      ],
+      [
+        "CN10",
+        "PP01"
+      ],
+      [
+        "CN10",
+        "PP02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ]
+    ],
+    "advanced": [
+      [
+        "CN01",
+        "GM01"
+      ],
+      [
+        "CN01",
+        "GM02"
+      ],
+      [
+        "CN01",
+        "GM04"
+      ],
+      [
+        "CN01",
+        "GM05"
+      ],
+      [
+        "CN02",
+        "LE01"
+      ],
+      [
+        "CN02",
+        "LE02"
+      ],
+      [
+        "CN02",
+        "LE03"
+      ],
+      [
+        "CN02",
+        "LE04"
+      ],
+      [
+        "CN03",
+        "IR01"
+      ],
+      [
+        "CN03",
+        "IR02"
+      ],
+      [
+        "CN03",
+        "IR03"
+      ],
+      [
+        "CN03",
+        "IR04"
+      ],
+      [
+        "CN04",
+        "RP01"
+      ],
+      [
+        "CN04",
+        "RP02"
+      ],
+      [
+        "CN04",
+        "RP03"
+      ],
+      [
+        "CN04",
+        "RP04"
+      ],
+      [
+        "CN05",
+        "VS01"
+      ],
+      [
+        "CN05",
+        "VS02"
+      ],
+      [
+        "CN05",
+        "VS03"
+      ],
+      [
+        "CN05",
+        "VS04"
+      ],
+      [
+        "CN06",
+        "AC01"
+      ],
+      [
+        "CN06",
+        "AC02"
+      ],
+      [
+        "CN06",
+        "AC03"
+      ],
+      [
+        "CN07",
+        "EJ01"
+      ],
+      [
+        "CN07",
+        "EJ02"
+      ],
+      [
+        "CN07",
+        "EJ03"
+      ],
+      [
+        "CN08",
+        "AI01"
+      ],
+      [
+        "CN08",
+        "AI02"
+      ],
+      [
+        "CN08",
+        "AI03"
+      ],
+      [
+        "CN09",
+        "CO01"
+      ],
+      [
+        "CN09",
+        "CO02"
+      ],
+      [
+        "CN09",
+        "CO03"
+      ],
+      [
+        "SCENARIOS",
+        "SC_01"
+      ],
+      [
+        "SCENARIOS",
+        "SC_02"
+      ],
+      [
+        "CN10",
+        "PP01"
+      ],
+      [
+        "CN10",
+        "PP02"
+      ],
+      [
+        "CN10",
+        "PP03"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ]
+    ],
+    "premium": [
+      [
+        "CN01",
+        "GM01"
+      ],
+      [
+        "CN01",
+        "GM02"
+      ],
+      [
+        "CN01",
+        "GM04"
+      ],
+      [
+        "CN01",
+        "GM05"
+      ],
+      [
+        "CN02",
+        "LE01"
+      ],
+      [
+        "CN02",
+        "LE02"
+      ],
+      [
+        "CN02",
+        "LE03"
+      ],
+      [
+        "CN02",
+        "LE04"
+      ],
+      [
+        "CN02",
+        "LE05"
+      ],
+      [
+        "CN03",
+        "IR01"
+      ],
+      [
+        "CN03",
+        "IR02"
+      ],
+      [
+        "CN03",
+        "IR03"
+      ],
+      [
+        "CN03",
+        "IR04"
+      ],
+      [
+        "CN03",
+        "IR05"
+      ],
+      [
+        "CN04",
+        "RP01"
+      ],
+      [
+        "CN04",
+        "RP02"
+      ],
+      [
+        "CN04",
+        "RP03"
+      ],
+      [
+        "CN04",
+        "RP04"
+      ],
+      [
+        "CN04",
+        "RP05"
+      ],
+      [
+        "CN05",
+        "VS01"
+      ],
+      [
+        "CN05",
+        "VS02"
+      ],
+      [
+        "CN05",
+        "VS03"
+      ],
+      [
+        "CN05",
+        "VS04"
+      ],
+      [
+        "CN05",
+        "VS05"
+      ],
+      [
+        "CN06",
+        "AC01"
+      ],
+      [
+        "CN06",
+        "AC02"
+      ],
+      [
+        "CN06",
+        "AC03"
+      ],
+      [
+        "CN06",
+        "AC04"
+      ],
+      [
+        "CN06",
+        "AC05"
+      ],
+      [
+        "CN07",
+        "EJ01"
+      ],
+      [
+        "CN07",
+        "EJ02"
+      ],
+      [
+        "CN07",
+        "EJ03"
+      ],
+      [
+        "CN08",
+        "AI01"
+      ],
+      [
+        "CN08",
+        "AI02"
+      ],
+      [
+        "CN08",
+        "AI03"
+      ],
+      [
+        "CN08",
+        "AI04"
+      ],
+      [
+        "CN09",
+        "CO01"
+      ],
+      [
+        "CN09",
+        "CO02"
+      ],
+      [
+        "CN09",
+        "CO03"
+      ],
+      [
+        "CN09",
+        "CO04"
+      ],
+      [
+        "SCENARIOS",
+        "SC_01"
+      ],
+      [
+        "SCENARIOS",
+        "SC_02"
+      ],
+      [
+        "SCENARIOS",
+        "SC_03"
+      ],
+      [
+        "SCENARIOS",
+        "SC_04"
+      ],
+      [
+        "CN10",
+        "PP01"
+      ],
+      [
+        "CN10",
+        "PP02"
+      ],
+      [
+        "CN10",
+        "PP03"
+      ],
+      [
+        "CN10",
+        "PP04"
+      ],
+      [
+        "CN10",
+        "PP05"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_03"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ],
+      [
+        "VALIDATION",
+        "VAL_05"
+      ]
+    ]
+  }
+}

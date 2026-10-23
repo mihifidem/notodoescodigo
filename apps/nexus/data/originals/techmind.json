@@ -1,0 +1,2327 @@
+{
+  "schema": 1,
+  "family": "techmind",
+  "sources": {
+    "techmind-full.html": "2e4ed587da032de80e5e7a8ab255b3360c7cbd4ad88cb18e4c9fcf0717a565a7",
+    "techmind-questions.json": "323a2359b61730b594f799970280a501fa55527fb6aabb2de496aa23e3e028f8"
+  },
+  "source_notice": "",
+  "labels": {
+    "TM01": "Digital Curiosity",
+    "TM02": "Technology Adoption",
+    "TM03": "Learning Agility",
+    "TM04": "AI Readiness",
+    "TM05": "Automation Mindset",
+    "TM06": "Digital Problem Solving",
+    "TM07": "Innovation Orientation",
+    "TM08": "Future Readiness",
+    "TM09": "Technology Confidence",
+    "TM10": "Digital Collaboration",
+    "SCENARIOS": "Escenarios",
+    "VALIDATION": "Validación"
+  },
+  "archetypes": {
+    "AI Pioneer": {
+      "color": "#7C3AED",
+      "icon": "🤖",
+      "chip1": "AI Readiness",
+      "chip2": "Innovación",
+      "chip3": "Visión",
+      "desc": "Lideras la adopción de IA y tecnologías emergentes. Tu mentalidad está orientada al futuro y a transformar los entornos en los que trabajas."
+    },
+    "Innovation Driver": {
+      "color": "#EC4899",
+      "icon": "💡",
+      "chip1": "Innovación",
+      "chip2": "Transformación",
+      "chip3": "Cambio",
+      "desc": "Impulsas el cambio y la innovación digital. Conectas tecnología con nuevas oportunidades de negocio y lideras la transformación desde dentro."
+    },
+    "Future Navigator": {
+      "color": "#6366F1",
+      "icon": "🧭",
+      "chip1": "Adaptabilidad",
+      "chip2": "Futuro",
+      "chip3": "Visión",
+      "desc": "Navegas con soltura la incertidumbre tecnológica. Tu adaptabilidad te permite anticiparte a los cambios y posicionarte ventajosamente."
+    },
+    "Digital Explorer": {
+      "color": "#06B6D4",
+      "icon": "🔭",
+      "chip1": "Curiosidad",
+      "chip2": "Aprendizaje",
+      "chip3": "Exploración",
+      "desc": "Tu curiosidad digital es tu motor principal. Exploras continuamente nuevas herramientas, posibilidades y paradigmas tecnológicos."
+    },
+    "Tech Leader": {
+      "color": "#1D4ED8",
+      "icon": "👑",
+      "chip1": "Liderazgo",
+      "chip2": "Confianza",
+      "chip3": "Influencia",
+      "desc": "Combinas visión tecnológica con capacidad de influencia. Generas confianza en tu equipo y diriges iniciativas de transformación digital."
+    },
+    "Automation Builder": {
+      "color": "#10B981",
+      "icon": "⚙️",
+      "chip1": "Automatización",
+      "chip2": "Eficiencia",
+      "chip3": "Sistemas",
+      "desc": "Ves en la automatización una palanca fundamental de eficiencia. Construyes sistemas que multiplican resultados eliminando trabajo de bajo valor."
+    },
+    "Digital Collaborator": {
+      "color": "#0EA5E9",
+      "icon": "🤝",
+      "chip1": "Colaboración",
+      "chip2": "Digital",
+      "chip3": "Equipo",
+      "desc": "La tecnología potencia tu trabajo en equipo. Conectas personas y herramientas digitales para lograr resultados colectivos superiores."
+    },
+    "Pragmatic Adopter": {
+      "color": "#F59E0B",
+      "icon": "🎯",
+      "chip1": "Utilidad",
+      "chip2": "Precisión",
+      "chip3": "Eficacia",
+      "desc": "Adoptas tecnología cuando aporta valor claro y demostrable. Tu enfoque práctico te hace fiable y eficiente en los entornos donde trabajas."
+    }
+  },
+  "questions": {
+    "TM01": [
+      {
+        "id": "TM01_01",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando aparece una nueva tecnología relevante en tu sector, ¿cuál es tu primera reacción?",
+        "scenario": null,
+        "options": [
+          "La investigo en profundidad y experimento con ella",
+          "Espero a ver cómo la usan otros antes de interesarme",
+          "Me informo brevemente sin profundizar demasiado",
+          "Prefiero seguir con las herramientas que ya domino"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM01_02",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Disfruto explorando nuevas tecnologías aunque no las necesite de inmediato en mi trabajo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM01_03",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Con qué frecuencia exploras nuevas herramientas digitales por iniciativa propia?",
+        "scenario": null,
+        "options": [
+          "Varias veces por semana, es un hábito consolidado",
+          "Una o dos veces al mes cuando tengo tiempo",
+          "Ocasionalmente, cuando surge una necesidad concreta",
+          "Raramente, solo cuando me lo exigen"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM01_04",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando escucho un término tecnológico nuevo, siento la necesidad de investigar qué significa.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM01_05",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Hasta qué profundidad llegas cuando quieres entender una nueva tecnología?",
+        "scenario": null,
+        "options": [
+          "Leo documentación técnica y experimento en profundidad",
+          "Sigo tutoriales hasta comprender lo esencial",
+          "Leo artículos de opinión o resúmenes ejecutivos",
+          "Me quedo con la descripción general que me explican"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM01_06",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero no perder tiempo con tecnologías que no necesito en este momento.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM01_07",
+        "dim": "TM01",
+        "dim_label": "Digital Curiosity",
+        "phase": "Fase 1",
+        "phase_name": "Curiosidad Tecnológica",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu empresa adopta una nueva herramienta, ¿cuándo decides informarte sobre ella?",
+        "scenario": null,
+        "options": [
+          "Antes de que se anuncie: sigo tendencias del sector",
+          "Cuando se anuncia pero antes de que sea obligatoria",
+          "Cuando ya la están usando mis compañeros",
+          "Solo cuando es completamente imprescindible para mí"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM02": [
+      {
+        "id": "TM02_01",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa introduce una nueva plataforma colaborativa. ¿Cómo actúas?",
+        "scenario": "La migración es voluntaria en una primera fase piloto.",
+        "options": [
+          "Me apunto de inmediato y genero feedback al equipo",
+          "Espero a que compañeros confirmen que funciona bien",
+          "Lo adopto cuando se convierte en obligatorio",
+          "Busco argumentos para mantener el sistema actual"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM02_02",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me adapto con facilidad cuando cambian las herramientas digitales de mi entorno.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM02_03",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Con qué velocidad incorporas una nueva herramienta a tu flujo de trabajo habitual?",
+        "scenario": null,
+        "options": [
+          "En días, si el valor aportado es claro",
+          "En semanas, necesito tiempo para adaptarme",
+          "En meses, prefiero avanzar paso a paso",
+          "Solo cuando se convierte en estándar del equipo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM02_04",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando aparece una versión mejorada de una herramienta que uso, actualizo sin dudarlo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM02_05",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando una herramienta que dominas queda obsoleta, ¿cómo lo gestionas?",
+        "scenario": null,
+        "options": [
+          "Busco activamente la mejor alternativa y migro de inmediato",
+          "Migro cuando existe una opción claramente superior",
+          "Espero a que la empresa decida el cambio por mí",
+          "Me cuesta mucho dejar lo que ya domino bien"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM02_06",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me cuesta adaptarme cuando cambian las herramientas digitales que ya domino.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM02_07",
+        "dim": "TM02",
+        "dim_label": "Technology Adoption",
+        "phase": "Fase 2",
+        "phase_name": "Adopción Tecnológica",
+        "type": "abcd",
+        "versions": [],
+        "text": "En tu equipo, ¿qué papel sueles asumir ante la adopción de nuevas tecnologías?",
+        "scenario": null,
+        "options": [
+          "Early adopter: suelo ser de los primeros en probar y recomendar",
+          "Seguidor rápido: adopto pronto si otros validan que funciona",
+          "Mayoría tardía: espero a que sea el estándar establecido",
+          "Rezagado: prefiero los métodos consolidados que ya funcionan"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM03": [
+      {
+        "id": "TM03_01",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo prefieres aprender una nueva tecnología cuando la necesitas?",
+        "scenario": null,
+        "options": [
+          "Experimento directamente: prueba y error desde el inicio",
+          "Sigo un curso o tutorial estructurado",
+          "Pido ayuda a alguien que ya la domine",
+          "Leo toda la documentación antes de tocarla"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM03_02",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando enfrento una tecnología desconocida, confío en mi capacidad para aprenderla.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM03_03",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cuánto tiempo tardas en ser productivo con una herramienta nueva de tu área?",
+        "scenario": null,
+        "options": [
+          "Días, aprendo mientras trabajo sin problema",
+          "Una o dos semanas con práctica constante",
+          "Un mes aproximadamente hasta sentirme cómodo",
+          "Varios meses hasta tener verdadero dominio"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM03_04",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "El aprendizaje de nuevas tecnologías es una inversión prioritaria en mi desarrollo profesional.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM03_05",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando no entiendes algo tecnológico necesario para tu trabajo, ¿qué haces?",
+        "scenario": null,
+        "options": [
+          "Busco en múltiples fuentes hasta entenderlo completamente",
+          "Consulto a una persona de referencia de forma rápida",
+          "Aprendo lo mínimo para avanzar y continuar",
+          "Evito usar esa tecnología si tengo alternativas"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM03_06",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me cuesta mucho esfuerzo aprender herramientas tecnológicas nuevas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM03_07",
+        "dim": "TM03",
+        "dim_label": "Learning Agility",
+        "phase": "Fase 3",
+        "phase_name": "Aprendizaje Digital",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu empresa invierte en formación digital, ¿cuál es tu actitud?",
+        "scenario": null,
+        "options": [
+          "La aprovecho al máximo y voy más allá del contenido ofrecido",
+          "Completo la formación con interés y la aplico en mi trabajo",
+          "La completo porque es obligatoria, sin mayor motivación",
+          "La vivo como una carga o interrupción de mi trabajo real"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM04": [
+      {
+        "id": "TM04_01",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Una IA puede automatizar el 40% de tus tareas actuales. ¿Cómo actúas?",
+        "scenario": "Tu empresa ofrece formación para rediseñar tu rol hacia trabajo de mayor valor.",
+        "options": [
+          "Lo veo como oportunidad y lidero la transición de inmediato",
+          "Colaboro activamente aunque con cierta incertidumbre",
+          "Espero a ver cómo evoluciona antes de actuar",
+          "Me genera preocupación o rechazo significativo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM04_02",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento preparado para trabajar de forma efectiva con sistemas de inteligencia artificial.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM04_03",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Con qué frecuencia usas herramientas de IA generativa en tu trabajo profesional?",
+        "scenario": null,
+        "options": [
+          "A diario, forman parte de mi flujo de trabajo habitual",
+          "Varias veces por semana en tareas específicas",
+          "Las he probado pero no las integro en mi rutina",
+          "No las uso o no sé cómo aplicarlas a mi trabajo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM04_04",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Entiendo las capacidades y limitaciones de los sistemas de IA actuales con suficiente profundidad.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM04_05",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo te ves trabajando junto a sistemas de IA en el futuro próximo?",
+        "scenario": null,
+        "options": [
+          "Como colaborador estratégico que potencia mi productividad",
+          "Es inevitable, me adapto aunque mantengo reservas",
+          "No termino de ver cómo encaja en mi trabajo específico",
+          "Prefiero mantener mi trabajo sin dependencia de IA"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM04_06",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La inteligencia artificial representa una amenaza mayor que una oportunidad para mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM04_07",
+        "dim": "TM04",
+        "dim_label": "AI Readiness",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [],
+        "text": "Si tu empresa te pide que lideres la implementación de una IA en tu equipo, ¿cómo reaccionas?",
+        "scenario": null,
+        "options": [
+          "Con entusiasmo: es una oportunidad de desarrollo y visibilidad",
+          "Con disposición: lo asumo con método aunque con alguna duda",
+          "Con cautela: necesitaría mucho apoyo y formación previa",
+          "Con resistencia: preferiría que lo liderara otra persona"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM05": [
+      {
+        "id": "TM05_01",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando detectas una tarea repetitiva en tu trabajo, ¿qué haces habitualmente?",
+        "scenario": null,
+        "options": [
+          "Busco cómo automatizarla o delegarla a una herramienta digital",
+          "La hago de forma más eficiente pero manualmente",
+          "La delego a un compañero si es posible",
+          "La hago como siempre, forma parte del trabajo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM05_02",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Identifico oportunidades de automatización en mi trabajo de forma natural y habitual.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM05_03",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Hasta qué punto usas automatizaciones o macros en tu trabajo diario?",
+        "scenario": null,
+        "options": [
+          "Extensamente, automatizo todo lo que técnicamente puedo",
+          "Bastante, tengo varios flujos y acciones automatizadas",
+          "Algo, uso plantillas y acciones básicas repetibles",
+          "Casi nada, prefiero el control manual total"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM05_04",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Considero que la automatización de procesos es una ventaja competitiva para mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM05_05",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Has diseñado o propuesto alguna automatización concreta en tu equipo o empresa?",
+        "scenario": null,
+        "options": [
+          "Sí, varias veces con impacto real y medible",
+          "Sí, alguna vez con resultados positivos",
+          "Lo he pensado pero no lo he ejecutado todavía",
+          "No, no ha sido parte de mis responsabilidades"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM05_06",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero hacer las tareas manualmente para tener mayor control sobre el resultado.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM05_07",
+        "dim": "TM05",
+        "dim_label": "Automation Mindset",
+        "phase": "Fase 4",
+        "phase_name": "IA y Automatización",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando ves que una tarea tarda más de lo necesario por hacerse manualmente, ¿qué piensas?",
+        "scenario": null,
+        "options": [
+          "Inmediatamente analizo cómo automatizarla o mejorarla con tecnología",
+          "Lo anoto como algo a optimizar cuando tenga tiempo",
+          "Lo acepto como parte inevitable del trabajo",
+          "Lo considero normal y no lo identifico como problema"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM06": [
+      {
+        "id": "TM06_01",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Ante un problema complejo en tu trabajo, ¿qué herramientas o enfoques usas?",
+        "scenario": null,
+        "options": [
+          "Busco herramientas digitales que lo resuelvan mejor",
+          "Combino herramientas digitales con enfoques tradicionales",
+          "Sigo el proceso establecido aunque sea menos eficiente",
+          "Resuelvo con los métodos que ya conozco bien"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM06_02",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento cómodo experimentando con tecnologías sin necesitar instrucciones detalladas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM06_03",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando una herramienta digital falla o no funciona como esperas, ¿qué haces?",
+        "scenario": null,
+        "options": [
+          "Diagnostico el problema y busco la solución activamente",
+          "Busco alternativas mientras investigo la causa",
+          "Llamo directamente a soporte técnico",
+          "Me frustro y evito esa herramienta en lo posible"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM06_04",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tengo un problema de trabajo, lo primero que hago es buscar una solución tecnológica.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM06_05",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Con qué frecuencia usas datos o analítica digital para tomar decisiones en tu trabajo?",
+        "scenario": null,
+        "options": [
+          "Siempre que tengo acceso a datos relevantes",
+          "Con frecuencia, aunque a veces confío más en la intuición",
+          "Ocasionalmente cuando los datos están disponibles",
+          "Raramente, prefiero la experiencia y el criterio personal"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM06_06",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Ante un problema tecnológico nuevo, siento inseguridad y prefiero pedir ayuda enseguida.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM06_07",
+        "dim": "TM06",
+        "dim_label": "Digital Problem Solving",
+        "phase": "Fase 5",
+        "phase_name": "Resolución Digital",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tienes que resolver algo con una herramienta que nunca has usado, ¿cuál es tu actitud?",
+        "scenario": null,
+        "options": [
+          "La exploro libremente con curiosidad, aprendo jugando",
+          "La abordo con método: busco tutorial básico y luego practico",
+          "Me siento incómodo pero lo intento con apoyo de alguien",
+          "Prefiero no usarla si puedo hacer la tarea de otra forma"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM07": [
+      {
+        "id": "TM07_01",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo reaccionas ante cambios tecnológicos importantes en tu entorno de trabajo?",
+        "scenario": null,
+        "options": [
+          "Los lidero o impulso activamente en mi equipo",
+          "Me adapto con relativa facilidad y agilidad",
+          "Me adapto aunque necesito tiempo para acomodarme",
+          "Prefiero la estabilidad y los procesos establecidos"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM07_02",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Propongo activamente nuevas formas de hacer las cosas usando tecnología en mi equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM07_03",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo describes tu tolerancia al fracaso cuando pruebas algo tecnológico nuevo?",
+        "scenario": null,
+        "options": [
+          "Alta, el fracaso es parte necesaria del aprendizaje",
+          "Moderada, aprendo aunque me resulta incómodo",
+          "Baja, prefiero asegurarme bien antes de actuar",
+          "Muy baja, evito el riesgo de equivocarme"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM07_04",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me considero una persona que impulsa la innovación tecnológica en mi entorno profesional.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM07_05",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando ves una solución tecnológica interesante en otro sector, ¿qué haces?",
+        "scenario": null,
+        "options": [
+          "Exploro activamente cómo aplicarla o adaptarla al mío",
+          "Lo comento con mi equipo para valorar si encaja",
+          "Lo archivo mentalmente por si resulta útil en el futuro",
+          "Rara vez hago esa conexión entre sectores"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM07_06",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero que los procesos y herramientas de mi trabajo sean estables y sin cambios frecuentes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM07_07",
+        "dim": "TM07",
+        "dim_label": "Innovation Orientation",
+        "phase": "Fase 5",
+        "phase_name": "Innovación",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu empresa anuncia un proyecto de transformación digital, ¿cuál es tu primera reacción?",
+        "scenario": null,
+        "options": [
+          "Me ofrezco a participar activamente o liderarlo",
+          "Lo veo como una oportunidad y me preparo para adaptarme",
+          "Espero a ver cómo evoluciona antes de involucrarme",
+          "Lo recibo con escepticismo o preocupación"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM08": [
+      {
+        "id": "TM08_01",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo preparas tu perfil profesional para los cambios tecnológicos del futuro?",
+        "scenario": null,
+        "options": [
+          "Tengo un plan activo de desarrollo digital y lo ejecuto regularmente",
+          "Me actualizo cuando detecto una necesidad concreta",
+          "Lo hago de forma reactiva cuando hay presión externa",
+          "No tengo una estrategia definida al respecto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM08_02",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento preparado para un futuro laboral transformado por IA y automatización.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM08_03",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Imagina que tu rol desaparece en 5 años por automatización. ¿Qué harías hoy?",
+        "scenario": "Es un ejercicio de reflexión prospectiva, no una predicción.",
+        "options": [
+          "Tengo un plan de evolución activo hacia roles del futuro",
+          "Empezaría ahora a desarrollar competencias nuevas relevantes",
+          "Me preocuparía pero no sabría por dónde empezar",
+          "Prefiero no pensar en ese escenario hipotético"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM08_04",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Dedico tiempo de forma sistemática a informarme sobre tendencias tecnológicas emergentes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM08_05",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo de cómodo te sientes ante la ambigüedad tecnológica del futuro?",
+        "scenario": null,
+        "options": [
+          "Muy cómodo, la incertidumbre es una oportunidad a explorar",
+          "Bastante cómodo aunque me genera preguntas importantes",
+          "Algo incómodo, prefiero más predictibilidad y claridad",
+          "Incómodo, prefiero contextos estables y predecibles"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM08_06",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La incertidumbre tecnológica del futuro me genera más ansiedad que motivación.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM08_07",
+        "dim": "TM08",
+        "dim_label": "Future Readiness",
+        "phase": "Fase 6",
+        "phase_name": "Preparación para el Futuro",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Con qué frecuencia identificas y lees sobre tendencias tecnológicas emergentes?",
+        "scenario": null,
+        "options": [
+          "Varias horas por semana de forma sistemática",
+          "Algunas horas al mes cuando tengo ocasión",
+          "Ocasionalmente, cuando un tema me llama la atención",
+          "Muy poco, no es una prioridad activa en mi agenda"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM09": [
+      {
+        "id": "TM09_01",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo te sientes cuando debes aprender una tecnología nueva por necesidad del trabajo?",
+        "scenario": null,
+        "options": [
+          "Motivado y seguro de poder dominarlo con tiempo y práctica",
+          "Cómodo, aunque con algo de incertidumbre inicial",
+          "Algo ansioso pero lo supero finalmente",
+          "Con mucha presión e inseguridad significativa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM09_02",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me considero una persona con alta confianza digital en mi entorno profesional.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM09_03",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo valoras tu nivel de alfabetización digital respecto a la media de tu sector?",
+        "scenario": null,
+        "options": [
+          "Soy de los más avanzados o referentes digitales de mi entorno",
+          "Estoy al nivel o por encima de la media del sector",
+          "Algo por debajo del nivel que me gustaría tener",
+          "Necesito mejorar significativamente mi nivel digital"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM09_04",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento capaz de liderar conversaciones sobre tecnología con directivos o clientes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM09_05",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando debes presentar o defender una solución tecnológica ante tu equipo, ¿cómo te sientes?",
+        "scenario": null,
+        "options": [
+          "Muy seguro, me siento referente digital en mi entorno",
+          "Cómodo con preparación previa adecuada",
+          "Un poco inseguro si no domino todos los detalles técnicos",
+          "Evito ese tipo de situaciones si puedo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM09_06",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Los problemas tecnológicos me generan mucha frustración o ansiedad que me bloquea.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM09_07",
+        "dim": "TM09",
+        "dim_label": "Technology Confidence",
+        "phase": "Fase 6",
+        "phase_name": "Confianza Tecnológica",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu empresa adopta una nueva tecnología que no conoces, ¿cuál es tu primera emoción?",
+        "scenario": null,
+        "options": [
+          "Curiosidad y ganas de ser el primero en dominarla",
+          "Interés y disposición para aprenderla cuando corresponda",
+          "Cierta incomodidad ante lo desconocido pero lo manejo",
+          "Inseguridad o resistencia ante el cambio"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "TM10": [
+      {
+        "id": "TM10_01",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo de cómodo te sientes trabajando en entornos 100% digitales y remotos?",
+        "scenario": null,
+        "options": [
+          "Muy cómodo, es mi entorno natural y productivo",
+          "Bastante cómodo, aunque echo algo de menos el presencial",
+          "Prefiero el trabajo híbrido o presencial",
+          "Me cuesta rendir bien en entornos puramente digitales"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM10_02",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Las herramientas de colaboración digital multiplican mi capacidad de trabajo en equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM10_03",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo usas las herramientas de colaboración digital (Slack, Teams, Notion...) en tu trabajo?",
+        "scenario": null,
+        "options": [
+          "Las uso intensamente y genero buenas prácticas para el equipo",
+          "Las uso correctamente para lo que necesito cada día",
+          "Las uso lo mínimo imprescindible que el trabajo exige",
+          "Prefiero la comunicación directa, el email o el teléfono"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM10_04",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me resulta natural coordinar proyectos complejos usando exclusivamente herramientas digitales.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM10_05",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué papel sueles asumir en equipos de trabajo digital distribuido?",
+        "scenario": null,
+        "options": [
+          "Referente digital: propongo, optimizo y enseño herramientas al equipo",
+          "Colaborador activo: uso bien las herramientas y apoyo a los demás",
+          "Usuario funcional: uso lo necesario para cumplir mis objetivos",
+          "Usuario básico: prefiero procesos con menor carga tecnológica"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "TM10_06",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero reuniones presenciales o llamadas antes que herramientas de colaboración asíncrona.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "TM10_07",
+        "dim": "TM10",
+        "dim_label": "Digital Collaboration",
+        "phase": "Fase 6",
+        "phase_name": "Colaboración Digital",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando tu equipo adopta una nueva herramienta de colaboración digital, ¿qué sueles hacer?",
+        "scenario": null,
+        "options": [
+          "La exploro en profundidad y propongo flujos de uso óptimo al equipo",
+          "La aprendo bien y la uso de forma eficiente para mi trabajo",
+          "La uso lo necesario para no quedarme fuera del equipo",
+          "Espero a que sea imprescindible antes de invertir tiempo en aprenderla"
+        ],
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "SCENARIOS": [
+      {
+        "id": "SC_01",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tu empresa anuncia que automatizará procesos clave de tu equipo. La dirección lo presenta como mejora de eficiencia pero no detalla qué ocurrirá con los roles actuales.",
+        "text": "¿Cómo reaccionas?",
+        "options": [
+          "Tomo la iniciativa e identifico cómo puedo liderar la transición",
+          "Colaboro activamente con el proyecto aunque con cierta incertidumbre",
+          "Espero más información antes de tomar cualquier acción",
+          "Me preocupa principalmente el impacto en mi puesto actual"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_02",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tu responsable te pide que lideres la adopción de una herramienta de IA generativa en tu equipo. Nadie la ha usado antes y tienes 2 semanas.",
+        "text": "¿Cómo abordas el reto?",
+        "options": [
+          "Con entusiasmo: experimento, aprendo rápido y formo al equipo",
+          "Con método: busco formación primero y luego implemento de forma ordenada",
+          "Proponiendo un plan más gradual de 4-6 semanas con menor riesgo",
+          "Solicitando apoyo externo de IT o consultoría para poder liderarlo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_03",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Un cambio tecnológico importante afecta a tu flujo habitual. Las herramientas que dominas quedan obsoletas y el sector se mueve hacia un nuevo estándar.",
+        "text": "¿Qué haces?",
+        "options": [
+          "Me pongo a aprender el nuevo estándar de inmediato, veo la oportunidad",
+          "Comienzo el aprendizaje de forma ordenada con los recursos adecuados",
+          "Espero a que sea urgente antes de invertir tiempo en aprenderlo",
+          "Me resisto al cambio mientras puedo mantener el método anterior"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_04",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Debes presentar a dirección una propuesta de transformación digital para tu departamento. Tienes libertad para diseñar el plan y el presupuesto.",
+        "text": "¿Cómo procedes?",
+        "options": [
+          "Diseño un plan ambicioso con tecnologías de vanguardia y ROI claro",
+          "Propongo mejoras incrementales con tecnología probada y bajo riesgo",
+          "Me apoyo en consultores externos para diseñar la propuesta",
+          "Propongo experimentos piloto antes de comprometer recursos importantes"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_05",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Un compañero te pide consejo porque teme que la IA reemplace su puesto en los próximos años. Se siente perdido y no sabe qué hacer para prepararse.",
+        "text": "¿Qué le recomiendas?",
+        "options": [
+          "Le ayudo a construir un plan concreto de upskilling en IA y competencias digitales",
+          "Le explico las tendencias del mercado y le sugiero cursos específicos",
+          "Le digo que se informe bien antes de preocuparse en exceso",
+          "Le digo que la IA tardará más de lo que dicen y que no se alarme"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_06",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Tu empresa te ofrece liderar el primer equipo humano-IA de la organización. Sería un rol nuevo, sin precedentes y con mucha visibilidad.",
+        "text": "¿Cómo te sientes ante esta oportunidad?",
+        "options": [
+          "Muy motivado, es exactamente el tipo de reto que me impulsa",
+          "Interesado aunque con dudas sobre cómo afrontarlo correctamente",
+          "Cauteloso, necesitaría más información y apoyo antes de decidir",
+          "Preferiría un proyecto con más estructura y precedentes claros"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_07",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [
+          "premium"
+        ],
+        "scenario": "Durante una reunión estratégica, el equipo debate adoptar una tecnología emergente con alto potencial pero también alta incertidumbre. Tú tienes voz y voto.",
+        "text": "¿Qué posición defiendes?",
+        "options": [
+          "Apoyo la adopción rápida con un piloto agresivo para aprender rápido",
+          "Propongo un piloto controlado con criterios claros de éxito medible",
+          "Sugiero esperar 6 meses hasta que haya más casos de éxito en el mercado",
+          "Prefiero una posición conservadora hasta que la tecnología madure más"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_08",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [],
+        "scenario": "Una startup de tu sector lanza una herramienta de IA que automatiza parte significativa del trabajo que tú realizas manualmente.",
+        "text": "¿Cuál es tu reacción inmediata?",
+        "options": [
+          "La pruebo de inmediato para entender su potencial e integrarla en mi flujo",
+          "La analizo con detenimiento para ver si realmente mejora mi trabajo",
+          "Espero a ver si el mercado la valida antes de invertir tiempo",
+          "Me preocupa que pueda reemplazar parte de mi valor diferencial"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_09",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [],
+        "scenario": "Tu empresa te da 20% del tiempo laboral para explorar libremente proyectos de innovación tecnológica sin ninguna restricción ni entregable definido.",
+        "text": "¿Cómo aprovechas ese tiempo?",
+        "options": [
+          "Diseño y prototipo una solución de IA para un problema real de la empresa",
+          "Aprendo en profundidad una tecnología emergente que me interesa aplicar",
+          "Estudio casos de éxito del sector para identificar oportunidades",
+          "Me cuesta definir qué hacer sin un objetivo o entregable claro"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "SC_10",
+        "dim": "SCENARIOS",
+        "dim_label": "Escenarios Digitales",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Digitales",
+        "type": "scenario",
+        "versions": [],
+        "scenario": "Tu empresa va a invertir en formación tecnológica para todo el equipo. Te piden que propongas el programa.",
+        "text": "¿Qué tipo de formación propones?",
+        "options": [
+          "IA aplicada + automatización de procesos + pensamiento data-driven",
+          "Herramientas digitales de productividad + colaboración en remoto",
+          "Formación básica en las herramientas que ya usamos para optimizar su uso",
+          "Dejo que el departamento de RRHH decida sin mi intervención"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "VAL_01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero utilizar métodos de trabajo que ya conozco antes de adoptar herramientas nuevas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Si pudieras elegir libremente, ¿qué tipo de entorno de trabajo preferirías?",
+        "scenario": null,
+        "options": [
+          "Altamente tecnológico y en constante evolución digital",
+          "Tecnológico pero con cambios graduales y bien controlados",
+          "Mixto, con tecnología aplicada donde tiene sentido real",
+          "Estable, con procesos bien definidos y poca variación tecnológica"
+        ],
+        "is_reverse": false,
+        "is_mirror": false,
+        "is_attention_check": true
+      },
+      {
+        "id": "VAL_03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La inteligencia artificial representa una amenaza mayor que una oportunidad para mi carrera.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [],
+        "text": "¿Cuál de las siguientes afirmaciones describe mejor tu relación con la tecnología?",
+        "scenario": null,
+        "options": [
+          "La tecnología es mi aliada principal para crecer profesionalmente",
+          "La tecnología es una herramienta útil cuando la domino bien",
+          "La tecnología es un mal necesario en el trabajo moderno",
+          "La tecnología complica más de lo que facilita en muchos casos"
+        ],
+        "is_reverse": false,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_05",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [],
+        "text": "Generalmente evito invertir tiempo en tecnologías que no necesito de forma inmediata.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_06",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando una herramienta digital te genera problemas repetidos, ¿cuál es tu actitud?",
+        "scenario": null,
+        "options": [
+          "La investigo a fondo hasta entender y solucionar el problema",
+          "Busco alternativas o soluciones temporales mientras investigo",
+          "La reporto a soporte y espero su resolución sin más acción",
+          "La abandono definitivamente si hay otra opción disponible"
+        ],
+        "is_reverse": false,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_07",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [],
+        "text": "La incertidumbre tecnológica del futuro me genera más ansiedad que motivación.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "TM01",
+        "TM01_01"
+      ],
+      [
+        "TM01",
+        "TM01_02"
+      ],
+      [
+        "TM02",
+        "TM02_01"
+      ],
+      [
+        "TM02",
+        "TM02_02"
+      ],
+      [
+        "TM03",
+        "TM03_01"
+      ],
+      [
+        "TM03",
+        "TM03_02"
+      ],
+      [
+        "TM04",
+        "TM04_01"
+      ],
+      [
+        "TM04",
+        "TM04_02"
+      ],
+      [
+        "TM05",
+        "TM05_01"
+      ],
+      [
+        "TM05",
+        "TM05_02"
+      ],
+      [
+        "TM06",
+        "TM06_01"
+      ],
+      [
+        "TM06",
+        "TM06_02"
+      ],
+      [
+        "TM07",
+        "TM07_01"
+      ],
+      [
+        "TM07",
+        "TM07_02"
+      ],
+      [
+        "TM08",
+        "TM08_01"
+      ],
+      [
+        "TM08",
+        "TM08_02"
+      ],
+      [
+        "TM09",
+        "TM09_01"
+      ],
+      [
+        "TM09",
+        "TM09_02"
+      ],
+      [
+        "TM10",
+        "TM10_01"
+      ],
+      [
+        "TM10",
+        "TM10_02"
+      ]
+    ],
+    "advanced": [
+      [
+        "TM01",
+        "TM01_01"
+      ],
+      [
+        "TM01",
+        "TM01_02"
+      ],
+      [
+        "TM01",
+        "TM01_03"
+      ],
+      [
+        "TM01",
+        "TM01_04"
+      ],
+      [
+        "TM02",
+        "TM02_01"
+      ],
+      [
+        "TM02",
+        "TM02_02"
+      ],
+      [
+        "TM02",
+        "TM02_03"
+      ],
+      [
+        "TM02",
+        "TM02_04"
+      ],
+      [
+        "TM03",
+        "TM03_01"
+      ],
+      [
+        "TM03",
+        "TM03_02"
+      ],
+      [
+        "TM03",
+        "TM03_03"
+      ],
+      [
+        "TM03",
+        "TM03_04"
+      ],
+      [
+        "TM04",
+        "TM04_01"
+      ],
+      [
+        "TM04",
+        "TM04_02"
+      ],
+      [
+        "TM04",
+        "TM04_03"
+      ],
+      [
+        "TM04",
+        "TM04_04"
+      ],
+      [
+        "TM05",
+        "TM05_01"
+      ],
+      [
+        "TM05",
+        "TM05_02"
+      ],
+      [
+        "TM05",
+        "TM05_03"
+      ],
+      [
+        "TM05",
+        "TM05_04"
+      ],
+      [
+        "TM06",
+        "TM06_01"
+      ],
+      [
+        "TM06",
+        "TM06_02"
+      ],
+      [
+        "TM06",
+        "TM06_03"
+      ],
+      [
+        "TM06",
+        "TM06_04"
+      ],
+      [
+        "TM07",
+        "TM07_01"
+      ],
+      [
+        "TM07",
+        "TM07_02"
+      ],
+      [
+        "TM07",
+        "TM07_03"
+      ],
+      [
+        "TM07",
+        "TM07_04"
+      ],
+      [
+        "TM08",
+        "TM08_01"
+      ],
+      [
+        "TM08",
+        "TM08_02"
+      ],
+      [
+        "TM08",
+        "TM08_03"
+      ],
+      [
+        "TM08",
+        "TM08_04"
+      ],
+      [
+        "TM09",
+        "TM09_01"
+      ],
+      [
+        "TM09",
+        "TM09_02"
+      ],
+      [
+        "TM09",
+        "TM09_03"
+      ],
+      [
+        "TM09",
+        "TM09_04"
+      ],
+      [
+        "TM10",
+        "TM10_01"
+      ],
+      [
+        "TM10",
+        "TM10_02"
+      ],
+      [
+        "TM10",
+        "TM10_03"
+      ],
+      [
+        "TM10",
+        "TM10_04"
+      ]
+    ],
+    "premium": [
+      [
+        "TM01",
+        "TM01_01"
+      ],
+      [
+        "TM01",
+        "TM01_02"
+      ],
+      [
+        "TM01",
+        "TM01_03"
+      ],
+      [
+        "TM01",
+        "TM01_04"
+      ],
+      [
+        "TM01",
+        "TM01_05"
+      ],
+      [
+        "TM01",
+        "TM01_06"
+      ],
+      [
+        "TM02",
+        "TM02_01"
+      ],
+      [
+        "TM02",
+        "TM02_02"
+      ],
+      [
+        "TM02",
+        "TM02_03"
+      ],
+      [
+        "TM02",
+        "TM02_04"
+      ],
+      [
+        "TM02",
+        "TM02_05"
+      ],
+      [
+        "TM02",
+        "TM02_06"
+      ],
+      [
+        "TM03",
+        "TM03_01"
+      ],
+      [
+        "TM03",
+        "TM03_02"
+      ],
+      [
+        "TM03",
+        "TM03_03"
+      ],
+      [
+        "TM03",
+        "TM03_04"
+      ],
+      [
+        "TM03",
+        "TM03_05"
+      ],
+      [
+        "TM03",
+        "TM03_06"
+      ],
+      [
+        "TM04",
+        "TM04_01"
+      ],
+      [
+        "TM04",
+        "TM04_02"
+      ],
+      [
+        "TM04",
+        "TM04_03"
+      ],
+      [
+        "TM04",
+        "TM04_04"
+      ],
+      [
+        "TM04",
+        "TM04_05"
+      ],
+      [
+        "TM04",
+        "TM04_06"
+      ],
+      [
+        "TM05",
+        "TM05_01"
+      ],
+      [
+        "TM05",
+        "TM05_02"
+      ],
+      [
+        "TM05",
+        "TM05_03"
+      ],
+      [
+        "TM05",
+        "TM05_04"
+      ],
+      [
+        "TM05",
+        "TM05_05"
+      ],
+      [
+        "TM05",
+        "TM05_06"
+      ],
+      [
+        "TM06",
+        "TM06_01"
+      ],
+      [
+        "TM06",
+        "TM06_02"
+      ],
+      [
+        "TM06",
+        "TM06_03"
+      ],
+      [
+        "TM06",
+        "TM06_04"
+      ],
+      [
+        "TM06",
+        "TM06_05"
+      ],
+      [
+        "TM06",
+        "TM06_06"
+      ],
+      [
+        "TM07",
+        "TM07_01"
+      ],
+      [
+        "TM07",
+        "TM07_02"
+      ],
+      [
+        "TM07",
+        "TM07_03"
+      ],
+      [
+        "TM07",
+        "TM07_04"
+      ],
+      [
+        "TM07",
+        "TM07_05"
+      ],
+      [
+        "TM07",
+        "TM07_06"
+      ],
+      [
+        "TM08",
+        "TM08_01"
+      ],
+      [
+        "TM08",
+        "TM08_02"
+      ],
+      [
+        "TM08",
+        "TM08_03"
+      ],
+      [
+        "TM08",
+        "TM08_04"
+      ],
+      [
+        "TM08",
+        "TM08_05"
+      ],
+      [
+        "TM08",
+        "TM08_06"
+      ],
+      [
+        "TM09",
+        "TM09_01"
+      ],
+      [
+        "TM09",
+        "TM09_02"
+      ],
+      [
+        "TM09",
+        "TM09_03"
+      ],
+      [
+        "TM09",
+        "TM09_04"
+      ],
+      [
+        "TM09",
+        "TM09_05"
+      ],
+      [
+        "TM09",
+        "TM09_06"
+      ],
+      [
+        "TM10",
+        "TM10_01"
+      ],
+      [
+        "TM10",
+        "TM10_02"
+      ],
+      [
+        "TM10",
+        "TM10_03"
+      ],
+      [
+        "TM10",
+        "TM10_04"
+      ],
+      [
+        "TM10",
+        "TM10_05"
+      ],
+      [
+        "TM10",
+        "TM10_06"
+      ],
+      [
+        "SCENARIOS",
+        "SC_01"
+      ],
+      [
+        "SCENARIOS",
+        "SC_02"
+      ],
+      [
+        "SCENARIOS",
+        "SC_03"
+      ],
+      [
+        "SCENARIOS",
+        "SC_04"
+      ],
+      [
+        "SCENARIOS",
+        "SC_05"
+      ],
+      [
+        "SCENARIOS",
+        "SC_06"
+      ],
+      [
+        "SCENARIOS",
+        "SC_07"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_03"
+      ]
+    ]
+  }
+}

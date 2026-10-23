@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Colección pública de {{ owner.username }} — MihiTraining{% endblock %}
+{% block page_title %}Colección pública{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/badges.css' %}">{% endblock %}
+{% block content %}
+<main class="container py-4 billing-app badges-app" aria-labelledby="collection-heading">
+  <header class="billing-hero mb-3">
+    <div>
+      <p class="billing-eyebrow">Talento · Aprendizaje · Logros</p>
+      <h1 id="collection-heading">Colección pública de <span>{{ owner.get_full_name|default:owner.username }}</span></h1>
+      <p>Solo se muestran concesiones vigentes que esta persona eligió compartir. Evidencias y motivos permanecen privados.</p>
+    </div>
+    <div class="billing-plan-badge">
+      <i class="bi bi-award" aria-hidden="true"></i>
+      <span>Insignias compartidas<strong>{{ awards|length }}</strong></span>
+    </div>
+  </header>
+  <nav class="badges-actions d-flex flex-wrap gap-2 mb-3" aria-label="Acciones de la colección">
+    <a class="btn btn-outline-primary" href="{% url 'gamification:insignias' %}">Catálogo de insignias</a>
+  </nav>
+  <p class="badges-notice"><i class="bi bi-shield-check" aria-hidden="true"></i>Distintivos internos de la plataforma, no certificaciones oficiales externas.</p>
+  {% if awards %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+      {% for award in awards %}
+        <div class="col">
+          <article class="card badges-card h-100 shadow-sm rounded-4">
+            <div class="card-body">
+              <div class="d-flex gap-3 align-items-center">
+                {% if award.insignia.imagen %}
+                  <img src="{{ award.insignia.imagen.url }}" width="56" height="56" class="rounded-circle border" style="object-fit:cover" alt="{{ award.insignia.texto_alternativo|default:award.insignia.nombre }}">
+                {% else %}
+                  <span class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:56px;height:56px" aria-hidden="true"><i class="bi bi-award fs-3"></i></span>
+                {% endif %}
+                <h2 class="h5 mb-0 min-w-0"><a class="text-decoration-none" href="{% url 'gamification:insignia_detalle' pk=award.insignia_id %}">{{ award.insignia.nombre }}</a></h2>
+              </div>
+              <p class="text-muted small mt-3 mb-1">{{ award.insignia.get_category_display }} · {{ award.issuer_name|default:award.insignia.issuer_name }}</p>
+              <p class="small mb-0">Obtenida el {{ award.achieved_at|default:award.fecha_obtenida|date:'d M Y' }}</p>
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="badges-empty text-center py-5">
+      <i class="bi bi-award fs-1 text-muted" aria-hidden="true"></i>
+      <p class="h5 mt-3">Esta colección no tiene insignias públicas todavía.</p>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

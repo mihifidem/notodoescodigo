@@ -1,10 +1,14 @@
 from datetime import timedelta
 from decimal import Decimal
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.management import call_command
+from django.db import connection
+from django.db.models.query import QuerySet
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
@@ -36,6 +40,35 @@ class LifecycleTests(TestCase):
         change_quiz_status(course=self.course, actor=self.teacher, quiz_id=quiz.pk, action='schedule')
         quiz.refresh_from_db()
         return quiz
+
+    def test_status_post_locks_attempts_without_distinct(self):
+        quiz = self.create_quiz()
+        self.course.status = 'published'
+        self.course.save(update_fields=['status'])
+        select_for_update = QuerySet.select_for_update
+        with patch(
+            'django.db.models.query.QuerySet.select_for_update',
+            autospec=True,
+            side_effect=select_for_update,
+        ) as lock, CaptureQueriesContext(connection) as queries:
+            response = self.client.post(self.url('quiz_status', quiz), {'action': 'publish'})
+        self.assertRedirects(response, self.url('quiz_detail', quiz), fetch_redirect_response=False)
+        attempt_locks = [
+            call.args[0] for call in lock.call_args_list
+            if call.args[0].model == QuizAttempt
+        ]
+        self.assertTrue(attempt_locks)
+        selects = [
+            query['sql'] for query in queries.captured_queries
+            if query['sql'].lstrip().upper().startswith('SELECT')
+            and 'FROM "lms_quizattempt"' in query['sql']
+            and 'manual_review' in query['sql']
+        ]
+        self.assertEqual(len(selects), 1)
+        self.assertNotIn('SELECT DISTINCT', selects[0].upper())
+        self.assertIn('EXISTS', selects[0].upper())
+        quiz.refresh_from_db()
+        self.assertEqual(quiz.status, Quiz.Status.PUBLISHED)
 
     def test_schedule_opens_and_closes_at_exact_dates_without_duplicates(self):
         quiz = self.scheduled_quiz()

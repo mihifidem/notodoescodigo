@@ -1,0 +1,22 @@
+{% extends "curriculum/letters/base.html" %}
+{% block letter_content %}
+<h1 class="h3">Nueva carta</h1>
+<p>Nivel efectivo: {{ plan|upper }}. Ninguna acción de este formulario consume energía.</p>
+<p class="alert alert-info">Primero revisa los datos. Por ahora puedes guardar y redactar manualmente; la generación IA está pendiente de Energía Ducky.</p>
+{% if not profiles %}
+  <p>No tienes perfiles activos. <a href="{% url 'curriculum:profile_create' %}">Crea un perfil profesional</a> para elegirlo explícitamente.</p>
+{% else %}
+  <details class="mb-3">
+    <summary>Ver perfiles disponibles y su última actualización</summary>
+    <ul>{% for profile in profiles %}<li>{{ profile.nombre }} — {{ profile.professional_headline|default:"Sin titular" }} — {{ profile.rama_principal|default:"Sin rama" }} — {{ profile.updated_at|date:"DATETIME_FORMAT" }}</li>{% endfor %}</ul>
+  </details>
+  <form method="post" data-letter-editor class="card card-body">
+    {% csrf_token %}
+    {% include "curriculum/letters/fields.html" %}
+    <p>Límites técnicos: oferta {{ configuration.max_offer_length }} caracteres; indicaciones y hechos, 2000 cada uno. El idioma identifica tu edición manual, no garantiza traducción IA. Las extensiones breve, estándar y ampliada son preferencias para la futura generación, hoy no disponible.</p>
+    <button type="submit" class="btn btn-primary">Revisar datos y oferta</button>
+    <p data-submit-status role="status" class="mt-2"></p>
+  </form>
+{% endif %}
+{% include "curriculum/letters/editor_script.html" %}
+{% endblock %}

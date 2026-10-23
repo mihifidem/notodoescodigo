@@ -111,6 +111,9 @@ def procesar_envio(session, post_data):
     Retorna la sesión completada.
     """
     from .models import Question, AnswerOption, UserAnswer, ModuleResult, DNAProfile
+    if session.editorial_version_id:
+        from django.core.exceptions import ValidationError
+        raise ValidationError('Una sesión versionada solo admite entrega mediante el servicio editorial.')
 
     preguntas = (
         Question.objects

@@ -1,7 +1,94 @@
 """Models for the Curriculum Vitae builder app."""
+import re
+
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Max
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
+
+
+class ProfileTemplate(models.Model):
+    class Category(models.TextChoices):
+        GENERAL = 'general', 'General'
+        THEMATIC = 'thematic', 'Temática'
+
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Borrador'
+        PUBLISHED = 'published', 'Publicada'
+        ARCHIVED = 'archived', 'Archivada'
+
+    code = models.SlugField(max_length=80)
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=12, choices=Category.choices)
+    version = models.PositiveIntegerField(default=1)
+    schema_version = models.PositiveIntegerField(default=1)
+    renderer = models.CharField(max_length=80)
+    allowed_plans = models.JSONField(default=list)
+    recommended_branch_codes = models.JSONField(default=list, blank=True)
+    compatible_branch_codes = models.JSONField(default=list, blank=True)
+    default_color = models.CharField(max_length=7, default='#1d4ed8')
+    customization_options = models.JSONField(default=dict, blank=True)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
+    published_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['category', 'name', 'version']
+        constraints = [
+            models.UniqueConstraint(fields=['code', 'version'], name='curr_unique_template_version'),
+        ]
+
+    def clean(self):
+        if not has_accessible_color_contrast(self.default_color):
+            raise ValidationError({'default_color': 'Elige un color #RRGGBB con contraste mínimo 4,5:1 sobre fondo claro.'})
+        valid_plans = {'free', 'plus', 'pro'}
+        if not isinstance(self.allowed_plans, list) or not self.allowed_plans or not set(self.allowed_plans) <= valid_plans:
+            raise ValidationError({'allowed_plans': 'Indica uno o más niveles válidos: FREE, PLUS o PRO.'})
+        if self.status == self.Status.PUBLISHED and self.renderer not in PROFILE_TEMPLATE_RENDERERS:
+            raise ValidationError({'renderer': 'El renderizador no está registrado en el servidor.'})
+        if self.status == self.Status.PUBLISHED and not self.published_at:
+            self.published_at = timezone.now()
+        latest_version = type(self).objects.filter(code=self.code).exclude(pk=self.pk).aggregate(
+            latest=Max('version'),
+        )['latest']
+        if latest_version is not None and self.version <= latest_version:
+            raise ValidationError({'version': 'La nueva versión debe ser superior a las versiones anteriores.'})
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            original = type(self).objects.filter(pk=self.pk).first()
+            if original is not None:
+                if self.code != original.code:
+                    raise ValidationError({'code': 'El código de plantilla no se puede cambiar.'})
+                if self.version != original.version:
+                    raise ValidationError({'version': 'La versión existente no se puede cambiar; crea una nueva versión.'})
+                if original.status == self.Status.ARCHIVED and self.status != self.Status.ARCHIVED:
+                    raise ValidationError({'status': 'Una plantilla archivada no se puede volver a publicar; crea una nueva versión.'})
+                if original.status in {self.Status.PUBLISHED, self.Status.ARCHIVED}:
+                    immutable = (
+                        'name', 'description', 'category', 'schema_version', 'renderer',
+                        'allowed_plans', 'recommended_branch_codes', 'compatible_branch_codes',
+                        'default_color', 'customization_options',
+                    )
+                    if any(getattr(self, field) != getattr(original, field) for field in immutable):
+                        raise ValidationError(
+                            'Una plantilla publicada es inmutable; crea una nueva versión para modificarla.'
+                        )
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.name} v{self.version}'
+
+
+PROFILE_TEMPLATE_RENDERERS = {
+    'basic', 'minimalist', 'professional', 'classic',
+    'dev-studio', 'conversation', 'showcase', 'crm-workspace', 'superoffer', 'matrix',
+}
 
 
 class CurriculumVitae(models.Model):
@@ -468,7 +555,25 @@ TEMPLATE_CHOICES = [
 
 from apps.cv_templates.models import TemplateCV
 
+def has_accessible_color_contrast(color):
+    if not re.fullmatch(r'#[0-9A-Fa-f]{6}', color or ''):
+        return False
+
+    def channel(value):
+        value = int(value, 16) / 255
+        return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (channel(color[index:index + 2]) for index in (1, 3, 5))
+    luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+    return 1.05 / (luminance + 0.05) >= 4.5
+
+
 class CVProfile(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Borrador'
+        PUBLISHED = 'published', 'Publicado'
+        ARCHIVED = 'archived', 'Archivado'
+
     """A curated subset of the master CV, published at a unique URL."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cv_profiles',
@@ -476,6 +581,50 @@ class CVProfile(models.Model):
     cv = models.ForeignKey(
         CurriculumVitae, on_delete=models.CASCADE, related_name='profiles',
     )
+    rama_principal = models.ForeignKey(
+        'users.RamaProfesional',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='cv_profiles',
+        verbose_name='Rama profesional de este perfil',
+    )
+    profile_template = models.ForeignKey(
+        ProfileTemplate,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='profiles',
+        verbose_name='Plantilla de diseño',
+    )
+    published_template = models.ForeignKey(
+        ProfileTemplate,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='published_profiles',
+        verbose_name='Plantilla publicada',
+    )
+    published_template_version = models.PositiveIntegerField(default=1)
+    published_brand_color = models.CharField(max_length=7, default='#1d4ed8')
+    template_version = models.PositiveIntegerField(default=1)
+    template_config = models.JSONField(default=dict, blank=True)
+    brand_color = models.CharField('Color de marca', max_length=7, default='#1d4ed8')
+    display_name = models.CharField('Nombre visible', max_length=200, blank=True)
+    professional_headline = models.CharField('Titular profesional', max_length=220, blank=True)
+    presentation = models.TextField('Presentación profesional', blank=True)
+    profile_location = models.CharField('Ubicación pública', max_length=200, blank=True)
+    contact_email = models.EmailField('Email de contacto del perfil', blank=True)
+    contact_phone = models.CharField('Teléfono de contacto del perfil', max_length=40, blank=True)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
+    revision = models.PositiveIntegerField(default=1)
+    published_snapshot = models.JSONField(default=dict, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    show_email = models.BooleanField('Mostrar email', default=False)
+    show_phone = models.BooleanField('Mostrar teléfono', default=False)
+    show_location = models.BooleanField('Mostrar ubicación', default=True)
+    show_photo = models.BooleanField('Mostrar fotografía', default=False)
     nombre = models.CharField('Nombre del perfil', max_length=200,
                               help_text='Ej: "Desarrollador Frontend", "Data Analyst"')
     slug = models.SlugField(
@@ -484,7 +633,7 @@ class CVProfile(models.Model):
     )
     template = models.CharField('Plantilla', max_length=20, choices=TEMPLATE_CHOICES, default='minimalist')
     templatecv = models.ForeignKey(TemplateCV, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='Template personalizado', help_text='Elige un template personalizado de la tabla de templates')
-    is_public = models.BooleanField('Perfil público', default=True)
+    is_public = models.BooleanField('Perfil público', default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Section visibility flags
@@ -539,6 +688,30 @@ class CVProfile(models.Model):
     def save(self, *args, **kwargs):
         if self.user_id is None:
             raise ValueError('CVProfile.user is required before saving.')
+        if self.rama_principal_id and not self.rama_principal.is_active:
+            previous_branch_id = None
+            if self.pk:
+                previous_branch_id = type(self).objects.filter(pk=self.pk).values_list(
+                    'rama_principal_id',
+                    flat=True,
+                ).first()
+            if previous_branch_id != self.rama_principal_id:
+                from django.core.exceptions import ValidationError
+
+                raise ValidationError({
+                    'rama_principal': 'La rama seleccionada está desactivada y no admite nuevas asignaciones.',
+                })
+        if not has_accessible_color_contrast(self.brand_color):
+            raise ValidationError({'brand_color': 'Elige un color #RRGGBB con contraste mínimo 4,5:1 sobre fondo claro.'})
+        if self.profile_template_id:
+            self.template_version = self.profile_template.version
+        if self.pk:
+            previous_revision = type(self).objects.filter(pk=self.pk).values_list(
+                'revision',
+                flat=True,
+            ).first()
+            if previous_revision is not None and self.revision < previous_revision:
+                raise ValidationError({'revision': 'La revisión del perfil no puede retroceder.'})
 
         base_slug = (self.slug or self.nombre or 'perfil').strip() or 'perfil'
         self.slug = self._generate_unique_slug(base_slug)
@@ -550,3 +723,36 @@ class CVProfile(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('curriculum_public_cv', kwargs={'slug': self.slug})
+
+
+class ProfileVisit(models.Model):
+    profile = models.ForeignKey(CVProfile, on_delete=models.CASCADE, related_name='visits')
+    visited_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-visited_at']
+        indexes = [models.Index(fields=['profile', 'visited_at'], name='curr_cvvisit_profile_date')]
+
+
+class CVProfileRevision(models.Model):
+    profile = models.ForeignKey(CVProfile, on_delete=models.CASCADE, related_name='revisions')
+    revision = models.PositiveIntegerField()
+    snapshot = models.JSONField()
+    template = models.ForeignKey(ProfileTemplate, on_delete=models.PROTECT, related_name='profile_revisions')
+    template_version = models.PositiveIntegerField()
+    brand_color = models.CharField(max_length=7)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-revision']
+        constraints = [
+            models.UniqueConstraint(fields=['profile', 'revision'], name='curr_unique_profile_revision'),
+        ]
+
+
+from .letter_models import (  # noqa: E402,F401
+    CoverLetter, LetterConfiguration, LetterGeneration, LetterOffer, LetterVersion,
+)
+from .ats_models import (  # noqa: E402,F401
+    ATSComparison, ATSConfiguration, ATSOperation, ATSReport, ATSSource,
+)

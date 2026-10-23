@@ -1,0 +1,22 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Comparativa de versiones</h1>
+<p>Antes: <a href="{% url 'curriculum:ats_detail' pk=comparison.before_id %}">{{ comparison.before.source.source_label }}</a></p>
+<p>Después: <a href="{% url 'curriculum:ats_detail' pk=comparison.after_id %}">{{ comparison.after.source.source_label }}</a></p>
+<p>Criterios: {{ comparison.before.configuration.criteria_version }}. Configuraciones {{ comparison.before.configuration.version }} / {{ comparison.after.configuration.version }}.</p>
+<p>Cobertura antes: {{ comparison.before.result.coverage }}</p>
+<p>Cobertura después: {{ comparison.after.result.coverage }}</p>
+<a href="?download=pdf" class="btn btn-outline-primary mb-3">PDF de la comparativa guardada</a>
+<h2 class="h5">Observaciones que ya no se detectan</h2>
+<ul>{% for item in comparison.result.resolved %}<li>{{ item.description }}</li>{% empty %}<li>Ninguna</li>{% endfor %}</ul>
+<h2 class="h5">Hallazgos nuevos</h2>
+<ul>{% for item in comparison.result.new %}<li>{{ item.description }} — {{ item.recommendation }}</li>{% empty %}<li>Ninguno</li>{% endfor %}</ul>
+<h2 class="h5">Recomendaciones pendientes</h2>
+<ul>{% for item in comparison.result.pending %}<li>{{ item.description }} — {{ item.recommendation }}</li>{% empty %}<li>Ninguna</li>{% endfor %}</ul>
+<h2 class="h5">Evidencias textuales añadidas</h2>
+<ul>{% for item in comparison.result.evidence_added %}<li>{{ item }}</li>{% empty %}<li>Ninguna</li>{% endfor %}</ul>
+<h2 class="h5">Evidencias textuales ya no encontradas</h2>
+<ul>{% for item in comparison.result.evidence_removed %}<li>{{ item }}</li>{% empty %}<li>Ninguna</li>{% endfor %}</ul>
+<h2 class="h5">Limitaciones</h2>
+<ul>{% for item in comparison.result.limitations %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endblock %}

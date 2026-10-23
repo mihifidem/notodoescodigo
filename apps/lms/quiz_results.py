@@ -9,10 +9,61 @@ from django.utils.translation import gettext as _
 
 from .forms import QuizFeedbackForm
 from .lifecycle import student_recipients
-from .models import GradeEntry, GradeItem, LearningActivity, Notification, NotificationEvent, Quiz, QuizAttempt, Submission
+from .models import AuditEvent, GradeEntry, GradeItem, LearningActivity, Notification, NotificationEvent, Quiz, QuizAttempt, Submission
 from .policies import can_edit_course
-from .quiz_status import quiz_is_closed
+from .quiz_status import quiz_grade_release_filter, quiz_is_closed
 from .services import queue_notification_event
+
+
+@transaction.atomic
+def release_attempt_results(*, course, actor, quiz_id, attempt_id):
+    if not can_edit_course(actor, course):
+        raise PermissionDenied
+    quiz = Quiz.objects.select_for_update().get(pk=quiz_id, course=course)
+    attempt = QuizAttempt.objects.select_for_update().get(pk=attempt_id, quiz=quiz)
+    from .campus import campus_settings, scoped_students
+    allowed_ids = {student.pk for student in student_recipients(course, section_id=quiz.section_id)}
+    if (
+        attempt.user_id == actor.pk or attempt.user_id not in allowed_ids
+        or (campus_settings(course) and not scoped_students(actor, course).filter(user_id=attempt.user_id).exists())
+    ):
+        raise PermissionDenied
+    if quiz.publish_grade_at:
+        raise ValidationError(_('Esta prueba tiene una fecha de publicación de notas programada.'))
+    if attempt.status != QuizAttempt.Status.GRADED or attempt.answers.filter(manual_review=True).exists():
+        raise ValidationError(_('Solo se pueden enviar resultados de intentos calificados sin revisión pendiente.'))
+    entry = GradeEntry.objects.select_for_update().filter(attempt=attempt, user_id=attempt.user_id, course=course).first()
+    if entry is None or entry.is_hidden or entry.status not in (GradeEntry.Status.DRAFT, GradeEntry.Status.PUBLISHED):
+        raise ValidationError(_('El intento no tiene una nota disponible para publicar.'))
+    if attempt.results_released_at:
+        return
+    now = timezone.now()
+    entry.status = GradeEntry.Status.PUBLISHED
+    entry.is_published = True
+    entry.published_at = now
+    entry.save(update_fields=['status', 'is_published', 'published_at', 'updated_at'])
+    attempt.results_released_at = now
+    attempt.save(update_fields=['results_released_at', 'updated_at'])
+    AuditEvent.objects.create(
+        course=course, actor=actor, target_user=attempt.user,
+        action=AuditEvent.Action.COURSE_UPDATED,
+        metadata={'quiz_action': 'results_released', 'quiz_id': quiz.pk, 'attempt_id': attempt.pk},
+    )
+    queue_notification_event(
+        course=course, actor=actor, target_user=attempt.user,
+        event_type=NotificationEvent.Type.GRADE,
+        title=_('Resultado y solución disponibles'),
+        message=_('Tu nota de %(quiz)s es %(grade)s / %(maximum)s. Ya puedes consultar el resultado y la solución.') % {
+            'quiz': quiz.title, 'grade': entry.grade, 'maximum': entry.max_grade,
+        },
+        dedupe_key=f'grade:{entry.pk}:published',
+        metadata={
+            'quiz_id': quiz.pk, 'attempt_id': attempt.pk,
+            'url': reverse('lms:quiz_detail', kwargs={'course_id': course.pk, 'quiz_id': quiz.pk}),
+        },
+    )
+    from .consumers import broadcast_course_update
+    transaction.on_commit(lambda: broadcast_course_update(course, 'updated', item_type='lifecycle'))
 
 
 def quiz_result_groups(course, user, *, teacher_view, feedback_form=None):
@@ -40,8 +91,8 @@ def quiz_result_groups(course, user, *, teacher_view, feedback_form=None):
     if not teacher_view:
         attempts = attempts.filter(user=user)
         grades = grades.filter(
+            quiz_grade_release_filter(now=now),
             user=user, status=GradeEntry.Status.PUBLISHED, is_hidden=False,
-            attempt__quiz__publish_grade_at__lte=now,
         )
         feedback = feedback.filter(recipient=user)
     grades_by_attempt = {grade.attempt_id: grade for grade in grades}

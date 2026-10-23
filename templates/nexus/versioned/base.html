@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Nexus DNA · Autoconocimiento{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'nexus/assessment.css' %}">{% endblock %}
+{% block content %}
+<section class="container py-4 nexus-app" aria-labelledby="nexus-title">
+  <header class="nexus-hero">
+    <div>
+      <p class="nexus-eyebrow">Explora · Comprende · Evoluciona</p>
+      <h1 id="nexus-title">Nexus <span>DNA</span></h1>
+      <p class="nexus-hero-description">Conoce tus dimensiones. Conecta con tu siguiente paso.</p>
+    </div>
+    <div class="nexus-hero-badge"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Tu espacio personal<br><strong>Resultados privados</strong></span></div>
+  </header>
+  <nav aria-label="Nexus" class="nexus-nav">
+    <a href="{% url 'nexus:catalog' %}"{% if request.resolver_match.url_name == 'catalog' %} aria-current="page"{% endif %}><i class="bi bi-grid" aria-hidden="true"></i> Catálogo</a>
+    <a href="{% url 'nexus:demo_list' %}"{% if request.resolver_match.url_name == 'demo_list' %} aria-current="page"{% endif %}>Demo ficticia</a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'nexus:versioned_history' %}"{% if request.resolver_match.url_name == 'versioned_history' %} aria-current="page"{% endif %}>Mi historial y pendientes</a>
+    <a href="{% url 'nexus:versioned_evolution' %}"{% if request.resolver_match.url_name == 'versioned_evolution' %} aria-current="page"{% endif %}>Evolución compatible</a>
+    <a class="nexus-nav-legacy" href="{% url 'nexus:student_list' %}">Historial HTML anterior</a>
+    {% endif %}
+  </nav>
+  <p class="nexus-notice"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Evaluaciones orientativas, no diagnósticos, certificaciones ni criterios automáticos de contratación. Tus respuestas y resultados son privados.</span></p>
+  {% if messages %}
+  <div aria-live="polite">
+    {% for message in messages %}<p class="nexus-notice" role="status">{{ message }}</p>{% endfor %}
+  </div>
+  {% endif %}
+  <div class="nexus-content">{% block nexus_content %}{% endblock %}</div>
+</section>
+{% endblock %}

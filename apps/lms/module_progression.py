@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -29,7 +30,8 @@ def content_complete(content, user):
             return True
         from .activity_workflow import feedback_visible
         return bool(
-            submission.status == Submission.Status.GRADED
+            (submission.status == Submission.Status.GRADED or
+             submission.status == Submission.Status.RETURNED and submission.graded_at is not None)
             and feedback_visible(content.activity, submission)
             and submission.grade * 100 >= Decimal(content.activity.points) * content.passing_percentage
         )
@@ -40,6 +42,16 @@ def content_complete(content, user):
 
 
 def module_complete(module, user):
+    from .campus import campus_settings, requirement_status
+    if campus_settings(module.curso) and not can_edit_course(user, module.curso):
+        membership = CourseMembership.objects.filter(course=module.curso, user=user).first()
+        if not membership or not membership.learning_contract:
+            return False
+        items = [
+            item for item in membership.learning_contract['items']
+            if item['module_id'] == module.pk and item['required']
+        ]
+        return all(requirement_status(item, user) for item in items)
     contents = list(module.learning_contents.all())
     if not contents:
         return Progreso.objects.filter(usuario=user, tema=module, completado=True).exists()
@@ -47,6 +59,10 @@ def module_complete(module, user):
 
 
 def module_lock_reason(module, user, *, now=None):
+    from .campus import access_message, material_access
+    decision = material_access(user, module.curso)
+    if not decision.allowed:
+        return access_message(decision.reason)
     if can_edit_course(user, module.curso) or not sequential_enabled(module.curso):
         return ''
     if not is_course_member(user, module.curso):
@@ -67,7 +83,13 @@ def module_lock_reason(module, user, *, now=None):
 
 
 def content_lock_reason(content, user, *, now=None):
+    from .campus import require_frozen_content
     reason = module_lock_reason(content.module, user, now=now)
+    if not reason:
+        try:
+            require_frozen_content(content, user)
+        except PermissionDenied as error:
+            return str(error)
     if reason or can_edit_course(user, content.module.curso) or not sequential_enabled(content.module.curso):
         return reason
     previous = content.prerequisite
@@ -87,6 +109,20 @@ def target_content(target):
 
 
 def target_lock_reason(target, user, *, now=None):
+    from .campus import campus_settings, material_access, access_message, require_frozen_content
+    course = getattr(target, 'course', None)
+    if course and campus_settings(course):
+        decision = material_access(user, course)
+        if not decision.allowed:
+            return access_message(decision.reason)
+        if not can_edit_course(user, course):
+            content = target_content(target)
+            if not content:
+                return _('El material no está vinculado a una versión educativa.')
+            try:
+                require_frozen_content(content, user)
+            except PermissionDenied as error:
+                return str(error)
     content = target_content(target)
     if content:
         return content_lock_reason(content, user, now=now)
@@ -102,15 +138,30 @@ def require_target_access(target, user, *, now=None):
         raise PermissionDenied(reason)
 
 
+@transaction.atomic
 def record_open(target, user):
     content = target_content(target)
     if not content or can_edit_course(user, content.module.curso):
         return
     require_target_access(target, user)
-    progress, _created = ModuleContentProgress.objects.get_or_create(content=content, user=user)
+    progress, _created = ModuleContentProgress.objects.select_for_update().get_or_create(content=content, user=user)
     if not progress.opened_at:
         progress.opened_at = timezone.now()
         progress.save(update_fields=['opened_at'])
+        from .campus import campus_settings
+        if campus_settings(content.module.curso):
+            from .models import LearningEvent
+            LearningEvent.objects.create(
+                user=user, course=content.module.curso,
+                object_type='resource' if content.file_id else 'activity' if content.activity_id else 'quiz' if content.quiz_id else 'page',
+                object_id=target.pk, event_type=LearningEvent.EventType.VIEW,
+                context={'source': 'campus'},
+            )
+    from .campus import campus_settings
+    if campus_settings(content.module.curso):
+        CourseMembership.objects.filter(
+            user=user, course=content.module.curso,
+        ).update(last_content=content, last_accessed_at=timezone.now())
 
 
 def content_url(content):

@@ -1,19 +1,24 @@
 """Views for the Curriculum Vitae builder app."""
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
+from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 
 from .models import (
     CurriculumVitae, PersonalInfo, ProfessionalProfile, WorkExperience,
     Education, ComplementaryTraining, Skill, Language, Project, Achievement,
     Volunteering, SocialNetwork, Interest, OtherInfo, CVProfile, NexusDNAEntry,
+    ProfileTemplate, ProfileVisit,
 )
 from .forms import (
     PersonalInfoForm, ProfessionalProfileForm, WorkExperienceForm,
@@ -23,6 +28,11 @@ from .forms import (
     CvPdfUploadForm,
 )
 from .services.cv_importer import PdfImportError, apply_cv_fields, extract_cv_fields
+from .services.profiles import (
+    available_templates, create_profile, duplicate_profile, profile_limit,
+    publish_profile, reconcile_published_profiles, snapshot_profile, template_access,
+)
+from .services.pdf import build_cv_pdf
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -236,116 +246,15 @@ def edit_professional_profile(request):
 @login_required
 @require_POST
 def suggest_resumen_ia(request):
-    """AJAX endpoint: generate a professional summary suggestion using OpenAI."""
-    from django.conf import settings
+    """Keep CV assistance unavailable until it can reserve shared Ducky Energy."""
+    return JsonResponse({
+        'ok': False,
+        'warning': (
+            'La sugerencia con IA estará disponible cuando se integre con Energía Ducky. '
+            'No se ha enviado ningún dato del CV a un proveedor de IA.'
+        ),
+    }, status=503)
 
-    cv = _get_or_create_cv(request.user)
-
-    # ── Collect available data ──────────────────────────────────────────────
-    personal = getattr(cv, 'personal_info', None)
-    perfil = getattr(cv, 'professional_profile', None)
-    experiences = list(cv.work_experiences.order_by('orden', '-fecha_inicio')[:4])
-    educations = list(cv.educations.order_by('orden', '-fecha_inicio')[:3])
-    skills = list(cv.skills.order_by('orden')[:12])
-    languages = list(cv.languages.order_by('orden'))
-
-    # ── Check minimum data ──────────────────────────────────────────────────
-    filled_sections = sum([
-        personal is not None,
-        bool(experiences),
-        bool(educations),
-        bool(skills),
-        bool(languages),
-        perfil is not None and bool(perfil.profesion),
-    ])
-    if filled_sections < 2:
-        return JsonResponse({
-            'ok': False,
-            'warning': (
-                'Necesito más información para generar una sugerencia. '
-                'Completa al menos tus datos personales y una sección más '
-                '(experiencia laboral, educación o habilidades).'
-            ),
-        })
-
-    # ── Build context string ────────────────────────────────────────────────
-    lines = []
-    if personal:
-        lines.append(f'Nombre: {personal.nombre} {personal.apellidos}')
-        if personal.ciudad:
-            lines.append(f'Ciudad: {personal.ciudad}')
-    if perfil and perfil.profesion:
-        lines.append(f'Profesión/especialidad: {perfil.profesion}')
-    if perfil and perfil.objetivo:
-        lines.append(f'Objetivo declarado: {perfil.objetivo}')
-    if experiences:
-        lines.append('Experiencia laboral:')
-        for exp in experiences:
-            current = ' (puesto actual)' if exp.trabajo_actual else ''
-            lines.append(f'  - {exp.puesto} en {exp.empresa}{current}')
-            if exp.descripcion:
-                lines.append(f'    {exp.descripcion[:200]}')
-    if educations:
-        lines.append('Formación académica:')
-        for edu in educations:
-            lines.append(f'  - {edu.titulo} en {edu.centro}')
-    if skills:
-        hard = [s.nombre for s in skills if s.tipo == 'hard']
-        soft = [s.nombre for s in skills if s.tipo == 'soft']
-        if hard:
-            lines.append(f'Habilidades técnicas: {", ".join(hard)}')
-        if soft:
-            lines.append(f'Habilidades blandas: {", ".join(soft)}')
-    if languages:
-        lines.append('Idiomas: ' + ', '.join(f'{l.idioma} ({l.get_nivel_display()})' for l in languages))
-
-    context_text = '\n'.join(lines)
-
-    # ── Call OpenAI ─────────────────────────────────────────────────────────
-    api_key = getattr(settings, 'OPENAI_API_KEY', '')
-    if not api_key:
-        return JsonResponse({
-            'ok': False,
-            'warning': 'La IA no está configurada. Añade OPENAI_API_KEY a tu archivo .env.',
-        })
-
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
-            model='gpt-4o-mini',
-            messages=[
-                {
-                    'role': 'system',
-                    'content': (
-                        'Eres un experto en recursos humanos y redacción de currículums. '
-                        'Tu tarea es generar un resumen profesional conciso (3-5 frases) '
-                        'en primera persona, en español, adaptado al perfil del candidato. '
-                        'Destaca los puntos fuertes, experiencia clave y propuesta de valor. '
-                        'No uses frases genéricas vacías. Sé directo y específico.'
-                    ),
-                },
-                {
-                    'role': 'user',
-                    'content': (
-                        f'Genera un resumen profesional para el siguiente perfil:\n\n{context_text}'
-                    ),
-                },
-            ],
-            max_tokens=300,
-            temperature=0.7,
-        )
-        suggestion = response.choices[0].message.content.strip()
-        return JsonResponse({'ok': True, 'suggestion': suggestion})
-
-    except Exception as exc:  # noqa: BLE001
-        return JsonResponse({
-            'ok': False,
-            'warning': f'Error al contactar con la IA: {exc}',
-        })
-
-
-# ─── Section: Social networks ─────────────────────────────────────────────────
 
 @login_required
 def edit_social_networks(request):
@@ -720,8 +629,28 @@ class InterestDeleteView(_SectionDeleteView):
 
 @login_required
 def profile_list(request):
-    profiles = CVProfile.objects.filter(user=request.user)
-    return render(request, 'curriculum/profiles/list.html', {'profiles': profiles})
+    profiles = CVProfile.objects.filter(user=request.user).select_related('profile_template')
+    from apps.users.access import effective_plan
+    is_pro = effective_plan(request.user) == 'pro'
+    if is_pro:
+        month_ago = timezone.now() - timedelta(days=30)
+        profiles = profiles.annotate(
+            visit_count=Count('visits', filter=Q(visits__visited_at__gte=month_ago)),
+        )
+    return render(request, 'curriculum/profiles/list.html', {
+        'profiles': profiles,
+        'profile_limit': profile_limit(request.user),
+        'profile_count': CVProfile.objects.filter(user=request.user).exclude(
+            status=CVProfile.Status.ARCHIVED,
+        ).count(),
+        'is_pro': is_pro,
+        'over_published_limit': CVProfile.objects.filter(
+            user=request.user, is_public=True,
+        ).exclude(status=CVProfile.Status.ARCHIVED).count() > profile_limit(request.user),
+        'published_profiles': CVProfile.objects.filter(
+            user=request.user, is_public=True,
+        ).exclude(status=CVProfile.Status.ARCHIVED),
+    })
 
 
 @login_required
@@ -730,11 +659,16 @@ def profile_create(request):
     form = CVProfileForm(request.POST or None, user=request.user)
     if form.is_valid():
         profile = form.save(commit=False)
-        profile.user = request.user
         profile.cv = cv
-        profile.save()
-        return redirect('curriculum:profile_edit_items', pk=profile.pk)
-    return render(request, 'curriculum/profiles/form.html', {'form': form, 'action': 'Crear perfil'})
+        try:
+            profile = create_profile(profile, request.user)
+        except OverflowError as error:
+            form.add_error(None, str(error))
+        else:
+            return redirect('curriculum:profile_edit_items', pk=profile.pk)
+    return render(request, 'curriculum/profiles/form.html', {
+        'form': form, 'action': 'Crear perfil', 'profile_limit': profile_limit(request.user),
+    })
 
 
 @login_required
@@ -742,7 +676,9 @@ def profile_edit(request, pk):
     profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
     form = CVProfileForm(request.POST or None, instance=profile, user=request.user)
     if form.is_valid():
-        form.save()
+        updated = form.save(commit=False)
+        updated.revision += 1
+        updated.save()
         messages.success(request, 'Perfil actualizado.')
         return redirect('curriculum:profile_edit_items', pk=profile.pk)
     return render(request, 'curriculum/profiles/form.html', {
@@ -785,6 +721,8 @@ def profile_edit_items(request, pk):
         profile.intereses.set(
             cv.interests.filter(pk__in=request.POST.getlist('intereses'))
         )
+        profile.revision += 1
+        profile.save(update_fields=['revision', 'updated_at'])
         messages.success(request, 'Contenido del perfil guardado.')
         return redirect('curriculum:profile_list')
 
@@ -813,31 +751,212 @@ def profile_delete(request, pk):
     return render(request, 'curriculum/profiles/confirm_delete.html', {'profile': profile})
 
 
+@login_required
+def profile_publish(request, pk):
+    profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
+    if request.method != 'POST':
+        return redirect('curriculum:profile_list')
+    try:
+        publish_profile(profile, request.user)
+    except PermissionError as error:
+        messages.error(request, {
+            'plan_required': 'Tu nivel actual no incluye la plantilla del perfil.',
+            'subscription_inactive': 'Tu suscripción no está activa para esta plantilla.',
+            'purchase_required': 'Necesitas el derecho de compra vigente para esta plantilla.',
+            'not_available': 'La plantilla seleccionada ya no está disponible.',
+        }.get(str(error), 'No tienes permiso para publicar esta plantilla.'))
+    except (OverflowError, ValueError) as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, 'Perfil publicado. La versión visible queda guardada; vuelve a publicar los cambios para actualizarlos.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_unpublish(request, pk):
+    profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
+    if request.method == 'POST':
+        profile.is_public = False
+        profile.status = CVProfile.Status.DRAFT
+        profile.revision += 1
+        profile.save(update_fields=['is_public', 'status', 'revision', 'updated_at'])
+        messages.success(request, 'El perfil está ahora en borrador y ya no es público.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_duplicate(request, pk):
+    profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
+    if request.method == 'POST':
+        try:
+            duplicate_profile(profile, request.user)
+        except (PermissionError, OverflowError) as error:
+            messages.error(request, str(error))
+        else:
+            messages.success(request, 'Se ha creado una copia privada e independiente del perfil.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_archive(request, pk):
+    profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
+    if request.method == 'POST':
+        profile.is_public = False
+        profile.status = CVProfile.Status.ARCHIVED
+        profile.revision += 1
+        profile.save(update_fields=['is_public', 'status', 'revision', 'updated_at'])
+        messages.success(request, 'Perfil archivado; sus datos se conservan y deja de ser público.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_restore(request, pk):
+    profile = get_object_or_404(CVProfile, pk=pk, user=request.user)
+    if request.method == 'POST':
+        profile.status = CVProfile.Status.DRAFT
+        profile.is_public = False
+        profile.revision += 1
+        profile.save(update_fields=['status', 'is_public', 'revision', 'updated_at'])
+        messages.success(request, 'Perfil restaurado como borrador privado.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_reconcile(request):
+    if request.method == 'POST':
+        try:
+            reconcile_published_profiles(request.user, request.POST.getlist('profiles'))
+        except (OverflowError, ValueError) as error:
+            messages.error(request, str(error))
+        else:
+            messages.success(request, 'Tu selección publicada se ha actualizado; los demás perfiles siguen como borradores.')
+    return redirect('curriculum:profile_list')
+
+
+@login_required
+def profile_preview(request, pk):
+    profile = get_object_or_404(
+        CVProfile.objects.select_related('profile_template'), pk=pk, user=request.user,
+    )
+    template = profile.profile_template
+    if not template:
+        raise Http404('Selecciona primero una plantilla del catálogo.')
+    decision = template_access(request.user, template)
+    if not decision.allowed:
+        messages.error(request, {
+            'plan_required': 'Tu nivel actual no permite previsualizar esta plantilla.',
+            'subscription_inactive': 'Tu suscripción no está activa para esta plantilla.',
+            'purchase_required': 'Necesitas el derecho de compra vigente para esta plantilla.',
+            'not_available': 'Esta plantilla ya no está disponible.',
+        }.get(decision.reason, 'No puedes previsualizar esta plantilla ahora.'))
+        return redirect('curriculum:profile_edit', pk=profile.pk)
+    return render(request, 'curriculum/cv_templates/matrix.html' if template.renderer == 'matrix' else 'curriculum/cv_templates/catalog_profile.html', {
+        'profile': profile,
+        'snapshot': snapshot_profile(profile),
+        'template_renderer': template.renderer,
+        'brand_color': profile.brand_color,
+        'preview': True,
+    })
+
+
+def template_catalog(request):
+    templates = available_templates()
+    from apps.users.models import RamaProfesional
+    branch_names = dict(
+        RamaProfesional.objects.filter(is_active=True).values_list('code', 'name')
+    )
+    for item in templates:
+        item.recommended_branch_names = [
+            branch_names[code] for code in item.recommended_branch_codes if code in branch_names
+        ]
+        item.can_apply = bool(
+            request.user.is_authenticated and template_access(request.user, item).allowed
+        )
+    return render(request, 'curriculum/profiles/template_catalog.html', {'templates': templates})
+
+
+def template_preview(request, code):
+    template = available_templates().filter(code=code).order_by('-version').first()
+    if not template:
+        raise Http404('La plantilla no está publicada.')
+    demo = {
+        'name': 'Lucía Martín',
+        'profession': 'Diseñadora de producto digital',
+        'summary': 'Ejemplo ficticio para mostrar la composición de esta plantilla.',
+        'location': 'Madrid, España',
+        'email': '', 'phone': '', 'photo': '',
+        'experiences': [{'puesto': 'Diseñadora UX', 'empresa': 'Estudio Demo',
+                         'ubicacion': 'Madrid', 'fecha_inicio': '2022-01',
+                         'fecha_fin': '', 'trabajo_actual': 'True',
+                         'descripcion': 'Diseño de productos digitales de ejemplo.', 'logros': ''}],
+        'education': [], 'training': [], 'skills': [{'nombre': 'Diseño UX', 'tipo': 'hard', 'nivel': '4'}],
+        'languages': [], 'projects': [], 'achievements': [], 'volunteering': [],
+        'interests': [], 'links': [],
+    }
+    return render(request, 'curriculum/cv_templates/matrix.html' if template.renderer == 'matrix' else 'curriculum/cv_templates/catalog_profile.html', {
+        'profile': None,
+        'snapshot': demo,
+        'template_renderer': template.renderer,
+        'brand_color': template.default_color,
+        'template_name': template.name,
+        'preview': True,
+    })
+
+
 # ─── Public CV & PDF ──────────────────────────────────────────────────────────
 
 def public_cv(request, slug):
-    """Render the public profile with the chosen template."""
-    profile = get_object_or_404(CVProfile, slug=slug, is_public=True)
-    if profile.templatecv:
-        template_name = f"curriculum/cv_templates/{profile.templatecv.archivo}"
+    profile = get_object_or_404(
+        CVProfile.objects.select_related('profile_template', 'published_template', 'user'),
+        slug=slug, is_public=True,
+    )
+    if profile.status == CVProfile.Status.ARCHIVED:
+        raise Http404('Este perfil ya no está publicado.')
+    if CVProfile.objects.filter(
+        user_id=profile.user_id, is_public=True,
+    ).exclude(status=CVProfile.Status.ARCHIVED).count() > profile_limit(profile.user):
+        raise Http404('El propietario debe elegir qué perfiles mantener publicados tras cambiar de nivel.')
+    template = profile.published_template or profile.profile_template
+    if template and template_access(profile.user, template).allowed:
+        renderer = template.renderer
+        snapshot = profile.published_snapshot or snapshot_profile(profile)
     else:
-        template_map = {
-            'minimalist': 'curriculum/cv_templates/minimalist.html',
-            'tech': 'curriculum/cv_templates/tech.html',
-            'normal': 'curriculum/cv_templates/normal.html',
-            'test01': 'curriculum/cv_templates/test01.html',
-        }
-        template_name = template_map.get(profile.template, 'curriculum/cv_templates/minimalist.html')
-    return render(request, template_name, {'profile': profile})
+        renderer = 'basic'
+        snapshot = profile.published_snapshot or snapshot_profile(profile)
+    if request.method == 'GET' and (
+        not request.user.is_authenticated or request.user.pk != profile.user_id
+    ):
+        ProfileVisit.objects.create(profile=profile)
+    return render(request, 'curriculum/cv_templates/matrix.html' if renderer == 'matrix' else 'curriculum/cv_templates/catalog_profile.html', {
+        'profile': profile, 'snapshot': snapshot, 'template_renderer': renderer,
+        'brand_color': profile.published_brand_color,
+    })
 
 
 def cv_pdf(request, slug):
-    """Redirect to the public CV page with ?print=1 to trigger browser print dialog."""
-    profile = get_object_or_404(CVProfile, slug=slug, is_public=True)
-    from django.http import HttpResponseRedirect
-    return HttpResponseRedirect(
-        reverse('curriculum:public_cv', kwargs={'slug': slug}) + '?print=1'
+    profile = get_object_or_404(
+        CVProfile.objects.select_related('profile_template', 'published_template', 'user'),
+        slug=slug, is_public=True,
     )
+    if profile.status == CVProfile.Status.ARCHIVED:
+        raise Http404('Este perfil ya no está publicado.')
+    if CVProfile.objects.filter(
+        user_id=profile.user_id, is_public=True,
+    ).exclude(status=CVProfile.Status.ARCHIVED).count() > profile_limit(profile.user):
+        raise Http404('El propietario debe elegir qué perfiles mantener publicados tras cambiar de nivel.')
+    snapshot = profile.published_snapshot or snapshot_profile(profile)
+    return build_cv_pdf(profile, snapshot)
+
+
+@login_required
+def private_profile_pdf(request, pk):
+    profile = get_object_or_404(
+        CVProfile.objects.select_related('profile_template', 'user'),
+        pk=pk, user=request.user,
+    )
+    if profile.status == CVProfile.Status.ARCHIVED:
+        raise Http404('Restaura el perfil antes de exportarlo.')
+    return build_cv_pdf(profile, snapshot_profile(profile))
 
 
 # ─── Nexus DNA section ────────────────────────────────────────────────────────

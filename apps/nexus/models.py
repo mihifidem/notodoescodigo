@@ -179,6 +179,16 @@ class AssessmentSession(models.Model):
     ]
 
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='sessions')
+    editorial_version = models.ForeignKey(
+        'nexus.NexusVersion', null=True, blank=True, on_delete=models.PROTECT, related_name='sessions',
+    )
+    frozen_definition = models.JSONField(default=dict, blank=True, editable=False)
+    calculated_report = models.JSONField(default=dict, blank=True, editable=False)
+    access_basis = models.CharField(max_length=150, blank=True)
+    report_scope = models.CharField(max_length=20, blank=True)
+    edit_revision = models.PositiveIntegerField(default=1)
+    answer_timings = models.JSONField(default=dict, blank=True, editable=False)
+    last_activity = models.DateTimeField(null=True, blank=True)
     candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name='nexus_sessions')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     started_at = models.DateTimeField(null=True, blank=True)
@@ -190,9 +200,30 @@ class AssessmentSession(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Assessment Session'
         verbose_name_plural = 'Assessment Sessions'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['candidate', 'editorial_version'],
+                condition=models.Q(status='IN_PROGRESS', editorial_version__isnull=False),
+                name='nexus_one_active_version',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.candidate} – {self.assessment}'
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.editorial_version_id:
+            from django.core.exceptions import ValidationError
+            original = type(self).objects.get(pk=self.pk)
+            protected = [
+                'candidate_id', 'assessment_id', 'editorial_version_id', 'frozen_definition',
+                'access_basis', 'report_scope', 'started_at',
+            ]
+            if original.status == self.STATUS_COMPLETED:
+                protected += ['status', 'calculated_report', 'completed_at', 'edit_revision', 'answer_timings']
+            if any(getattr(original, key) != getattr(self, key) for key in protected):
+                raise ValidationError('El contexto del intento y sus resultados entregados son inmutables.')
+        return super().save(*args, **kwargs)
 
     @property
     def status_class(self):
@@ -205,7 +236,7 @@ class AssessmentSession(models.Model):
 
 class UserAnswer(models.Model):
     session = models.ForeignKey(AssessmentSession, on_delete=models.CASCADE, related_name='answers')
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.PROTECT)
     answer_option = models.ForeignKey(AnswerOption, on_delete=models.SET_NULL, null=True, blank=True)
     score = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     answered_at = models.DateTimeField(auto_now_add=True)
@@ -709,3 +740,8 @@ class DimensionRango(models.Model):
 
     def __str__(self):
         return f'{self.dimension.label} [{self.rango_min}–{self.rango_max}]: {self.titulo}'
+
+
+from .versioned_models import (  # noqa: E402,F401
+    NexusAIOperation, NexusEditorialEvent, NexusFamily, NexusGoalLink, NexusModality, NexusVersion,
+)

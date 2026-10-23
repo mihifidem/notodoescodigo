@@ -1,7 +1,12 @@
 {% extends 'lms/base.html' %}
-{% load i18n static %}
+{% load i18n static lms_navigation %}
 {% block head %}
   {{ block.super }}
+  {% if area_key == 'settings' %}
+    <script src="{% static 'lms/prose-editor.js' %}"></script>
+    {{ settings_form.media }}
+    <link rel="stylesheet" href="{% static 'lms/prose-editor.css' %}">
+  {% endif %}
   {% if teacher_view and area_key == 'content' %}
     <link rel="stylesheet" href="{% static 'lms/modules.css' %}">
     <script src="{% static 'lms/modules.js' %}" defer></script>
@@ -14,15 +19,28 @@
 {% block title %}{{ area_title }} · {{ course.nombre }} | NoTodoEsCódigo Campus{% endblock %}
 {% block extra_css %}
   {{ block.super }}
+  {% if area_key == 'item-bank' or area_key == 'announcements' or area_key == 'discussion' or area_key == 'grades' or area_key == 'people' or area_key == 'syllabus' or area_key == 'quizzes' or area_key == 'activities' or area_key == 'files' or area_key == 'competencies' or area_key == 'rubrics' or area_key == 'collaborations' or area_key == 'settings' %}
+    <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+    <link rel="stylesheet" href="{% static 'lms/knowledge-tech.css' %}">
+  {% endif %}
   {% if area_key == 'announcements' %}<link rel="stylesheet" href="{% static 'lms/course-home.css' %}?v=20261013">{% endif %}
   {% if area_key == 'grades' %}<link rel="stylesheet" href="{% static 'lms/gradebook.css' %}?v=20261013">{% endif %}
   {% if area_key == 'people' or area_key == 'files' %}<link rel="stylesheet" href="{% static 'lms/course-directories.css' %}?v=20261013">{% endif %}
   {% if area_key == 'settings' %}<link rel="stylesheet" href="{% static 'lms/course-settings.css' %}">{% endif %}
   {% if area_key == 'content' %}<link rel="stylesheet" href="{% static 'lms/course-content.css' %}">{% endif %}
+  {% if area_key == 'content' %}
+    <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+    <link rel="stylesheet" href="{% static 'lms/content-tech.css' %}">
+  {% endif %}
 {% endblock %}
 {% block content %}
+  {% if area_key == 'files' or area_key == 'competencies' or area_key == 'rubrics' or area_key == 'collaborations' or area_key == 'settings' %}<div class="billing-app knowledge-tech {{ area_key }}-tech">{% endif %}
+  {% if area_key == 'syllabus' %}<div class="billing-app knowledge-tech syllabus-tech">{% endif %}
+  {% if area_key == 'quizzes' or area_key == 'activities' %}<div class="billing-app knowledge-tech evaluations-tech {% if area_key == 'quizzes' %}quizzes-tech{% else %}activities-tech{% endif %}">{% endif %}
+  {% if area_key == 'content' %}<div class="billing-app content-tech">{% endif %}
+  {% if area_key == 'item-bank' or area_key == 'announcements' or area_key == 'discussion' or area_key == 'grades' or area_key == 'people' %}<div class="billing-app knowledge-tech{% if area_key == 'announcements' %} announcements-tech{% elif area_key == 'discussion' %} discussion-tech{% elif area_key == 'grades' %} grades-tech{% elif area_key == 'people' %} people-tech{% endif %}">{% endif %}
   <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Mis aulas" %}</a><span aria-hidden="true">/</span><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ area_title }}</span></nav>
-  <div class="course-context-grid{% if area_key == 'grades' or area_key == 'people' or area_key == 'files' or area_key == 'settings' or area_key == 'content' %} course-context-grid-full{% endif %}{% if area_key == 'announcements' %} course-announcements-page{% endif %}{% if area_key == 'content' %} course-content-page{% endif %}">
+  <div class="course-context-grid{% if area_key == 'grades' or area_key == 'people' or area_key == 'files' or area_key == 'settings' or area_key == 'content' or area_key == 'item-bank' or area_key == 'syllabus' or area_key == 'quizzes' or area_key == 'rubrics' or area_key == 'collaborations' or area_key == 'competencies' %} course-context-grid-full{% endif %}{% if area_key == 'announcements' %} course-announcements-page{% endif %}{% if area_key == 'content' %} course-content-page{% endif %}">
     <section class="content-panel area-main">
       {% if area_key != 'settings' and area_key != 'content' %}
       <div class="page-heading"><div><p class="eyebrow">{{ course.nombre }}</p><h1>{{ area_title }}</h1><p class="lede">{{ area_message }}</p></div>{% if teacher_view and area_key != 'people' and area_key != 'quizzes' and area_key != 'files' %}<a class="button button-secondary" href="{% url 'lms:course_edit' course_id=course.pk %}">{% trans "Editar aula" %}</a>{% endif %}</div>
@@ -156,6 +174,7 @@
                       <a class="button button-secondary" href="{% url 'lms:quiz_edit' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Editar prueba' %}</a>
                     {% endif %}
                     <a class="button button-danger" href="{% url 'lms:quiz_delete' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Eliminar prueba' %}</a>
+                    <a class="button button-secondary" href="{% url 'lms:quiz_passing_score' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Cambiar mínimo de aprobado' %}</a>
                     {% if quiz.can_reopen %}<a class="button button-secondary" href="{% url 'lms:quiz_reopen' course_id=course.pk quiz_id=quiz.pk %}">{% trans 'Reabrir prueba' %}</a>{% endif %}
                   </div>
                 {% endif %}
@@ -171,28 +190,28 @@
         {% if course_syllabus %}
           <div class="prose">
             <h2>{{ course_syllabus.title }}</h2>
-            {% if course_syllabus.overview %}<p>{{ course_syllabus.overview|linebreaks }}</p>{% endif %}
+            {% if course_syllabus.overview %}{{ course_syllabus.overview|content_text|linebreaks }}{% endif %}
           </div>
           <div class="syllabus-grid">
             <section>
               <h3>{% trans "Objetivos" %}</h3>
-              <p>{{ course_syllabus.objectives|linebreaksbr }}</p>
+              <p>{{ course_syllabus.objectives|content_text|linebreaksbr }}</p>
             </section>
             <section>
               <h3>{% trans "Metodología" %}</h3>
-              <p>{{ course_syllabus.methodology|linebreaksbr }}</p>
+              <p>{{ course_syllabus.methodology|content_text|linebreaksbr }}</p>
             </section>
             <section>
               <h3>{% trans "Competencias" %}</h3>
-              <p>{{ course_syllabus.competencies|linebreaksbr }}</p>
+              <p>{{ course_syllabus.competencies|content_text|linebreaksbr }}</p>
             </section>
             <section>
               <h3>{% trans "Criterios de evaluación" %}</h3>
-              <p>{{ course_syllabus.evaluation_criteria|linebreaksbr }}</p>
+              <p>{{ course_syllabus.evaluation_criteria|content_text|linebreaksbr }}</p>
             </section>
             <section>
               <h3>{% trans "Bibliografía" %}</h3>
-              <p>{{ course_syllabus.bibliography|linebreaksbr }}</p>
+              <p>{{ course_syllabus.bibliography|content_text|linebreaksbr }}</p>
             </section>
             <section>
               <h3>{% trans "Docente y horas" %}</h3>
@@ -208,7 +227,7 @@
                 <span class="timeline-marker" aria-hidden="true">{{ unit.index }}</span>
                 <div>
                   <h3>{{ unit.title }}</h3>
-                  <p>{{ unit.content|striptags|truncatewords:32 }}</p>
+                  <p>{{ unit.content|content_text|truncatewords:32 }}</p>
                 </div>
               </li>
             {% endfor %}
@@ -221,12 +240,12 @@
           {% for announcement in announcements %}
             <details id="announcement-{{ announcement.pk }}" data-quiz-info="announcement-{{ announcement.pk }}" class="announcement-item tech-announcement-card content-accordion-item{% if announcement.pk in pending_announcement_ids %} announcement-pending{% endif %}"{% if not teacher_view and announcement.pk in pending_announcement_ids %} data-announcement-read-url="{% url 'lms:course_announcement_read' course_id=course.pk announcement_id=announcement.pk %}"{% endif %}>
               <summary class="announcement-header">
-                <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% else %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% endif %}</span>
+                <span class="announcement-avatar" aria-hidden="true">{% if announcement.author.avatar %}<img src="{{ announcement.author.avatar.url }}" alt="" loading="lazy">{% elif announcement.author %}{{ announcement.author.get_full_name|default:announcement.author.username|first|upper }}{% else %}<i class="bi bi-megaphone"></i>{% endif %}</span>
                 <div class="announcement-excerpt">
                   <p class="eyebrow">{% if announcement.is_pinned %}{% trans "FIJADO" %}{% else %}{% trans "AVISO" %}{% endif %}</p>
                   <h2>{{ announcement.title }}</h2>
                   <p class="announcement-preview">{{ announcement.content|striptags|truncatechars:130 }}</p>
-                  <p class="quiet-note">{{ announcement.author.get_full_name|default:announcement.author.username }}</p>
+                  <p class="quiet-note">{% if announcement.author %}{{ announcement.author.get_full_name|default:announcement.author.username }}{% else %}{% trans "Equipo docente" %}{% endif %}</p>
                 </div>
                 <div class="announcement-status-wrap">
                   {% if teacher_view and announcement.reading_state %}
@@ -396,15 +415,24 @@
         {% endfor %}
       {% elif area_key == 'item-bank' %}
         <div class="card-grid">
-          {% for bank in question_banks %}
-            <article class="content-panel">
-              <h2>{{ bank.title }}</h2>
+          {% for group in question_bank_groups %}
+            <details class="content-panel knowledge-bank-group">
+              <summary><span>{{ group.title }}</span><span class="quiet-note">{{ group.banks|length }} {% trans 'bancos' %}</span><i class="bi bi-chevron-down" aria-hidden="true"></i></summary>
+              <div class="knowledge-bank-body card-grid">
+          {% for bank in group.banks %}
+            <details class="content-panel knowledge-bank-accordion">
+              <summary><span>{{ bank.title }}</span><span class="quiet-note">{{ bank.get_status_display }} · {{ bank.question_count }}</span><i class="bi bi-chevron-down" aria-hidden="true"></i></summary>
+              <div class="knowledge-bank-body">
               {% if bank.import_errors or bank.review_count %}<p class="form-error">{% trans 'Revisar CSV' %}{% if bank.review_count %} · {{ bank.review_count }} {% trans 'preguntas pendientes de corrección' %}{% endif %}</p>{% endif %}
               <p>{{ bank.description }}</p>
               <p class="quiet-note">{{ bank.get_status_display }} · {% blocktrans count total=bank.question_count %}{{ total }} pregunta{% plural %}{{ total }} preguntas{% endblocktrans %}</p>
               <a class="button button-primary" href="{% url 'lms:knowledge_bank' course_id=course.pk bank_id=bank.pk %}">{% trans 'Abrir banco' %}</a>
               <a class="button button-danger" href="{% url 'lms:knowledge_delete' course_id=course.pk bank_id=bank.pk %}">{% trans 'Eliminar banco' %}</a>
-            </article>
+              </div>
+            </details>
+          {% endfor %}
+              </div>
+            </details>
           {% empty %}
             <p class="empty-state">{% trans 'Crea un banco e importa tu CSV o añade preguntas manualmente.' %}</p>
           {% endfor %}
@@ -457,7 +485,7 @@
         <div class="empty-state empty-state-compact"><span class="empty-icon" aria-hidden="true">◌</span><h2>{% trans "Esta sección aún no está habilitada" %}</h2><p>{{ area_message }} {% trans "La navegación se mantiene disponible, pero todavía no hay una función publicada aquí." %}</p></div>
       {% endif %}
     </section>
-    {% if area_key != 'grades' and area_key != 'people' and area_key != 'files' and area_key != 'settings' and area_key != 'content' %}
+    {% if area_key != 'grades' and area_key != 'people' and area_key != 'files' and area_key != 'settings' and area_key != 'content' and area_key != 'item-bank' and area_key != 'syllabus' and area_key != 'quizzes' and area_key != 'rubrics' and area_key != 'collaborations' and area_key != 'competencies' %}
     <aside class="upcoming-panel">
       <div class="section-heading"><div><p class="eyebrow">{% trans "FECHAS" %}</p><h2>{% trans "Próximas entregas" %}</h2></div></div>
       {% if upcoming_evaluations %}<ul class="due-list">{% for evaluation in upcoming_evaluations %}<li><span class="due-icon" aria-hidden="true">◷</span><div><h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3><p>{% if evaluation.is_deadline %}{% trans "Cierre" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p></div></li>{% endfor %}</ul>{% else %}<p class="quiet-note">{% trans "No hay fechas próximas." %}</p>{% endif %}
@@ -465,4 +493,9 @@
     </aside>
     {% endif %}
   </div>
+  {% if area_key == 'item-bank' or area_key == 'announcements' or area_key == 'discussion' or area_key == 'grades' or area_key == 'people' %}</div>{% endif %}
+  {% if area_key == 'content' %}</div>{% endif %}
+  {% if area_key == 'syllabus' %}</div>{% endif %}
+  {% if area_key == 'quizzes' or area_key == 'activities' %}</div>{% endif %}
+  {% if area_key == 'files' or area_key == 'competencies' or area_key == 'rubrics' or area_key == 'collaborations' or area_key == 'settings' %}</div>{% endif %}
 {% endblock %}

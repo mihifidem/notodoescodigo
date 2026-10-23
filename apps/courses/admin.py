@@ -79,6 +79,14 @@ class CursoAdmin(admin.ModelAdmin):
     inlines = [TemaInline]
     date_hierarchy = 'creado_en'
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'descripcion':
+            from django_prose_editor.widgets import ProseEditorWidget
+            from apps.lms.forms import PROSE_EDITOR_CONFIG
+
+            kwargs['widget'] = ProseEditorWidget(preset='configurable', config=PROSE_EDITOR_CONFIG)
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
 
 @admin.register(Tema)
 class TemaAdmin(admin.ModelAdmin):

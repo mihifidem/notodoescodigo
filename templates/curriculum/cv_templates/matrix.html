@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>CV Matrix</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ snapshot.name }} — CV Matrix</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
@@ -181,9 +183,21 @@ a:hover {
     cursor: not-allowed;
 }
 
+@media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; }
+    .nav-matrix { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+@media print {
+    canvas, .nav-matrix, .matrix-btn { display: none; }
+    .section-content.hidden { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+    canvas { display: none; }
+}
 </style>
 </head>
 <body>
+{% if preview %}<p>Vista previa{% if template_name %}: {{ template_name }}{% endif %}. {% if not profile %}Datos de ejemplo ficticios.{% endif %}</p>{% endif %}
 
 <div class="nav-matrix">
     <a href="#" class="nav-link active" data-seccion="all">> todo</a>
@@ -205,22 +219,18 @@ a:hover {
 <!-- TOP -->
 <div class="top">
     <div class="top-header">
-        <h1 id="nombre"></h1>
+        <h1 id="nombre">{{ snapshot.name }}</h1>
         <span class="profesion">
-            <span class="typing-value">{{ profile.cv.professional_profile.profesion }}</span>
+            <span class="typing-value">{{ snapshot.profession }}</span>
         </span>
     </div>
 
     <div class="perfil-texto">
-        {% if profile.cv.professional_profile.objetivo %}
-        <p><strong>Objetivo:</strong>
-            <span class="typing-value typing-slow">{{ profile.cv.professional_profile.objetivo }}</span>
+        {% if snapshot.summary %}
+        <p><strong>Resumen:</strong>
+            <span class="typing-value typing-slow">{{ snapshot.summary }}</span>
         </p>
         {% endif %}
-
-        <p><strong>Resumen:</strong>
-            <span class="typing-value typing-slow">{{ profile.cv.professional_profile.resumen }}</span>
-        </p>
     </div>
 </div>
 
@@ -233,42 +243,10 @@ a:hover {
 <section class="section">
 <h2>Informacion Personal</h2>
 <ul>
-<!-- <li>CV referencia: <span class="typing-value">{{ profile.cv.personal_info.cv }}</span></li> -->
-<li>Telefono 1: <span class="typing-value">{{ profile.cv.personal_info.telefono1 }}</span></li>
-
-{% if profile.cv.personal_info.telefono2 %}
-<li>Telefono 2: <span class="typing-value">{{ profile.cv.personal_info.telefono2 }}</span></li>
-{% endif %}
-
-<li>Email 1: <span class="typing-value">{{ profile.cv.personal_info.email_profesional1 }}</span></li>
-
-{% if profile.cv.personal_info.email_profesional2 %}
-<li>Email 2: <span class="typing-value">{{ profile.cv.personal_info.email_profesional2 }}</span></li>
-{% endif %}
-
-<li>Ciudad: <span class="typing-value">{{ profile.cv.personal_info.ciudad }}</span></li>
-<li>Pais: <span class="typing-value">{{ profile.cv.personal_info.pais }}</span></li>
-<li>Codigo postal: <span class="typing-value">{{ profile.cv.personal_info.codigo_postal }}</span></li>
-
-{% if profile.cv.personal_info.fecha_nacimiento %}
-<li>Fecha nacimiento: <span class="typing-value">{{ profile.cv.personal_info.fecha_nacimiento }}</span></li>
-{% endif %}
-
-{% if profile.cv.personal_info.nacionalidad %}
-<li>Nacionalidad: <span class="typing-value">{{ profile.cv.personal_info.nacionalidad }}</span></li>
-{% endif %}
-
-{% if profile.cv.personal_info.carnet_conducir != None %}
-<li>Carnet conducir: <span class="typing-value">{{ profile.cv.personal_info.carnet_conducir|yesno:"Si,No" }}</span></li>
-{% endif %}
-
-{% if profile.cv.personal_info.disponibilidad %}
-<li>Disponibilidad: <span class="typing-value">{{ profile.cv.personal_info.disponibilidad }}</span></li>
-{% endif %}
-
-{% if cv.personal_info.foto %}
-<li>Foto: {{ profile.cv.personal_info.foto }}</li>
-{% endif %}
+{% if snapshot.phone %}<li>Teléfono: <span class="typing-value">{{ snapshot.phone }}</span></li>{% endif %}
+{% if snapshot.email %}<li>Email: <span class="typing-value">{{ snapshot.email }}</span></li>{% endif %}
+{% if snapshot.location %}<li>Ubicación: <span class="typing-value">{{ snapshot.location }}</span></li>{% endif %}
+{% if snapshot.photo_url %}<li><img src="{{ snapshot.photo_url }}" alt="Fotografía de {{ snapshot.name }}" width="112"></li>{% endif %}
 </ul>
 </section>
 
@@ -285,7 +263,7 @@ a:hover {
 <div class="section-content hidden">
 <ul>
 
-{% for i in profile.idiomas.all|dictsort:"orden" %}
+{% for i in snapshot.languages %}
 <li>
 {{ i.idioma }} -
 <span class="typing-value">{{ i.nivel }}</span>
@@ -313,58 +291,9 @@ a:hover {
 
 <div class="section-content hidden">
 <ul>
-{% with sn=profile.cv.social_networks %}
-     {% if sn.linkedin %}
-     <li>
-     LinkedIn:
-     <a href="https://{{ sn.linkedin|cut:'https://'|cut:'http://' }}"
-         target="_blank"
-         class="typing-value">
-         {{ sn.linkedin }}
-     </a>
-     </li>
-     {% endif %}
-     {% if sn.github %}
-     <li>
-     GitHub:
-     <a href="https://{{ sn.github|cut:'https://'|cut:'http://' }}"
-         target="_blank"
-         class="typing-value">
-         {{ sn.github }}
-     </a>
-     </li>
-     {% endif %}
-     {% if sn.portfolio %}
-     <li>
-     Portfolio:
-     <a href="https://{{ sn.portfolio|cut:'https://'|cut:'http://' }}"
-         target="_blank"
-         class="typing-value">
-         {{ sn.portfolio }}
-     </a>
-     </li>
-     {% endif %}
-     {% if sn.twitter %}
-     <li>
-     Twitter/X:
-     <a href="https://{{ sn.twitter|cut:'https://'|cut:'http://' }}"
-         target="_blank"
-         class="typing-value">
-         {{ sn.twitter }}
-     </a>
-     </li>
-     {% endif %}
-     {% if sn.otras %}
-     <li>
-     Otras:
-     <a href="https://{{ sn.otras|cut:'https://'|cut:'http://' }}"
-         target="_blank"
-         class="typing-value">
-         {{ sn.otras }}
-     </a>
-     </li>
-     {% endif %}
-{% endwith %}
+{% for link in snapshot.links %}
+<li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a></li>
+{% endfor %}
 </ul>
 </div>
 
@@ -388,7 +317,7 @@ a:hover {
 
 <div class="section-content hidden">
 
-{% for e in profile.experiencias.all|dictsort:"orden" %}
+{% for e in snapshot.experiences %}
 <div class="item-card">
 
 <h3 class="item-title">{{ e.puesto }} - {{ e.empresa }}</h3>
@@ -404,7 +333,7 @@ Inicio: <span class="typing-value">{{ e.fecha_inicio }}</span>
 
 <p>
 Trabajo actual:
-<span class="typing-value">{{ e.trabajo_actual|yesno:"Si,No" }}</span>
+<span class="typing-value">{% if e.trabajo_actual == 'True' %}Sí{% else %}No{% endif %}</span>
 </p>
 
 {% if e.descripcion %}
@@ -435,7 +364,7 @@ Trabajo actual:
 
 <div class="section-content hidden">
 
-{% for e in profile.educaciones.all|dictsort:"orden" %}
+{% for e in snapshot.education %}
 <div class="item-card">
 
 <p>Titulo: <span class="typing-value">{{ e.titulo }}</span></p>
@@ -452,7 +381,7 @@ Inicio: <span class="typing-value">{{ e.fecha_inicio }}</span>
 
 <p>
 En curso:
-<span class="typing-value">{{ e.en_curso|yesno:"Si,No" }}</span>
+<span class="typing-value">{% if e.en_curso == 'True' %}Sí{% else %}No{% endif %}</span>
 </p>
 
 </div>
@@ -477,10 +406,9 @@ En curso:
 
 <div class="section-content hidden">
 
-{% for f in profile.formaciones.all|dictsort:"orden" %}
+{% for f in snapshot.training %}
 <div class="item-card">
 
-<p>Tipo: <span class="typing-value">{{ f.tipo }}</span></p>
 <p>Nombre: <span class="typing-value">{{ f.nombre }}</span></p>
 
 {% if f.entidad %}
@@ -516,13 +444,10 @@ En curso:
 <div class="section-content hidden">
 <ul>
 
-{% for s in profile.habilidades.all|dictsort:"orden" %}
+{% for s in snapshot.skills %}
 <li>
 {{ s.tipo }}
 
-{% if s.categoria %}
- | {{ s.categoria }}
-{% endif %}
 
 | <span class="typing-value">{{ s.nombre }}</span>
 
@@ -557,7 +482,7 @@ En curso:
 
 <div class="section-content hidden">
 
-{% for p in profile.proyectos.all|dictsort:"orden" %}
+{% for p in snapshot.projects %}
 <div class="item-card">
 
 <p>Nombre: <span class="typing-value">{{ p.nombre }}</span></p>
@@ -573,7 +498,7 @@ En curso:
 {% if p.link %}
 <p>
 Link:
-<a href="{{ p.link }}" target="_blank" class="typing-value">
+<a href="{{ p.link }}" target="_blank" rel="noopener noreferrer" class="typing-value">
     {{ p.link }}
 </a>
 </p>
@@ -600,11 +525,10 @@ Link:
 
 <div class="section-content hidden">
 
-{% for a in profile.logros.all|dictsort:"orden" %}
+{% for a in snapshot.achievements %}
 <div class="item-card">
 
 <p>Titulo: <span class="typing-value">{{ a.titulo }}</span></p>
-<p>Tipo: <span class="typing-value">{{ a.get_tipo_display }}</span></p>
 
 {% if a.descripcion %}
 <p><span class="typing-value">{{ a.descripcion }}</span></p>
@@ -634,7 +558,7 @@ Link:
 
 <div class="section-content hidden">
 
-{% for v in profile.voluntariados.all|dictsort:"orden" %}
+{% for v in snapshot.volunteering %}
 <div class="item-card">
 
 <p>Organizacion: <span class="typing-value">{{ v.organizacion }}</span></p>
@@ -644,15 +568,6 @@ Link:
 <p>Impacto: <span class="typing-value">{{ v.impacto }}</span></p>
 {% endif %}
 
-<p>
-Inicio: <span class="typing-value">{{ v.fecha_inicio }}</span>
-{% if v.fecha_fin %} | Fin: <span class="typing-value">{{ v.fecha_fin }}</span>{% endif %}
-</p>
-
-<p>
-En curso:
-<span class="typing-value">{{ v.en_curso|yesno:"Si,No" }}</span>
-</p>
 
 </div>
 {% endfor %}
@@ -674,9 +589,9 @@ En curso:
 <div class="section-content hidden">
 <ul>
 
-{% for item in profile.intereses.all|dictsort:"orden" %}
+{% for item in snapshot.interests %}
 <li>
-<span class="typing-value">{{ item.nombre }}</span>
+<span class="typing-value">{{ item.name }}</span>
 </li>
 {% endfor %}
 
@@ -698,33 +613,7 @@ En curso:
 <div class="section-content hidden">
 <ul>
 
-{% with oi=profile.cv.other_info %}
-<li>
-Disponibilidad para viajar:
-<span class="typing-value">
-{{ oi.disponibilidad_viajar|yesno:"Si,No" }}
-</span>
-</li>
-
-<li>
-Teletrabajo:
-<span class="typing-value">{{ oi.get_teletrabajo_display }}</span>
-</li>
-
-{% if oi.expectativa_salarial %}
-<li>
-Expectativa salarial:
-<span class="typing-value">{{ oi.expectativa_salarial }}</span>
-</li>
-{% endif %}
-
-{% if oi.notas %}
-<li>
-Notas:
-<span class="typing-value">{{ oi.notas }}</span>
-</li>
-{% endif %}
-{% endwith %}
+<li>Solo se muestran los datos seleccionados en este perfil.</li>
 
 </ul>
 </div>
@@ -791,7 +680,8 @@ function draw() {
         gotas[i]++;
     }
 }
-setInterval(draw,33);
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!reducedMotion) setInterval(draw,33);
 
 //efecto Nombre moviendo letras 
 function efectoMatrixNombre(el,texto){
@@ -815,21 +705,27 @@ function efectoMatrixNombre(el,texto){
 }
 
 const nombreEl=document.getElementById("nombre");
-const nombreTexto="{{ cv.personal_info.nombre }} {{ cv.personal_info.apellidos }}";
+const nombreTexto=nombreEl.textContent;
 
 function animarNombre(){
     if(nombreEl) efectoMatrixNombre(nombreEl,nombreTexto);
 }
-animarNombre();
-setInterval(animarNombre,10000);
+if (!reducedMotion) {
+    animarNombre();
+    setInterval(animarNombre,10000);
+}
 
 
 // esribirEfecto
 function escribirTexto(el,texto,vel){
+    if (reducedMotion) {
+        el.textContent = texto;
+        return;
+    }
     let i=0;
     function escribir(){
         if(i<texto.length){
-            el.innerHTML+=texto.charAt(i);
+            el.textContent+=texto.charAt(i);
             i++;
             setTimeout(escribir,vel);
         }
@@ -839,14 +735,14 @@ function escribirTexto(el,texto,vel){
 
 window.onload=()=>{
     document.querySelectorAll(".typing-value:not(.typing-slow)").forEach(el=>{
-        const t=el.innerHTML;
-        el.innerHTML="";
+        const t=el.textContent;
+        el.textContent="";
         escribirTexto(el,t,30);
     });
 
     document.querySelectorAll(".typing-slow").forEach(el=>{
-        const t=el.innerHTML;
-        el.innerHTML="";
+        const t=el.textContent;
+        el.textContent="";
         escribirTexto(el,t,40);
     });
 };
@@ -878,8 +774,8 @@ function toggleSection(btn){
         const elementos = content.querySelectorAll(".typing-value");
 
         elementos.forEach(el=>{
-            const texto = el.innerHTML;
-            el.innerHTML = "";
+            const texto = el.textContent;
+            el.textContent = "";
             escribirTexto(el, texto, 40);
         });
 

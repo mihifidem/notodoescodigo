@@ -1,9 +1,38 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
 from apps.courses.models import Progreso
-from .models import ModuleContentProgress, ModuleProgress, QuizAttempt, Submission
+from .models import GradeEntry, ModuleContentProgress, ModuleProgress, QuizAttempt, Submission
+
+
+@receiver(pre_delete, sender='lms.CourseSettingsLMS')
+def preserve_campus_access_policy(sender, instance, **kwargs):
+    from django.core.exceptions import PermissionDenied
+    if instance.campus_enabled and instance.course.lms_memberships.exclude(learning_contract={}).exists():
+        raise PermissionDenied('No se puede borrar una política Campus con matrículas vinculadas. Se requiere migración auditada.')
+
+
+@receiver(pre_delete, sender='lms.ModuleContent')
+def preserve_frozen_learning_history(sender, instance, **kwargs):
+    from django.core.exceptions import PermissionDenied
+    from .models import CourseMembership
+    for contract in CourseMembership.objects.filter(
+        course_id=instance.module.curso_id,
+    ).exclude(learning_contract={}).values_list('learning_contract', flat=True):
+        if any(item['id'] == instance.pk for item in contract.get('items', [])):
+            raise PermissionDenied('No se puede borrar material vinculado a una matrícula Campus. Archívalo o solicita una migración educativa.')
+
+
+@receiver(post_save, sender=GradeEntry)
+def refresh_campus_after_grade_publication(sender, instance, raw=False, **kwargs):
+    if raw or instance.status != GradeEntry.Status.PUBLISHED:
+        return
+    from .campus import campus_settings, refresh_completion
+    if campus_settings(instance.course):
+        membership = instance.course.lms_memberships.filter(user=instance.user).first()
+        if membership and membership.learning_contract:
+            refresh_completion(membership.pk)
 
 
 @receiver(post_save, sender=ModuleProgress)
@@ -38,6 +67,11 @@ def award_badges_after_content_progress(sender, instance, raw=False, **kwargs):
         course = instance.assignment.course
     from .badge_awards import award_module_badges
     award_module_badges(course, instance.user)
+    from .campus import campus_settings, refresh_completion
+    if campus_settings(course):
+        membership = course.lms_memberships.filter(user=instance.user).first()
+        if membership and membership.learning_contract:
+            refresh_completion(membership.pk)
 
 
 @receiver(post_save, sender=Progreso)

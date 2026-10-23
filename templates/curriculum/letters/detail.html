@@ -1,0 +1,57 @@
+{% extends "curriculum/letters/base.html" %}
+{% block letter_content %}
+<h1 class="h3">{{ letter.title }}</h1>
+<p>{{ letter.get_status_display }} · Perfil de origen: {{ letter.reviewed_snapshot.profile_name }} · {{ letter.get_language_display }}</p>
+<div class="alert alert-warning" role="status">{{ availability.message }}</div>
+<button class="btn btn-outline-secondary mb-3" disabled aria-describedby="generation-blocked">Generar carta con IA</button>
+<p id="generation-blocked">Consumo no disponible: integración pendiente. No se ha reservado ni descontado energía.</p>
+{% if letter.status == "archived" %}<p class="alert alert-info">Carta archivada. Puedes consultar, copiar y descargar versiones; restáurala para editar.</p>{% endif %}
+<p>Versión seleccionada: {{ selected.number }} ({{ selected.get_origin_display }}). Guardar crea una nueva versión, no modifica las anteriores.</p>
+<form method="post" data-letter-editor data-unsaved="{{ form.is_bound|yesno:'true,false' }}" class="card card-body mb-3">
+  {% csrf_token %}{% include "curriculum/letters/fields.html" %}
+  {% if letter.status != "archived" %}<button class="btn btn-primary" type="submit">Guardar nueva versión sin consumo</button>{% endif %}
+  <p data-submit-status role="status"></p>
+</form>
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <button id="copy-letter" type="button" class="btn btn-outline-primary">Copiar texto visible</button>
+  <a class="btn btn-outline-secondary" href="{% url 'curriculum:letter_download' pk=letter.pk version=selected.number format='pdf' %}">PDF de versión {{ selected.number }}</a>
+  <a class="btn btn-outline-secondary" href="{% url 'curriculum:letter_download' pk=letter.pk version=selected.number format='txt' %}">Texto de versión {{ selected.number }}</a>
+</div>
+<p id="copy-status" role="status" aria-live="polite"></p>
+<h2 class="h5">Historial privado</h2>
+<ul>{% for version in versions %}<li><a href="?version={{ version.pk }}">Versión {{ version.number }}</a> · {{ version.get_origin_display }} · {{ version.created_at|date:"DATETIME_FORMAT" }}</li>{% endfor %}</ul>
+<details class="mb-3"><summary>Oferta y preferencias originales conservadas</summary>
+  <pre class="text-wrap">{{ letter.offer.original_text }}</pre>
+  <p>Tono: {{ letter.get_tone_display }}. Extensión: {{ letter.get_length_display }}.</p>
+  <p>Destinatario: {{ letter.reviewed_snapshot.options.recipient|default:"No indicado" }}</p>
+  <p>Hechos: {{ letter.reviewed_snapshot.options.highlights|default:"Ninguno adicional" }}</p>
+  <p>Indicaciones: {{ letter.reviewed_snapshot.options.notes|default:"Ninguna" }}</p>
+</details>
+<div class="d-flex flex-wrap gap-3">
+  <form method="post" action="{% url 'curriculum:letter_action' pk=letter.pk action='duplicate' %}">{% csrf_token %}<input type="hidden" name="revision" value="{{ letter.revision }}"><button class="btn btn-outline-secondary">Duplicar como borrador</button></form>
+  {% if letter.status == "archived" %}
+  <form method="post" action="{% url 'curriculum:letter_action' pk=letter.pk action='restore' %}">{% csrf_token %}<input type="hidden" name="revision" value="{{ letter.revision }}"><button class="btn btn-outline-secondary">Restaurar</button></form>
+  {% else %}
+  <form method="post" action="{% url 'curriculum:letter_action' pk=letter.pk action='archive' %}">{% csrf_token %}<input type="hidden" name="revision" value="{{ letter.revision }}"><button class="btn btn-outline-secondary">Archivar</button></form>
+  {% endif %}
+</div>
+<details class="mt-4"><summary>Eliminar carta</summary>
+  <p>Se borrarán el contenido, la oferta y sus versiones privadas. No se devuelve energía ni se eliminan metadatos operativos necesarios. Esta carta no se ha compartido ni enviado desde este módulo.</p>
+  <form method="post" action="{% url 'curriculum:letter_action' pk=letter.pk action='delete' %}">{% csrf_token %}<input type="hidden" name="revision" value="{{ letter.revision }}"><button class="btn btn-outline-danger">Eliminar definitivamente esta carta y sus versiones</button></form>
+</details>
+{% include "curriculum/letters/editor_script.html" %}
+<script>
+document.getElementById('copy-letter').addEventListener('click', async function () {
+  const field = document.getElementById('id_content');
+  const status = document.getElementById('copy-status');
+  try {
+    await navigator.clipboard.writeText(field.value);
+    status.textContent = 'Texto copiado.';
+  } catch (error) {
+    field.focus();
+    field.select();
+    status.textContent = 'No se pudo acceder al portapapeles. El texto está seleccionado: usa Ctrl+C.';
+  }
+});
+</script>
+{% endblock %}

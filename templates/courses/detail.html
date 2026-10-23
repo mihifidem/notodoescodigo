@@ -9,7 +9,7 @@
     {% if curso.imagen %}
       <img src="{{ curso.imagen.url }}" class="img-fluid rounded mb-4" style="max-height:280px;width:100%;object-fit:cover;" alt="{{ curso.nombre }}">
     {% endif %}
-    <p class="course-intro-text">{{ curso.descripcion }}</p>
+    <div class="course-intro-text">{{ curso.descripcion_html|safe }}</div>
 
     <!-- Progress bar if enrolled -->
     {% if inscripcion %}

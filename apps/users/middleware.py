@@ -8,7 +8,7 @@ class StreakMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            today = timezone.now().date()
+            today = timezone.localdate()
             if request.user.fecha_ultimo_acceso != today:
                 request.user.actualizar_streak()
         return self.get_response(request)

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Validar certificado de curso{% endblock %}
+{% block page_title %}Validación de certificado{% endblock %}
+{% block content %}
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      {% if certificate %}
+        <section class="card border-0 shadow-sm" aria-labelledby="validation-title">
+          <div class="card-body p-4">
+            {% if certificate.status == 'issued' %}
+              <h1 id="validation-title" class="h3 text-success">Certificado emitido</h1>
+              <p>Este registro confirma la emisión de un certificado de finalización de curso.</p>
+            {% else %}
+              <h1 id="validation-title" class="h3 text-danger">Certificado revocado</h1>
+              <p>El registro de emisión existe, pero su estado actual es revocado.</p>
+            {% endif %}
+            <dl class="row mb-0">
+              <dt class="col-sm-4">Alumno</dt>
+              <dd class="col-sm-8">{{ certificate.user.get_full_name|default:certificate.user.username }}</dd>
+              <dt class="col-sm-4">Curso</dt>
+              <dd class="col-sm-8">{{ certificate.metadata.course_title|default:certificate.course.nombre }}</dd>
+              {% if certificate.metadata.campus %}
+                <dt class="col-sm-4">Emisor</dt>
+                <dd class="col-sm-8">{{ certificate.metadata.issuer_name }}</dd>
+                <dt class="col-sm-4">Versión</dt>
+                <dd class="col-sm-8">{{ certificate.metadata.course_version }} · Certificado propio, no homologación oficial</dd>
+              {% endif %}
+              <dt class="col-sm-4">Emisión</dt>
+              <dd class="col-sm-8">{{ certificate.issued_at|date:'d M Y' }}</dd>
+              <dt class="col-sm-4">Estado</dt>
+              <dd class="col-sm-8">{{ certificate.get_status_display }}</dd>
+              <dt class="col-sm-4">Código</dt>
+              <dd class="col-sm-8 font-monospace">{{ certificate.certificate_code }}</dd>
+            </dl>
+          </div>
+        </section>
+      {% else %}
+        <div class="alert alert-warning" role="status">
+          No se encontró ningún certificado de curso con ese código.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}

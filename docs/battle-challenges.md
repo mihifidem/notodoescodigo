@@ -11,6 +11,17 @@ Los formularios de reto privado y abierto permiten añadir subcategorías y subi
 un nuevo paisaje sin publicar el reto. Se requieren, respectivamente, los permisos
 `duckyclash.add_challengesubcategory` y `duckyclash.add_landscape`, asignables desde
 Django Admin a usuarios o grupos. El catálogo es compartido.
+ADMIN de plataforma también puede crear categorías y subcategorías desde esos
+formularios, sin necesitar permisos adicionales por modelo. Las categorías
+reutilizan `courses.CourseCategory` y deben asignarse a un ramo (`CourseSector`).
+La selección en navegador sigue Ramo/sector → Categoría → Subcategoría:
+cambiar un padre elimina las opciones ajenas y limpia la selección incompatible.
+El formulario de edición utiliza los mismos filtros y precarga el ramo del reto.
+Los nombres no se interpretan como HTML. El servidor comprueba las relaciones,
+el estado activo y los permisos también en POST; no basta con ocultar botones.
+Las categorías antiguas sin sector siguen accesibles con el selector de ramo vacío.
+Crear una categoría conserva las condiciones del reto y la selecciona sin publicarlo.
+No se añaden tablas ni migraciones.
 La nueva entrada queda seleccionada y se conservan las condiciones escritas.
 Las imágenes admitidas son PNG, JPEG y WebP, hasta 5 MB y 4096 píxeles por lado;
 se valida su contenido y se guardan con un nombre generado por el servidor.

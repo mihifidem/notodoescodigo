@@ -1,11 +1,14 @@
 """Forms for the Curriculum Vitae builder app."""
 from django import forms
+from django.db.models import Q
 from django.forms import inlineformset_factory
 from django.utils.text import slugify
+from apps.users.models import RamaProfesional
 from .models import (
     CurriculumVitae, PersonalInfo, ProfessionalProfile, WorkExperience,
     Education, ComplementaryTraining, Skill, Language, Project, Achievement,
-    Volunteering, SocialNetwork, Interest, OtherInfo, CVProfile,
+    Volunteering, SocialNetwork, Interest, OtherInfo, CVProfile, ProfileTemplate,
+    has_accessible_color_contrast,
 )
 
 MAX_CV_PDF_SIZE = 5 * 1024 * 1024
@@ -240,18 +243,30 @@ class OtherInfoForm(forms.ModelForm):
         }
 
 
-from apps.cv_templates.models import TemplateCV
-
 class CVProfileForm(forms.ModelForm):
     class Meta:
         model = CVProfile
         exclude = ['user', 'cv', 'created_at', 'experiencias', 'educaciones', 'formaciones',
-                   'habilidades', 'idiomas', 'proyectos', 'logros', 'voluntariados', 'intereses', 'template']
+                   'habilidades', 'idiomas', 'proyectos', 'logros', 'voluntariados', 'intereses',
+                   'template', 'templatecv', 'is_public', 'status', 'revision', 'template_version',
+                   'published_snapshot', 'template_config', 'published_template',
+                   'published_template_version', 'published_brand_color', 'published_at',
+                   'updated_at']
         widgets = {
             'nombre': forms.TextInput(attrs=_fc()),
             'slug': forms.TextInput(attrs={**_fc(), 'placeholder': 'NombreApellido_perfil'}),
-            'templatecv': forms.Select(attrs=_fc()),
-            'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'profile_template': forms.Select(attrs=_fc()),
+            'brand_color': forms.TextInput(attrs={'class': 'form-control form-control-color', 'type': 'color'}),
+            'display_name': forms.TextInput(attrs=_fc()),
+            'professional_headline': forms.TextInput(attrs=_fc()),
+            'presentation': forms.Textarea(attrs={**_fc(), 'rows': 4}),
+            'profile_location': forms.TextInput(attrs=_fc()),
+            'contact_email': forms.EmailInput(attrs=_fc()),
+            'contact_phone': forms.TextInput(attrs=_fc()),
+            'show_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_phone': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_location': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_photo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mostrar_perfil_profesional': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mostrar_redes': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mostrar_intereses': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -264,11 +279,98 @@ class CVProfileForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         self.user = user
         super().__init__(*args, **kwargs)
-        from apps.cv_templates.models import TemplateCV
-        qs = TemplateCV.objects.all()
-        if user and hasattr(user, 'role') and user.role == 'basic':
-            qs = qs.filter(exclusivo_membresia=False)
-        self.fields['templatecv'].queryset = qs
+        from apps.curriculum.services.profiles import available_templates
+        available = available_templates()
+        from apps.curriculum.services.profiles import template_access
+        eligible_ids = [
+            template.pk for template in available
+            if user and template_access(user, template).allowed
+        ]
+        available_for_user = available.filter(pk__in=eligible_ids)
+        if self.instance.pk and self.instance.profile_template_id:
+            self.fields['profile_template'].queryset = ProfileTemplate.objects.filter(
+                Q(pk=self.instance.profile_template_id) | Q(pk__in=available_for_user.values('pk')),
+            )
+        else:
+            self.fields['profile_template'].queryset = available_for_user
+        self.fields['profile_template'].required = False
+        self.fields['profile_template'].empty_label = 'Básica (predeterminada)'
+        self.fields['profile_template'].error_messages['invalid_choice'] = (
+            'La plantilla no está disponible para tu nivel o ya no está publicada.'
+        )
+        self.fields['brand_color'].required = False
+        branch_queryset = RamaProfesional.objects.filter(is_active=True)
+        if self.instance.pk and self.instance.rama_principal_id:
+            branch_queryset = RamaProfesional.objects.filter(
+                Q(is_active=True) | Q(pk=self.instance.rama_principal_id)
+            )
+        self.fields['rama_principal'].queryset = branch_queryset
+        self.fields['rama_principal'].required = False
+        self.fields['rama_principal'].empty_label = 'Sin seleccionar'
+        self.fields['rama_principal'].help_text = (
+            'La rama corresponde solo a esta versión del CV. Cambiar la rama principal de tu cuenta '
+            'no modifica perfiles ya creados.'
+        )
+        if not self.instance.pk and user and user.rama_principal_id:
+            if user.rama_principal.is_active:
+                self.initial.setdefault('rama_principal', user.rama_principal_id)
+        if not self.instance.pk:
+            self.initial.setdefault(
+                'profile_template',
+                available_templates().filter(code='basic').values_list('pk', flat=True).first(),
+            )
+            self.initial.setdefault('brand_color', '#1d4ed8')
+
+    def clean_brand_color(self):
+        color = self.cleaned_data.get('brand_color')
+        if not color:
+            template = self.cleaned_data.get('profile_template')
+            color = (
+                self.instance.brand_color if self.instance.pk
+                else template.default_color if template else '#1d4ed8'
+            )
+        if not has_accessible_color_contrast(color):
+            raise forms.ValidationError(
+                'Elige un color #RRGGBB con contraste mínimo 4,5:1 sobre fondo claro.'
+            )
+        return color
+
+    def clean_profile_template(self):
+        template = self.cleaned_data.get('profile_template')
+        if not template:
+            if self.instance.pk and self.instance.profile_template_id:
+                template = self.instance.profile_template
+            else:
+                from apps.curriculum.services.profiles import available_templates
+                template = available_templates().filter(code='basic').first()
+        if not template:
+            raise forms.ValidationError('No hay una plantilla básica publicada para crear perfiles ahora.')
+        if self.instance.pk and self.instance.profile_template_id == template.pk:
+            return template
+        from apps.curriculum.services.profiles import template_access
+        decision = template_access(self.user, template)
+        if not decision.allowed:
+            reasons = {
+                'registration_required': 'Inicia sesión para usar esta plantilla.',
+                'plan_required': 'Tu plan actual no incluye esta plantilla.',
+                'subscription_inactive': 'Tu suscripción no está activa para esta plantilla.',
+                'purchase_required': 'Necesitas el derecho de compra vigente para esta plantilla.',
+                'not_available': 'Esta plantilla no está disponible ahora.',
+            }
+            raise forms.ValidationError(reasons.get(decision.reason, 'No tienes acceso a esta plantilla.'))
+        return template
+
+    def clean_rama_principal(self):
+        branch = self.cleaned_data.get('rama_principal')
+        if (
+            branch
+            and not branch.is_active
+            and self.instance.rama_principal_id != branch.pk
+        ):
+            raise forms.ValidationError(
+                'La rama seleccionada está desactivada y no admite nuevas asignaciones.'
+            )
+        return branch
 
     def _ensure_unique_slug(self, base_slug, user=None):
         effective_user = user or self.user

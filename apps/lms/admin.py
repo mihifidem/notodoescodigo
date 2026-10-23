@@ -1,4 +1,8 @@
 from django.contrib import admin
+from django import forms
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
+from django.utils import timezone
 from django_prose_editor.widgets import AdminProseEditorWidget
 
 from .forms import PROSE_EDITOR_CONFIG
@@ -9,6 +13,7 @@ from .models import (
     AnnouncementReaction,
     AnnouncementTarget,
     AuditEvent,
+    CourseCertificate,
     CourseMembership,
     CourseModule,
     CourseSettingsLMS,
@@ -64,6 +69,17 @@ class CourseSettingsLMSAdmin(admin.ModelAdmin):
     search_fields = ('course__nombre', 'legacy_slug')
     readonly_fields = ('legacy_slug',)
 
+    def save_model(self, request, obj, form, change):
+        if any(field.startswith('campus_') for field in form.changed_data):
+            from .policies import is_platform_admin
+            if not is_platform_admin(request.user):
+                raise PermissionDenied
+        super().save_model(request, obj, form, change)
+        AuditEvent.objects.create(
+            actor=request.user, course=obj.course, action=AuditEvent.Action.COURSE_UPDATED,
+            metadata={'campus_action': 'settings_updated', 'fields': form.changed_data},
+        )
+
 
 @admin.register(CourseMembership)
 class CourseMembershipAdmin(admin.ModelAdmin):
@@ -72,6 +88,90 @@ class CourseMembershipAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'course__nombre')
     autocomplete_fields = ('user', 'course', 'section')
     readonly_fields = ('created_at', 'updated_at')
+    actions = ['review_campus_contracts']
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
+
+    def has_delete_permission(self, request, obj=None):
+        if obj and obj.learning_contract:
+            return False
+        return super().has_delete_permission(request, obj)
+
+    @admin.action(description='Revisar y vincular requisitos Campus a las matrículas seleccionadas')
+    def review_campus_contracts(self, request, queryset):
+        from .campus import campus_settings, freeze_contract
+        from .policies import is_platform_admin
+        if not is_platform_admin(request.user):
+            raise PermissionDenied
+        for item in queryset:
+            try:
+                with transaction.atomic():
+                    membership = CourseMembership.objects.select_for_update().get(pk=item.pk)
+                    if not campus_settings(membership.course) or membership.role != CourseMembership.Role.STUDENT:
+                        raise ValidationError('Selecciona una matrícula de alumno de un curso Campus.')
+                    freeze_contract(membership, actor=request.user)
+            except ValidationError as error:
+                self.message_user(request, '; '.join(error.messages), level='error')
+            else:
+                self.message_user(request, f'Contrato revisado: {membership}')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        AuditEvent.objects.create(
+            actor=request.user, target_user=obj.user, course=obj.course,
+            action=AuditEvent.Action.MEMBER_STATUS_CHANGED,
+            metadata={'campus_action': 'membership_admin_updated', 'fields': form.changed_data},
+        )
+
+
+class CourseCertificateAdminForm(forms.ModelForm):
+    class Meta:
+        model = CourseCertificate
+        fields = ('status', 'revocation_reason')
+
+    def clean(self):
+        data = super().clean()
+        if self.instance.status == CourseCertificate.Status.REVOKED and data.get('status') != self.instance.status:
+            self.add_error('status', 'Un certificado revocado no se reactiva automáticamente.')
+        if data.get('status') == CourseCertificate.Status.REVOKED and not data.get('revocation_reason', '').strip():
+            self.add_error('revocation_reason', 'Indica el motivo de revocación para la auditoría.')
+        return data
+
+
+@admin.register(CourseCertificate)
+class CourseCertificateAdmin(admin.ModelAdmin):
+    form = CourseCertificateAdminForm
+    list_display = ('user', 'course', 'status', 'issued_at')
+    readonly_fields = ('user', 'course', 'certificate_code', 'issued_at', 'metadata', 'revoked_at')
+    fields = readonly_fields + ('status', 'revocation_reason')
+    list_filter = ('status',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        from .policies import is_platform_admin
+        return is_platform_admin(request.user)
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_view_permission(request, obj)
+
+    def save_model(self, request, obj, form, change):
+        if obj.status == CourseCertificate.Status.REVOKED:
+            obj.revoked_at = obj.revoked_at or timezone.now()
+        super().save_model(request, obj, form, change)
+        AuditEvent.objects.create(
+            actor=request.user, target_user=obj.user, course=obj.course,
+            action=AuditEvent.Action.COURSE_UPDATED,
+            metadata={'campus_action': 'certificate_admin_updated', 'certificate_id': obj.pk,
+                      'status': obj.status, 'reason': obj.revocation_reason},
+        )
 
 
 @admin.register(CourseModule)

@@ -25,6 +25,90 @@ Plataforma web educativa completa con gamificación, cursos, certificados, IA tu
 | `ai_tutor` | Chatbot tutor con historial de conversación |
 | `api` | Router DRF unificado + docs Swagger |
 | `lms` | Campus LMS: aulas, secciones, membresías, permisos por curso y auditoría |
+| `updates` | Próximas actualizaciones, gestionadas desde Django admin |
+| `prompts` | Biblioteca pública y registro privado de prompts internos de IA |
+
+## Precios en la home
+
+Las secciones de precios de la home, **Elige tu plan según tu etapa** y
+**Precio transparente y sin sorpresas**, muestran PLUS/PRO a partir de la
+`BillingConfiguration` activa: importe y moneda por mes, semestre y año.
+Los cambios de configuración activa se reflejan en la siguiente visita.
+Los borradores y las versiones retiradas no se publican; si no existe tarifa
+se muestra «No disponible», sin sustituirla por precios fijos. FREE sigue siendo
+gratuito. Los botones llevan al flujo existente de membresías, sin alterar cobros.
+
+## Prompts internos de IA
+
+El modelo `prompts.InternalPrompt` centraliza las plantillas utilizadas por
+Tutor IA, redacción e imágenes del Blog, avatares Ducky y corrección de
+evaluaciones (sistema, reglas y formato de respuesta).
+Se gestiona en **Django admin → Prompts → Prompts internos de IA**:
+`/admin/prompts/internalprompt/`, con los permisos estándar del modelo.
+No se publica en la biblioteca de usuarios ni en una API pública.
+
+Aplicar `python manage.py migrate prompts` antes de desplegar los consumidores.
+La migración carga las diez plantillas originales e importa todas las versiones
+de `evaluations.PromptCorreccion`, conservando contenido, activación y versión.
+Si hay versiones repetidas del mismo ámbito, añade `-legacy-ID` para conservarlas.
+El modelo anterior se mantiene como archivo histórico de solo lectura en admin.
+La reversión de la migración de datos no borra ni restablece textos editados.
+
+Cada registro contiene clave interna, título, descripción, versión, texto,
+variables, estado y fechas. Solo puede existir una versión activa por clave;
+para cambiarla, desactiva la anterior y activa la nueva. Las claves y las
+variables existentes son contratos del código, por eso son de solo lectura en
+admin. Los cambios de texto se aplican a las nuevas solicitudes, sin reiniciar
+el servidor; para conservar historial crea una versión nueva en vez de editar
+la anterior. Las variables se escriben como `{nombre}`; los registros sin
+variables conservan las llaves literales (por ejemplo, los esquemas JSON).
+No se guardan aquí conversaciones, respuestas, datos personales ni claves API.
+
+Las claves de corrección `evaluations.system.TIPO_PRUEBA` tienen prioridad
+sobre `evaluations.system.DEFAULT`; si no hay ninguna activa, se usa
+`evaluations.fallback.OBJ_TEST` o `evaluations.fallback.default`. La corrección
+continúa auditando el texto y la versión utilizados. Las claves
+`evaluations.rules` y `evaluations.precomputed_rules` contienen listas JSON de
+textos y `evaluations.response_schema` un objeto JSON.
+Si falta una plantilla requerida o es inválida, se comunica un error explícito;
+no se recupera silenciosamente una copia hardcoded.
+Los mensajes aportados por usuarios al endpoint genérico de IA y los enunciados
+de preguntas no son plantillas internas y no se incorporan a este catálogo.
+
+## Próximas actualizaciones
+
+En Django admin, **Próximas actualizaciones** permite crear, consultar, editar y
+eliminar actualizaciones con referencia manual única, título, descripción,
+equipo responsable (texto libre), fecha de inicio, fecha de fin y estado:
+**Análisis**, **Desarrollo**, **Test** o **Producción**. Todos los campos son
+obligatorios; el estado inicial es Análisis y la fecha de fin debe ser igual o
+posterior a la de inicio. El listado permite buscar y filtrar los registros.
+El acceso utiliza los permisos estándar de Django admin; no se añade una página
+pública ni un enlace al menú lateral. El dashboard del administrador incluye un
+acceso rápido a **Próximas actualizaciones**, visible para quienes tienen permiso
+de consulta o modificación del modelo. Aplicar la migración con
+`python manage.py migrate updates` antes de utilizarlo.
+La portada de Django admin (`/admin/`) también incluye el bloque destacado
+**Próximas actualizaciones · Cosas pendientes**, con acceso a la lista y,
+si se dispone de permiso de creación, a añadir una actualización.
+
+El enlace **Tech DNA (Hard skills)** del portal abre
+`/actualizaciones/tech-dna/` para usuarios autenticados. Muestra la actualización
+con referencia `DPR_001` (no depende de su ID): título, descripción, estado y
+fechas, sin el equipo responsable. Los cambios desde admin se reflejan en la
+página; si no existe la referencia devuelve 404. Las demás actualizaciones no
+se exponen en esta vista.
+El enlace **Formación HUB** abre `/actualizaciones/formacion-hub/` y muestra
+la referencia `DAC_002` con los mismos campos y restricciones, sin equipo.
+Los botones contiguos **DuckyShop** y **Tech2Hand** de la barra superior abren
+`/actualizaciones/duckyshop/` (referencia `DSH_003`) y
+`/actualizaciones/tech2hand/` (referencia `DSH_004`), respectivamente,
+con la misma presentación, autenticación y exclusión del equipo responsable.
+Los cinco enlaces de **Ducky Jobs** muestran también actualizaciones por
+referencia: Empleos para ti (`DJO_011`), Impulsa tu carrera (`DJO_012`),
+Entrena tu entrevista (`DJO_013`), Explora oportunidades (`DJO_014`) y
+Descubre empresas (`DJO_015`), sin equipo responsable. El acceso al currículum
+continúa disponible desde Ducky Profile.
 
 ## Campus LMS
 
@@ -123,6 +207,16 @@ python manage.py loaddata fixtures/initial_data.json
 python manage.py runserver
 ```
 
+### Migración del catálogo Ducky Arenas en PostgreSQL
+
+En `ducky_arenas.0009`, el campo temporal `HistoricalEra.slug` se añade sin
+índice; después de poblar el catálogo se aplica su definición final única.
+Esto evita crear dos veces el índice PostgreSQL `varchar_pattern_ops`.
+Si la migración se detuvo con
+`ducky_arenas_historicalera_slug_ac1319db_like ya existe`, actualiza el código
+y repite `python manage.py migrate`. No borres el índice ni uses `--fake`:
+la migración es atómica y el intento fallido se revierte en PostgreSQL.
+
 ## Ejecutar Celery (tareas asíncronas)
 
 ```bash
@@ -142,3 +236,10 @@ Con el servidor corriendo, visita:
 ## Variables de Entorno
 
 Ver `.env.example` para la lista completa de variables requeridas.
+# Categorias al crear prompts
+
+En Prompts > Crear, los administradores con acceso al formulario pueden abrir
+«Crear categoria» y «Crear subcategoria». Se guardan junto con el prompt:
+selecciona una categoria existente o indica una nueva, y utiliza una
+subcategoria existente de esa categoria o crea otra. Los nombres duplicados
+y las subcategorias de otra categoria se rechazan sin guardar datos parciales.

@@ -10,6 +10,8 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 
 from apps.analytics.models import RegistroActividad
+from apps.users.access import can
+from apps.users.models import AccessMembership
 
 from .models import (
     CategoriaBlog,
@@ -24,14 +26,16 @@ from .models import (
 def _es_admin(usuario):
     if not usuario.is_authenticated:
         return False
-    return usuario.is_staff or getattr(usuario, 'role', '') in {'admin', 'profesor'}
+    return usuario.is_superuser or usuario.has_perm('blog.change_postblog')
 
 
 def _puede_ver_contenido_privado(usuario):
-    """Solo usuarios autorizados pueden ver contenido_privado."""
-    if not usuario.is_authenticated:
-        return False
-    return usuario.is_staff or getattr(usuario, 'role', '') in {'admin', 'profesor', 'premium', 'freemium', 'alumno'}
+    """El contenido premium requiere una membresía PLUS vigente o superior."""
+    return can(
+        usuario,
+        'view_plan_content',
+        required_plan=AccessMembership.Plan.PLUS,
+    ).allowed
 
 
 def _es_premium(usuario):
@@ -323,10 +327,10 @@ class BlogDetailView(DetailView):
                     self.request,
                     'Debes iniciar sesion y tener acceso autorizado para ver este contenido privado.',
                 )
-            elif getattr(usuario, 'role', '') not in {'admin', 'profesor', 'premium', 'freemium', 'alumno'}:
+            elif not _puede_ver_contenido_privado(usuario):
                 messages.warning(
                     self.request,
-                    'Este contenido es exclusivo para usuarios con roles admin, profesor, premium, freemium o alumno.',
+                    'No tienes autorización para ver el contenido privado de este post.',
                 )
             else:
                 messages.warning(
@@ -452,4 +456,3 @@ class PostBlogViewSet(viewsets.ReadOnlyModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
-

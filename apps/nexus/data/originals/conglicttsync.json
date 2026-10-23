@@ -1,0 +1,1788 @@
+{
+  "schema": 1,
+  "family": "conglicttsync",
+  "sources": {
+    "conflictSync.html": "f145b235f2afb1a0d2a7b283147963db58588894dd000ea894d85bdf511d3c30"
+  },
+  "source_notice": "",
+  "labels": {
+    "CS01": "Conflict Awareness",
+    "CS02": "Emotional Regulation",
+    "CS03": "Assertive Communication",
+    "CS04": "Negotiation Style",
+    "CS05": "Conflict Resolution",
+    "CS06": "Empathy Under Tension",
+    "CS07": "Fairness Orientation",
+    "CS08": "Post-Conflict Recovery",
+    "VALIDATION": "Validación"
+  },
+  "archetypes": {
+    "Conflict Architect": {
+      "color": "#F97316",
+      "icon": "🏗️",
+      "chip1": "Resolución Estratégica",
+      "chip2": "Alta Consciencia",
+      "chip3": "Visión sistémica",
+      "desc": "Diseñas soluciones donde todos ganan. Tu capacidad de leer la dinámica de conflicto y construir acuerdos sostenibles te posiciona como mediador natural en cualquier equipo."
+    },
+    "Empathic Navigator": {
+      "color": "#EC4899",
+      "icon": "🧭",
+      "chip1": "Alta Empatía",
+      "chip2": "Escucha activa",
+      "chip3": "Conexión humana",
+      "desc": "Tu fortaleza es conectar con las emociones del otro incluso bajo tensión. Navegas conflictos desde la comprensión genuina, generando confianza y apertura en entornos de alta polarización."
+    },
+    "Assertive Challenger": {
+      "color": "#EF4444",
+      "icon": "⚡",
+      "chip1": "Asertividad",
+      "chip2": "Claridad",
+      "chip3": "Franqueza",
+      "desc": "No evitas la tensión, la nombras. Tu comunicación directa y tu tolerancia al desacuerdo constructivo generan claridad en equipos donde otros eluden el conflicto por miedo."
+    },
+    "Diplomatic Broker": {
+      "color": "#10B981",
+      "icon": "🤝",
+      "chip1": "Negociación",
+      "chip2": "Equilibrio",
+      "chip3": "Acuerdos",
+      "desc": "Eres el articulador entre posiciones opuestas. Tu habilidad para encontrar terreno común y formular propuestas que integran intereses divergentes te hace indispensable en negociaciones complejas."
+    },
+    "Resilient Processor": {
+      "color": "#8B5CF6",
+      "icon": "💎",
+      "chip1": "Recuperación",
+      "chip2": "Estabilidad",
+      "chip3": "Adaptación",
+      "desc": "El conflicto no te desborda porque sabes procesarlo. Tu capacidad de recuperación emocional y de aprender de las fricciones te permite mantener relaciones sólidas tras situaciones difíciles."
+    },
+    "Systemic Mediator": {
+      "color": "#0EA5E9",
+      "icon": "⚖️",
+      "chip1": "Equidad",
+      "chip2": "Imparcialidad",
+      "chip3": "Perspectiva",
+      "desc": "Ves el conflicto como síntoma, no como problema. Tu orientación hacia la equidad y la comprensión sistémica de las causas te permite intervenir con precisión y legitimidad."
+    },
+    "Regulated Responder": {
+      "color": "#F59E0B",
+      "icon": "🧊",
+      "chip1": "Autocontrol",
+      "chip2": "Calma",
+      "chip3": "Gestión emocional",
+      "desc": "Cuando otros escalan, tú regulás. Tu capacidad de mantener la calma emocional en momentos de tensión máxima es una ventaja diferencial en equipos de alta exigencia."
+    },
+    "Conflict Avoider": {
+      "color": "#94A3B8",
+      "icon": "🪞",
+      "chip1": "Cautela",
+      "chip2": "Reflexión",
+      "chip3": "Perfil en desarrollo",
+      "desc": "Tiendes a evitar el conflicto antes que confrontarlo. Desarrollar herramientas de confrontación constructiva y comunicación asertiva multiplicará tu efectividad interpersonal."
+    }
+  },
+  "questions": {
+    "CS01": [
+      {
+        "id": "CS01_01",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando siento que hay tensión en el equipo, ¿cuál es mi reacción habitual?",
+        "scenario": null,
+        "options": [
+          "La identifico enseguida y actúo antes de que escale",
+          "La percibo pero espero a ver si se resuelve sola",
+          "A veces la noto tarde, cuando ya es un problema",
+          "Generalmente no la detecto hasta que explota"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS01_02",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy capaz de detectar señales tempranas de conflicto antes de que sean explícitas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS01_03",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En una reunión donde hay desacuerdo no expresado, ¿qué haces?",
+        "scenario": "Tu equipo debate una decisión y notas que hay tensión no verbalizada entre dos personas.",
+        "options": [
+          "Lo nombro en voz alta para que el equipo lo aborde",
+          "Observo los patrones y lo gestiono en privado después",
+          "Lo dejo pasar esperando que se disipe",
+          "No suelo notar esas dinámicas en las reuniones"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS01_04",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Identifico con precisión cuándo un conflicto tiene origen relacional vs. técnico o de proceso.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS01_05",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Los conflictos me pillan por sorpresa frecuentemente.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS01_06",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Con qué frecuencia realizas un diagnóstico explícito de la dinámica de conflicto antes de actuar?",
+        "scenario": null,
+        "options": [
+          "Siempre analizo las causas y actores antes de intervenir",
+          "Lo hago en conflictos complejos o importantes",
+          "Actúo más por instinto que por análisis",
+          "No suelo hacer ese tipo de análisis"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS01_07",
+        "dim": "CS01",
+        "dim_label": "Conflict Awareness",
+        "phase": "Fase 1",
+        "phase_name": "Consciencia del Conflicto",
+        "type": "likert",
+        "versions": [],
+        "text": "Entiendo el conflicto como algo inevitable y potencialmente útil en los equipos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS02": [
+      {
+        "id": "CS02_01",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando alguien me ataca o critica duramente en público, ¿cómo reacciono?",
+        "scenario": null,
+        "options": [
+          "Mantengo la calma y respondo desde la serenidad",
+          "Siento tensión pero me controlo antes de responder",
+          "Me altero aunque intento no demostrarlo",
+          "Pierdo el control emocional con cierta frecuencia"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS02_02",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy capaz de mantener la calma cuando una conversación se vuelve intensa y cargada de emoción.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS02_03",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Llevas días con tensión acumulada con un compañero. En una reunión, hace un comentario que te molesta.",
+        "scenario": "La reunión es importante y hay más personas presentes.",
+        "options": [
+          "Respiro, proceso y decido si intervenir con calma",
+          "Señalo el comentario pero de forma controlada",
+          "Me cuesta contenerme y se nota que estoy molesto",
+          "Reacciono en el momento sin filtro"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS02_04",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando me enfrento a un conflicto, el tiempo que tarda en bajar mi activación emocional es muy largo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS02_05",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tengo estrategias concretas para gestionarme emocionalmente antes y durante un conflicto.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS02_06",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué haces habitualmente cuando sientes que vas a perder el control en una discusión importante?",
+        "scenario": null,
+        "options": [
+          "Aplico técnicas concretas (respiración, pausa, reformulación)",
+          "Pido tiempo para pensar antes de responder",
+          "Intento contenerme pero no siempre lo consigo",
+          "Raramente me pasa o no tengo herramientas para gestionarlo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS02_07",
+        "dim": "CS02",
+        "dim_label": "Emotional Regulation",
+        "phase": "Fase 2",
+        "phase_name": "Regulación Emocional",
+        "type": "likert",
+        "versions": [],
+        "text": "Mis emociones durante el conflicto suelen interferir negativamente en mi capacidad de escucha.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      }
+    ],
+    "CS03": [
+      {
+        "id": "CS03_01",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tienes una opinión diferente a la de tu jefe en una reunión, ¿qué haces?",
+        "scenario": null,
+        "options": [
+          "La expreso con claridad y fundamento en el momento",
+          "Espero el momento adecuado para plantearla en privado",
+          "La menciono de forma tentativa por si acaso",
+          "Prefiero no decir nada para evitar el conflicto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS03_02",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me resulta fácil expresar mis necesidades y límites en situaciones de tensión sin agresividad.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS03_03",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Un compañero incumple sistemáticamente sus compromisos y eso te afecta directamente.",
+        "scenario": "Ya ha ocurrido tres veces en el último mes y el equipo empieza a notar el impacto.",
+        "options": [
+          "Se lo digo directamente, con hechos concretos y sin rodeos",
+          "Busco el momento adecuado y lo abordo de forma constructiva",
+          "Se lo comento de manera indirecta o a través de otros",
+          "Evito la conversación y absorbo el impacto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS03_04",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tiendo a decir lo que pienso aunque sepa que puede generar incomodidad.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS03_05",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me cuesta mantener mi posición cuando alguien insiste o eleva el tono.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS03_06",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo describes tu estilo comunicativo habitual en situaciones de desacuerdo?",
+        "scenario": null,
+        "options": [
+          "Directo, claro y orientado a resolver con hechos",
+          "Asertivo pero diplomático, cuido la forma sin perder el fondo",
+          "Cauteloso, mido mucho lo que digo para no herir",
+          "Evitativo, prefiero no entrar en confrontación directa"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS03_07",
+        "dim": "CS03",
+        "dim_label": "Assertive Communication",
+        "phase": "Fase 3",
+        "phase_name": "Comunicación Asertiva",
+        "type": "likert",
+        "versions": [],
+        "text": "Cuando digo \"no\" ante una solicitud que no puedo asumir, lo hago sin sentir culpa excesiva.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS04": [
+      {
+        "id": "CS04_01",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "En una negociación donde tienes intereses claros, ¿cuál es tu enfoque inicial?",
+        "scenario": null,
+        "options": [
+          "Busco activamente soluciones donde ambas partes ganen",
+          "Defiendo mi posición con firmeza hasta el límite que considero justo",
+          "Cedo más de lo que quisiera para evitar el conflicto",
+          "No tengo un enfoque claro, voy adaptándome sobre la marcha"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS04_02",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy capaz de separar las personas de los problemas cuando negocio.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS04_03",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo debe negociar recursos con otro departamento que históricamente ha sido competitivo.",
+        "scenario": "Los recursos son escasos y ambos equipos los necesitan para sus objetivos trimestrales.",
+        "options": [
+          "Propongo reunión conjunta para mapear intereses comunes y compartir la estrategia",
+          "Preparo argumentos sólidos para defender nuestra posición de forma convincente",
+          "Intento hacer concesiones para conseguir una parte aunque no todo",
+          "Evito la negociación directa y escalo al manager para que lo resuelva"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS04_04",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Identifico y utilizo los intereses subyacentes del otro para construir acuerdos más sólidos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS04_05",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En negociaciones importantes, suelo ceder más de lo que me corresponde para acabar antes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS04_06",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué importancia das a la preparación de alternativas (BATNA) antes de entrar en una negociación?",
+        "scenario": null,
+        "options": [
+          "Siempre defino mi BATNA y la de la otra parte antes de negociar",
+          "Preparo mis alternativas pero no siempre analizo las de la otra parte",
+          "Improviso durante la negociación sin preparación formal",
+          "No conozco esa metodología o no la aplico"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS04_07",
+        "dim": "CS04",
+        "dim_label": "Negotiation Style",
+        "phase": "Fase 4",
+        "phase_name": "Estilo de Negociación",
+        "type": "likert",
+        "versions": [],
+        "text": "Cuando no consigo lo que quería en una negociación, lo proceso bien y extraigo aprendizajes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS05": [
+      {
+        "id": "CS05_01",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando un conflicto interpersonal escala y no se resuelve solo, ¿qué haces?",
+        "scenario": null,
+        "options": [
+          "Intervengo activamente para redirigirlo hacia una solución",
+          "Busco ayuda de un mediador o de alguien de confianza",
+          "Espero que el tiempo lo diluya",
+          "Lo evito mientras pueda"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_02",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando un conflicto queda sin resolver, me genera un malestar que dificulta mi trabajo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_03",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Llevas semanas con un conflicto no resuelto con un compañero clave. Empieza a afectar al equipo.",
+        "scenario": "Los demás ya perciben la tensión y el ambiente se deteriora.",
+        "options": [
+          "Propongo una conversación directa con agenda y objetivos claros",
+          "Pido mediación a un tercero de confianza para facilitar el diálogo",
+          "Espero a que la situación se normalice por sí sola",
+          "Rehúyo el contacto y trabajo en paralelo para no cruzarme"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_04",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tengo habilidades concretas para facilitar la resolución de conflictos en mi equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_05",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Resuelvo los conflictos de forma definitiva o suelen reaparecer después de un tiempo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_06",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué estrategia usas con más frecuencia para resolver conflictos interpersonales?",
+        "scenario": null,
+        "options": [
+          "Colaboración: solución conjunta que integra intereses de ambas partes",
+          "Compromiso: ambas partes ceden algo para llegar a un acuerdo",
+          "Acomodación: cedo yo para preservar la relación",
+          "Evitación: pospongo o eludo la confrontación"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS05_07",
+        "dim": "CS05",
+        "dim_label": "Conflict Resolution",
+        "phase": "Fase 5",
+        "phase_name": "Resolución del Conflicto",
+        "type": "likert",
+        "versions": [],
+        "text": "Después de resolver un conflicto, suelo realizar un cierre explícito para consolidar el acuerdo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS06": [
+      {
+        "id": "CS06_01",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Durante una discusión acalorada, ¿qué tan presente está la perspectiva del otro en tu mente?",
+        "scenario": null,
+        "options": [
+          "Activamente intento entender su punto de vista mientras defiendo el mío",
+          "La tengo en cuenta aunque a veces me cuesta mantenerla",
+          "Me centro en mi argumento y la perspectiva del otro pasa a segundo plano",
+          "Cuando hay tensión, solo pienso en defender mi posición"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS06_02",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy capaz de ponerme genuinamente en el lugar del otro incluso cuando estoy en desacuerdo con él.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS06_03",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Una persona de tu equipo reacciona de forma defensiva ante una crítica tuya que creías constructiva.",
+        "scenario": "Su reacción te sorprende porque crees que tu intención fue buena.",
+        "options": [
+          "Me intereso por entender qué generó esa reacción en él o ella",
+          "Me disculpo e intento reformular mi mensaje",
+          "Me sorprende y me pongo a la defensiva también",
+          "Pienso que el problema es su sensibilidad, no mi comunicación"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS06_04",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Durante un conflicto, escucho activamente al otro antes de formular mi respuesta.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS06_05",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En situaciones de alta tensión, me resulta difícil mantener la empatía hacia la otra persona.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS06_06",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué herramientas de escucha activa aplicas conscientemente durante un conflicto?",
+        "scenario": null,
+        "options": [
+          "Reformulación, validación emocional y preguntas abiertas de forma activa",
+          "Escucho con atención aunque no siempre reformulo",
+          "Asiento y espero mi turno para hablar pero no reformulo",
+          "No aplico herramientas concretas, sigo el instinto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS06_07",
+        "dim": "CS06",
+        "dim_label": "Empathy Under Tension",
+        "phase": "Fase 6",
+        "phase_name": "Empatía bajo Tensión",
+        "type": "likert",
+        "versions": [],
+        "text": "Reconozco y valido las emociones del otro incluso cuando no comparto su punto de vista.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS07": [
+      {
+        "id": "CS07_01",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando debes tomar una decisión que afecta a un conflicto entre dos partes, ¿qué peso tiene la equidad?",
+        "scenario": null,
+        "options": [
+          "Es mi criterio central: busco la solución más justa para todos",
+          "Es importante pero la prioridad es resolver rápido",
+          "La equidad es deseable pero cedo ante la jerarquía o el poder",
+          "No siempre puedo ser equitativo y lo acepto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS07_02",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me resulta importante que las soluciones a los conflictos sean percibidas como justas por todas las partes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS07_03",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes decidir entre dos candidatos para un proyecto. Uno es de tu equipo, otro de otro departamento.",
+        "scenario": "Ambos tienen capacidades similares pero el de tu equipo te ayudaría más a ti directamente.",
+        "options": [
+          "Elijo con criterios objetivos, aunque perjudique a mi equipo inmediato",
+          "Busco un criterio que permita una decisión justificable y transparente",
+          "Me inclino por el de mi equipo porque es legítimo priorizar a los tuyos",
+          "Elijo al de mi equipo sin hacer más análisis"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS07_04",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando percibo que algo no es justo en una dinámica de equipo, lo señalo aunque genere incomodidad.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS07_05",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En situaciones de conflicto, tiendo a favorecer a quienes tengo más afinidad personal sin ser consciente.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS07_06",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Cómo gestionas el sesgo de afinidad cuando estás involucrado en un conflicto o mediación?",
+        "scenario": null,
+        "options": [
+          "Tengo protocolos personales para identificar y neutralizar mis sesgos",
+          "Lo tengo en cuenta pero no tengo estrategia formal",
+          "Confío en mi criterio aunque reconozco que puedo tener sesgos",
+          "Rara vez pienso en mis sesgos durante un conflicto"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS07_07",
+        "dim": "CS07",
+        "dim_label": "Fairness Orientation",
+        "phase": "Fase 7",
+        "phase_name": "Orientación a la Equidad",
+        "type": "likert",
+        "versions": [],
+        "text": "Soy capaz de ser imparcial incluso cuando uno de los implicados en el conflicto es cercano a mí.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "CS08": [
+      {
+        "id": "CS08_01",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Después de un conflicto intenso con alguien, ¿cómo suele quedar la relación?",
+        "scenario": null,
+        "options": [
+          "Suele mejorar o al menos queda igual, trabajamos el cierre",
+          "Queda algo tensa pero vuelve a la normalidad con el tiempo",
+          "Queda fría durante bastante tiempo",
+          "La relación queda dañada de forma permanente"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS08_02",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Soy capaz de restablecer una relación profesional sólida después de haber tenido un conflicto serio.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS08_03",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Semanas después de un conflicto resuelto formalmente, notas que la relación sigue tensa.",
+        "scenario": "Trabajáis juntos a diario y la frialdad empieza a afectar al rendimiento del equipo.",
+        "options": [
+          "Propongo un espacio para cerrar bien la situación y reconstruir la relación",
+          "Intento reestablecer el contacto informal de forma gradual",
+          "Espero que el tiempo normalice la situación",
+          "Acepto que la relación quedó dañada y funciono en modo profesional mínimo"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS08_04",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Extraigo aprendizajes concretos de los conflictos que vivo en el trabajo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS08_05",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Los conflictos pasados influyen negativamente en cómo me relaciono con esa persona en el futuro.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "is_mirror": true
+      },
+      {
+        "id": "CS08_06",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué haces habitualmente para cerrar bien un conflicto antes de pasar página?",
+        "scenario": null,
+        "options": [
+          "Realizo un cierre explícito: reconozco lo ocurrido, pido lo necesario y propongo hacia dónde ir",
+          "Espero a que la otra persona dé señales de haber superado la situación",
+          "Paso página unilateralmente y espero que el otro haga lo mismo",
+          "No suelo hacer cierres formales de los conflictos"
+        ],
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "CS08_07",
+        "dim": "CS08",
+        "dim_label": "Post-Conflict Recovery",
+        "phase": "Fase 8",
+        "phase_name": "Recuperación Post-Conflicto",
+        "type": "likert",
+        "versions": [],
+        "text": "Después de un conflicto difícil soy capaz de volver a colaborar con plena confianza en la otra persona.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "VAL_01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cuál de las siguientes afirmaciones describe mejor tu relación con el conflicto?",
+        "scenario": null,
+        "options": [
+          "El conflicto es una oportunidad de crecimiento si se gestiona bien",
+          "El conflicto es inevitable y hay que resolverlo cuanto antes",
+          "El conflicto es una señal de fallo del equipo o del liderazgo",
+          "El conflicto es algo que prefiero evitar siempre que sea posible"
+        ],
+        "is_reverse": false,
+        "is_mirror": false,
+        "is_attention_check": true
+      },
+      {
+        "id": "VAL_02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Nunca pierdo el control emocional en situaciones de conflicto.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": false
+      },
+      {
+        "id": "VAL_03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Siempre soy perfectamente empático y justo en cualquier situación de tensión.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_mirror": true
+      },
+      {
+        "id": "VAL_04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 9",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [],
+        "text": "Cuando un conflicto me genera malestar prolongado, ¿qué sueles hacer?",
+        "scenario": null,
+        "options": [
+          "Busco apoyo o recursos para procesarlo de forma sana",
+          "Lo elaboro internamente a mi ritmo",
+          "Lo ignoro esperando que se disipe con el tiempo",
+          "Me quedo con el malestar sin gestionarlo"
+        ],
+        "is_reverse": false,
+        "is_mirror": true
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "CS01",
+        "CS01_01"
+      ],
+      [
+        "CS01",
+        "CS01_02"
+      ],
+      [
+        "CS01",
+        "CS01_07"
+      ],
+      [
+        "CS02",
+        "CS02_01"
+      ],
+      [
+        "CS02",
+        "CS02_02"
+      ],
+      [
+        "CS02",
+        "CS02_07"
+      ],
+      [
+        "CS03",
+        "CS03_01"
+      ],
+      [
+        "CS03",
+        "CS03_02"
+      ],
+      [
+        "CS03",
+        "CS03_07"
+      ],
+      [
+        "CS04",
+        "CS04_01"
+      ],
+      [
+        "CS04",
+        "CS04_02"
+      ],
+      [
+        "CS04",
+        "CS04_07"
+      ],
+      [
+        "CS05",
+        "CS05_01"
+      ],
+      [
+        "CS05",
+        "CS05_02"
+      ],
+      [
+        "CS05",
+        "CS05_07"
+      ],
+      [
+        "CS06",
+        "CS06_01"
+      ],
+      [
+        "CS06",
+        "CS06_02"
+      ],
+      [
+        "CS06",
+        "CS06_07"
+      ],
+      [
+        "CS07",
+        "CS07_01"
+      ],
+      [
+        "CS07",
+        "CS07_02"
+      ],
+      [
+        "CS07",
+        "CS07_07"
+      ],
+      [
+        "CS08",
+        "CS08_01"
+      ],
+      [
+        "CS08",
+        "CS08_02"
+      ],
+      [
+        "CS08",
+        "CS08_07"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ]
+    ],
+    "advanced": [
+      [
+        "CS01",
+        "CS01_01"
+      ],
+      [
+        "CS01",
+        "CS01_02"
+      ],
+      [
+        "CS01",
+        "CS01_03"
+      ],
+      [
+        "CS01",
+        "CS01_04"
+      ],
+      [
+        "CS01",
+        "CS01_05"
+      ],
+      [
+        "CS01",
+        "CS01_07"
+      ],
+      [
+        "CS02",
+        "CS02_01"
+      ],
+      [
+        "CS02",
+        "CS02_02"
+      ],
+      [
+        "CS02",
+        "CS02_03"
+      ],
+      [
+        "CS02",
+        "CS02_04"
+      ],
+      [
+        "CS02",
+        "CS02_05"
+      ],
+      [
+        "CS02",
+        "CS02_07"
+      ],
+      [
+        "CS03",
+        "CS03_01"
+      ],
+      [
+        "CS03",
+        "CS03_02"
+      ],
+      [
+        "CS03",
+        "CS03_03"
+      ],
+      [
+        "CS03",
+        "CS03_04"
+      ],
+      [
+        "CS03",
+        "CS03_05"
+      ],
+      [
+        "CS03",
+        "CS03_07"
+      ],
+      [
+        "CS04",
+        "CS04_01"
+      ],
+      [
+        "CS04",
+        "CS04_02"
+      ],
+      [
+        "CS04",
+        "CS04_03"
+      ],
+      [
+        "CS04",
+        "CS04_04"
+      ],
+      [
+        "CS04",
+        "CS04_05"
+      ],
+      [
+        "CS04",
+        "CS04_07"
+      ],
+      [
+        "CS05",
+        "CS05_01"
+      ],
+      [
+        "CS05",
+        "CS05_02"
+      ],
+      [
+        "CS05",
+        "CS05_03"
+      ],
+      [
+        "CS05",
+        "CS05_04"
+      ],
+      [
+        "CS05",
+        "CS05_05"
+      ],
+      [
+        "CS05",
+        "CS05_07"
+      ],
+      [
+        "CS06",
+        "CS06_01"
+      ],
+      [
+        "CS06",
+        "CS06_02"
+      ],
+      [
+        "CS06",
+        "CS06_03"
+      ],
+      [
+        "CS06",
+        "CS06_04"
+      ],
+      [
+        "CS06",
+        "CS06_05"
+      ],
+      [
+        "CS06",
+        "CS06_07"
+      ],
+      [
+        "CS07",
+        "CS07_01"
+      ],
+      [
+        "CS07",
+        "CS07_02"
+      ],
+      [
+        "CS07",
+        "CS07_03"
+      ],
+      [
+        "CS07",
+        "CS07_04"
+      ],
+      [
+        "CS07",
+        "CS07_05"
+      ],
+      [
+        "CS07",
+        "CS07_07"
+      ],
+      [
+        "CS08",
+        "CS08_01"
+      ],
+      [
+        "CS08",
+        "CS08_02"
+      ],
+      [
+        "CS08",
+        "CS08_03"
+      ],
+      [
+        "CS08",
+        "CS08_04"
+      ],
+      [
+        "CS08",
+        "CS08_05"
+      ],
+      [
+        "CS08",
+        "CS08_07"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ]
+    ],
+    "premium": [
+      [
+        "CS01",
+        "CS01_01"
+      ],
+      [
+        "CS01",
+        "CS01_02"
+      ],
+      [
+        "CS01",
+        "CS01_03"
+      ],
+      [
+        "CS01",
+        "CS01_04"
+      ],
+      [
+        "CS01",
+        "CS01_05"
+      ],
+      [
+        "CS01",
+        "CS01_06"
+      ],
+      [
+        "CS01",
+        "CS01_07"
+      ],
+      [
+        "CS02",
+        "CS02_01"
+      ],
+      [
+        "CS02",
+        "CS02_02"
+      ],
+      [
+        "CS02",
+        "CS02_03"
+      ],
+      [
+        "CS02",
+        "CS02_04"
+      ],
+      [
+        "CS02",
+        "CS02_05"
+      ],
+      [
+        "CS02",
+        "CS02_06"
+      ],
+      [
+        "CS02",
+        "CS02_07"
+      ],
+      [
+        "CS03",
+        "CS03_01"
+      ],
+      [
+        "CS03",
+        "CS03_02"
+      ],
+      [
+        "CS03",
+        "CS03_03"
+      ],
+      [
+        "CS03",
+        "CS03_04"
+      ],
+      [
+        "CS03",
+        "CS03_05"
+      ],
+      [
+        "CS03",
+        "CS03_06"
+      ],
+      [
+        "CS03",
+        "CS03_07"
+      ],
+      [
+        "CS04",
+        "CS04_01"
+      ],
+      [
+        "CS04",
+        "CS04_02"
+      ],
+      [
+        "CS04",
+        "CS04_03"
+      ],
+      [
+        "CS04",
+        "CS04_04"
+      ],
+      [
+        "CS04",
+        "CS04_05"
+      ],
+      [
+        "CS04",
+        "CS04_06"
+      ],
+      [
+        "CS04",
+        "CS04_07"
+      ],
+      [
+        "CS05",
+        "CS05_01"
+      ],
+      [
+        "CS05",
+        "CS05_02"
+      ],
+      [
+        "CS05",
+        "CS05_03"
+      ],
+      [
+        "CS05",
+        "CS05_04"
+      ],
+      [
+        "CS05",
+        "CS05_05"
+      ],
+      [
+        "CS05",
+        "CS05_06"
+      ],
+      [
+        "CS05",
+        "CS05_07"
+      ],
+      [
+        "CS06",
+        "CS06_01"
+      ],
+      [
+        "CS06",
+        "CS06_02"
+      ],
+      [
+        "CS06",
+        "CS06_03"
+      ],
+      [
+        "CS06",
+        "CS06_04"
+      ],
+      [
+        "CS06",
+        "CS06_05"
+      ],
+      [
+        "CS06",
+        "CS06_06"
+      ],
+      [
+        "CS06",
+        "CS06_07"
+      ],
+      [
+        "CS07",
+        "CS07_01"
+      ],
+      [
+        "CS07",
+        "CS07_02"
+      ],
+      [
+        "CS07",
+        "CS07_03"
+      ],
+      [
+        "CS07",
+        "CS07_04"
+      ],
+      [
+        "CS07",
+        "CS07_05"
+      ],
+      [
+        "CS07",
+        "CS07_06"
+      ],
+      [
+        "CS07",
+        "CS07_07"
+      ],
+      [
+        "CS08",
+        "CS08_01"
+      ],
+      [
+        "CS08",
+        "CS08_02"
+      ],
+      [
+        "CS08",
+        "CS08_03"
+      ],
+      [
+        "CS08",
+        "CS08_04"
+      ],
+      [
+        "CS08",
+        "CS08_05"
+      ],
+      [
+        "CS08",
+        "CS08_06"
+      ],
+      [
+        "CS08",
+        "CS08_07"
+      ],
+      [
+        "VALIDATION",
+        "VAL_01"
+      ],
+      [
+        "VALIDATION",
+        "VAL_02"
+      ],
+      [
+        "VALIDATION",
+        "VAL_03"
+      ],
+      [
+        "VALIDATION",
+        "VAL_04"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<h2>Mis intentos</h2>
+<ul class="list-group">
+{% for session in page_obj %}
+<li class="list-group-item">
+  {{ session.frozen_definition.title }} · {{ session.frozen_definition.mode }} · v{{ session.frozen_definition.version }}
+  <p>{{ session.get_status_display }} · Inicio {{ session.started_at|date:"d/m/Y H:i" }} · Última actividad {{ session.last_activity|date:"d/m/Y H:i" }}</p>
+  <div class="nexus-actions">
+  {% if session.status == 'COMPLETED' %}
+  <a href="{% url 'nexus:versioned_report' session.pk %}">Consultar informe del {{ session.completed_at|date:"d/m/Y H:i" }}</a>
+  {% else %}
+  <a href="{% url 'nexus:versioned_take' session.pk %}">Continuar intento pendiente</a>
+  {% endif %}
+  <a class="btn btn-outline-danger" href="{% url 'nexus:versioned_delete' session.pk %}">Borrar intento<span class="visually-hidden">: {{ session.frozen_definition.title }} del {{ session.started_at|date:"d/m/Y H:i" }}</span></a>
+  </div>
+</li>
+{% empty %}<li class="list-group-item">No hay intentos. El catálogo indica el contenido publicado disponible.</li>{% endfor %}
+</ul>
+{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anteriores</a>{% endif %}
+{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguientes</a>{% endif %}
+<p>La evolución requiere PLUS o PRO e intentos distintos de la misma versión y escala. No se comparan familias o versiones por similitud de nombre.</p>
+{% endblock %}

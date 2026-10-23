@@ -4,28 +4,29 @@
 {% block title %}Mi Curriculum Vitae{% endblock %}
 
 {% block extra_css %}
-<style>
-  .section-card { transition: transform .15s, box-shadow .15s; }
-  .section-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.1); }
-  .progress-ring { --size: 90px; width: var(--size); height: var(--size); }
-  .badge-done { background: #d1fae5; color: #065f46; }
-  .badge-pending { background: #fef3c7; color: #92400e; }
-</style>
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+<link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4 px-4">
+<div class="container-fluid py-4 px-4 billing-app personal-tech" aria-labelledby="cv-heading">
 
   <!-- Page header -->
-  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <header class="billing-hero">
     <div>
-      <h1 class="h3 mb-0 fw-bold"><i class="bi bi-file-person me-2 text-primary"></i>Mi Curriculum Vitae</h1>
-      <p class="text-muted small mb-0">Rellena cada sección y crea perfiles personalizados para compartir.</p>
+      <p class="billing-eyebrow">Tu talento · Tu historia profesional</p>
+      <h1 id="cv-heading">Mi <span>Curriculum Vitae</span></h1>
+      <p>Rellena cada sección y crea perfiles personalizados para compartir.</p>
     </div>
+    <div class="billing-plan-badge"><i class="bi bi-file-earmark-person" aria-hidden="true"></i><span>Secciones completadas<strong>{{ done }} / {{ total }}</strong></span></div>
+  </header>
+  <nav class="tech-actions" aria-label="Acciones del curriculum">
     <a href="{% url 'curriculum:profile_create' %}" class="btn btn-primary">
       <i class="bi bi-plus-circle me-1"></i>Nuevo perfil
     </a>
-  </div>
+    <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-primary">Mis perfiles de CV</a>
+  </nav>
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body d-flex align-items-center justify-content-between gap-3 flex-wrap">
       <div>
@@ -94,7 +95,7 @@
         <i class="bi bi-diagram-3 text-white fs-5"></i>
       </div>
       <div class="flex-grow-1">
-        <div class="fw-semibold" style="color:#1B3C59;">Tests de talento Nexus DNA</div>
+        <div class="fw-semibold tech-title">Tests de talento Nexus DNA</div>
         <div class="small text-muted">
           {% if nexus_entries_count %}
             {{ nexus_entries_count }} test{{ nexus_entries_count|pluralize }} guardado{{ nexus_entries_count|pluralize }} ·

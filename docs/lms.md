@@ -2,12 +2,157 @@
 
 El LMS es una aplicación integrada en el proyecto Django existente (`apps.lms`). No define otro proyecto, login, ni modelo de usuario. Su perfil `UserProfileLMS` guarda únicamente preferencias de formación y se relaciona con `settings.AUTH_USER_MODEL`.
 
+## Descripción larga con editor visual
+
+Crear y editar cursos, incluida su configuración y el administrador Django,
+reutiliza `django-prose-editor` para la descripción larga: títulos, negrita,
+cursiva, listas, enlaces, tablas y deshacer/rehacer. El formulario carga los
+recursos locales del editor y avisa si no consigue iniciarlo.
+El contenido se sanea al guardar desde el formulario y siempre antes de
+renderizarlo como HTML en la ficha. Los listados y resúmenes muestran texto,
+sin etiquetas. No cambia el campo almacenado ni requiere migraciones.
+
+## Estilo del Campus
+
+Contenido (`/lms/courses/<id>/areas/content/`) utiliza `.content-tech`:
+cabecera azul, módulos y unidades en tarjetas, controles y paneles laterales
+con temas claro/oscuro. Se conservan los desplegables, formularios docentes,
+requisitos de acceso y acciones de progreso del alumno.
+
+Foro de discusión usa la base Tech Modern compartida de `knowledge-tech.css`
+y `.discussion-tech`: cabecera azul, foros en acordeones y botones adaptables.
+Se mantienen la visibilidad de los foros y los permisos de edición y participación.
+
+Notas utiliza `.grades-tech`, con filtros y tabla en tarjetas claro/oscuro.
+La tabla conserva el desplazamiento y sus cabeceras fijas, y no se alteran
+el cálculo, la edición ni la visibilidad de calificaciones por usuario.
+
+Personas y Páginas del curso comparten Tech Modern mediante `.people-tech` y
+`.pages-tech`: filtros, directorio y tarjetas adaptables con temas claro/oscuro.
+Se conservan los datos restringidos a docentes, permisos de notificación,
+búsqueda y acciones de publicación/edición de páginas.
+En Páginas, las tarjetas se presentan en una lista de acordeones cerrados
+inicialmente. El título y el estado permanecen visibles; al desplegar cada
+tarjeta aparecen el resumen, los metadatos y «Abrir», junto con las acciones
+de gestión disponibles solo para docentes. Se pueden abrir con ratón o teclado,
+sin JavaScript.
+La introducción se obtiene del texto del documento, excluyendo la cabecera,
+estilos, scripts y plantillas HTML, y se limita a 20 palabras. El documento
+original y su diseño se conservan al abrir la página.
+
+Programa de la asignatura muestra el texto de sus campos y unidades sin
+etiquetas HTML ni código de estilos, conservando el contenido almacenado.
+Usa `.syllabus-tech`, con cabecera azul y secciones
+en tarjetas adaptables claro/oscuro. Ocupa todo el ancho sin el bloque de
+próximas entregas; se conservan sus datos y permisos.
+
+Pruebas y Actividades usan `.evaluations-tech` con cabecera Tech Modern y
+tarjetas de evaluaciones y paneles de información claro/oscuro. Conservan
+fechas, estados en directo, entregas, soluciones e intentos con sus permisos.
+
+Archivos y Competencias comparten Tech Modern para directorios, filtros,
+tarjetas de insignias y formularios docentes, conservando permisos y operaciones.
+Rúbricas y Colaboraciones tienen la misma cabecera y estado vacío tematizados:
+siguen siendo secciones pendientes de habilitar y exclusivas de docentes.
+
+Configuraciones usa `.settings-tech` para cabecera, pestañas, campos, botón
+de guardado y resumen lateral, compatible con móvil y claro/oscuro.
+Conserva el editor enriquecido, validaciones y permisos docentes.
+
+Pruebas ocupa todo el ancho y no muestra el bloque lateral de próximas entregas.
+Las fechas propias de cada prueba y los avisos de otras secciones se mantienen.
+
+Rúbricas también ocupa todo el ancho, sin el bloque de próximas entregas.
+Colaboraciones y Competencias tampoco muestran ese bloque y ocupan todo
+el ancho disponible; no se eliminan datos ni se cambia la navegación.
+
+Anuncios comparte la base Tech Modern de `knowledge-tech.css`, con el ámbito
+adicional `.announcements-tech`: cabecera azul, avisos desplegables, estados
+de lectura y calendario en tarjetas claro/oscuro. No cambian los permisos,
+las confirmaciones, comentarios ni reacciones. Los avisos sin autor muestran
+«Equipo docente».
+
+La Base del conocimiento (`/lms/courses/<id>/areas/item-bank/`) utiliza
+`.knowledge-tech`: cabecera azul, bancos en tarjetas adaptables, botones y
+avisos CSV con soporte claro/oscuro. No cambia consultas, permisos ni acciones.
+Esta sección ocupa todo el ancho y no muestra el bloque de próximas entregas;
+las demás áreas conservan su planificación.
+Los bancos se presentan en acordeones cerrados inicialmente: la cabecera muestra
+el título, estado y cantidad de preguntas; al desplegarlos aparecen la descripción,
+los avisos CSV y las acciones de abrir y eliminar. Funcionan también sin JavaScript.
+Un acordeón exterior, también cerrado, reúne los bancos que comparten nombre
+y terminan en nivel `1/5` a `5/5` (por ejemplo, `Python I`). Los nombres sin
+ese sufijo se conservan completos como grupo propio; no se modifica ningún banco.
+
+La portada `/lms/courses/<id>/` usa Tech Modern Blue mediante
+`.course-detail-tech`: cabecera destacada, anuncios y contenido en tarjetas,
+herramientas y calendario con colores claro/oscuro y adaptación móvil.
+Se mantienen los permisos de edición, matrícula, vista previa, anuncios y
+el recorrido del alumno.
+
+Crear y editar cursos usan Tech Modern Blue: cabecera docente azul, formulario
+con tarjetas, controles adaptables y temas claro/oscuro. Los estilos se limitan
+a `.course-form-tech`; se conservan el editor visual, el slug automatico,
+los errores, la creacion de categorias y los permisos del servidor.
+
+### Generador de URL del Banco del Conocimiento
+
+Desde la raiz del repositorio, ejecuta en PowerShell:
+
+```powershell
+.\scripts\generar_url_banco_preguntas.ps1
+```
+
+Solicita URL base (por defecto `http://127.0.0.1:8000`), modo de filtro,
+ID de categoria (subcategoria opcional) o modulo/unidad formativa, dificultad 1-5 y
+cantidad 1-100. Muestra la URL completa lista para copiar. Usa los IDs reales
+del portal; el script valida el formato, pero no consulta si existen.
+
+Tambien se pueden proporcionar todos los valores sin preguntas interactivas:
+
+```powershell
+.\scripts\generar_url_banco_preguntas.ps1 -BaseUrl http://127.0.0.1:8000 -Modo Categoria -Categoria 1 -Subcategoria 2 -Dificultad 3 -Cantidad 10
+.\scripts\generar_url_banco_preguntas.ps1 -BaseUrl http://127.0.0.1:8000 -Modo Modulo -Modulo 4 -UnidadFormativa 5 -Dificultad 2 -Cantidad 20
+```
+
+No envia peticiones ni solicita tokens. Para abrir la URL se necesita sesion
+autenticada con permisos de edicion de los cursos de origen; las soluciones
+no son publicas. El servidor devuelve 409 si no hay suficientes preguntas.
+
+`/lms/campus/` utiliza Tech Modern Blue: cabecera azul, plan efectivo,
+accesos personales, tarjetas de cursos y barras de progreso, con temas
+claro/oscuro y adaptación móvil. Las reglas de `lms/campus-tech.css` están
+limitadas a `.campus-tech`. Se conservan permisos, matrícula, progreso,
+historial, motivos de acceso y ausencia de datos personales para visitantes.
+
+`/lms/` (Mis aulas) comparte estos estilos mediante `.classrooms-tech`:
+cabecera personal, contador de aulas, navegación por secciones, tarjetas
+adaptables y bienvenida con soporte claro/oscuro. Conserva las membresías,
+inscripciones anteriores, cursos publicados y el permiso para crear aulas.
+
+## Campus personal (prompt 11)
+
+La entrada **Ducky Academy → Campus · Mis cursos** está en `/lms/campus/`.
+Para los cursos activados explícitamente, matrícula y derecho vigente se
+comprueban por separado; los requisitos y condiciones se congelan en la matrícula.
+La [guía de Campus](campus.md) describe activación, permisos, reanudación,
+entregas, certificados privados y verificaciones. Incluye los contratos todavía
+pendientes de catálogo/organizaciones y Energía Ducky. Los cursos sin activar
+conservan el flujo descrito en las secciones siguientes.
+
 ## Acceso y roles
 
 Todas las pantallas LMS heredan el tema compartido inspirado en `ejemplo_home.html`: fondo gris claro, tarjetas blancas, cabeceras azul oscuro, botones principales amarillos y navegación por iconos. La tipografía usa DM Sans y Space Grotesk con fuentes alternativas locales. Los estilos se limitan a `body.lms-theme`, sin cambiar el aspecto de las demás aplicaciones ni la navegación global del sitio.
 
 - El panel requiere una sesión existente y está en `/lms/`.
-- Crear cursos requiere el permiso `lms.add_course`; publicar requiere `lms.publish_course`. Los permisos se asignan a usuarios/grupos desde la administración de Django.
+- Crear cursos requiere el permiso `courses.add_curso`; publicar requiere `lms.publish_course`. Los permisos se asignan a usuarios/grupos desde la administración de Django.
+- Para habilitar un profesor: en **Usuarios**, selecciona la cuenta, establece
+  **Rol → Profesor** y añade en **Permisos de usuario** el permiso
+  **courses | curso | Can add curso** (`courses.add_curso`). Puede asignarse
+  también mediante un grupo de profesores. No requiere marcar staff ni
+  superusuario; el acceso de creación está en `/lms/courses/create/`.
+  El administrador que cambia el rol necesita `users.assign_access_roles`
+  o ser superusuario. El rol por sí solo no concede gestión de cursos ajenos.
 - Quien crea un curso queda como profesor de ese curso. Profesor, asistente y estudiante son membresías propias de cada curso; no se deducen de `User.role` ni de `is_staff`.
 - Al crear un aula, el slug se completa mientras se escribe el nombre del curso, en minúsculas, sin tildes y con guiones entre palabras (por ejemplo, «Introducción a Python» → `introduccion-a-python`). Puede editarse manualmente. Si se deja vacío, el servidor lo genera; al editar un curso, se conserva su slug existente.
 - El formulario de creación permite «Añadir categoría» sin abandonar el aula ni perder los datos escritos. Se guarda su nombre y descripción, se genera su slug y se selecciona la categoría recién creada. Requiere el mismo permiso `courses.add_curso` que crear aulas; los duplicados se muestran como errores.
@@ -26,6 +171,32 @@ Todas las pantallas LMS heredan el tema compartido inspirado en `ejemplo_home.ht
 | `/lms/courses/<slug>/enroll/` | Inscripción mediante POST |
 
 ## Auditoría y datos
+
+### Migraciones en PostgreSQL
+
+La publicación automática de anuncios al abrir un curso bloquea únicamente
+los anuncios programados, sin unir el autor opcional en la consulta
+`SELECT FOR UPDATE`. Así se evita el error de PostgreSQL sobre el lado
+anulable de un outer join, incluso si el curso todavía no tiene anuncios.
+Se conservan las fechas de publicación/caducidad y las notificaciones.
+Esta corrección no requiere migraciones.
+
+La reparación histórica de un esquema SQLite parcial en `lms.0004` solo se
+ejecuta con el backend SQLite. En PostgreSQL se omite esa reparación y se
+aplican normalmente las operaciones de esquema de la migración.
+Si una instalación se detuvo con `no existe la relación «sqlite_master»`,
+actualiza el código y vuelve a ejecutar `python manage.py migrate`.
+No requiere borrar tablas ni marcar migraciones con `--fake`.
+El aviso `urls.W002` de la ruta del dashboard es independiente de este error.
+Las restricciones `lms_member_valid_role` y `lms_member_valid_status` se crean
+una sola vez en `0003_alter_section_options_alter_userprofilelms_options_and_more`.
+La rama `0003_membership_constraints_and_profiles` depende de esa migración y
+solo completa los perfiles que faltan, conservando las preferencias existentes.
+Si PostgreSQL se detuvo con una restricción duplicada en esa rama, actualiza
+el código y repite `python manage.py migrate`, sin borrar restricciones ni
+usar `--fake`.
+Aplicar migraciones crea o actualiza el esquema; no transfiere el contenido
+de una base SQLite anterior a PostgreSQL.
 
 ### Contenidos, módulos y progresión
 
@@ -57,6 +228,11 @@ Las páginas admiten documentos HTML completos en «Documento HTML con estilos p
 
 Contenido presenta módulos con cabeceras turquesa desplegables y filas compactas de páginas, ficheros, pruebas y actividades, con iconos de tipo y estados reales. «Mostrar todo» y «Ocultar todo» controlan los desplegables. Para docentes, el botón «+» abre un panel lateral para asociar un recurso existente y definir orden, obligatoriedad, criterio de finalización y un prerrequisito del mismo módulo. El menú del módulo permite editarlo, planificar fechas y duración, gestionar contenidos o borrarlo. Sin JavaScript se conserva el formulario completo.
 
+Cada unidad formativa de Contenido es un acordeón inicialmente cerrado,
+operable con ratón o teclado sin JavaScript. Al abrirlo muestra su descripción,
+recursos y acciones autorizadas. «Mostrar todo» y «Ocultar todo» también
+despliegan o pliegan las unidades, además de los módulos.
+
 Al añadir contenido se pueden marcar varios recursos de cada tipo, incluso combinar páginas, ficheros, pruebas y actividades en un mismo guardado. Se aplican las condiciones comunes a todos y el orden indicado aumenta consecutivamente. La selección se valida completa antes de guardarse en una única transacción; si hay errores, se muestran y se conservan las selecciones sin añadir un lote parcial. Un criterio específico (como finalizar una prueba) exige seleccionar únicamente tipos compatibles. El orden vacío utiliza cero y el porcentaje vacío utiliza 50; este último solo se aplica a actividades con criterio de aprobado. Las condiciones se pueden editar después individualmente.
 
 Al abrir un fichero desde Contenido se usa la vista previa cuando está permitida; si no, se usa la descarga autorizada. Si ambas están desactivadas, la fila explica el bloqueo y no ofrece un enlace. Se mantienen los permisos y prerrequisitos del módulo.
@@ -70,6 +246,40 @@ La progresión secuencial se activa en Configuraciones y está desactivada por d
 El calendario mensual de la portada del curso (también visible en Anuncios) marca con un círculo los días con fechas o actividades de ese curso. Agrupa todos los eventos del mismo día en una única marca, muestra sus títulos al pasar el cursor y enlaza al primer evento en el calendario completo. Incluye inicio y fin del curso, módulos, pruebas, actividades, páginas y eventos del curso visibles para el usuario; los borradores se muestran solo a docentes. Cada fecha se asigna al día según su zona horaria. El día actual conserva su indicador aunque coincida con una fecha marcada.
 
 El calendario reúne inicio y fin de cursos, apertura y cierre de módulos, inicio/cierre/entrega de pruebas, publicación de notas y soluciones, inicio/entrega/feedback/solución de actividades, publicación/caducidad de páginas, evaluaciones existentes y eventos personales. Se calcula a partir de las fechas actuales, sin duplicar registros ni conservar fechas antiguas tras editarlas. Los cursos sin hora exacta aparecen como eventos de todo el día; las horas se muestran con su zona horaria. Se respetan la matrícula, la publicación y las secciones de las pruebas; los docentes también ven sus borradores. Esta agenda no añade correos ni recordatorios externos.
+
+El procesamiento de pruebas bloquea los intentos sin `DISTINCT`, compatible
+con PostgreSQL. Las respuestas pendientes de revisión manual se excluyen con
+una subconsulta `EXISTS`, que no duplica los intentos seleccionados.
+
+El detalle de cada prueba utiliza Tech Modern (`.quiz-detail-tech`): cabecera
+azul con estados, resumen de referencia y fechas, información en acordeones,
+datos en cuadrícula y registro de intentos con desplazamiento horizontal.
+Admite temas claro/oscuro y pantallas móviles sin cambiar las acciones,
+permisos ni la actualización en vivo.
+
+Cuando una prueba no tiene fecha de publicación de notas, el profesor puede
+usar «Enviar resultado y solución» en el registro de cada intento calificado.
+La acción publica la nota ya calculada en el historial y en Notas, habilita
+la solución solo para ese alumno y le envía una notificación. Se registra
+quién la publicó y cuándo; repetir el envío no duplica la notificación.
+No modifica las fechas de la prueba ni publica los resultados del resto.
+«Cambiar mínimo de aprobado» permite al docente ajustar el umbral incluso
+con intentos existentes o la prueba cerrada. «Guardar y actualizar resultados»
+recalcula Aprobado / No aprobado de todos los intentos calificados sin cambiar
+sus puntuaciones, respuestas ni publicación. Los intentos pendientes y futuros
+utilizan el nuevo mínimo. El cambio queda registrado en auditoría; la edición
+de preguntas y del resto de configuración continúa bloqueada tras un intento.
+No permite enviar intentos sin calificar, pendientes de revisión manual,
+notas ocultas ni resultados de alumnos fuera del ámbito docente autorizado.
+
+El detalle de actividades utiliza `.activity-detail-tech` con cabecera azul,
+estados y referencia, tarjetas de instrucciones y entregas, adjuntos y formulario
+adaptables a móvil y a los temas claro/oscuro. Conserva los plazos, la privacidad
+del historial y las fechas de publicación de soluciones y evaluaciones.
+
+El repositorio de archivos del LMS y los adjuntos de entregas admiten audio
+`.m4a`, también con la extensión en mayúsculas, además de `.mp3` y `.wav`.
+Se mantienen los permisos de acceso privado y los límites de carga existentes.
 
 ### Insignias en Competencias
 
@@ -145,8 +355,11 @@ módulo siguen sin módulo. Aplicarla con `python manage.py migrate`.
 
 La migración `0031_activity_student_workflow` habilita las entregas privadas
 mediante los modelos de tareas y entregas existentes. El alumno matriculado
-activamente puede entregar texto y/o un archivo, y reemplazarlo hasta la fecha
-límite; cada envío conserva una versión. No se aceptan entregas en borradores,
+activamente puede entregar texto y/o un archivo una sola vez por actividad.
+Tras el envío se oculta el formulario y el servidor rechaza nuevos envíos,
+incluso si la tarea tenía habilitadas las reentregas. Las entregas e historiales
+existentes se conservan. Repetir una petición con el mismo identificador y
+contenido devuelve la entrega original sin duplicarla. No se aceptan entregas en borradores,
 antes de la apertura, después del plazo ni en actividades cerradas. Los archivos
 se sirven como descarga privada solo al autor y a docentes autorizados.
 
@@ -202,6 +415,125 @@ El formulario «Crear banco» incluye un CSV opcional. Los errores del CSV no im
 Los enunciados y opciones de estas preguntas son texto: ejemplos como `<body>` permanecen visibles sin interpretarse como HTML. Cada edición crea una nueva versión, con autor y fecha; no cambia las versiones referenciadas por cuestionarios anteriores. El exportador CSV previene fórmulas de hoja de cálculo prefijando con apóstrofo las celdas que comienzan por `=`, `+`, `-` o `@`. Los bancos archivados no admiten cambios en sus preguntas hasta desarchivarlos.
 
 No se añaden todavía Excel/JSON. La marca «Revisar» mantiene la pregunta en borrador; no añade un estado nuevo. La inmovilidad de las reglas de corrección por intento debe completarse antes de habilitar exámenes; las versiones históricas por sí solas no congelan todos los campos actuales del modelo `Question`.
+
+### API de preguntas y respuestas de la base de conocimiento
+
+`GET /api/v1/knowledge/questions/` selecciona preguntas existentes al azar, sin
+repetir y sin generar contenido. Acepta cuatro parámetros obligatorios:
+
+| Parámetro | Valor |
+|---|---|
+| `modulo` | ID del módulo de contenidos (`courses.Tema`), no de `CourseModule` |
+| `unidad_formativa` | ID de una `FormativeUnit` del módulo indicado |
+| `dificultad` | Entero entre 1 y 5, coincidencia exacta |
+| `numero_preguntas` | Entero entre 1 y 100 |
+
+Como alternativa a `modulo` y `unidad_formativa`, acepta `categoria` (ID de
+`courses.CourseCategory`). `subcategoria` (nombre o ID de `duckyclash.ChallengeSubcategory`)
+es opcional: si se omite, incluye las preguntas asociadas a toda la categoría.
+No se pueden mezclar los filtros de categoría con módulo/unidad:
+
+```http
+GET /api/v1/knowledge/questions/?categoria=12&dificultad=5&numero_preguntas=10
+Authorization: Token <token-del-docente>
+Accept: application/json
+```
+
+Este modo utiliza las asociaciones de bancos y las publicaciones explícitas de
+DuckyClash, no todos los cursos que comparten categoría. Una fuente configurada
+tiene prioridad sobre las publicaciones individuales, incluso si está desactivada.
+La categoría debe estar activa; si se indica subcategoría, debe estar activa y
+pertenecer a la categoría; en caso contrario se devuelve 404.
+La dificultad es la de la pregunta (1–5), no el nombre libre del
+nivel del banco. Se mantiene la exigencia de versión actual publicada, sin revisión
+CSV pendiente, y se eliminan duplicados. Quien consulta necesita permiso de edición
+en **todos** los cursos de origen de las preguntas candidatas de esa dificultad;
+si falta alguno, se devuelve 403 sin soluciones ni selección parcial.
+
+Las preguntas se almacenan en `lms.Question`, agrupadas mediante `Question.bank`
+en `lms.QuestionBank`. La dificultad está en `Question.difficulty`; el enunciado,
+las opciones, las soluciones y la explicación están en `lms.QuestionVersion`,
+seleccionada por `Question.current_version`. La categoría se resuelve mediante
+las asociaciones/publicaciones de DuckyClash, no es un campo directo de Question.
+
+El generador puede ejecutarse sin pedir subcategoría:
+
+```powershell
+.\scripts\generar_url_banco_preguntas.ps1 -BaseUrl http://127.0.0.1:8000 -Modo Categoria -Categoria 12 -Dificultad 3 -Cantidad 10
+```
+
+Para restringirlo, añade `-Subcategoria Python` (también admite `-Subcategoria 34`).
+La API acepta `categoria=2&subcategoria=Python&dificultad=3&numero_preguntas=10`.
+El nombre se busca exactamente dentro de la categoría, sin distinguir mayúsculas
+y recortando espacios exteriores. Si no existe o está inactivo devuelve 404; si
+varios nombres solo difieren en mayúsculas, devuelve 400 y pide usar el ID.
+El nombre del parámetro de cantidad
+en la API sigue siendo `numero_preguntas`, para preservar compatibilidad.
+
+Al ejecutar el generador de forma interactiva en modo Categoría, muestra menús
+numerados para categoría y subcategoría (0 = todas). Los nombres e IDs proceden
+de las categorías y subcategorías activas de la base configurada en Django,
+mediante el Python de `.venv`, sin modificar datos. No se consulta el catálogo
+de `BaseUrl`: si apunta a otro portal, comprueba que sus IDs coinciden.
+Requiere la conexión de base de datos del proyecto. Los errores de conexión
+o un catálogo sin categorías activas detienen la generación explícitamente.
+Con `Categoria`, `Dificultad` y `Cantidad` especificados no se abren menús y la
+subcategoría sigue siendo opcional. El menú usa IDs para evitar nombres ambiguos.
+
+Ejemplo:
+
+```http
+GET /api/v1/knowledge/questions/?modulo=12&unidad_formativa=34&dificultad=3&numero_preguntas=10
+Authorization: Token <token-del-docente>
+Accept: application/json
+```
+
+También admite la sesión Django existente. Solo pueden consultar soluciones los
+administradores y docentes autorizados para editar ese curso, según la política
+central de acceso. Un token no concede permisos adicionales. No es una API para
+alumnos ni un endpoint público de soluciones. Las respuestas, incluidos errores,
+llevan `Cache-Control: private, no-store, no-cache, max-age=0`.
+
+El resultado contiene `filtros`, `disponibles`, `devueltas` y `preguntas`. Cada
+pregunta incluye `id`, `banco`, `modulo`, `unidad_formativa`, `dificultad`, `tipo`,
+`puntos`, `version_id`, `version`, `enunciado`, `formato_enunciado`, `opciones`,
+`respuestas_correctas`, `explicacion` y `tolerancia`. Se entrega exclusivamente la
+versión actual publicada de cada pregunta publicada en un banco publicado del
+curso. Se excluyen preguntas sin versión, versiones de otra pregunta, contenido
+archivado o borrador y preguntas con marca de revisión CSV pendiente.
+
+`formato_enunciado` distingue `text` de `html`; los enunciados de texto recuperan
+sus caracteres originales (por ejemplo, `<html>`). Las opciones y soluciones
+conservan el formato JSON de cada tipo: listas para elección/texto/números y mapa
+para emparejamientos. Las preguntas de desarrollo pueden carecer de solución
+automática. Un cliente debe tratar los campos de texto como texto, no insertarlos
+como HTML sin sanitizar.
+
+Si hay menos preguntas que las solicitadas, devuelve **409**, sin selección
+parcial:
+
+```json
+{
+  "code": "insufficient_questions",
+  "detail": "No hay suficientes preguntas publicadas para los filtros solicitados.",
+  "solicitadas": 10,
+  "disponibles": 4
+}
+```
+
+Parámetros ausentes o fuera de rango devuelven **400**; falta de autenticación o
+permisos, **403**; módulo/unidad inexistente o unidad ajena al módulo, **404**.
+El contrato está incluido en `/api/v1/schema/` y `/api/v1/docs/`.
+
+La migración `lms.0037_question_formative_unit_difficulty` añade la unidad
+opcional y restringe la dificultad a 1–5. No atribuye unidades a preguntas
+históricas: deben clasificarse desde «Editar pregunta», mediante el selector
+«Módulo / unidad formativa». Al elegir unidad se asigna su módulo; no se permiten
+unidades de otro curso. Los niveles 1–3 mantienen sus etiquetas y se añaden
+4 (Experta) y 5 (Muy experta). Duplicar o publicar preguntas conserva la
+clasificación; las versiones guardan también los IDs de módulo y unidad en sus
+metadatos. El CSV existente conserva su formato y no asigna unidades
+automáticamente.
 
 ### Pruebas: configuración y publicación docente
 

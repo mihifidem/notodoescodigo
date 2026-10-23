@@ -1,0 +1,11 @@
+<ul class="list-unstyled mb-0">
+  {% for price in plan.prices %}
+    <li class="mb-2" data-plan="{{ plan.name|lower }}" data-period="{{ price.period }}">
+      {% if price.amount != None %}
+        <strong>{{ price.amount|floatformat:2 }} {{ landing_pricing_currency }}</strong> / {{ price.label }}
+      {% else %}
+        <span>No disponible / {{ price.label }}</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

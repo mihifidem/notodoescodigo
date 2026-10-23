@@ -34,6 +34,33 @@ class FormativeUnitTests(TestCase):
             self.item.save()
         self.assertFalse(FormativeUnitForm({'title': 'General', 'position': 0}, module=self.first).is_valid())
 
+    def test_units_are_collapsed_accordions_preserving_resources_and_permissions(self):
+        from bs4 import BeautifulSoup
+
+        self.item.unit.description = 'Descripcion de la unidad'
+        self.item.unit.save(update_fields=['description'])
+        url = reverse('lms:course_area', kwargs={'course_id': self.course.pk, 'area': 'content'})
+        for user in (self.teacher, self.student):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                html = BeautifulSoup(response.content, 'html.parser')
+                unit = html.select_one('details.formative-unit')
+                self.assertIsNotNone(unit)
+                self.assertFalse(unit.has_attr('open'))
+                summary = unit.select_one('summary.formative-unit-heading')
+                self.assertEqual(summary.select_one('h3').text, 'General')
+                self.assertEqual(unit['aria-labelledby'], summary.select_one('h3')['id'])
+                self.assertIsNone(summary.select_one('a, button, form'))
+                body = unit.select_one('.formative-unit-body')
+                self.assertIn('Descripcion de la unidad', body.text)
+                self.assertIsNotNone(body.select_one('.learning-content-row'))
+                if user == self.teacher:
+                    self.assertIsNotNone(body.select_one('.formative-unit-actions'))
+                else:
+                    self.assertIsNone(body.select_one('.formative-unit-actions'))
+
     def test_teacher_crud_audit_permissions_and_csrf(self):
         create = self.url('formative_unit_create')
         self.assertEqual(self.client.get(create).status_code, 403)

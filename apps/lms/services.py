@@ -154,7 +154,7 @@ def process_course_announcements(course, *, now=None):
         course=course,
         status=Announcement.Status.SCHEDULED,
         publish_at__lte=now,
-    ).filter(Q(expire_at__isnull=True) | Q(expire_at__gt=now)).select_related('author')
+    ).filter(Q(expire_at__isnull=True) | Q(expire_at__gt=now))
     for announcement in due:
         announcement.status = Announcement.Status.PUBLISHED
         announcement.save(update_fields=['status', 'updated_at'])
@@ -432,6 +432,9 @@ class AIProvider(ABC):
             raise PermissionDenied(_('Debes iniciar sesión para usar la IA del LMS.'))
         if course is None:
             raise ValueError(_('Se requiere un curso válido para usar la IA del LMS.'))
+        from .campus import campus_settings
+        if campus_settings(course):
+            raise AIRequestRejected(_('Ayuda IA bloqueada: falta integrar reserva, confirmación y liberación de Energía Ducky.'))
 
         membership = CourseMembership.objects.filter(user=user, course=course).first()
         if membership is None or membership.status != CourseMembership.Status.ACTIVE:
@@ -553,6 +556,13 @@ class CourseCompletionService:
 
     @staticmethod
     def evaluate_course_completion(user, course):
+        from .campus import campus_settings, learning_status
+        if campus_settings(course):
+            membership = CourseMembership.objects.filter(user=user, course=course).first()
+            status = learning_status(membership) if membership else {'passed': False, 'missing': []}
+            return {'user_id': user.pk, 'course_id': course.pk,
+                    'is_complete': status['passed'], 'missing': status['missing'],
+                    'awarded_badges': []}
         if not user or not course:
             raise ValueError(_('Se requiere usuario y curso válidos.'))
 
@@ -657,6 +667,9 @@ class CourseCompletionService:
 
     @staticmethod
     def issue_certificate_for_course(user, course, *, issued_by=None):
+        from .campus import campus_settings, issue_certificate
+        if campus_settings(course):
+            return issue_certificate(user, course, actor=issued_by)
         completion = CourseCompletionService.evaluate_course_completion(user, course)
         if not completion['is_complete']:
             raise ValueError(_('No se puede emitir el certificado porque el curso no está completo.'))
@@ -1086,6 +1099,9 @@ def build_NoTodoEsCódigo_structure(course, *, actor=None):
 def enroll_student(*, actor, course):
     if not actor.is_authenticated:
         raise PermissionDenied(_('Debes iniciar sesión para inscribirte.'))
+    from .campus import campus_settings, course_right, freeze_contract
+    if campus_settings(course) and not course_right(actor, course).allowed:
+        raise EnrollmentUnavailable(_('No tienes un derecho de acceso vigente a este curso.'))
 
     with ENROLLMENT_LOCK:
         for attempt in range(5):
@@ -1101,6 +1117,8 @@ def enroll_student(*, actor, course):
                         )
                     ):
                         raise EnrollmentUnavailable(_('La pertenencia existente no permite inscribirse.'))
+                    if campus_settings(course) and not existing.learning_contract:
+                        raise EnrollmentUnavailable(_('Tu matrícula anterior necesita revisión administrativa antes de vincular requisitos.'))
                     return existing
 
                 legacy_enrollment = InscripcionCurso.objects.filter(
@@ -1108,6 +1126,8 @@ def enroll_student(*, actor, course):
                     curso=course,
                 ).first()
                 if legacy_enrollment:
+                    if campus_settings(course):
+                        raise EnrollmentUnavailable(_('Tu matrícula anterior necesita revisión administrativa antes de vincular requisitos.'))
                     status = (
                         CourseMembership.Status.COMPLETED
                         if legacy_enrollment.completado
@@ -1159,6 +1179,7 @@ def enroll_student(*, actor, course):
                     raise EnrollmentUnavailable(_('La pertenencia existente no permite inscribirse.'))
 
                 InscripcionCurso.objects.get_or_create(usuario=actor, curso=course)
+                freeze_contract(membership)
                 if created:
                     AuditEvent.objects.create(
                         actor=actor,

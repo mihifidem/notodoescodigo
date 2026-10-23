@@ -1,0 +1,36 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<div class="nexus-section-heading"><div><p class="nexus-eyebrow">Tu mapa de autoconocimiento</p><h2>Explora las familias</h2></div><span class="nexus-tag">Catálogo Nexus</span></div>
+<ul class="nexus-chip-list">{% for family in families %}<li><span>{{ family.name }}</span>{% if family.description %}<small>{{ family.description }}</small>{% endif %}</li>{% empty %}<li>Catálogo pendiente.</li>{% endfor %}</ul>
+<details class="nexus-details">
+  <summary>Modalidades y acceso por membresía</summary>
+  <p>Modalidades independientes de la membresía: Basic, Essential, Advanced y Premium.</p>
+  <ul>{% for mode in modalities %}<li>{{ mode.name }}{% if mode.description %} — {{ mode.description }}{% endif %}</li>{% endfor %}</ul>
+  <p>FREE: propias Basic. PLUS: propias Basic y Essential. PRO: todas las propias. Los instrumentos de terceros requieren un derecho de compra explícito; no se incluyen por plan.</p>
+</details>
+<div class="nexus-section-heading"><div><p class="nexus-eyebrow">Elige tu siguiente exploración</p><h2>Evaluaciones publicadas</h2></div></div>
+<div class="nexus-catalog-grid">
+{% for group in evaluation_groups %}
+<article class="card nexus-evaluation">
+  <div class="nexus-card-meta"><span class="nexus-tag">Nexus DNA</span><span>{{ group.items|length }} modalidad{{ group.items|length|pluralize:"es" }}</span></div>
+  <div class="nexus-evaluation-icon" aria-hidden="true"><i class="bi bi-cpu"></i></div>
+  <h3>{{ group.family.name }}</h3>
+  <p>{% if group.family.description %}{{ group.family.description }}{% else %}{{ group.items.0.version.purpose }}{% endif %}</p>
+  <p class="nexus-eyebrow">Elige tu modalidad</p>
+  <ul class="nexus-mode-options">
+    {% for item in group.items %}
+    <li>
+      <a class="nexus-mode-option" href="{% url 'nexus:versioned_info' item.version.pk %}">
+        <span class="nexus-mode-heading"><strong>{{ item.version.get_mode_display }}</strong><span>v{{ item.version.version }} <span aria-hidden="true">→</span></span></span>
+        <span class="nexus-access {% if item.access.0 %}nexus-access-available{% endif %}">{% if item.access.0 %}<i class="bi bi-check-circle" aria-hidden="true"></i> Acceso disponible{% else %}<i class="bi bi-lock" aria-hidden="true"></i> Requiere registro, membresía o derecho de compra vigente{% endif %}</span>
+        <span class="visually-hidden">{{ group.family.name }}: consultar {{ item.version.title }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</article>
+{% empty %}
+<p class="nexus-empty" role="status">Contenido pendiente de aprobación editorial. Las siete familias no implican cuestionarios publicados. No se han inventado preguntas ni interpretaciones.</p>
+{% endfor %}
+</div>
+{% endblock %}

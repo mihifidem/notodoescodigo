@@ -1,0 +1,12 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Demostración ficticia de Verificar CV</h1>
+<p>Texto y oferta de ejemplo, sin datos de cuentas reales. Resultado calculado con reglas, no con IA.</p>
+<pre>{{ text }}</pre>
+<p>Oferta ficticia: «Deseable: organización de documentación».</p>
+<p>{{ result.summary }}</p>
+{% include "curriculum/ats/findings.html" with findings=result.findings scope="detail" %}
+<ul>{% for requirement in result.requirements %}<li>{{ requirement.text }} — {{ requirement.explanation }}</li>{% endfor %}</ul>
+<ul>{% for limit in result.limitations %}<li>{{ limit }}</li>{% endfor %}</ul>
+<a href="{% url 'curriculum:ats_new' %}" class="btn btn-primary">Acceder para analizar mi CV</a>
+{% endblock %}

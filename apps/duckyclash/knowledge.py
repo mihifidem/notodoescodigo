@@ -82,7 +82,7 @@ class LMSKnowledgeGateway(KnowledgeGateway):
             version__is_published=True, version__question__status=Question.Status.PUBLISHED,
             version__question__bank__status=QuestionBank.Status.PUBLISHED,
             version__question__question_type=Question.Type.SINGLE_CHOICE,
-        ).select_related('version__question', 'subcategory')
+        ).exclude(version__metadata__has_key='csv_review').select_related('version__question', 'subcategory')
         if subcategory_id is not None:
             publications = publications.filter(subcategory_id=subcategory_id, subcategory__active=True)
         # An explicit source is authoritative, including when disabled or empty.
@@ -107,7 +107,7 @@ class LMSKnowledgeGateway(KnowledgeGateway):
                     question__bank=level.bank, question__status=Question.Status.PUBLISHED,
                     question__question_type=Question.Type.SINGLE_CHOICE,
                     question__current_version_id=F('pk'), is_published=True,
-                ).select_related('question')
+                ).exclude(metadata__has_key='csv_review').select_related('question')
                 for version in versions:
                     item = self.candidate(version, category_id, source.subcategory_id)
                     if item:

@@ -1,0 +1,28 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<a class="nexus-back" href="{% url 'nexus:versioned_history' %}">Volver a mi historial</a>
+<section class="card" aria-labelledby="delete-title">
+  <p class="nexus-eyebrow">Gestiona tus datos</p>
+  <h2 id="delete-title">Borrar intento de Nexus DNA</h2>
+  <h3>{{ session.frozen_definition.title }}</h3>
+  <p>{{ session.frozen_definition.mode }} · v{{ session.frozen_definition.version }} · Inicio {{ session.started_at|date:"d/m/Y H:i" }}</p>
+  <p>Se eliminarán definitivamente este intento, sus respuestas, tiempos, puntuaciones y el informe asociado. Desaparecerá de tu historial y de las comparaciones. No podrás recuperarlo ni descargar de nuevo su PDF.</p>
+  <p>Los PDF que ya hayas descargado no se eliminan de tu dispositivo. Se conserva el registro de participación sin respuestas ni puntuaciones.</p>
+  {% if linked_goals %}
+  <p>Conservarás {{ linked_goals }} objetivo{{ linked_goals|pluralize }} personal{{ linked_goals|pluralize:"es" }} creado{{ linked_goals|pluralize }} a partir de este resultado. Se desvincularán del intento; sus textos se conservan y la referencia al informe ya no estará disponible.</p>
+  {% endif %}
+  <p>Este borrado no cambia tu plan ni concede acceso a otra evaluación. Para comenzar un nuevo intento necesitarás el acceso vigente correspondiente.</p>
+  {% if error %}<p class="errorlist" role="alert">{{ error }}</p>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="confirm_delete" value="yes" id="confirm-delete" required>
+      <label class="form-check-label" for="confirm-delete">Entiendo que el borrado es definitivo y quiero eliminar este intento.</label>
+    </div>
+    <div class="nexus-actions">
+      <button class="btn btn-danger" type="submit">Eliminar definitivamente</button>
+      <a class="btn btn-outline-secondary" href="{% url 'nexus:versioned_history' %}">Cancelar y conservar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "curriculum/letters/base.html" %}
+{% block letter_content %}
+<h1 class="h3">No se ha creado la carta</h1>
+<div role="alert" class="alert alert-danger">{{ form.errors }}</div>
+<a href="{% url 'curriculum:letter_new' %}">Revisar los datos de nuevo</a>
+{% endblock %}

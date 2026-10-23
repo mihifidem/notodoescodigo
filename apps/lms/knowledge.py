@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from .models import AuditEvent, Question, QuestionBank, QuestionVersion
+from .models import AuditEvent, FormativeUnit, Question, QuestionBank, QuestionVersion
 from .policies import can_edit_course
 
 
@@ -62,9 +62,24 @@ class BankQuestionForm(forms.Form):
     option_d = forms.CharField(label=_('Respuesta D'), max_length=2000)
     correct = forms.ChoiceField(label=_('Respuesta correcta'), choices=[(letter, letter) for letter in 'ABCD'])
     explanation = forms.CharField(label=_('Explicación'), required=False, max_length=10000, widget=forms.Textarea)
-    difficulty = forms.TypedChoiceField(label=_('Dificultad'), coerce=int, choices=[(1, _('Básica')), (2, _('Media')), (3, _('Avanzada'))], initial=1)
+    difficulty = forms.TypedChoiceField(
+        label=_('Dificultad'), coerce=int,
+        choices=Question.DIFFICULTY_CHOICES,
+        initial=1,
+    )
+    formative_unit = forms.ModelChoiceField(
+        label=_('Módulo / unidad formativa'), queryset=FormativeUnit.objects.none(), required=False,
+        help_text=_('Clasifica la pregunta para poder seleccionarla mediante la API.'),
+    )
     points = forms.IntegerField(label=_('Puntos'), min_value=1, max_value=1000, initial=1)
     status = forms.ChoiceField(label=_('Estado'), choices=Question.Status.choices, initial=Question.Status.DRAFT)
+
+    def __init__(self, *args, bank=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if bank:
+            self.fields['formative_unit'].queryset = FormativeUnit.objects.filter(
+                module__curso_id=bank.course_id,
+            ).select_related('module').order_by('module__orden', 'module_id', 'position', 'pk')
 
     def clean(self):
         data = super().clean()
@@ -123,6 +138,7 @@ def question_initial(question):
     return {
         **question_version_initial(version),
         'difficulty': question.difficulty, 'points': question.points, 'status': question.status,
+        'formative_unit': question.formative_unit_id,
     }
 
 
@@ -202,7 +218,7 @@ def save_bank_question(*, bank, actor, data, question=None):
         if data['status'] != Question.Status.DRAFT:
             raise ValidationError(_('Corrige la pregunta marcada Revisar antes de publicarla.'))
     else:
-        form = BankQuestionForm(data)
+        form = BankQuestionForm(data, bank=bank)
         if not form.is_valid():
             raise ValidationError([str(error) for values in form.errors.values() for error in values])
         data = form.cleaned_data
@@ -213,6 +229,9 @@ def save_bank_question(*, bank, actor, data, question=None):
     question.title = data['prompt'][:200]
     question.question_type = Question.Type.SINGLE_CHOICE
     question.difficulty = data['difficulty']
+    question.formative_unit = data.get('formative_unit')
+    if question.formative_unit:
+        question.topic = question.formative_unit.module
     question.points = data['points']
     question.status = data['status']
     question.full_clean(exclude=['current_version', 'tags'])
@@ -226,7 +245,10 @@ def save_bank_question(*, bank, actor, data, question=None):
         explanation=data.get('explanation', ''), created_by=actor,
         is_published=question.status == Question.Status.PUBLISHED,
         published_at=timezone.now() if question.status == Question.Status.PUBLISHED else None,
-        metadata={'plain_text': True, 'points': question.points, 'difficulty': question.difficulty},
+        metadata={
+            'plain_text': True, 'points': question.points, 'difficulty': question.difficulty,
+            'topic_id': question.topic_id, 'formative_unit_id': question.formative_unit_id,
+        },
     )
     if review:
         version.metadata['csv_review'] = review

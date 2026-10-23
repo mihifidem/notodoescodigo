@@ -1,234 +1,446 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Ducky Me — MihiTraining{% endblock %}
 {% block page_title %}Ducky Me{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+<link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard-tech.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-3 px-lg-4 py-4">
-  <div class="row g-4">
-    <div class="col-12">
-      <div class="rounded-4 border shadow-sm p-4 position-relative overflow-hidden" style="background:linear-gradient(135deg,#e0f2fe 0%, #eef4ff 35%, #f8fafc 100%); border-color:rgba(96,165,250,0.35);">
-        <div class="position-absolute top-0 end-0 opacity-25" style="width:220px;height:220px;background:radial-gradient(circle,#60a5fa,#dbeafe 62%,transparent 70%); transform:translate(20px,-30px);"></div>
-        <div class="position-relative d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-          <div>
-            <div class="small text-uppercase fw-bold mb-2" style="letter-spacing:.14em; color:#2563eb;">Ducky Me</div>
-            <h2 class="mb-1 fw-bold" style="color:#0f172a;">Bienvenido, {{ user.get_full_name|default:user.username }}</h2>
-            <p class="mb-0 text-muted">Tu progreso, tus recompensas y tu próxima acción en un solo panel.</p>
-            <div class="mt-3 d-flex align-items-center flex-wrap gap-2">
-              <span class="badge rounded-pill px-3 py-2" style="background:rgba(249,115,22,0.12); color:#c2410c; border:1px solid rgba(249,115,22,0.22);">
-                <i class="bi bi-fire me-1"></i>Racha actual: {{ user.streak }} días
-              </span>
+<main class="billing-app personal-tech ducky-dashboard container-fluid px-3 px-lg-4 py-4">
+  {% if is_demo %}
+    <section class="billing-hero mb-4" aria-labelledby="dashboard-title">
+      <div>
+        <p class="billing-eyebrow"><i class="bi bi-grid-1x2 me-2" aria-hidden="true"></i>Panel personal · Demostración</p>
+        <h1 id="dashboard-title">Ducky <span>Me</span></h1>
+        <p class="dashboard-intro">Vista de demostración para visitantes. No contiene ni consulta progreso personal.</p>
+      </div>
+      <div class="dashboard-quick-actions d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{{ demo_signup_url }}">Crear cuenta FREE</a>
+        <a class="btn btn-outline-primary" href="{{ demo_login_url }}">Iniciar sesión</a>
+      </div>
+    </section>
+    <div class="row g-3 dashboard-summary" aria-label="Ejemplos ficticios del panel">
+      {% for card in demo_cards %}
+        <div class="col-12 col-md-6 col-xl-3">
+          <section class="card h-100 border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+              <h2 class="h6 text-uppercase text-muted">{{ card.title }}</h2>
+              <p class="fs-4 fw-bold mb-2">{{ card.value }}</p>
+              <p class="small text-muted mb-0">{{ card.meta }}</p>
             </div>
-          </div>
-          <div class="d-flex gap-2 flex-wrap">
-            <a href="{% url 'courses:list' %}" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">Continuar aprendiendo</a>
-            <a href="{% url 'rewards:list' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Canjear puntos</a>
-          </div>
+          </section>
         </div>
-      </div>
-    </div>
-
-    {% if ducky_summary_cards %}
-      {% for card in ducky_summary_cards %}
-      <div class="col-12 col-md-6 col-xl-3">
-        {% if card.title == 'Ranking' %}
-        <a href="{{ card.href }}" class="card h-100 border-0 rounded-4 text-decoration-none text-body overflow-hidden position-relative" style="transition: transform .15s ease; box-shadow: 0 16px 32px rgba(37,99,235,.12); border:1px solid rgba(59,130,246,.22); background:linear-gradient(135deg,#eff6ff,#f8fbff 60%,#ffffff 100%);">
-        {% else %}
-        <a href="{{ card.href }}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body overflow-hidden" style="transition: transform .15s ease; box-shadow: 0 12px 28px rgba(37,99,235,.08);">
-        {% endif %}
-          <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:{% if card.title == 'Ranking' %}#1d4ed8{% else %}#64748b{% endif %};">{{ card.title }}</span>
-              <span class="badge rounded-pill bg-{{ card.tone }}-subtle text-{{ card.tone }}">
-                <i class="bi {{ card.icon }}"></i>
-              </span>
-            </div>
-            <div class="display-6 fw-bold" style="color:#0f172a;">{{ card.value }}</div>
-            <p class="mb-0 mt-3 small text-muted">{{ card.meta }}</p>
-          </div>
-        </a>
-      </div>
       {% endfor %}
-    {% endif %}
-
-    <div class="col-12 col-xl-8">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#64748b;">Próxima acción</div>
-              <h3 class="mb-0 mt-1 fw-bold" style="color:#0f172a;">{{ proxima_accion.title }}</h3>
-            </div>
-            <span class="badge rounded-pill bg-primary-subtle text-primary">{{ proxima_accion.badge }}</span>
-          </div>
-          <p class="text-muted mb-3">{{ proxima_accion.description }}</p>
-          <a href="{{ proxima_accion.href }}" class="btn btn-primary rounded-pill px-3">Ir al detalle</a>
+    </div>
+  {% else %}
+    <section class="billing-hero dashboard-hero mb-4" aria-labelledby="dashboard-title">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+          <p class="billing-eyebrow"><i class="bi bi-grid-1x2 me-2" aria-hidden="true"></i>Tu espacio de aprendizaje</p>
+          <h1 id="dashboard-title">Ducky <span>Me</span></h1>
+          <p class="dashboard-intro mb-3">Bienvenido/a, {{ user.get_full_name|default:user.username }}. Tu progreso y actividad de esta cuenta.</p>
+          <span class="badge rounded-pill text-bg-primary">Nivel de acceso: {{ effective_plan|upper }}</span>
+          <span class="badge rounded-pill text-bg-light border">{{ membership_summary.status }}</span>
+          {% if membership_summary.origin %}<span class="small dashboard-hero-meta ms-1">{{ membership_summary.origin }}</span>{% endif %}
+          {% if membership_summary.ends_at %}<span class="small dashboard-hero-meta ms-1">Vigente hasta {{ membership_summary.ends_at|date:'d M Y' }}</span>{% endif %}
+        </div>
+        <div class="dashboard-quick-actions d-flex flex-wrap gap-2">
+          {% for action in quick_actions %}
+            <a class="btn btn-sm btn-outline-primary rounded-pill" href="{{ action.href }}">
+              <i class="bi {{ action.icon }} me-1" aria-hidden="true"></i>{{ action.label }}
+            </a>
+          {% endfor %}
         </div>
       </div>
-    </div>
-
-    <div class="col-12 col-xl-4">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="small text-uppercase fw-bold mb-3" style="letter-spacing:.08em; color:#64748b;">Mi nivel</div>
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="fw-bold fs-4" style="color:#0f172a;">{{ user.nivel }}</div>
-            <span class="badge bg-warning-subtle text-warning">{{ user.progreso_nivel }}%</span>
-          </div>
-          <div class="progress" style="height:10px; border-radius:999px; background:#e2e8f0;">
-            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ user.progreso_nivel }}%; border-radius:999px;" aria-valuenow="{{ user.progreso_nivel }}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <div class="mt-3 small text-muted">{{ user.puntos_totales }} puntos acumulados · {{ user.streak }} días de racha</div>
-        </div>
+      <div class="dashboard-roles mt-3">
+        <span class="small fw-semibold me-2">Roles asignados:</span>
+        {% if roles %}
+          {% for item in roles %}
+            <span class="badge rounded-pill text-bg-light border me-1">
+              {{ item.role|title }}{% if item.organization %} · {{ item.organization }}{% endif %}
+            </span>
+          {% endfor %}
+        {% else %}
+          <span class="small dashboard-hero-meta">Sin roles adicionales.</span>
+        {% endif %}
       </div>
-    </div>
+    </section>
 
-    <div class="col-12 col-xl-8">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Cursos en marcha</h3>
-            <a href="{% url 'courses:list' %}" class="btn btn-sm btn-outline-primary rounded-pill">Ver todos</a>
-          </div>
-          {% if cursos_en_marcha %}
-            <div class="list-group list-group-flush">
-              {% for item in cursos_en_marcha %}
-              <div class="list-group-item px-0 py-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <a href="{% url 'courses:detail' pk=item.curso.pk %}" class="fw-semibold text-decoration-none" style="color:#0f172a;">{{ item.curso.nombre }}</a>
-                  <span class="small text-muted">{{ item.porcentaje }}%</span>
-                </div>
-                <div class="progress mb-2" style="height:8px; border-radius:999px; background:#e2e8f0;">
-                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.porcentaje }}%; border-radius:999px;"></div>
-                </div>
-                <div class="small text-muted">{{ item.temas_completados }} / {{ item.total_temas }} temas completados</div>
+    <nav class="billing-nav" aria-label="Secciones de Ducky Me">
+      <a href="#my-progress"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i>Mi progreso</a>
+      <a href="#courses-title"><i class="bi bi-backpack" aria-hidden="true"></i>Mis cursos</a>
+      <a href="#achievements-title"><i class="bi bi-trophy" aria-hidden="true"></i>Mis logros</a>
+      <a href="#results-title"><i class="bi bi-fingerprint" aria-hidden="true"></i>Mis resultados</a>
+      <a href="#personal-goals"><i class="bi bi-bullseye" aria-hidden="true"></i>Mis objetivos</a>
+      <a href="#ranking-participation"><i class="bi bi-bar-chart" aria-hidden="true"></i>Participación en rankings</a>
+    </nav>
+    <div class="row g-3 mb-4 dashboard-summary">
+      <div class="col-12"><h2 id="my-progress" class="h4 fw-bold mb-0">Mi progreso</h2></div>
+      {% for card in ducky_summary_cards %}
+        <div class="col-12 col-md-6 col-xl-4">
+          <a href="{{ card.href }}" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-body">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="small text-uppercase fw-bold text-muted">{{ card.title }}</span>
+                <span class="badge rounded-pill bg-{{ card.tone }}-subtle text-{{ card.tone }}">
+                  <i class="bi {{ card.icon }}" aria-hidden="true"></i>
+                </span>
               </div>
-              {% endfor %}
+              <div class="display-6 fw-bold">{{ card.value }}</div>
+              <p class="mb-0 mt-2 small text-muted">{{ card.meta }}</p>
             </div>
-          {% else %}
-            <div class="text-muted small">Todavía no tienes cursos activos. <a href="{% url 'courses:list' %}">Explora cursos</a> para comenzar.</div>
-          {% endif %}
+          </a>
         </div>
-      </div>
+      {% endfor %}
     </div>
 
-    <div class="col-12 col-xl-4">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Historial de Actividad</h3>
-            <i class="bi bi-activity fs-4 text-primary"></i>
-          </div>
-          {% if actividades %}
-            <div class="list-group list-group-flush">
-              {% for act in actividades %}
-              <div class="list-group-item px-0 py-2">
-                <div class="fw-semibold small">{{ act.get_tipo_display }}</div>
-                <div class="text-muted small mt-1">{{ act.descripcion }}</div>
-                <div class="small text-body-secondary mt-1">{{ act.timestamp|date:'d M Y, H:i' }}</div>
-              </div>
-              {% endfor %}
+    <div class="row g-4">
+      <div class="col-12 col-xl-8">
+        <section class="card dashboard-next-action border-0 shadow-sm rounded-4 h-100" aria-labelledby="next-action-title">
+          <div class="card-body p-4">
+            <p class="small text-uppercase fw-bold text-muted mb-2">Próxima acción</p>
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+              <h2 id="next-action-title" class="h4 fw-bold">{{ proxima_accion.title }}</h2>
+              <span class="badge rounded-pill text-bg-primary">{{ proxima_accion.badge }}</span>
             </div>
-          {% else %}
-            <div class="text-muted small">Todavía no hay actividad reciente para mostrar.</div>
-          {% endif %}
-        </div>
+            <p class="text-muted">{{ proxima_accion.description }}</p>
+            <a href="{{ proxima_accion.href }}" class="btn btn-primary rounded-pill">Ir al detalle</a>
+          </div>
+        </section>
       </div>
-    </div>
-
-    <div class="col-12 col-xl-6">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Mis logros</h3>
-            <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-primary rounded-pill">Ver todo</a>
+      <div class="col-12 col-xl-4">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="access-title">
+          <div class="card-body p-4">
+            <h2 id="access-title" class="h5 fw-bold">Mi nivel de acceso</h2>
+            <p class="display-6 fw-bold mb-1">{{ effective_plan|upper }}</p>
+            <p class="small text-muted mb-2">{{ membership_summary.origin }}{% if membership_summary.period %} · {{ membership_summary.period }}{% endif %}</p>
+            <p class="small mb-0">El nivel de acceso no concede roles profesionales ni privilegios de administración.</p>
           </div>
-          {% if insignias_recientes %}
-            <div class="row g-3">
-              {% for insignia in insignias_recientes %}
-              <div class="col-4 col-md-3 text-center">
-                {% if insignia.insignia.imagen %}
-                  <img src="{{ insignia.insignia.imagen.url }}" alt="{{ insignia.insignia.nombre }}" class="rounded-circle border mb-2" width="52" height="52" style="object-fit:cover;">
-                {% else %}
-                  <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width:52px;height:52px;">
-                    <i class="bi bi-award"></i>
-                  </div>
-                {% endif %}
-                <div class="small fw-semibold" style="color:#0f172a;">{{ insignia.insignia.nombre|truncatechars:18 }}</div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="text-muted small">Aún no has ganado insignias. Sigue completando retos para desbloquearlas.</div>
-          {% endif %}
-        </div>
+        </section>
       </div>
-    </div>
 
-    <div class="col-12 col-xl-6">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Explorar mis resultados</h3>
-            <a href="{{ results_url }}" class="btn btn-sm btn-outline-success rounded-pill">Ir a DNA</a>
-          </div>
-          {% if dna_profile %}
-            <div class="rounded-4 p-3 mb-3" style="background:linear-gradient(135deg,#ecfeff,#f0fdf4); border:1px solid rgba(16,185,129,0.2);">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#047857;">Perfil DNA</div>
-                  <div class="fw-bold fs-5" style="color:#0f172a;">{{ dna_profile.primary_archetype|default:'Perfil activo' }}</div>
-                </div>
-                <span class="badge bg-success-subtle text-success">{{ dna_profile.nexus_score|default:'0' }}</span>
-              </div>
+      <div class="col-12 col-xl-8">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="courses-title">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+              <h2 id="courses-title" class="h4 fw-bold mb-0">Cursos en marcha</h2>
+              <a href="{% url 'courses:list' %}" class="btn btn-sm btn-outline-primary rounded-pill">Explorar cursos</a>
             </div>
-          {% else %}
-            <div class="rounded-4 p-3 mb-3" style="background:#f8fafc; border:1px dashed #cbd5e1;">
-              <div class="text-muted small">Todavía no tienes un perfil DNA creado. Realiza un test para ver cómo encaja tu perfil.</div>
-            </div>
-          {% endif %}
-          <a href="{{ results_url }}" class="btn btn-primary rounded-pill px-3">Explorar mis resultados</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0 fw-bold" style="color:#0f172a;">Recompensas y evolución</h3>
-            <a href="{% url 'rewards:list' %}" class="btn btn-sm btn-outline-warning rounded-pill">Ver tienda</a>
-          </div>
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              {% if canjes_recientes %}
-                <div class="list-group list-group-flush">
-                  {% for canje in canjes_recientes %}
-                  <div class="list-group-item px-0 py-2">
-                    <div class="d-flex justify-content-between align-items-start gap-2">
-                      <div>
-                        <div class="fw-semibold small">{{ canje.recompensa.nombre }}</div>
-                        <div class="text-muted small">{{ canje.fecha_canje|date:'d M Y' }}</div>
-                      </div>
-                      <span class="badge bg-warning-subtle text-warning">{{ canje.estado }}</span>
+            {% if courses_source.status == 'temporarily_unavailable' %}
+              <p class="alert alert-warning mb-0" role="status">No se han podido cargar tus matrículas. Inténtalo más tarde.</p>
+            {% elif cursos_en_marcha %}
+              <div class="list-group list-group-flush">
+                {% for item in cursos_en_marcha %}
+                  <div class="list-group-item px-0 py-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                      <a href="{% url 'courses:detail' pk=item.curso.pk %}" class="fw-semibold">{{ item.curso.nombre }}</a>
+                      {% if item.porcentaje is not None %}<span class="small text-muted">{{ item.porcentaje }}%</span>{% endif %}
                     </div>
+                    {% if item.porcentaje is not None %}
+                      <div class="progress mb-2" style="height:8px" role="progressbar" aria-label="Progreso en {{ item.curso.nombre }}" aria-valuenow="{{ item.porcentaje }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success" style="width:{{ item.porcentaje }}%"></div>
+                      </div>
+                      <div class="small text-muted">{{ item.temas_completados }} / {{ item.total_temas }} temas completados</div>
+                    {% elif item.empty_course %}
+                      <p class="small text-muted mb-0">El curso aún no tiene temas para calcular progreso.</p>
+                    {% else %}
+                      <p class="small text-muted mb-0">El progreso no está disponible.</p>
+                    {% endif %}
                   </div>
-                  {% endfor %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Todavía no tienes matrículas de cursos.</p>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="activity-title">
+          <div class="card-body p-4">
+            <h2 id="activity-title" class="h4 fw-bold">Última actividad</h2>
+            {% if activity_source.status == 'temporarily_unavailable' %}
+              <p class="alert alert-warning mb-0" role="status">No se ha podido cargar tu actividad.</p>
+            {% elif actividades %}
+              <ul class="list-group list-group-flush">
+                {% for act in actividades %}
+                  <li class="list-group-item px-0 py-2">
+                    <div class="fw-semibold small">{{ act.get_tipo_display }}</div>
+                    <div class="small text-muted">{{ act.descripcion }}</div>
+                    <time class="small text-body-secondary" datetime="{{ act.timestamp|date:'c' }}">{{ act.timestamp|date:'d M Y, H:i' }}</time>
+                    {% if act.dashboard_href %}<div><a class="small" href="{{ act.dashboard_href }}">Abrir sección</a></div>{% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">Todavía no hay actividad reciente para mostrar.</p>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12 col-xl-6">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="achievements-title">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+              <h2 id="achievements-title" class="h4 fw-bold mb-0">Mis logros</h2>
+              <a href="{% url 'gamification:insignias' %}" class="btn btn-sm btn-outline-primary rounded-pill">Ver insignias</a>
+            </div>
+            {% if achievements_source.status == 'temporarily_unavailable' %}
+              <p class="alert alert-warning mb-0" role="status">No se han podido cargar tus logros.</p>
+            {% elif insignias_recientes or logros_recientes %}
+              <ul class="list-group list-group-flush">
+                {% for item in insignias_recientes %}
+                  <li class="list-group-item px-0">{{ item.insignia.nombre }} <span class="small text-muted">· {{ item.fecha_obtenida|date:'d M Y' }}</span></li>
+                {% endfor %}
+                {% for item in logros_recientes %}
+                  <li class="list-group-item px-0">{{ item.logro.nombre }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">Aún no tienes insignias o logros registrados.</p>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12 col-xl-6">
+        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="results-title">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+              <h2 id="results-title" class="h4 fw-bold mb-0">Explorar mis resultados</h2>
+              <a href="{{ results_url }}" class="btn btn-sm btn-outline-primary rounded-pill">Ver evaluaciones</a>
+            </div>
+            {% if nexus_source.status == 'temporarily_unavailable' %}
+              <p class="alert alert-warning mb-0" role="status">No se han podido consultar tus resultados Nexus.</p>
+            {% else %}
+              {% if dna_profile %}
+                <div class="rounded-4 p-3 mb-3 bg-success-subtle">
+                  <div class="small text-uppercase fw-bold text-success">Perfil DNA guardado</div>
+                  <div class="fw-bold">{{ dna_profile.primary_archetype|default:'Perfil activo' }}</div>
+                  <a href="{{ dna_profile_url }}" class="small">Consultar mi perfil</a>
                 </div>
               {% else %}
-                <div class="text-muted small">No has solicitado recompensas todavía. Guarda puntos y descubre qué puedes reclamar.</div>
+                <p class="text-muted">Todavía no tienes un perfil DNA guardado.</p>
               {% endif %}
-            </div>
-            <div class="col-12 col-md-6">
-              <div class="rounded-4 p-3" style="background:linear-gradient(135deg,#fef3c7,#fff7ed); border:1px solid rgba(251,191,36,0.2);">
-                <div class="small text-uppercase fw-bold" style="letter-spacing:.08em; color:#b45309;">Objetivo de la semana</div>
-                <div class="fw-bold mt-2 fs-5" style="color:#0f172a;">{{ user.nivel }}</div>
-                <p class="mb-0 mt-2 small text-muted">Sigue avanzando para completar más retos y convertir tus puntos en recompensas reales.</p>
+              {% if nexus_sessions %}
+                <h3 class="h6 fw-semibold">Evaluaciones completadas</h3>
+                <ul class="list-group list-group-flush">
+                  {% for session in nexus_sessions %}
+                    <li class="list-group-item px-0">
+                      {{ session.test }} <span class="small text-muted">· {{ session.completado_en|date:'d M Y' }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              {% if nexus_versioned_sessions %}
+                <h3 class="h6 fw-semibold">Evaluaciones versionadas y pendientes</h3>
+                <ul class="list-group list-group-flush">
+                  {% for session in nexus_versioned_sessions %}
+                    <li class="list-group-item px-0">
+                      {{ session.frozen_definition.title }} · v{{ session.frozen_definition.version }}
+                      {% if session.status == 'COMPLETED' %}
+                        <a href="{% url 'nexus:versioned_report' session.pk %}">Consultar resultado privado</a>
+                      {% else %}
+                        <a href="{% url 'nexus:versioned_take' session.pk %}">Continuar pendiente</a>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      {% if is_plus %}
+        <div class="col-12">
+          <section class="card border-0 shadow-sm rounded-4" aria-labelledby="monthly-title">
+            <div class="card-body p-4">
+              <h2 id="monthly-title" class="h4 fw-bold">Mi progreso mensual</h2>
+              <div class="row g-3">
+                {% for metric in monthly_metrics %}
+                  <div class="col-12 col-md-4">
+                    <div class="rounded-3 bg-body-tertiary p-3 h-100">
+                      <div class="small text-muted">{{ metric.label }}</div>
+                      {% if metric.status == 'temporarily_unavailable' %}
+                        <div class="fw-bold">No disponible</div>
+                      {% else %}
+                        <div class="fs-4 fw-bold">{{ metric.value|default_if_none:'0' }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
               </div>
             </div>
-          </div>
+          </section>
         </div>
+      {% endif %}
+
+      {% if is_pro %}
+        <div class="col-12">
+          <section class="card border-0 shadow-sm rounded-4" aria-labelledby="comparison-title">
+            <div class="card-body p-4">
+              <h2 id="comparison-title" class="h4 fw-bold">Comparación de actividad</h2>
+              {% if period_comparison.status == 'temporarily_unavailable' %}
+                <p class="text-warning">Los datos de actividad no están disponibles temporalmente.</p>
+              {% else %}
+                <p class="mb-0">{{ period_comparison.current_label }}: <strong>{{ period_comparison.current }}</strong> · {{ period_comparison.previous_label }}: <strong>{{ period_comparison.previous }}</strong> · Variación: <strong>{{ period_comparison.difference }}</strong></p>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+      {% endif %}
+
+      {% if is_teacher %}
+        <div class="col-12">
+          <section class="card border-0 shadow-sm rounded-4" aria-labelledby="teacher-title">
+            <div class="card-body p-4">
+              <h2 id="teacher-title" class="h4 fw-bold">Cursos con asignación docente</h2>
+              {% if source_statuses.teacher_courses == 'temporarily_unavailable' %}
+                <p class="text-warning">No se pudieron cargar tus asignaciones.</p>
+              {% elif teacher_courses %}
+                <ul class="mb-0">
+                  {% for membership in teacher_courses %}
+                    <li><a href="{% url 'courses:detail' pk=membership.course_id %}">{{ membership.course.nombre }}</a> · {{ membership.get_role_display }}</li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="text-muted mb-0">No hay asignaciones docentes activas.</p>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+      {% endif %}
+
+      <div class="col-12">
+        <section class="card border-0 shadow-sm rounded-4" aria-labelledby="integrations-title">
+          <div class="card-body p-4">
+            <h2 id="integrations-title" class="h4 fw-bold">Otras prestaciones</h2>
+            <div class="row g-3">
+              <div class="col-12 col-md-4"><strong>Procesos de empleo</strong><div class="small text-muted">Integración pendiente; no se muestran candidaturas simuladas.</div></div>
+              <div class="col-12 col-md-4"><strong>Cuota de IA</strong><div class="small text-muted">Contador compartido no conectado; no se muestra saldo estimado.</div></div>
+              <div class="col-12 col-md-4"><strong>Ducky Bank</strong><div class="small text-muted">Ledger no conectado; no se muestra un saldo ficticio.</div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section id="ranking-participation" class="card border-0 shadow-sm rounded-4" aria-labelledby="ranking-participation-title">
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h2 id="ranking-participation-title" class="h4 fw-bold mb-0">Participar en el ranking</h2>
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'gamification:ranking' %}">Ver rankings</a>
+            </div>
+            <p class="text-muted">La participación es voluntaria en cada ranking. Al activarla se publican tu alias y el resultado de esa métrica, no tu correo, nombre, historial, resultados Nexus ni insignias. Puedes desactivarla sin perder tu progreso.</p>
+            <div class="row g-3">
+              {% for item in dashboard_rankings %}
+                <div class="col-12 col-lg-6">
+                  <article class="border rounded-3 p-3 h-100">
+                    <h3 class="h6 fw-bold">{{ item.ranking.name }}</h3>
+                    <p class="small text-muted">{{ item.ranking.description }}</p>
+                    {% if item.participation.is_active %}
+                      <p class="small">Participación activada · Alias: <strong>{{ item.participation.alias }}</strong></p>
+                      <form method="post" action="{% url 'gamification:ranking_participation' slug=item.ranking.slug %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="source" value="dashboard">
+                        <input type="hidden" name="enabled" value="false">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar participación</button>
+                      </form>
+                    {% elif item.can_join %}
+                      <form method="post" action="{% url 'gamification:ranking_participation' slug=item.ranking.slug %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="source" value="dashboard">
+                        <input type="hidden" name="enabled" value="true">
+                        <label class="form-label" for="ranking-alias-{{ item.ranking.pk }}">Alias público</label>
+                        <input class="form-control mb-3" id="ranking-alias-{{ item.ranking.pk }}" name="alias" maxlength="40" required autocomplete="nickname" value="{{ item.participation.alias|default:'' }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Activar participación</button>
+                      </form>
+                    {% else %}
+                      <p class="small text-muted mb-0">Sin temporada abierta para activar la participación.</p>
+                    {% endif %}
+                  </article>
+                </div>
+              {% empty %}
+                <div class="col-12"><p class="text-muted mb-0">No hay rankings publicados disponibles para participar.</p></div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section id="personal-goals" class="card border-0 shadow-sm rounded-4" aria-labelledby="goals-title">
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <div>
+                <h2 id="goals-title" class="h4 fw-bold mb-1">Mis objetivos</h2>
+                {% if can_manage_goals %}
+                  <p class="small text-muted mb-0">Gestión PRO. Los objetivos se conservan al bajar de plan.</p>
+                {% else %}
+                  <p class="small text-muted mb-0">Solo lectura en este nivel. Tus objetivos no se eliminan al cambiar de plan.</p>
+                {% endif %}
+              </div>
+              {% if can_manage_goals %}
+                <div class="d-flex flex-wrap gap-2">
+                  <a class="btn btn-sm btn-primary" href="{% url 'users:goal_create' %}">Crear objetivo</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'users:goal_export' %}">Exportar mis datos CSV</a>
+                </div>
+              {% endif %}
+            </div>
+            {% if goals %}
+              <div class="row g-3">
+                {% for item in goals %}
+                  <div class="col-12 col-lg-6">
+                    <article class="border rounded-3 p-3 h-100">
+                      <div class="d-flex justify-content-between gap-2">
+                        <h3 class="h6 fw-bold">{{ item.goal.title }}</h3>
+                        {% if item.goal.target_date %}<time class="small text-muted" datetime="{{ item.goal.target_date|date:'Y-m-d' }}">{{ item.goal.target_date|date:'d M Y' }}</time>{% endif %}
+                      </div>
+                      {% if item.goal.description %}<p class="small text-muted">{{ item.goal.description }}</p>{% endif %}
+                      {% if item.progress.status == 'temporarily_unavailable' %}
+                        <p class="small text-warning mb-2">Fuente automática temporalmente no disponible; no se sustituye por cero.</p>
+                      {% elif item.progress.current is not None and item.progress.target is not None %}
+                        <p class="small mb-2">{{ item.progress.current }} / {{ item.progress.target }}{% if item.goal.target_label %} {{ item.goal.target_label }}{% endif %}</p>
+                        {% if item.progress.percent is not None %}
+                          <div class="progress mb-2" style="height:8px" role="progressbar" aria-label="Progreso de {{ item.goal.title }}" aria-valuenow="{{ item.progress.percent }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width:{{ item.progress.percent }}%"></div>
+                          </div>
+                        {% endif %}
+                      {% else %}
+                        <p class="small text-muted">Sin métrica numérica configurada.</p>
+                      {% endif %}
+                      <div class="small text-muted">
+                        {% if item.goal.tracking_type == 'automatic' %}Seguimiento automático: {{ item.goal.get_source_metric_display }}{% else %}Seguimiento manual{% endif %}
+                      </div>
+                      {% if can_manage_goals %}
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                          <a class="btn btn-sm btn-outline-primary" href="{% url 'users:goal_update' pk=item.goal.pk %}">Editar</a>
+                          <form method="post" action="{% url 'users:goal_state' pk=item.goal.pk action='complete' %}">
+                            {% csrf_token %}<button class="btn btn-sm btn-outline-success" type="submit">Completar</button>
+                          </form>
+                          <form method="post" action="{% url 'users:goal_state' pk=item.goal.pk action='archive' %}">
+                            {% csrf_token %}<button class="btn btn-sm btn-outline-secondary" type="submit">Archivar</button>
+                          </form>
+                        </div>
+                      {% endif %}
+                    </article>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">No tienes objetivos activos.</p>
+            {% endif %}
+          </div>
+        </section>
       </div>
     </div>
-  </div>
-</div>
+  {% endif %}
+</main>
 {% endblock %}

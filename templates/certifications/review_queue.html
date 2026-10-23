@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Revisión de credenciales{% endblock %}
+{% block page_title %}Revisión de credenciales{% endblock %}
+{% block content %}
+<main class="container py-4">
+  {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  <h1 class="h2">Cola de revisión</h1>
+  <p class="text-muted">Las solicitudes muestran la versión exacta enviada. No se debe aprobar una credencial propia.</p>
+  <div class="table-responsive"><table class="table align-middle">
+    <caption class="visually-hidden">Solicitudes de verificación pendientes y en revisión</caption>
+    <thead><tr><th>Credencial</th><th>Propietario</th><th>Versión</th><th>Estado</th><th>Responsable</th><th>Acción</th></tr></thead>
+    <tbody>{% for review in reviews %}
+      <tr>
+        <td>{{ review.credential.name }}<br><span class="small text-muted">{{ review.credential.issuer_name }}</span></td>
+        <td>{{ review.credential.user.get_username }}</td>
+        <td>v{{ review.version }}</td>
+        <td>{{ review.get_status_display }}</td>
+        <td>{{ review.assigned_reviewer|default:'Sin asignar' }}</td>
+        <td>{% if review.assigned_reviewer_id == request.user.pk %}
+          <a class="btn btn-sm btn-primary" href="{% url 'certifications:review_detail' review.pk %}">Continuar</a>
+        {% elif review.status == 'pending' %}
+          <form method="post" action="{% url 'certifications:review_claim' review.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary" type="submit">Asumir revisión</button></form>
+        {% else %}Asignada{% endif %}</td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No hay solicitudes abiertas.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</main>
+{% endblock %}

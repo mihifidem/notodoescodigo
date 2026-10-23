@@ -1,9 +1,15 @@
 {% extends 'lms/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{{ course.nombre }} | {% trans 'Páginas del curso' %}{% endblock %}
 
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/knowledge-tech.css' %}">
+{% endblock %}
 {% block content %}
+<div class="billing-app knowledge-tech pages-tech">
   <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}">
     <a href="{% url 'lms:dashboard' %}">{% trans 'Mis aulas' %}</a>
     <span aria-hidden="true">/</span>
@@ -14,7 +20,7 @@
 
   <div class="course-context-grid">
     <section class="content-panel area-main">
-      <div class="section-heading">
+      <div class="section-heading page-heading">
         <div>
           <p class="eyebrow">{% trans 'CMS DEL CURSO' %}</p>
           <h1>{% trans 'Páginas del aula' %}</h1>
@@ -30,36 +36,40 @@
       </form>
 
       {% if pages %}
-        <div class="card-grid">
+        <div class="pages-accordion">
           {% for page in pages %}
-            <article class="content-panel page-card">
-              <div class="page-card-header">
-                <span class="status {% if page.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ page.get_status_display }}</span>
-                {% if page.is_homepage %}<span class="tag">{% trans 'Inicio' %}</span>{% endif %}
-              </div>
-              <h2><a href="{% url 'lms:course_page_detail' course_id=course.pk page_slug=page.slug %}">{{ page.title }}</a></h2>
-              <p>{{ page.content|striptags|truncatewords:20|default:'Sin contenido todavía.' }}</p>
-              <div class="meta-row">
-                <span>{{ page.get_visibility_display }}</span>
-                <span>{{ page.updated_at|date:'d M Y' }}</span>
-              </div>
-              {% if teacher_view %}
+            <details class="content-panel page-card content-accordion-item">
+              <summary>
+                <span class="page-card-title">{{ page.title }}</span>
+                <span class="page-card-header">
+                  <span class="status {% if page.status == 'published' %}status-published{% else %}status-draft{% endif %}">{{ page.get_status_display }}</span>
+                  {% if page.is_homepage %}<span class="tag">{% trans 'Inicio' %}</span>{% endif %}
+                </span>
+              </summary>
+              <div class="content-accordion-body">
+                <p>{{ page.content_intro|truncatewords:20|default:'Sin contenido todavía.' }}</p>
+                <div class="meta-row">
+                  <span>{{ page.get_visibility_display }}</span>
+                  <span>{{ page.updated_at|date:'d M Y' }}</span>
+                </div>
                 <div class="action-row compact">
                   <a class="button button-secondary" href="{% url 'lms:course_page_detail' course_id=course.pk page_slug=page.slug %}">{% trans 'Abrir' %}</a>
-                  <a class="button button-light" href="{% url 'lms:course_page_edit' course_id=course.pk page_slug=page.slug %}">{% trans 'Editar' %}</a>
-                  {% if page.status != 'published' %}
-                    <form method="post" action="{% url 'lms:course_page_publish' course_id=course.pk page_slug=page.slug %}">
+                  {% if teacher_view %}
+                    <a class="button button-light" href="{% url 'lms:course_page_edit' course_id=course.pk page_slug=page.slug %}">{% trans 'Editar' %}</a>
+                    {% if page.status != 'published' %}
+                      <form method="post" action="{% url 'lms:course_page_publish' course_id=course.pk page_slug=page.slug %}">
+                        {% csrf_token %}
+                        <button class="button button-light" type="submit">{% trans 'Publicar' %}</button>
+                      </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'lms:course_page_delete' course_id=course.pk page_slug=page.slug %}" onsubmit="return confirm('{% trans '¿Seguro que quieres eliminar esta página?' %}');">
                       {% csrf_token %}
-                      <button class="button button-light" type="submit">{% trans 'Publicar' %}</button>
+                      <button class="button button-danger" type="submit">{% trans 'Borrar' %}</button>
                     </form>
                   {% endif %}
-                  <form method="post" action="{% url 'lms:course_page_delete' course_id=course.pk page_slug=page.slug %}" onsubmit="return confirm('{% trans '¿Seguro que quieres eliminar esta página?' %}');">
-                    {% csrf_token %}
-                    <button class="button button-danger" type="submit">{% trans 'Borrar' %}</button>
-                  </form>
                 </div>
-              {% endif %}
-            </article>
+              </div>
+            </details>
           {% endfor %}
         </div>
       {% else %}
@@ -70,4 +80,5 @@
       {% endif %}
     </section>
   </div>
+</div>
 {% endblock %}

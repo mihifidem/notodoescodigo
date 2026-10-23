@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ badge.nombre }} — Insignias{% endblock %}
+{% block page_title %}Detalle de insignia{% endblock %}
+{% block content %}
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <article class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-lg-5">
+          <a class="btn btn-sm btn-outline-secondary mb-4" href="{% url 'gamification:insignias' %}">Volver a la colección</a>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            {% if badge.imagen %}
+              <img src="{{ badge.imagen.url }}" width="80" height="80" class="rounded-circle border" style="object-fit:cover" alt="{{ badge.texto_alternativo|default:badge.nombre }}">
+            {% else %}
+              <span class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center" style="width:80px;height:80px" aria-hidden="true"><i class="bi bi-award fs-1"></i></span>
+            {% endif %}
+            <div><h1 class="h2 fw-bold mb-1">{{ badge.nombre }}</h1><p class="text-muted mb-0">{{ badge.get_category_display }} · Distintivo interno</p></div>
+          </div>
+          <p>{{ badge.descripcion }}</p>
+          <dl class="row">
+            <dt class="col-sm-4">Emisor</dt><dd class="col-sm-8">{{ badge.issuer_name }}</dd>
+            <dt class="col-sm-4">Método</dt><dd class="col-sm-8">{{ badge.get_issue_method_display }}</dd>
+            {% if version %}
+              <dt class="col-sm-4">Requisitos v{{ version.version }}</dt>
+              <dd class="col-sm-8">{{ version.public_requirements }}</dd>
+              <dt class="col-sm-4">Verificación</dt><dd class="col-sm-8">{{ version.verification_description }}</dd>
+            {% else %}
+              <dt class="col-sm-4">Requisitos</dt><dd class="col-sm-8">Aún no hay requisitos vigentes publicados.</dd>
+            {% endif %}
+          </dl>
+          {% if award %}
+            <hr>
+            <h2 class="h5">Tu concesión</h2>
+            <p><span class="badge {% if award.status == 'valid' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ award.get_status_display }}</span></p>
+            <p class="mb-1">Registrada el {{ award.fecha_obtenida|date:'d M Y' }}{% if award.achieved_at %}; conseguida el {{ award.achieved_at|date:'d M Y' }}{% endif %}.</p>
+            {% if award.reason %}<p class="text-muted">{{ award.reason }}</p>{% endif %}
+            {% if award.evidence_type or award.evidence_id %}<p class="small text-muted">Referencia interna: {{ award.evidence_type }} {{ award.evidence_id }}</p>{% endif %}
+            {% if user.is_authenticated and award.status == 'valid' %}
+              <form method="post" action="{% url 'gamification:visibilidad_insignia' pk=award.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="is_public" value="{% if award.is_public %}false{% else %}true{% endif %}">
+                <button class="btn btn-outline-primary" type="submit">{% if award.is_public %}Retirar del perfil público{% else %}Mostrar en mi colección pública{% endif %}</button>
+              </form>
+            {% endif %}
+          {% elif user.is_authenticated and progress %}
+            {% if progress.status == 'eligible' %}
+              <p class="alert alert-info">El requisito se ha cumplido; la concesión todavía está pendiente de registro por el módulo de origen.</p>
+            {% elif progress.status == 'in_progress' %}
+              <p class="alert alert-info">En progreso: {{ progress.current }} / {{ progress.target }}.</p>
+            {% elif progress.status == 'earned' %}
+              <p class="alert alert-success">Condición cumplida. La concesión se registra cuando el módulo verifica su evento.</p>
+            {% elif progress.status == 'not_calculable' or progress.status == 'not_available' %}
+              <p class="alert alert-warning">El progreso no está disponible para calcularse ahora.</p>
+            {% else %}
+              <p class="alert alert-secondary">Aún pendiente: {{ progress.current|default:'0' }} / {{ progress.target|default:'1' }}.</p>
+            {% endif %}
+          {% else %}
+            <p class="text-muted">Inicia sesión para consultar tu progreso personal.</p>
+          {% endif %}
+          {% if can_manage %}<a class="btn btn-outline-secondary mt-3" href="{% url 'gamification:editar_insignia' pk=badge.pk %}">Editar definición</a>{% endif %}
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+{% endblock %}

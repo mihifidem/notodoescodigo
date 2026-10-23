@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from apps.prompts.models import extract_variables, normalize_variables, render_prompt
@@ -32,6 +32,79 @@ class PromptCreationAccessTests(TestCase):
         response = self.client.get(reverse('prompts:create'))
 
         self.assertEqual(response.status_code, 403)
+
+
+@override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+class PromptTaxonomyCreationTests(PromptCreationAccessTests):
+    def data(self, **changes):
+        return {
+            'titulo': 'Prompt nuevo', 'contenido': 'Contenido del prompt',
+            'visibilidad': 'publico', 'publicado_en': '2026-10-23T18:00',
+            **changes,
+        }
+
+    def test_create_category_and_subcategory_with_prompt(self):
+        from .models import Prompt
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('prompts:create'), self.data(
+            nueva_categoria='Categoria prueba nueva', nueva_subcategoria='Python',
+        ))
+        self.assertEqual(response.status_code, 302, getattr(response, 'context_data', {}))
+        prompt = Prompt.objects.get(titulo='Prompt nuevo')
+        self.assertEqual(prompt.categoria.nombre, 'Categoria prueba nueva')
+        self.assertEqual(prompt.subcategoria.nombre, 'Python')
+        self.assertEqual(prompt.subcategoria.categoria_id, prompt.categoria_id)
+
+    def test_existing_category_with_new_subcategory(self):
+        from .models import CategoriaPrompt, Prompt
+        category = CategoriaPrompt.objects.create(nombre='Existente')
+        initial_count = CategoriaPrompt.objects.count()
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('prompts:create'), self.data(
+            categoria=category.pk, nueva_subcategoria='Nueva',
+        ))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Prompt.objects.get(titulo='Prompt nuevo').subcategoria.categoria_id, category.pk)
+        self.assertEqual(CategoriaPrompt.objects.count(), initial_count)
+
+    def test_invalid_prompt_does_not_create_taxonomy(self):
+        from .models import CategoriaPrompt, SubcategoriaPrompt
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('prompts:create'), self.data(
+            titulo='', nueva_categoria='No guardar', nueva_subcategoria='Tampoco',
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CategoriaPrompt.objects.filter(nombre='No guardar').exists())
+        self.assertFalse(SubcategoriaPrompt.objects.filter(nombre='Tampoco').exists())
+
+    def test_duplicates_mismatched_categories_and_conflicts_are_rejected(self):
+        from .forms import PromptForm
+        from .models import CategoriaPrompt, SubcategoriaPrompt
+        category = CategoriaPrompt.objects.create(nombre='Python')
+        other = CategoriaPrompt.objects.create(nombre='Otra')
+        sub = SubcategoriaPrompt.objects.create(categoria=other, nombre='Basico')
+        for changes, field in [
+            ({'nueva_categoria': 'python'}, 'nueva_categoria'),
+            ({'categoria': category.pk, 'nueva_categoria': 'Nueva'}, 'nueva_categoria'),
+            ({'categoria': category.pk, 'subcategoria': sub.pk}, 'subcategoria'),
+            ({'categoria': other.pk, 'nueva_subcategoria': 'basico'}, 'nueva_subcategoria'),
+            ({'categoria': other.pk, 'subcategoria': sub.pk, 'nueva_subcategoria': 'Nueva'}, 'nueva_subcategoria'),
+            ({'nueva_categoria': '!!!'}, 'nueva_categoria'),
+            ({'categoria': category.pk, 'nueva_subcategoria': '!!!'}, 'nueva_subcategoria'),
+        ]:
+            with self.subTest(changes=changes):
+                form = PromptForm(self.data(**changes))
+                self.assertFalse(form.is_valid())
+                self.assertIn(field, form.errors)
+
+    def test_non_admin_cannot_create_taxonomy_by_post(self):
+        from .models import CategoriaPrompt
+        self.client.force_login(self.normal_user)
+        response = self.client.post(reverse('prompts:create'), self.data(
+            nueva_categoria='Prohibida', nueva_subcategoria='Prohibida',
+        ))
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(CategoriaPrompt.objects.filter(nombre='Prohibida').exists())
 
 
 class PromptVariableCompatibilityTests(TestCase):

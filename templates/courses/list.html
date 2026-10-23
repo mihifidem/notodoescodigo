@@ -21,7 +21,7 @@
       {% endif %}
       <div class="card-body d-flex flex-column">
         <h5 class="card-title fw-bold">{{ curso.nombre }}</h5>
-        <p class="card-text text-muted small flex-grow-1">{{ curso.descripcion|truncatewords:20 }}</p>
+        <p class="card-text text-muted small flex-grow-1">{{ curso.descripcion_texto|truncatewords:20 }}</p>
         <div class="small mb-2">
           {% if curso.tipo_curso %}
             <span class="badge bg-info-subtle text-info-emphasis border">{{ curso.tipo_curso.nombre }}</span>

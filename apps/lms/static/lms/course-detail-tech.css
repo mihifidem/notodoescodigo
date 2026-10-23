@@ -1,0 +1,54 @@
+.lms-theme .lms-content .course-detail-tech {
+  --lms-surface: var(--billing-surface);
+  --lms-border: var(--billing-border);
+  --lms-text: var(--billing-text);
+  --lms-muted: var(--billing-muted);
+  --lms-blue: #2563eb;
+  color: var(--billing-text);
+}
+[data-bs-theme="dark"] .lms-theme .lms-content .course-detail-tech { --lms-blue: #91c5ff; }
+.lms-theme .lms-content .course-detail-tech .course-home-main { display: flex; flex-direction: column; }
+.lms-theme .lms-content .course-detail-tech .course-home-heading {
+  order: -1;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  margin-bottom: 1.5rem;
+  border: 1px solid #3667ae;
+  border-radius: 1.3rem;
+  background: radial-gradient(ellipse at top right, #2379b899, transparent 65%), linear-gradient(120deg, #0d2043, #173e79);
+  box-shadow: 0 12px 32px #15396520;
+}
+.lms-theme .lms-content .course-detail-tech .course-home-heading h1 { color: #f4f8ff; font-size: clamp(1.6rem, 3vw, 2.3rem); }
+.lms-theme .lms-content .course-detail-tech .course-home-heading :is(p, .eyebrow, .enrolled-label) { color: #c7ddf4; }
+.lms-theme .lms-content .course-detail-tech .course-home-heading .teacher-chip { color: #e0ecfc; background: #ffffff15; border-color: #ffffff30; }
+.lms-theme .lms-content .course-detail-tech :is(.recent-announcements, .home-preview-panel, .course-home-summary, .course-home-sidebar, .course-home-progress, .content-panel, .upcoming-panel) {
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--billing-border);
+  border-radius: 1.1rem;
+  background: var(--billing-surface);
+  box-shadow: 0 8px 24px #15396509;
+}
+.lms-theme .lms-content .course-detail-tech .home-preview-panel { margin-bottom: 1.5rem; }
+.lms-theme .lms-content .course-detail-tech .course-home-summary { margin-top: 0; }
+.lms-theme .lms-content .course-detail-tech :is(h2, h3, .page-body, .course-summary-table, .course-home-task) { color: var(--billing-text); }
+.lms-theme .lms-content .course-detail-tech :is(.quiet-note, .announcement-excerpt p, .announcement-excerpt small, .breadcrumbs) { color: var(--billing-muted); }
+.lms-theme .lms-content .course-detail-tech a:not(.button) { color: var(--lms-blue); }
+.lms-theme .lms-content .course-detail-tech .section-heading { flex-wrap: wrap; gap: .75rem; }
+.lms-theme .lms-content .course-detail-tech .course-home-tools a { padding: .8rem; border-radius: .65rem; background: var(--billing-tint); color: var(--billing-text); }
+.lms-theme .lms-content .course-detail-tech .course-mini-calendar { border-radius: .85rem; background: var(--billing-tint); }
+.lms-theme .lms-content .course-detail-tech .course-mini-calendar :is(th, td) { color: var(--billing-text); }
+.lms-theme .lms-content .course-detail-tech .course-home-cover { border-radius: 1rem; }
+.lms-theme .lms-content .course-detail-tech .button { border-radius: .65rem; }
+.lms-theme .lms-content .course-detail-tech .button-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+.lms-theme .lms-content .course-detail-tech :is(.button-light, .button-secondary) { background: var(--billing-tint); color: var(--billing-text); border: 1px solid var(--billing-border); }
+.lms-theme .lms-content .course-detail-tech .empty-state { background: var(--billing-tint); border-color: var(--billing-border); color: var(--billing-text); }
+.course-detail-tech :is(.hero-title-row, .hero-actions, .action-row) { flex-wrap: wrap; gap: .65rem; }
+.course-detail-tech :is(.hero-content, .announcement-excerpt, .course-home-sidebar) { min-width: 0; overflow-wrap: anywhere; }
+.course-detail-tech .table-scroll,
+.course-detail-tech .page-body { max-width: 100%; overflow-x: auto; }
+.course-detail-tech :is(a, button, summary):focus-visible { outline: 2px solid #4387e8; outline-offset: 3px; }
+@media (max-width: 575px) {
+  .course-detail-tech .hero-actions > .button,
+  .course-detail-tech .hero-actions > form,
+  .course-detail-tech .hero-actions > form > .button { width: 100%; }
+}

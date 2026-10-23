@@ -1,0 +1,3779 @@
+{
+  "schema": 1,
+  "family": "identitymap",
+  "sources": {
+    "IdentityMap.html": "e6c3c4c0c1d8d387af7f8a2d4ffe3f3af65a86cac7e7a945e23ec82fa71b378d"
+  },
+  "source_notice": "",
+  "labels": {
+    "IM01": "Reformador",
+    "IM02": "Protector",
+    "IM03": "Constructor",
+    "IM04": "Individualista",
+    "IM05": "Investigador",
+    "IM06": "Precavido",
+    "IM07": "Explorador",
+    "IM08": "Desafiador",
+    "IM09": "Pacificador"
+  },
+  "archetypes": {
+    "IM01": {
+      "name": "Reformador",
+      "color": "#10B981",
+      "icon": "🌿",
+      "chip1": "Perfeccionista",
+      "chip2": "Ético",
+      "chip3": "Responsable",
+      "desc": "Te mueve la mejora, el orden y hacer las cosas bien. Tu estándar interno es alto y persigues la calidad y la corrección."
+    },
+    "IM02": {
+      "name": "Protector",
+      "color": "#EC4899",
+      "icon": "❤️",
+      "chip1": "Empático",
+      "chip2": "Cercano",
+      "chip3": "Cuidador",
+      "desc": "Te mueve la conexión emocional y ayudar a los demás. Buscas vínculos cálidos y la validación afectiva del entorno."
+    },
+    "IM03": {
+      "name": "Constructor",
+      "color": "#F59E0B",
+      "icon": "🏆",
+      "chip1": "Ambicioso",
+      "chip2": "Productivo",
+      "chip3": "Competitivo",
+      "desc": "Te mueve el logro, los resultados y el reconocimiento. Orientas tu energía a conseguir metas y destacar por tu desempeño."
+    },
+    "IM04": {
+      "name": "Individualista",
+      "color": "#8B5CF6",
+      "icon": "🎭",
+      "chip1": "Auténtico",
+      "chip2": "Creativo",
+      "chip3": "Introspectivo",
+      "desc": "Te mueve la autenticidad y la expresión de quién eres. Buscas una identidad propia, profunda y diferenciada."
+    },
+    "IM05": {
+      "name": "Investigador",
+      "color": "#06B6D4",
+      "icon": "🔍",
+      "chip1": "Analítico",
+      "chip2": "Observador",
+      "chip3": "Autónomo",
+      "desc": "Te mueve comprender y conocer en profundidad. Necesitas entender cómo funcionan las cosas antes de actuar."
+    },
+    "IM06": {
+      "name": "Precavido",
+      "color": "#0EA5E9",
+      "icon": "🛡️",
+      "chip1": "Previsor",
+      "chip2": "Planificador",
+      "chip3": "Prudente",
+      "desc": "Te mueve la seguridad y la estabilidad. Anticipas riesgos, planificas y buscas un terreno firme antes de avanzar."
+    },
+    "IM07": {
+      "name": "Explorador",
+      "color": "#3B82F6",
+      "icon": "🧭",
+      "chip1": "Curioso",
+      "chip2": "Adaptable",
+      "chip3": "Innovador",
+      "desc": "Te mueve la libertad, la novedad y las experiencias. Buscas estímulos nuevos y evitas la rutina y lo predecible."
+    },
+    "IM08": {
+      "name": "Desafiador",
+      "color": "#EF4444",
+      "icon": "🦁",
+      "chip1": "Dominante",
+      "chip2": "Firme",
+      "chip3": "Líder",
+      "desc": "Te mueve el control, la autonomía y el liderazgo. Asumes el mando con determinación y defiendes tu independencia."
+    },
+    "IM09": {
+      "name": "Pacificador",
+      "color": "#14B8A6",
+      "icon": "🕊️",
+      "chip1": "Conciliador",
+      "chip2": "Equilibrado",
+      "chip3": "Cooperador",
+      "desc": "Te mueve la armonía y la estabilidad. Buscas el equilibrio, evitas el conflicto y facilitas el entendimiento."
+    }
+  },
+  "questions": {
+    "IM01": [
+      {
+        "id": "IM01_a1",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando trabajas en algo importante:",
+        "options": [
+          "Intento hacerlo correctamente desde el principio.",
+          "Priorizo cómo afecta a las personas.",
+          "Busco resultados visibles.",
+          "Necesito que refleje quién soy."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_l1",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me cuesta sentirme satisfecho cuando algo podría hacerse mejor.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_a2",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando detectas un error:",
+        "options": [
+          "Lo corrijo inmediatamente.",
+          "Intento comprender a la persona.",
+          "Evalúo el impacto práctico.",
+          "Reflexiono sobre lo ocurrido."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_l2",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tengo estándares muy elevados para mi trabajo.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_a3",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué suele darte tranquilidad?",
+        "options": [
+          "El orden.",
+          "Las relaciones.",
+          "Los resultados.",
+          "La comprensión."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_s1",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo entrega un proyecto con varios errores menores.",
+        "options": [
+          "Solicito corregirlos antes de entregar.",
+          "Pregunto cómo afecta al equipo.",
+          "Evalúo si afectan al resultado final.",
+          "Analizo por qué ocurrieron."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": "Tu equipo entrega un proyecto con varios errores menores.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_l3",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Suelo detectar errores que otras personas pasan por alto.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_a4",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando recibes una crítica:",
+        "options": [
+          "Analizo qué debo mejorar.",
+          "Pienso en la relación con quien la hizo.",
+          "Evalúo si afecta a mis resultados.",
+          "Reflexiono sobre su significado."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_l4",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La calidad es más importante que la velocidad.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_s2",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Te asignan un proceso que funciona pero es mejorable.",
+        "options": [
+          "Lo rediseño para que quede impecable.",
+          "Consulto al equipo antes de tocarlo.",
+          "Lo cambio solo si mejora el resultado.",
+          "Estudio a fondo cómo funciona primero."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": "Te asignan un proceso que funciona pero es mejorable.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_a5",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Ante una tarea repetitiva y poco estimulante:",
+        "options": [
+          "La hago con la máxima precisión posible.",
+          "La aprovecho para apoyar al equipo.",
+          "Busco terminarla rápido para avanzar.",
+          "Busco una forma más libre de hacerla."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM01_me",
+        "dim": "IM01",
+        "dim_label": "Reformador",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Puedo aceptar fácilmente errores e imperfecciones sin que me afecten demasiado.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM01_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM02": [
+      {
+        "id": "IM02_a1",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando alguien cercano tiene problemas:",
+        "options": [
+          "Intento solucionarlo.",
+          "Ofrezco apoyo emocional.",
+          "Busco soluciones rápidas.",
+          "Escucho antes de actuar."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_l1",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Necesito sentir cercanía emocional para sentirme cómodo.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_a2",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "En un equipo normalmente:",
+        "options": [
+          "Mantengo procedimientos.",
+          "Cuido a las personas.",
+          "Impulso resultados.",
+          "Analizo información."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_l2",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me afecta emocionalmente cuando las personas importantes para mí están mal.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_a3",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué valoras más en una amistad?",
+        "options": [
+          "Responsabilidad.",
+          "Comprensión.",
+          "Admiración.",
+          "Autenticidad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_s1",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Un compañero atraviesa una situación complicada.",
+        "options": [
+          "Le propongo soluciones.",
+          "Le ofrezco apoyo emocional.",
+          "Le ayudo a resolverlo rápidamente.",
+          "Le escucho antes de actuar."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": "Un compañero atraviesa una situación complicada.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_l3",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Disfruto ayudando a otras personas.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_a4",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando alguien te pide ayuda:",
+        "options": [
+          "Evalúo qué debe hacerse.",
+          "Me implico emocionalmente.",
+          "Busco una solución eficiente.",
+          "Intento comprender la situación."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_l4",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Suelo preocuparme por el bienestar de los demás.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_s2",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Hay tensión entre dos personas de tu equipo.",
+        "options": [
+          "Establezco reglas claras de trabajo.",
+          "Me acerco a cada una para acompañarlas.",
+          "Me centro en que el trabajo siga avanzando.",
+          "Observo qué originó la tensión."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": "Hay tensión entre dos personas de tu equipo.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_a5",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando logras algo importante, lo primero que sientes es:",
+        "options": [
+          "Ganas de pulir los detalles.",
+          "Deseo de compartirlo con los míos.",
+          "Impulso de ir a por el siguiente reto.",
+          "Curiosidad por entender cómo lo conseguí."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM02_me",
+        "dim": "IM02",
+        "dim_label": "Protector",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero mantener bastante independencia emocional.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM02_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM03": [
+      {
+        "id": "IM03_a1",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué suele motivarte más?",
+        "options": [
+          "Mejorar procesos.",
+          "Ayudar a personas.",
+          "Conseguir objetivos ambiciosos.",
+          "Expresarme libremente."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_l1",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me motiva superar objetivos exigentes.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_a2",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando alcanzas una meta:",
+        "options": [
+          "Pienso cómo mejorarla.",
+          "La comparto con otros.",
+          "Me impulsa a conseguir más.",
+          "Reflexiono sobre su significado."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_l2",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "El reconocimiento profesional es importante para mí.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_a3",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando compites:",
+        "options": [
+          "Intento hacerlo correctamente.",
+          "Disfruto compartir la experiencia.",
+          "Quiero ganar.",
+          "Quiero aprender algo nuevo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_s1",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa anuncia un reto de alto rendimiento.",
+        "options": [
+          "Me centro en hacerlo correctamente.",
+          "Pienso en cómo afectará al equipo.",
+          "Me entusiasma competir.",
+          "Evalúo si encaja conmigo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": "Tu empresa anuncia un reto de alto rendimiento.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_l3",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me gusta destacar por mis resultados.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_a4",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué te produce mayor satisfacción?",
+        "options": [
+          "Hacer algo bien.",
+          "Ayudar a alguien.",
+          "Conseguir resultados.",
+          "Ser auténtico."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_l4",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me siento cómodo compitiendo.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_s2",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Puedes asumir un proyecto muy visible pero arriesgado.",
+        "options": [
+          "Lo acepto si puedo garantizar la calidad.",
+          "Pienso en cómo afecta a mi equipo.",
+          "Lo acepto: es una oportunidad de destacar.",
+          "Valoro si encaja con lo que quiero ser."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": "Puedes asumir un proyecto muy visible pero arriesgado.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_a5",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Al final de una jornada, te sientes bien si:",
+        "options": [
+          "Todo quedó impecable.",
+          "Ayudaste a alguien.",
+          "Lograste resultados concretos.",
+          "Hiciste algo nuevo o distinto."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM03_me",
+        "dim": "IM03",
+        "dim_label": "Constructor",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "El reconocimiento o el éxito externo me resultan poco relevantes.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM03_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM04": [
+      {
+        "id": "IM04_a1",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tomas una decisión importante:",
+        "options": [
+          "Busco hacer lo correcto.",
+          "Pienso en las personas implicadas.",
+          "Busco el mejor resultado.",
+          "Necesito que refleje quién soy."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_l1",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Necesito sentir que soy auténtico conmigo mismo.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_a2",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué valoras más?",
+        "options": [
+          "La calidad.",
+          "La conexión.",
+          "El éxito.",
+          "La autenticidad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_l2",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me resulta importante expresar mi individualidad.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_a3",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando alguien no te comprende:",
+        "options": [
+          "Intento explicarme mejor.",
+          "Busco acercarme emocionalmente.",
+          "Continúo adelante.",
+          "Me afecta profundamente."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_s1",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes elegir entre una opción popular y una que representa tus valores.",
+        "options": [
+          "Elijo la más correcta.",
+          "Pienso en las personas.",
+          "Elijo la más eficaz.",
+          "Elijo la que refleja mi identidad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": "Debes elegir entre una opción popular y una que representa tus valores.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_l3",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Suelo reflexionar sobre quién soy realmente.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_a4",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué suele diferenciarte?",
+        "options": [
+          "Mi disciplina.",
+          "Mi empatía.",
+          "Mi orientación a resultados.",
+          "Mi forma única de ver las cosas."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_l4",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La creatividad ocupa un lugar importante en mi vida.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_s2",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Te piden adaptarte a un estilo de trabajo muy estandarizado.",
+        "options": [
+          "Lo acepto si garantiza calidad.",
+          "Lo acepto para no generar fricción.",
+          "Lo acepto si mejora los resultados.",
+          "Me cuesta si no me deja ser yo mismo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": "Te piden adaptarte a un estilo de trabajo muy estandarizado.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_a5",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Algo te emociona especialmente cuando:",
+        "options": [
+          "Está perfectamente hecho.",
+          "Conecta con otras personas.",
+          "Demuestra un logro.",
+          "Expresa algo profundo y personal."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM04_me",
+        "dim": "IM04",
+        "dim_label": "Individualista",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me adapto fácilmente a cualquier situación aunque no refleje quién soy.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM04_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM05": [
+      {
+        "id": "IM05_a1",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Ante una situación nueva:",
+        "options": [
+          "Busco procedimientos.",
+          "Hablo con personas.",
+          "Actúo rápidamente.",
+          "Intento comprenderla primero."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_l1",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Necesito comprender profundamente las cosas antes de actuar.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_a2",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué suele atraerte más?",
+        "options": [
+          "La organización.",
+          "Las relaciones.",
+          "Los desafíos.",
+          "El conocimiento."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_l2",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Disfruto aprendiendo temas complejos.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_a3",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tienes dudas:",
+        "options": [
+          "Busco referencias.",
+          "Pido opinión.",
+          "Tomo una decisión.",
+          "Investigo más."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_s1",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes resolver un problema complejo.",
+        "options": [
+          "Aplico procedimientos.",
+          "Busco ayuda.",
+          "Actúo rápidamente.",
+          "Investigo todas las variables."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "Debes resolver un problema complejo.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_l3",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Suelo analizar situaciones desde múltiples perspectivas.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_a4",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué te genera más confianza?",
+        "options": [
+          "El orden.",
+          "La colaboración.",
+          "La experiencia.",
+          "Comprender cómo funciona algo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_l4",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me siento cómodo trabajando de forma autónoma.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_s2",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Te piden decidir de inmediato sin tiempo para analizar.",
+        "options": [
+          "Aplico la norma más segura.",
+          "Consulto rápido a alguien.",
+          "Decido y avanzo.",
+          "Pido un momento para entenderlo mejor."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "Te piden decidir de inmediato sin tiempo para analizar.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_a5",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Lo que más te incomoda de un proyecto es:",
+        "options": [
+          "Que esté mal hecho.",
+          "Que haya mal ambiente.",
+          "Que no avance.",
+          "No entender por qué se hace así."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM05_me",
+        "dim": "IM05",
+        "dim_label": "Investigador",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero actuar rápido aunque no tenga toda la información.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM05_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM06": [
+      {
+        "id": "IM06_a1",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Ante una decisión importante:",
+        "options": [
+          "Reviso normas.",
+          "Consulto a personas.",
+          "Actúo.",
+          "Analizo riesgos."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_l1",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Prefiero planificar antes de actuar.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_a2",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué te produce más tranquilidad?",
+        "options": [
+          "Orden.",
+          "Relaciones sólidas.",
+          "Control.",
+          "Seguridad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_l2",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Suelo anticipar posibles problemas.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_a3",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando surge incertidumbre:",
+        "options": [
+          "Busco estructura.",
+          "Busco apoyo.",
+          "Tomo la iniciativa.",
+          "Analizo escenarios."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_s1",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Te ofrecen una oportunidad atractiva pero incierta.",
+        "options": [
+          "Analizo los procedimientos.",
+          "Pido consejo.",
+          "Acepto rápidamente.",
+          "Evalúo los riesgos detalladamente."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": "Te ofrecen una oportunidad atractiva pero incierta.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_l3",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La incertidumbre me genera incomodidad.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_a4",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué valoras más?",
+        "options": [
+          "Calidad.",
+          "Cercanía.",
+          "Éxito.",
+          "Estabilidad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM06"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_l4",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Necesito sentir que tengo cierto control sobre los riesgos.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_s2",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Tu equipo quiere lanzar algo sin plan de contingencia.",
+        "options": [
+          "Pido que se documente bien antes.",
+          "Me aseguro de que todos estén alineados.",
+          "Confío en avanzar y resolver sobre la marcha.",
+          "Preparo un plan B por si falla."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": "Tu equipo quiere lanzar algo sin plan de contingencia.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_a5",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Antes de un cambio importante, sueles:",
+        "options": [
+          "Revisar que todo cumpla los estándares.",
+          "Hablar con los afectados.",
+          "Avanzar con decisión.",
+          "Prever qué podría salir mal."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM06"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM06_me",
+        "dim": "IM06",
+        "dim_label": "Precavido",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me siento cómodo en situaciones impredecibles.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM06_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM07": [
+      {
+        "id": "IM07_a1",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando tienes tiempo libre:",
+        "options": [
+          "Organizo tareas.",
+          "Quedo con personas.",
+          "Busco retos.",
+          "Exploro algo nuevo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_l1",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me entusiasma descubrir cosas nuevas.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_a2",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué te motiva más?",
+        "options": [
+          "Mejorar procesos.",
+          "Ayudar a personas.",
+          "Conseguir resultados.",
+          "Vivir experiencias."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_l2",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "La rutina me resulta aburrida.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_a3",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Cómo reaccionas ante el cambio?",
+        "options": [
+          "Intento organizarlo.",
+          "Hablo con otros.",
+          "Lo lidero.",
+          "Lo veo como una oportunidad."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_s1",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Te ofrecen trabajar en un país desconocido.",
+        "options": [
+          "Analizo el proceso.",
+          "Consulto a personas cercanas.",
+          "Evalúo beneficios.",
+          "Me entusiasma la experiencia."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": "Te ofrecen trabajar en un país desconocido.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_l3",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Disfruto explorando posibilidades.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_a4",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué valoras más?",
+        "options": [
+          "Estabilidad.",
+          "Relaciones.",
+          "Logros.",
+          "Libertad."
+        ],
+        "opt_dims": [
+          "IM06",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_l4",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me adapto fácilmente a los cambios.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_s2",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Tu rol se vuelve totalmente predecible y repetitivo.",
+        "options": [
+          "Lo perfecciono al máximo.",
+          "Lo llevo bien si el equipo está unido.",
+          "Busco objetivos más ambiciosos.",
+          "Necesito introducir variedad o cambiar."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": "Tu rol se vuelve totalmente predecible y repetitivo.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_a5",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Lo que más temes de un trabajo es:",
+        "options": [
+          "Que se hagan las cosas mal.",
+          "Sentirte aislado.",
+          "No conseguir resultados.",
+          "Que se vuelva monótono."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM07"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM07_me",
+        "dim": "IM07",
+        "dim_label": "Explorador",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero mantener siempre entornos estables y previsibles.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM07_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM08": [
+      {
+        "id": "IM08_a1",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando surge un problema:",
+        "options": [
+          "Aplico normas.",
+          "Busco consenso.",
+          "Tomo el control.",
+          "Analizo causas."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_l1",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Prefiero liderar antes que seguir.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_a2",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué te molesta más?",
+        "options": [
+          "El desorden.",
+          "La falta de empatía.",
+          "Que otros decidan por ti.",
+          "La ignorancia."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_l2",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Me gusta asumir responsabilidades importantes.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_a3",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En situaciones difíciles:",
+        "options": [
+          "Mantengo la disciplina.",
+          "Apoyo al grupo.",
+          "Lidero.",
+          "Analizo."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_s1",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "El equipo está bloqueado.",
+        "options": [
+          "Organizo tareas.",
+          "Escucho al grupo.",
+          "Tomo el liderazgo.",
+          "Analizo el problema."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "El equipo está bloqueado.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_l3",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me siento cómodo tomando decisiones difíciles.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_a4",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué valoras más?",
+        "options": [
+          "Responsabilidad.",
+          "Cooperación.",
+          "Independencia.",
+          "Conocimiento."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_l4",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Necesito autonomía para rendir bien.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_s2",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Alguien intenta imponerte cómo hacer tu trabajo.",
+        "options": [
+          "Acepto si la norma tiene sentido.",
+          "Busco un punto de acuerdo.",
+          "Defiendo mi autonomía con firmeza.",
+          "Cuestiono el porqué de la imposición."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "Alguien intenta imponerte cómo hacer tu trabajo.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_a5",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Cuando algo te parece injusto:",
+        "options": [
+          "Señalo lo que debería corregirse.",
+          "Cuido cómo lo viven los demás.",
+          "Lo confronto directamente.",
+          "Analizo si realmente lo es."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM08_me",
+        "dim": "IM08",
+        "dim_label": "Desafiador",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero adaptarme antes que dirigir.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM08_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "IM09": [
+      {
+        "id": "IM09_a1",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando surge un conflicto:",
+        "options": [
+          "Intento corregirlo.",
+          "Intento que todos se entiendan.",
+          "Voy directo al problema.",
+          "Me retiro a analizar."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_l1",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me esfuerzo por mantener la armonía.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_a2",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "¿Qué valoras más?",
+        "options": [
+          "La calidad.",
+          "La armonía.",
+          "La eficacia.",
+          "La comprensión."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_l2",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 1",
+        "phase_name": "Motivación Interna",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Evito conflictos innecesarios.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_a3",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 2",
+        "phase_name": "Relación con el Entorno",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "En un equipo:",
+        "options": [
+          "Mantengo los procesos.",
+          "Facilito acuerdos.",
+          "Impulso resultados.",
+          "Analizo la información."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM03",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_s1",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "sit",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Dos compañeros discuten intensamente.",
+        "options": [
+          "Busco normas.",
+          "Intento mediar.",
+          "Afronto el problema.",
+          "Analizo la situación."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "Dos compañeros discuten intensamente.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_l3",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 3",
+        "phase_name": "Estrés y Adaptación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Prefiero colaborar antes que competir.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_a4",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 4",
+        "phase_name": "Relaciones Personales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "¿Qué suele darte paz?",
+        "options": [
+          "El orden.",
+          "La estabilidad emocional.",
+          "El control.",
+          "El conocimiento."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_l4",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me adapto fácilmente para mantener buenas relaciones.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_s2",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 5",
+        "phase_name": "Trabajo y Objetivos",
+        "type": "sit",
+        "versions": [
+          "premium"
+        ],
+        "text": "Tu opinión es minoritaria pero el grupo ya decidió.",
+        "options": [
+          "Insisto en que se haga bien.",
+          "Cedo para no romper la armonía.",
+          "Defiendo mi postura con firmeza.",
+          "Expongo mi análisis y dejo decidir."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM09",
+          "IM08",
+          "IM05"
+        ],
+        "scenario": "Tu opinión es minoritaria pero el grupo ya decidió.",
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_a5",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 6",
+        "phase_name": "Escenarios Reales",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Lo que más te desgasta es:",
+        "options": [
+          "El desorden y los errores.",
+          "Que alguien sufra.",
+          "La pasividad y la falta de avance.",
+          "La tensión y el conflicto."
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM09"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "IM09_me",
+        "dim": "IM09",
+        "dim_label": "Pacificador",
+        "phase": "Fase 7",
+        "phase_name": "Preguntas Espejo",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "No me importa generar conflictos si consigo mis objetivos.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": true,
+        "mirror_of": "IM09_l1",
+        "is_mirror_item": true
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "AT01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Para verificar la calidad de tus respuestas, selecciona la opción 2 (Poco parecido a mí).",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 2
+      },
+      {
+        "id": "AT02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Para comprobar tu atención, marca la respuesta número 4 (Bastante parecido a mí).",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 4
+      },
+      {
+        "id": "AT03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Control de atención: selecciona la opción C.",
+        "options": [
+          "Opción A",
+          "Opción B",
+          "Opción C",
+          "Opción D"
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 2
+      },
+      {
+        "id": "AT04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Control de atención: selecciona la opción 3 (Variable).",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 3
+      },
+      {
+        "id": "AT05",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Control de atención: selecciona la opción B.",
+        "options": [
+          "Opción A",
+          "Opción B",
+          "Opción C",
+          "Opción D"
+        ],
+        "opt_dims": [
+          "IM01",
+          "IM02",
+          "IM03",
+          "IM04"
+        ],
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 1
+      },
+      {
+        "id": "AT06",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Control de atención: selecciona la opción 5 (Me representa muchísimo).",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_attention_check": true,
+        "expected": 5
+      },
+      {
+        "id": "AF01",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Nunca he cometido un error importante.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      },
+      {
+        "id": "AF02",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Siempre tomo la mejor decisión posible.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      },
+      {
+        "id": "AF03",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Todo el mundo suele estar de acuerdo conmigo.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      },
+      {
+        "id": "AF04",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Nunca me he sentido inseguro.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      },
+      {
+        "id": "AF05",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Jamás he tenido conflictos con otras personas.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      },
+      {
+        "id": "AF06",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación Psicométrica",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Siempre actúo de forma perfecta.",
+        "options": null,
+        "opt_dims": null,
+        "scenario": null,
+        "is_reverse": false,
+        "mirror_of": null,
+        "is_anti_fake": true
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "IM01",
+        "IM01_a1"
+      ],
+      [
+        "IM01",
+        "IM01_l1"
+      ],
+      [
+        "IM02",
+        "IM02_a1"
+      ],
+      [
+        "IM02",
+        "IM02_l1"
+      ],
+      [
+        "IM03",
+        "IM03_a1"
+      ],
+      [
+        "IM03",
+        "IM03_l1"
+      ],
+      [
+        "IM04",
+        "IM04_a1"
+      ],
+      [
+        "IM04",
+        "IM04_l1"
+      ],
+      [
+        "IM05",
+        "IM05_a1"
+      ],
+      [
+        "IM05",
+        "IM05_l1"
+      ],
+      [
+        "IM06",
+        "IM06_a1"
+      ],
+      [
+        "IM06",
+        "IM06_l1"
+      ],
+      [
+        "IM07",
+        "IM07_a1"
+      ],
+      [
+        "IM07",
+        "IM07_l1"
+      ],
+      [
+        "IM08",
+        "IM08_a1"
+      ],
+      [
+        "IM08",
+        "IM08_l1"
+      ],
+      [
+        "IM09",
+        "IM09_a1"
+      ],
+      [
+        "IM09",
+        "IM09_l1"
+      ],
+      [
+        "IM01",
+        "IM01_a2"
+      ],
+      [
+        "IM02",
+        "IM02_a2"
+      ],
+      [
+        "IM03",
+        "IM03_a2"
+      ],
+      [
+        "IM04",
+        "IM04_a2"
+      ],
+      [
+        "IM05",
+        "IM05_a2"
+      ],
+      [
+        "IM06",
+        "IM06_a2"
+      ],
+      [
+        "IM07",
+        "IM07_a2"
+      ],
+      [
+        "IM08",
+        "IM08_a2"
+      ],
+      [
+        "IM09",
+        "IM09_a2"
+      ],
+      [
+        "VALIDATION",
+        "AF01"
+      ],
+      [
+        "VALIDATION",
+        "AT01"
+      ],
+      [
+        "VALIDATION",
+        "AT02"
+      ]
+    ],
+    "advanced": [
+      [
+        "IM01",
+        "IM01_a1"
+      ],
+      [
+        "IM01",
+        "IM01_l1"
+      ],
+      [
+        "IM01",
+        "IM01_l2"
+      ],
+      [
+        "IM02",
+        "IM02_a1"
+      ],
+      [
+        "IM02",
+        "IM02_l1"
+      ],
+      [
+        "IM02",
+        "IM02_l2"
+      ],
+      [
+        "IM03",
+        "IM03_a1"
+      ],
+      [
+        "IM03",
+        "IM03_l1"
+      ],
+      [
+        "IM03",
+        "IM03_l2"
+      ],
+      [
+        "IM04",
+        "IM04_a1"
+      ],
+      [
+        "IM04",
+        "IM04_l1"
+      ],
+      [
+        "IM04",
+        "IM04_l2"
+      ],
+      [
+        "IM05",
+        "IM05_a1"
+      ],
+      [
+        "IM05",
+        "IM05_l1"
+      ],
+      [
+        "IM05",
+        "IM05_l2"
+      ],
+      [
+        "IM06",
+        "IM06_a1"
+      ],
+      [
+        "IM06",
+        "IM06_l1"
+      ],
+      [
+        "IM06",
+        "IM06_l2"
+      ],
+      [
+        "IM07",
+        "IM07_a1"
+      ],
+      [
+        "IM07",
+        "IM07_l1"
+      ],
+      [
+        "IM07",
+        "IM07_l2"
+      ],
+      [
+        "IM08",
+        "IM08_a1"
+      ],
+      [
+        "IM08",
+        "IM08_l1"
+      ],
+      [
+        "IM08",
+        "IM08_l2"
+      ],
+      [
+        "IM09",
+        "IM09_a1"
+      ],
+      [
+        "IM09",
+        "IM09_l1"
+      ],
+      [
+        "IM09",
+        "IM09_l2"
+      ],
+      [
+        "IM01",
+        "IM01_a2"
+      ],
+      [
+        "IM01",
+        "IM01_a3"
+      ],
+      [
+        "IM02",
+        "IM02_a2"
+      ],
+      [
+        "IM02",
+        "IM02_a3"
+      ],
+      [
+        "IM03",
+        "IM03_a2"
+      ],
+      [
+        "IM03",
+        "IM03_a3"
+      ],
+      [
+        "IM04",
+        "IM04_a2"
+      ],
+      [
+        "IM04",
+        "IM04_a3"
+      ],
+      [
+        "IM05",
+        "IM05_a2"
+      ],
+      [
+        "IM05",
+        "IM05_a3"
+      ],
+      [
+        "IM06",
+        "IM06_a2"
+      ],
+      [
+        "IM06",
+        "IM06_a3"
+      ],
+      [
+        "IM07",
+        "IM07_a2"
+      ],
+      [
+        "IM07",
+        "IM07_a3"
+      ],
+      [
+        "IM08",
+        "IM08_a2"
+      ],
+      [
+        "IM08",
+        "IM08_a3"
+      ],
+      [
+        "IM09",
+        "IM09_a2"
+      ],
+      [
+        "IM09",
+        "IM09_a3"
+      ],
+      [
+        "IM01",
+        "IM01_s1"
+      ],
+      [
+        "IM02",
+        "IM02_s1"
+      ],
+      [
+        "IM03",
+        "IM03_s1"
+      ],
+      [
+        "IM04",
+        "IM04_s1"
+      ],
+      [
+        "IM05",
+        "IM05_s1"
+      ],
+      [
+        "IM06",
+        "IM06_s1"
+      ],
+      [
+        "IM07",
+        "IM07_s1"
+      ],
+      [
+        "IM08",
+        "IM08_s1"
+      ],
+      [
+        "IM09",
+        "IM09_s1"
+      ],
+      [
+        "VALIDATION",
+        "AF01"
+      ],
+      [
+        "VALIDATION",
+        "AF02"
+      ],
+      [
+        "VALIDATION",
+        "AF03"
+      ],
+      [
+        "VALIDATION",
+        "AT01"
+      ],
+      [
+        "VALIDATION",
+        "AT02"
+      ],
+      [
+        "VALIDATION",
+        "AT03"
+      ]
+    ],
+    "premium": [
+      [
+        "IM01",
+        "IM01_a1"
+      ],
+      [
+        "IM01",
+        "IM01_l1"
+      ],
+      [
+        "IM01",
+        "IM01_l2"
+      ],
+      [
+        "IM02",
+        "IM02_a1"
+      ],
+      [
+        "IM02",
+        "IM02_l1"
+      ],
+      [
+        "IM02",
+        "IM02_l2"
+      ],
+      [
+        "IM03",
+        "IM03_a1"
+      ],
+      [
+        "IM03",
+        "IM03_l1"
+      ],
+      [
+        "IM03",
+        "IM03_l2"
+      ],
+      [
+        "IM04",
+        "IM04_a1"
+      ],
+      [
+        "IM04",
+        "IM04_l1"
+      ],
+      [
+        "IM04",
+        "IM04_l2"
+      ],
+      [
+        "IM05",
+        "IM05_a1"
+      ],
+      [
+        "IM05",
+        "IM05_l1"
+      ],
+      [
+        "IM05",
+        "IM05_l2"
+      ],
+      [
+        "IM06",
+        "IM06_a1"
+      ],
+      [
+        "IM06",
+        "IM06_l1"
+      ],
+      [
+        "IM06",
+        "IM06_l2"
+      ],
+      [
+        "IM07",
+        "IM07_a1"
+      ],
+      [
+        "IM07",
+        "IM07_l1"
+      ],
+      [
+        "IM07",
+        "IM07_l2"
+      ],
+      [
+        "IM08",
+        "IM08_a1"
+      ],
+      [
+        "IM08",
+        "IM08_l1"
+      ],
+      [
+        "IM08",
+        "IM08_l2"
+      ],
+      [
+        "IM09",
+        "IM09_a1"
+      ],
+      [
+        "IM09",
+        "IM09_l1"
+      ],
+      [
+        "IM09",
+        "IM09_l2"
+      ],
+      [
+        "IM01",
+        "IM01_a2"
+      ],
+      [
+        "IM01",
+        "IM01_a3"
+      ],
+      [
+        "IM02",
+        "IM02_a2"
+      ],
+      [
+        "IM02",
+        "IM02_a3"
+      ],
+      [
+        "IM03",
+        "IM03_a2"
+      ],
+      [
+        "IM03",
+        "IM03_a3"
+      ],
+      [
+        "IM04",
+        "IM04_a2"
+      ],
+      [
+        "IM04",
+        "IM04_a3"
+      ],
+      [
+        "IM05",
+        "IM05_a2"
+      ],
+      [
+        "IM05",
+        "IM05_a3"
+      ],
+      [
+        "IM06",
+        "IM06_a2"
+      ],
+      [
+        "IM06",
+        "IM06_a3"
+      ],
+      [
+        "IM07",
+        "IM07_a2"
+      ],
+      [
+        "IM07",
+        "IM07_a3"
+      ],
+      [
+        "IM08",
+        "IM08_a2"
+      ],
+      [
+        "IM08",
+        "IM08_a3"
+      ],
+      [
+        "IM09",
+        "IM09_a2"
+      ],
+      [
+        "IM09",
+        "IM09_a3"
+      ],
+      [
+        "IM01",
+        "IM01_l3"
+      ],
+      [
+        "IM02",
+        "IM02_l3"
+      ],
+      [
+        "IM03",
+        "IM03_l3"
+      ],
+      [
+        "IM04",
+        "IM04_l3"
+      ],
+      [
+        "IM05",
+        "IM05_l3"
+      ],
+      [
+        "IM06",
+        "IM06_l3"
+      ],
+      [
+        "IM07",
+        "IM07_l3"
+      ],
+      [
+        "IM08",
+        "IM08_l3"
+      ],
+      [
+        "IM09",
+        "IM09_l3"
+      ],
+      [
+        "IM01",
+        "IM01_a4"
+      ],
+      [
+        "IM02",
+        "IM02_a4"
+      ],
+      [
+        "IM03",
+        "IM03_a4"
+      ],
+      [
+        "IM04",
+        "IM04_a4"
+      ],
+      [
+        "IM05",
+        "IM05_a4"
+      ],
+      [
+        "IM06",
+        "IM06_a4"
+      ],
+      [
+        "IM07",
+        "IM07_a4"
+      ],
+      [
+        "IM08",
+        "IM08_a4"
+      ],
+      [
+        "IM09",
+        "IM09_a4"
+      ],
+      [
+        "IM01",
+        "IM01_l4"
+      ],
+      [
+        "IM01",
+        "IM01_s2"
+      ],
+      [
+        "IM02",
+        "IM02_l4"
+      ],
+      [
+        "IM02",
+        "IM02_s2"
+      ],
+      [
+        "IM03",
+        "IM03_l4"
+      ],
+      [
+        "IM03",
+        "IM03_s2"
+      ],
+      [
+        "IM04",
+        "IM04_l4"
+      ],
+      [
+        "IM04",
+        "IM04_s2"
+      ],
+      [
+        "IM05",
+        "IM05_l4"
+      ],
+      [
+        "IM05",
+        "IM05_s2"
+      ],
+      [
+        "IM06",
+        "IM06_l4"
+      ],
+      [
+        "IM06",
+        "IM06_s2"
+      ],
+      [
+        "IM07",
+        "IM07_l4"
+      ],
+      [
+        "IM07",
+        "IM07_s2"
+      ],
+      [
+        "IM08",
+        "IM08_l4"
+      ],
+      [
+        "IM08",
+        "IM08_s2"
+      ],
+      [
+        "IM09",
+        "IM09_l4"
+      ],
+      [
+        "IM09",
+        "IM09_s2"
+      ],
+      [
+        "IM01",
+        "IM01_a5"
+      ],
+      [
+        "IM01",
+        "IM01_s1"
+      ],
+      [
+        "IM02",
+        "IM02_a5"
+      ],
+      [
+        "IM02",
+        "IM02_s1"
+      ],
+      [
+        "IM03",
+        "IM03_a5"
+      ],
+      [
+        "IM03",
+        "IM03_s1"
+      ],
+      [
+        "IM04",
+        "IM04_a5"
+      ],
+      [
+        "IM04",
+        "IM04_s1"
+      ],
+      [
+        "IM05",
+        "IM05_a5"
+      ],
+      [
+        "IM05",
+        "IM05_s1"
+      ],
+      [
+        "IM06",
+        "IM06_a5"
+      ],
+      [
+        "IM06",
+        "IM06_s1"
+      ],
+      [
+        "IM07",
+        "IM07_a5"
+      ],
+      [
+        "IM07",
+        "IM07_s1"
+      ],
+      [
+        "IM08",
+        "IM08_a5"
+      ],
+      [
+        "IM08",
+        "IM08_s1"
+      ],
+      [
+        "IM09",
+        "IM09_a5"
+      ],
+      [
+        "IM09",
+        "IM09_s1"
+      ],
+      [
+        "IM01",
+        "IM01_me"
+      ],
+      [
+        "IM02",
+        "IM02_me"
+      ],
+      [
+        "IM03",
+        "IM03_me"
+      ],
+      [
+        "IM04",
+        "IM04_me"
+      ],
+      [
+        "IM05",
+        "IM05_me"
+      ],
+      [
+        "IM06",
+        "IM06_me"
+      ],
+      [
+        "IM07",
+        "IM07_me"
+      ],
+      [
+        "IM08",
+        "IM08_me"
+      ],
+      [
+        "IM09",
+        "IM09_me"
+      ],
+      [
+        "VALIDATION",
+        "AF01"
+      ],
+      [
+        "VALIDATION",
+        "AF02"
+      ],
+      [
+        "VALIDATION",
+        "AF03"
+      ],
+      [
+        "VALIDATION",
+        "AF04"
+      ],
+      [
+        "VALIDATION",
+        "AF05"
+      ],
+      [
+        "VALIDATION",
+        "AF06"
+      ],
+      [
+        "VALIDATION",
+        "AT01"
+      ],
+      [
+        "VALIDATION",
+        "AT02"
+      ],
+      [
+        "VALIDATION",
+        "AT03"
+      ],
+      [
+        "VALIDATION",
+        "AT04"
+      ],
+      [
+        "VALIDATION",
+        "AT05"
+      ],
+      [
+        "VALIDATION",
+        "AT06"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<h2>Evolución compatible</h2>
+<p>Solo intentos propios de la misma versión, dimensiones y escala. Las diferencias no son mejor/peor personalidad ni aptitud laboral.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Comparar</button></form>
+{% if differences %}
+<p>Del {{ first.completed_at|date:"d/m/Y H:i" }} al {{ second.completed_at|date:"d/m/Y H:i" }}.</p>
+<div class="table-responsive"><table class="table">
+  <caption>Cambios entre dos intentos compatibles</caption>
+  <thead><tr><th scope="col">Dimensión</th><th scope="col">Anterior</th><th scope="col">Posterior</th><th scope="col">Diferencia</th></tr></thead>
+  <tbody>{% for d in differences %}<tr><th scope="row">{{ d.label }}</th><td>{{ d.before }}</td><td>{{ d.after }}</td><td>{{ d.change }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endif %}
+{% endblock %}

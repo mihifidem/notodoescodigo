@@ -51,7 +51,10 @@ class PrivateChallengeTests(TestCase):
         FakeBankGateway.failure = None
         self.category = CourseCategory.objects.create(nombre='Reto privado')
         self.subcategory = ChallengeSubcategory.objects.create(category=self.category, name='Fundamentos')
-        self.landscape = Landscape.objects.create(code='private-ring', name='Paisaje privado')
+        from .characters import era_for_xp
+        self.landscape = Landscape.objects.create(
+            code='private-ring', name='Paisaje privado', era=era_for_xp(self.creator.puntos_totales).code,
+        )
         self.schedule = (timezone.now() + timedelta(days=2)).replace(second=0, microsecond=0)
         self.expiry = timezone.now() + timedelta(hours=1)
         self.create_url = reverse('duckyclash:challenge_create')

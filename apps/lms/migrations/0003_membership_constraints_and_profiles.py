@@ -1,7 +1,7 @@
 from itertools import islice
 
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
 
 
 def backfill_profiles(apps, schema_editor):
@@ -24,24 +24,11 @@ def backfill_profiles(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('lms', '0002_integrate_courses_app'),
+        ('lms', '0003_alter_section_options_alter_userprofilelms_options_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
-        migrations.AddConstraint(
-            model_name='coursemembership',
-            constraint=models.CheckConstraint(
-                check=models.Q(role__in=['owner', 'teacher', 'assistant', 'student', 'observer']),
-                name='lms_member_valid_role',
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name='coursemembership',
-            constraint=models.CheckConstraint(
-                check=models.Q(status__in=['invited', 'active', 'suspended', 'completed', 'dropped']),
-                name='lms_member_valid_status',
-            ),
-        ),
+        # Both membership checks are already created by the dependency.
         migrations.RunPython(backfill_profiles, migrations.RunPython.noop),
     ]

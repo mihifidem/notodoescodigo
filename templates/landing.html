@@ -557,7 +557,7 @@
             </div>
             {% endif %}
             <h3 class="h5 fw-bold mb-2">{{ curso.nombre }}</h3>
-            <p class="text-muted mb-3 flex-grow-1">{{ curso.descripcion|truncatewords:22 }}</p>
+            <p class="text-muted mb-3 flex-grow-1">{{ curso.descripcion_texto|truncatewords:22 }}</p>
             <div class="small text-muted mb-3">
               <i class="bi bi-calendar-event me-1"></i>{{ curso.fecha_inicio|date:'d/m/Y' }}
             </div>
@@ -716,7 +716,7 @@
         <div class="card h-100 shadow-sm border-0 rounded-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-bold text-muted mb-2">Gratis</div>
-            <h3 class="fw-bold mb-3">Starter</h3>
+            <h3 class="fw-bold mb-3">FREE</h3>
             <div class="display-6 fw-bold mb-3">€0</div>
             <ul class="list-unstyled small text-muted mb-0">
               <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Blog y recursos</li>
@@ -726,36 +726,18 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 rounded-4" style="background:linear-gradient(180deg,#eff6ff,#ffffff); border:1px solid #bfdbfe !important;">
-          <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold text-primary mb-2">Más popular</div>
-            <h3 class="fw-bold mb-3">Pro</h3>
-            <div class="display-6 fw-bold mb-3">6.90€<span class="fs-6 text-muted">/mes</span></div>
-            <ul class="list-unstyled small text-muted mb-0">
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todos los cursos</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>CV profesional</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Acceso a IA tutor</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Certificados</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      {% for plan in landing_pricing_plans %}
       <div class="col-md-4">
         <div class="card h-100 shadow-sm border-0 rounded-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold text-muted mb-2">Premium</div>
-            <h3 class="fw-bold mb-3">Career</h3>
-            <div class="display-6 fw-bold mb-3">16.90€<span class="fs-6 text-muted">/mes</span></div>
-            <ul class="list-unstyled small text-muted mb-0">
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Todo lo de Pro</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Coaching y seguimiento</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Mentoría</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Soporte prioritario</li>
-            </ul>
+            <div class="text-uppercase small fw-bold text-primary mb-2">Membresía</div>
+            <h3 class="fw-bold mb-3">{{ plan.name }}</h3>
+            {% include 'users/landing_plan_prices.html' %}
+            <a href="{% url 'users:billing' %}" class="btn btn-outline-primary mt-3">Ver plan {{ plan.name }}</a>
           </div>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -784,11 +766,14 @@
       <div class="col-lg-6">
         <div class="card shadow-sm border-0 rounded-4 h-100" style="background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff;">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold mb-2" style="letter-spacing:.12em; color:#93c5fd;">Oferta</div>
-            <h3 class="fw-bold mb-3 text-white">Ahorra con anual</h3>
-            <div class="display-6 fw-bold mb-3 text-white">72 €<span class="fs-6 text-light">/año</span></div>
-            <p class=" mb-3 text-white">Incluye todo el contenido de Pro con un ahorro mensual importante.</p>
-            <a href="{% url 'users:registro' %}" class="btn btn-light fw-semibold">Empezar ahora</a>
+            <div class="text-uppercase small fw-bold mb-2" style="letter-spacing:.12em; color:#93c5fd;">Tarifas vigentes</div>
+            <h3 class="fw-bold mb-3 text-white">Elige tu periodicidad</h3>
+            {% for plan in landing_pricing_plans %}
+              <h4 class="h5 text-white mt-3">{{ plan.name }}</h4>
+              {% include 'users/landing_plan_prices.html' %}
+            {% endfor %}
+            <p class="mt-3 text-white">Los importes corresponden al periodo completo indicado. Consulta las condiciones y el importe final antes de confirmar el pago.</p>
+            <a href="{% url 'users:billing' %}" class="btn btn-light fw-semibold">Ver membresías</a>
           </div>
         </div>
       </div>

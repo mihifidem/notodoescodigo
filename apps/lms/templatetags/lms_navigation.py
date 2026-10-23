@@ -1,11 +1,17 @@
 from django import template
 from django.middleware.csrf import get_token
 
+from apps.lms.models import html_content_text
 from apps.lms.notification_state import notification_counts
 from apps.lms.policies import can_edit_course, is_course_member
 from apps.lms.ui import COURSE_AREAS, STUDENT_AREA_KEYS
 
 register = template.Library()
+
+
+@register.filter
+def content_text(value):
+    return html_content_text(value)
 
 
 @register.inclusion_tag('lms/course_chrome.html')

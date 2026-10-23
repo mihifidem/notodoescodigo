@@ -1,0 +1,15 @@
+{% extends "curriculum/letters/base.html" %}
+{% block letter_content %}
+<h1 class="h3">Demostración con datos ficticios</h1>
+<p class="alert alert-info">Ejemplo editorial fijo: no procede de una cuenta real ni de una generación IA.</p>
+<h2 class="h5">Oferta ficticia: apoyo administrativo en Empresa Ejemplo</h2>
+<p>La oferta solicita organización de documentación y atención a consultas.</p>
+<article class="card card-body">
+<p>Estimado equipo de selección:</p>
+<p>Me interesa el puesto de apoyo administrativo. En mi proyecto formativo he organizado documentación y preparado respuestas a consultas de ejemplo. Me gustaría aportar esta práctica al equipo y seguir aprendiendo sus procedimientos.</p>
+<p>Quedo a su disposición para conversar sobre la candidatura.</p>
+<p>Alex Ejemplo — identidad ficticia.</p>
+</article>
+<p class="mt-3">Las cartas personales requieren registro e inicio de sesión. No se publican ni envían automáticamente.</p>
+<a href="{% url 'curriculum:letter_new' %}" class="btn btn-primary">Acceder para crear mi carta</a>
+{% endblock %}

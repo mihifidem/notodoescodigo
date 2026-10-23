@@ -22,7 +22,7 @@
       <div>
         <p class="eyebrow">{% trans "TU AULA ACTUAL" %}</p>
         <h2 id="next-course-title">{{ next_course.nombre }}</h2>
-        <p>{{ next_course.descripcion|truncatewords:26 }}</p>
+        <p>{{ next_course.descripcion_texto|truncatewords:26 }}</p>
         <div class="current-activity-actions">
           <a class="button button-primary" href="{% url 'lms:course_detail' course_id=next_course.pk %}">{% trans "Continuar en el aula" %} <span aria-hidden="true">→</span></a>
           {% if next_course.fecha_fin %}<span class="role-label">{% blocktrans with date=next_course.fecha_fin|date:'d M Y' %}Finaliza {{ date }}{% endblocktrans %}</span>{% endif %}
@@ -81,7 +81,7 @@
                 </div>
 
                 <h3><a href="{% url 'lms:course_detail' course_id=course.pk %}">{{ course.nombre }}</a></h3>
-                <p>{{ course.descripcion|truncatewords:20 }}</p>
+                <p>{{ course.descripcion_texto|truncatewords:20 }}</p>
 
                 <div class="section-label" style="margin-bottom: 10px;">
                   {% if item.next_due %}

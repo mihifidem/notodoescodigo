@@ -1,0 +1,1574 @@
+{
+  "schema": 1,
+  "family": "decissioncore",
+  "sources": {
+    "DecisionCore.html": "d5d126cf905c12bea91b835879bfd8711bae9611be7726fe56bb42e221302761"
+  },
+  "source_notice": "",
+  "labels": {
+    "DC01": "Análisis",
+    "DC02": "Intuición",
+    "DC03": "Orient. Datos",
+    "DC04": "Velocidad Dec.",
+    "DC05": "Gestión Riesgo",
+    "DC06": "P. Estratégico",
+    "DC07": "Colaboración",
+    "DC08": "Innovación",
+    "DC09": "Adaptabilidad",
+    "DC10": "Confianza"
+  },
+  "archetypes": {
+    "Analytical Decision Maker": {
+      "color": "#1D4ED8",
+      "icon": "🔬",
+      "chip1": "Analítico",
+      "chip2": "Metódico",
+      "chip3": "Basado en datos",
+      "desc": "Analiza exhaustivamente la información antes de decidir. Su fortaleza es la precisión y el rigor metodológico.",
+      "dims": {
+        "primary": "DC01",
+        "secondary": "DC03"
+      }
+    },
+    "Strategic Decision Maker": {
+      "color": "#7C3AED",
+      "icon": "♟️",
+      "chip1": "Estratégico",
+      "chip2": "Visionario",
+      "chip3": "Planificador",
+      "desc": "Piensa a largo plazo y alinea cada decisión con la visión global. Excelente en entornos de alta complejidad.",
+      "dims": {
+        "primary": "DC06",
+        "secondary": "DC05"
+      }
+    },
+    "Intuitive Decision Maker": {
+      "color": "#EC4899",
+      "icon": "⚡",
+      "chip1": "Intuitivo",
+      "chip2": "Experiencial",
+      "chip3": "Ágil",
+      "desc": "Integra experiencia y percepción para decidir con rapidez. Su instinto profesional es su principal activo.",
+      "dims": {
+        "primary": "DC02",
+        "secondary": "DC10"
+      }
+    },
+    "Collaborative Decision Maker": {
+      "color": "#10B981",
+      "icon": "🤝",
+      "chip1": "Colaborativo",
+      "chip2": "Participativo",
+      "chip3": "Consensual",
+      "desc": "Construye decisiones sólidas integrando múltiples perspectivas. Lider natural en entornos de equipo.",
+      "dims": {
+        "primary": "DC07",
+        "secondary": "DC09"
+      }
+    },
+    "Action-Oriented Decision Maker": {
+      "color": "#EF4444",
+      "icon": "🚀",
+      "chip1": "Ejecutor",
+      "chip2": "Veloz",
+      "chip3": "Pragmático",
+      "desc": "Prioriza la acción sobre el análisis. Decisivo en contextos de alta presión y entornos cambiantes.",
+      "dims": {
+        "primary": "DC04",
+        "secondary": "DC10"
+      }
+    },
+    "Risk-Aware Decision Maker": {
+      "color": "#F59E0B",
+      "icon": "⚖️",
+      "chip1": "Prudente",
+      "chip2": "Evaluador",
+      "chip3": "Preventivo",
+      "desc": "Evalúa riesgos con rigor antes de actuar. Su cautela protege a la organización de errores costosos.",
+      "dims": {
+        "primary": "DC05",
+        "secondary": "DC01"
+      }
+    },
+    "Innovative Decision Maker": {
+      "color": "#06B6D4",
+      "icon": "💡",
+      "chip1": "Innovador",
+      "chip2": "Experimental",
+      "chip3": "Disruptivo",
+      "desc": "Busca soluciones creativas y no convencionales. Prospera en entornos de cambio e incertidumbre.",
+      "dims": {
+        "primary": "DC08",
+        "secondary": "DC09"
+      }
+    },
+    "Balanced Decision Maker": {
+      "color": "#64748B",
+      "icon": "🎯",
+      "chip1": "Equilibrado",
+      "chip2": "Flexible",
+      "chip3": "Adaptable",
+      "desc": "Equilibra análisis, intuición y colaboración según el contexto. Versátil y efectivo en múltiples entornos.",
+      "dims": {
+        "primary": "DC09",
+        "secondary": "DC10"
+      }
+    }
+  },
+  "questions": {
+    "DC01": [
+      {
+        "id": "DC001",
+        "dim": "DC01",
+        "dim_label": "Análisis",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes decidir entre varias alternativas. ¿Qué haces primero?",
+        "scenario": null,
+        "options": [
+          "Analizo información disponible",
+          "Escucho mi intuición",
+          "Consulto al equipo",
+          "Actúo rápidamente"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC011",
+        "dim": "DC01",
+        "dim_label": "Análisis",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Analizo cuidadosamente antes de decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": "DC041"
+      },
+      {
+        "id": "DC021",
+        "dim": "DC01",
+        "dim_label": "Análisis",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando falta información para decidir:",
+        "scenario": null,
+        "options": [
+          "Busco más datos antes de actuar",
+          "Confío en mi experiencia acumulada",
+          "Consulto a expertos del área",
+          "Tomo una decisión provisional y corrijo"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC031",
+        "dim": "DC01",
+        "dim_label": "Análisis",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Antes de tomar una decisión importante:",
+        "scenario": null,
+        "options": [
+          "Reviso todas las métricas disponibles",
+          "Analizo tendencias del mercado",
+          "Escucho las opiniones del equipo",
+          "Pruebo distintas opciones antes de decidir"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC02": [
+      {
+        "id": "DC002",
+        "dim": "DC02",
+        "dim_label": "Intuición",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando falta información suficiente:",
+        "scenario": null,
+        "options": [
+          "Busco más datos sistemáticamente",
+          "Confío en mi experiencia e intuición",
+          "Consulto a expertos de confianza",
+          "Tomo una decisión provisional rápida"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC012",
+        "dim": "DC02",
+        "dim_label": "Intuición",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Suelo confiar en mi intuición al decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC022",
+        "dim": "DC02",
+        "dim_label": "Intuición",
+        "phase": "Fase 3",
+        "phase_name": "Gestión de Incertidumbre",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Los datos contradicen tu experiencia. ¿Qué haces?",
+        "scenario": "Situación: Los datos del análisis apuntan en una dirección, pero tu experiencia profesional te dice algo diferente.",
+        "options": [
+          "Sigo los datos objetivamente",
+          "Me apoyo en mi experiencia",
+          "Busco más información para resolver la contradicción",
+          "Decido según el contexto de la situación"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC032",
+        "dim": "DC02",
+        "dim_label": "Intuición",
+        "phase": "Fase 3",
+        "phase_name": "Gestión de Incertidumbre",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mi instinto profesional me ha llevado a buenas decisiones.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC03": [
+      {
+        "id": "DC003",
+        "dim": "DC03",
+        "dim_label": "Orient. a Datos",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Antes de decidir, normalmente:",
+        "scenario": null,
+        "options": [
+          "Reviso métricas y datos objetivos",
+          "Analizo tendencias del contexto",
+          "Escucho opiniones clave del equipo",
+          "Pruebo distintas opciones de forma experimental"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC013",
+        "dim": "DC03",
+        "dim_label": "Orient. a Datos",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Las decisiones deben basarse en datos objetivos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC023",
+        "dim": "DC03",
+        "dim_label": "Orient. a Datos",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Busco evidencia antes de comprometer recursos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC033",
+        "dim": "DC03",
+        "dim_label": "Orient. a Datos",
+        "phase": "Fase 2",
+        "phase_name": "Análisis de Información",
+        "type": "abcd",
+        "versions": [
+          "premium"
+        ],
+        "text": "Al presentar una decisión al equipo directivo:",
+        "scenario": null,
+        "options": [
+          "Preparo datos y métricas detalladas",
+          "Presento la visión y el razonamiento",
+          "Muestro el consenso del equipo",
+          "Explico la lógica decisional paso a paso"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC04": [
+      {
+        "id": "DC004",
+        "dim": "DC04",
+        "dim_label": "Velocidad Dec.",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Bajo presión de tiempo, tiendes a:",
+        "scenario": null,
+        "options": [
+          "Analizar aunque sea brevemente",
+          "Decidir rápidamente con la info disponible",
+          "Consultar a alguien de confianza",
+          "Experimentar con una solución rápida"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC014",
+        "dim": "DC04",
+        "dim_label": "Velocidad Dec.",
+        "phase": "Fase 1",
+        "phase_name": "Preferencias Decisionales",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me siento cómodo tomando decisiones rápidas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC024",
+        "dim": "DC04",
+        "dim_label": "Velocidad Dec.",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Una decisión debe tomarse hoy mismo. ¿Qué priorizas?",
+        "scenario": "Situación: El cliente exige una respuesta inmediata y no dispones de toda la información necesaria.",
+        "options": [
+          "La calidad del análisis aunque tarde",
+          "La rapidez con la info que tengo",
+          "Consultar aunque lleve tiempo",
+          "Una solución provisional que pueda ajustar"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC034",
+        "dim": "DC04",
+        "dim_label": "Velocidad Dec.",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La agilidad decisional es más importante que la perfección.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC05": [
+      {
+        "id": "DC005",
+        "dim": "DC05",
+        "dim_label": "Gestión Riesgo",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Respecto al riesgo en tus decisiones:",
+        "scenario": null,
+        "options": [
+          "Lo minimizo buscando la opción más segura",
+          "Lo acepto si el beneficio es suficiente",
+          "Lo comparto con el equipo o socios",
+          "Lo evalúo sistemáticamente antes de decidir"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC015",
+        "dim": "DC05",
+        "dim_label": "Gestión Riesgo",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Evalúo los riesgos antes de actuar.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": "DC042"
+      },
+      {
+        "id": "DC025",
+        "dim": "DC05",
+        "dim_label": "Gestión Riesgo",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Una oportunidad implica alto riesgo y alto beneficio. ¿Cómo decides?",
+        "scenario": "Situación: Aparece una oportunidad de negocio con gran potencial pero con incertidumbre considerable.",
+        "options": [
+          "Analizo el riesgo exhaustivamente",
+          "La aprovecho si creo en ella",
+          "La comparto con socios para repartir riesgo",
+          "La evalúo según mi tolerancia actual al riesgo"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC035",
+        "dim": "DC05",
+        "dim_label": "Gestión Riesgo",
+        "phase": "Fase 4",
+        "phase_name": "Evaluación de Riesgos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Soy capaz de tomar decisiones de alto riesgo con confianza.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC06": [
+      {
+        "id": "DC006",
+        "dim": "DC06",
+        "dim_label": "P. Estratégico",
+        "phase": "Fase 5",
+        "phase_name": "Priorización",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cuando planificas una decisión importante:",
+        "scenario": null,
+        "options": [
+          "Pienso en el impacto a largo plazo",
+          "Me enfoco en resolver el corto plazo",
+          "Busco equilibrar corto y largo plazo",
+          "Me adapto según cómo evolucione la situación"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC016",
+        "dim": "DC06",
+        "dim_label": "P. Estratégico",
+        "phase": "Fase 5",
+        "phase_name": "Priorización",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Pienso en las consecuencias futuras de mis decisiones.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC026",
+        "dim": "DC06",
+        "dim_label": "P. Estratégico",
+        "phase": "Fase 5",
+        "phase_name": "Priorización",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Debes elegir entre estabilidad e innovación. ¿Cómo decides?",
+        "scenario": "Situación: Tienes que elegir entre consolidar lo que ya funciona o apostar por un cambio transformador.",
+        "options": [
+          "Analizo qué opción maximiza el valor a largo plazo",
+          "Sigo mi visión sobre el futuro",
+          "Consulto con stakeholders clave",
+          "Pruebo el cambio a pequeña escala primero"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC036",
+        "dim": "DC06",
+        "dim_label": "P. Estratégico",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Mis decisiones están alineadas con la visión a largo plazo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC07": [
+      {
+        "id": "DC007",
+        "dim": "DC07",
+        "dim_label": "Colaboración Dec.",
+        "phase": "Fase 5",
+        "phase_name": "Priorización",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Las decisiones importantes en tu trabajo:",
+        "scenario": null,
+        "options": [
+          "Prefiero tomarlas de forma individual",
+          "Las tomo de forma colaborativa con el equipo",
+          "Dependen del contexto y la urgencia",
+          "Deben tomarse rápido aunque sea sin consenso"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC017",
+        "dim": "DC07",
+        "dim_label": "Colaboración Dec.",
+        "phase": "Fase 5",
+        "phase_name": "Priorización",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Prefiero tomar decisiones con participación del equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC027",
+        "dim": "DC07",
+        "dim_label": "Colaboración Dec.",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu equipo está dividido en dos posiciones opuestas. ¿Cómo procedes?",
+        "scenario": "Situación: La mitad del equipo apoya la opción A y la otra mitad la opción B, ambas con argumentos sólidos.",
+        "options": [
+          "Analizo los datos de cada posición",
+          "Tomo la decisión según mi criterio",
+          "Facilito un proceso de consenso",
+          "Decido la que permita actuar más rápido"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC037",
+        "dim": "DC07",
+        "dim_label": "Colaboración Dec.",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Busco el consenso antes de comprometer al equipo.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC08": [
+      {
+        "id": "DC008",
+        "dim": "DC08",
+        "dim_label": "Innovación",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Ante una oportunidad innovadora con incertidumbre:",
+        "scenario": null,
+        "options": [
+          "La analizo en profundidad antes de actuar",
+          "La pruebo directamente con un piloto",
+          "Consulto expertos y referencias del sector",
+          "Espero ver cómo evoluciona antes de decidir"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC018",
+        "dim": "DC08",
+        "dim_label": "Innovación",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Me gusta probar enfoques nuevos al decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC028",
+        "dim": "DC08",
+        "dim_label": "Innovación",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tu empresa considera adoptar una metodología disruptiva:",
+        "scenario": null,
+        "options": [
+          "Analizo casos de éxito y fracaso",
+          "La propongo como piloto inmediato",
+          "Busco el consenso del equipo directivo",
+          "Espero a que se consolide en el mercado"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC038",
+        "dim": "DC08",
+        "dim_label": "Innovación",
+        "phase": "Fase 6",
+        "phase_name": "Liderazgo Decisional",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "La innovación es clave en mis decisiones estratégicas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC09": [
+      {
+        "id": "DC009",
+        "dim": "DC09",
+        "dim_label": "Adaptabilidad",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Si una decisión tuya resulta fallida:",
+        "scenario": null,
+        "options": [
+          "Aprendo del error y me adapto",
+          "Cambio de enfoque inmediatamente",
+          "Analizo qué falló para no repetirlo",
+          "Continúo con el plan ajustando sobre la marcha"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC019",
+        "dim": "DC09",
+        "dim_label": "Adaptabilidad",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Cambio fácilmente de decisión cuando aparecen nuevos datos.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC029",
+        "dim": "DC09",
+        "dim_label": "Adaptabilidad",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "El contexto cambia drásticamente justo antes de ejecutar tu plan:",
+        "scenario": "Situación: Tenías todo listo para ejecutar cuando llega información que cambia las prioridades completamente.",
+        "options": [
+          "Replanifico todo desde cero",
+          "Adapto el plan sobre la marcha",
+          "Consulto con el equipo el nuevo contexto",
+          "Ejecuto el plan original y ajusto luego"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC039",
+        "dim": "DC09",
+        "dim_label": "Adaptabilidad",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Me siento cómodo revisando decisiones ya tomadas.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "DC10": [
+      {
+        "id": "DC010",
+        "dim": "DC10",
+        "dim_label": "Confianza Dec.",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "abcd",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Normalmente, al tomar decisiones importantes:",
+        "scenario": null,
+        "options": [
+          "Confío mucho en mi propio criterio",
+          "Necesito validación de otros antes de decidir",
+          "Consulto a expertos para reforzar mi posición",
+          "Evalúo los riesgos antes de comprometerme"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC020",
+        "dim": "DC10",
+        "dim_label": "Confianza Dec.",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Confío en mi criterio profesional al decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": "DC043"
+      },
+      {
+        "id": "DC030",
+        "dim": "DC10",
+        "dim_label": "Confianza Dec.",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "abcd",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Lanzas un producto con información incompleta del mercado:",
+        "scenario": "Situación: El tiempo de lanzamiento es crítico pero los datos del mercado aún no son definitivos.",
+        "options": [
+          "Analizo los datos disponibles al máximo",
+          "Confío en mi experiencia del sector",
+          "Busco la validación del equipo comercial",
+          "Lanzo un MVP para obtener datos reales rápido"
+        ],
+        "is_reverse": false,
+        "mirror_of": null
+      },
+      {
+        "id": "DC040",
+        "dim": "DC10",
+        "dim_label": "Confianza Dec.",
+        "phase": "Fase 7",
+        "phase_name": "Escenarios Complejos",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Defiendo mis decisiones ante la presión del entorno.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "mirror_of": null
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "DC041",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Tomo decisiones sin analizar demasiado.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "mirror_of": "DC011",
+        "is_mirror_item": true
+      },
+      {
+        "id": "DC042",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Normalmente ignoro los riesgos potenciales.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "mirror_of": "DC015",
+        "is_mirror_item": true
+      },
+      {
+        "id": "DC043",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Dudo frecuentemente de mis decisiones.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": true,
+        "mirror_of": "DC020",
+        "is_mirror_item": true
+      },
+      {
+        "id": "ATT001",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "essential",
+          "advanced",
+          "premium"
+        ],
+        "text": "Para verificar la atención: selecciona la opción 2 (Poco parecido).",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_attention_check": true,
+        "expected": 2,
+        "mirror_of": null
+      },
+      {
+        "id": "ATT002",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Marca la respuesta número 4.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_attention_check": true,
+        "expected": 4,
+        "mirror_of": null
+      },
+      {
+        "id": "AF001",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Siempre tomo la mejor decisión posible.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      },
+      {
+        "id": "AF002",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "advanced",
+          "premium"
+        ],
+        "text": "Nunca me he equivocado tomando decisiones importantes.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      },
+      {
+        "id": "AF003",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Jamás he tenido dudas importantes al decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      },
+      {
+        "id": "AF004",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Siempre identifico todos los riesgos antes de decidir.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      },
+      {
+        "id": "AF005",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Nunca necesito ayuda para tomar decisiones.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      },
+      {
+        "id": "AF006",
+        "dim": "VALIDATION",
+        "dim_label": "Validación",
+        "phase": "Fase 8",
+        "phase_name": "Validación",
+        "type": "likert",
+        "versions": [
+          "premium"
+        ],
+        "text": "Todas mis decisiones generan buenos resultados.",
+        "scenario": null,
+        "options": null,
+        "is_reverse": false,
+        "is_anti_fake": true,
+        "mirror_of": null
+      }
+    ]
+  },
+  "modes": {
+    "essential": [
+      [
+        "DC01",
+        "DC001"
+      ],
+      [
+        "DC01",
+        "DC011"
+      ],
+      [
+        "DC02",
+        "DC002"
+      ],
+      [
+        "DC02",
+        "DC012"
+      ],
+      [
+        "DC04",
+        "DC004"
+      ],
+      [
+        "DC04",
+        "DC014"
+      ],
+      [
+        "DC03",
+        "DC003"
+      ],
+      [
+        "DC03",
+        "DC013"
+      ],
+      [
+        "DC05",
+        "DC005"
+      ],
+      [
+        "DC05",
+        "DC015"
+      ],
+      [
+        "DC06",
+        "DC006"
+      ],
+      [
+        "DC06",
+        "DC016"
+      ],
+      [
+        "DC07",
+        "DC007"
+      ],
+      [
+        "DC07",
+        "DC017"
+      ],
+      [
+        "DC08",
+        "DC008"
+      ],
+      [
+        "DC08",
+        "DC018"
+      ],
+      [
+        "DC09",
+        "DC009"
+      ],
+      [
+        "DC09",
+        "DC019"
+      ],
+      [
+        "DC10",
+        "DC010"
+      ],
+      [
+        "DC10",
+        "DC020"
+      ]
+    ],
+    "advanced": [
+      [
+        "DC01",
+        "DC001"
+      ],
+      [
+        "DC01",
+        "DC011"
+      ],
+      [
+        "DC02",
+        "DC002"
+      ],
+      [
+        "DC02",
+        "DC012"
+      ],
+      [
+        "DC04",
+        "DC004"
+      ],
+      [
+        "DC04",
+        "DC014"
+      ],
+      [
+        "DC01",
+        "DC021"
+      ],
+      [
+        "DC01",
+        "DC031"
+      ],
+      [
+        "DC03",
+        "DC003"
+      ],
+      [
+        "DC03",
+        "DC013"
+      ],
+      [
+        "DC03",
+        "DC023"
+      ],
+      [
+        "DC02",
+        "DC022"
+      ],
+      [
+        "DC04",
+        "DC024"
+      ],
+      [
+        "DC05",
+        "DC005"
+      ],
+      [
+        "DC05",
+        "DC015"
+      ],
+      [
+        "DC05",
+        "DC025"
+      ],
+      [
+        "DC06",
+        "DC006"
+      ],
+      [
+        "DC06",
+        "DC016"
+      ],
+      [
+        "DC06",
+        "DC026"
+      ],
+      [
+        "DC07",
+        "DC007"
+      ],
+      [
+        "DC07",
+        "DC017"
+      ],
+      [
+        "DC07",
+        "DC027"
+      ],
+      [
+        "DC08",
+        "DC008"
+      ],
+      [
+        "DC08",
+        "DC018"
+      ],
+      [
+        "DC08",
+        "DC028"
+      ],
+      [
+        "DC09",
+        "DC009"
+      ],
+      [
+        "DC09",
+        "DC019"
+      ],
+      [
+        "DC09",
+        "DC029"
+      ],
+      [
+        "DC10",
+        "DC030"
+      ],
+      [
+        "DC10",
+        "DC010"
+      ],
+      [
+        "DC10",
+        "DC020"
+      ],
+      [
+        "VALIDATION",
+        "AF001"
+      ],
+      [
+        "VALIDATION",
+        "AF002"
+      ],
+      [
+        "VALIDATION",
+        "ATT001"
+      ],
+      [
+        "VALIDATION",
+        "ATT002"
+      ],
+      [
+        "VALIDATION",
+        "DC041"
+      ],
+      [
+        "VALIDATION",
+        "DC042"
+      ]
+    ],
+    "premium": [
+      [
+        "DC01",
+        "DC001"
+      ],
+      [
+        "DC01",
+        "DC011"
+      ],
+      [
+        "DC02",
+        "DC002"
+      ],
+      [
+        "DC02",
+        "DC012"
+      ],
+      [
+        "DC04",
+        "DC004"
+      ],
+      [
+        "DC04",
+        "DC014"
+      ],
+      [
+        "DC01",
+        "DC021"
+      ],
+      [
+        "DC01",
+        "DC031"
+      ],
+      [
+        "DC03",
+        "DC003"
+      ],
+      [
+        "DC03",
+        "DC013"
+      ],
+      [
+        "DC03",
+        "DC023"
+      ],
+      [
+        "DC03",
+        "DC033"
+      ],
+      [
+        "DC02",
+        "DC022"
+      ],
+      [
+        "DC02",
+        "DC032"
+      ],
+      [
+        "DC04",
+        "DC024"
+      ],
+      [
+        "DC04",
+        "DC034"
+      ],
+      [
+        "DC05",
+        "DC005"
+      ],
+      [
+        "DC05",
+        "DC015"
+      ],
+      [
+        "DC05",
+        "DC025"
+      ],
+      [
+        "DC05",
+        "DC035"
+      ],
+      [
+        "DC06",
+        "DC006"
+      ],
+      [
+        "DC06",
+        "DC016"
+      ],
+      [
+        "DC06",
+        "DC026"
+      ],
+      [
+        "DC07",
+        "DC007"
+      ],
+      [
+        "DC07",
+        "DC017"
+      ],
+      [
+        "DC06",
+        "DC036"
+      ],
+      [
+        "DC07",
+        "DC027"
+      ],
+      [
+        "DC07",
+        "DC037"
+      ],
+      [
+        "DC08",
+        "DC008"
+      ],
+      [
+        "DC08",
+        "DC018"
+      ],
+      [
+        "DC08",
+        "DC028"
+      ],
+      [
+        "DC08",
+        "DC038"
+      ],
+      [
+        "DC09",
+        "DC009"
+      ],
+      [
+        "DC09",
+        "DC019"
+      ],
+      [
+        "DC09",
+        "DC029"
+      ],
+      [
+        "DC09",
+        "DC039"
+      ],
+      [
+        "DC10",
+        "DC030"
+      ],
+      [
+        "DC10",
+        "DC040"
+      ],
+      [
+        "DC10",
+        "DC010"
+      ],
+      [
+        "DC10",
+        "DC020"
+      ],
+      [
+        "VALIDATION",
+        "AF001"
+      ],
+      [
+        "VALIDATION",
+        "AF002"
+      ],
+      [
+        "VALIDATION",
+        "AF003"
+      ],
+      [
+        "VALIDATION",
+        "AF004"
+      ],
+      [
+        "VALIDATION",
+        "AF005"
+      ],
+      [
+        "VALIDATION",
+        "AF006"
+      ],
+      [
+        "VALIDATION",
+        "ATT001"
+      ],
+      [
+        "VALIDATION",
+        "ATT002"
+      ],
+      [
+        "VALIDATION",
+        "DC041"
+      ],
+      [
+        "VALIDATION",
+        "DC042"
+      ],
+      [
+        "VALIDATION",
+        "DC043"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+<style>
+  [data-letter-editor] input:not([type="checkbox"]):not([type="hidden"]),
+  [data-letter-editor] textarea, [data-letter-editor] select { width:100%; max-width:100%; }
+  [data-letter-editor] :focus-visible { outline:3px solid #2563eb; outline-offset:3px; }
+  pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+</style>
+<script>
+(() => {
+  const form = document.querySelector('[data-letter-editor]');
+  if (!form) return;
+  let dirty = form.dataset.unsaved === 'true';
+  form.addEventListener('input', () => { dirty = true; });
+  form.addEventListener('submit', () => {
+    dirty = false;
+    form.setAttribute('aria-busy', 'true');
+    const status = form.querySelector('[data-submit-status]');
+    if (status) status.textContent = 'Procesando solicitud…';
+    const button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+  });
+  window.addEventListener('beforeunload', event => {
+    if (dirty) { event.preventDefault(); event.returnValue = ''; }
+  });
+})();
+</script>

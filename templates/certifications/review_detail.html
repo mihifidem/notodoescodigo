@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Revisar credencial{% endblock %}
+{% block page_title %}Revisar credencial{% endblock %}
+{% block content %}
+<main class="container py-4">
+  <p><a href="{% url 'certifications:review_queue' %}">← Cola de revisión</a></p>
+  <h1 class="h2">{{ review.credential.name }}</h1>
+  <p>{{ review.credential.issuer_name }} · versión v{{ review.version }} · solicitante {{ review.credential.user.get_username }}</p>
+  <div class="alert alert-warning">Una revisión de archivo no es una confirmación del emisor. Registra el método realmente utilizado y el alcance comprobado.</div>
+  <section class="card mb-4"><div class="card-body">
+    <h2 class="h5">Datos de esta versión</h2>
+    <dl class="row">
+      <dt class="col-sm-3">Tipo</dt><dd class="col-sm-9">{{ review.credential.get_credential_type_display }}</dd>
+      <dt class="col-sm-3">Área</dt><dd class="col-sm-9">{{ review.credential.area|default:'No informada' }}</dd>
+      <dt class="col-sm-3">Identificador</dt><dd class="col-sm-9">{{ review.credential.external_id|default:'No informado' }}</dd>
+      <dt class="col-sm-3">Fechas</dt><dd class="col-sm-9">{{ review.credential.awarded_on|date:'d M Y'|default:'No informada' }} · caducidad {{ review.credential.expires_on|date:'d M Y'|default:'no informada' }}</dd>
+      <dt class="col-sm-3">URL aportada</dt><dd class="col-sm-9">{% if review.credential.verification_url %}<a href="{{ review.credential.verification_url }}" target="_blank" rel="noopener noreferrer">{{ review.credential.verification_url }}</a>{% else %}No informada{% endif %}</dd>
+    </dl>
+    <h3 class="h6">Evidencias de v{{ review.version }}</h3>
+    <ul>{% for evidence in evidences %}<li>{{ evidence.original_name }} · {{ evidence.get_evidence_type_display }} · <a href="{% url 'certifications:evidence_download' evidence.pk %}">Descargar de forma privada</a></li>{% empty %}<li>No hay archivo adjunto; revisa el enlace aportado y registra el alcance real.</li>{% endfor %}</ul>
+  </div></section>
+  <section class="card mb-4"><div class="card-body">
+    <h2 class="h5">Registrar decisión</h2>
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <form method="post">{% csrf_token %}
+      {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>{% endfor %}
+      <button class="btn btn-primary" type="submit">Guardar decisión</button>
+    </form>
+  </div></section>
+  <section class="card border-warning"><div class="card-body">
+    <h2 class="h5">Registrar revocación confirmada</h2>
+    <p class="small text-muted">Solo cuando exista confirmación del emisor. Esto es independiente de caducidad y revisión.</p>
+    <form method="post" action="{% url 'certifications:credential_revoke' review.credential.pk %}">{% csrf_token %}
+      {% for field in revocation_form %}<div class="mb-2"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+      <button class="btn btn-outline-danger" type="submit">Registrar revocación</button>
+    </form>
+  </div></section>
+</main>
+{% endblock %}

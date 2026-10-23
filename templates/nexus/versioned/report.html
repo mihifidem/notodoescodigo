@@ -1,0 +1,63 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<header class="nexus-page-heading">
+<p class="nexus-eyebrow">Tu mapa de resultados</p>
+<h2>{{ session.frozen_definition.title }}</h2>
+<p>{{ session.frozen_definition.family }} · {{ session.frozen_definition.mode }} · v{{ session.frozen_definition.version }} · {{ session.completed_at|date:"d/m/Y H:i" }}</p>
+</header>
+<div class="nexus-report-intro">
+<p>Alcance obtenido: {{ session.report_scope }}. {{ result.notice }}</p>
+<p>Método reproducible: {{ result.method }}. Valores en escala 0–100, sin percentiles, baremos ni etiquetas clínicas.</p>
+</div>
+{% if session.frozen_definition.original_family %}
+<section class="card nexus-summary">
+  <h3 class="h5">Resultado del cuestionario original</h3>
+  {% if result.overall_score != None %}<p>Índice global original: <strong>{{ result.overall_score }} / 100</strong></p>{% else %}<p>Índice global no calculable: faltan dimensiones evaluadas en esta modalidad. No se sustituyen por puntuaciones inventadas.</p>{% endif %}
+  {% for archetype in result.archetypes|slice:":2" %}<p>{% if forloop.first %}Arquetipo principal{% else %}Arquetipo secundario{% endif %}: <strong>{{ archetype.name }}</strong> · {{ archetype.score }} / 100 de afinidad orientativa.</p>{% empty %}<p>Sin datos suficientes para asignar un arquetipo.</p>{% endfor %}
+</section>
+{% if session.report_scope != 'basic' %}
+<h3>Índices derivados originales</h3>
+<dl class="nexus-metrics">{% for name, score in result.competencies.items %}<div><dt>{{ name }}</dt><dd>{{ score }} / 100</dd></div>{% empty %}<div>Sin dimensiones suficientes para calcular índices derivados.</div>{% endfor %}</dl>
+<h3>Controles del cuestionario</h3>
+<p>Se muestran indicadores numéricos, no garantías de fiabilidad. «Sin datos» significa que faltan controles o tiempos. Los tiempos del navegador no son verificables.</p>
+<dl class="nexus-metrics">{% for name, score in result.validation.items %}<div><dt>{{ name }}</dt><dd>{% if score == None %}Sin datos{% else %}{{ score }}{% endif %}</dd></div>{% endfor %}</dl>
+{% endif %}
+{% endif %}
+<div class="nexus-section-heading"><div><p class="nexus-eyebrow">Una perspectiva por dimensión</p><h3>Tus dimensiones</h3></div><span class="nexus-tag">Escala 0–100</span></div>
+<div class="nexus-dimensions-grid">
+{% for dimension in result.dimensions %}
+<section class="card nexus-dimension">
+  <h3 class="h5">{{ dimension.label }}: {{ dimension.score }} / 100</h3>
+  <p>Cálculo: {{ dimension.answered }} de {{ dimension.total }} preguntas respondidas.</p>
+  <p>Explicación editorial aprobada: {{ dimension.brief }}</p>
+  {% if session.report_scope != 'basic' %}
+  <p>{{ dimension.explanation|linebreaksbr }}</p><p>{{ dimension.recommendation|linebreaksbr }}</p>
+  {% endif %}
+  {% if session.report_scope == 'extended' %}
+  <p>Plan estándar configurado (no IA): {{ dimension.steps|linebreaksbr }}</p>
+  {% endif %}
+  {% if is_pro %}
+  <form method="post" action="{% url 'nexus:versioned_goal' session.pk %}">{% csrf_token %}
+    <input type="hidden" name="dimension" value="{{ dimension.code }}">
+    <label for="date-{{ forloop.counter }}">Fecha objetivo (opcional)</label>
+    <input id="date-{{ forloop.counter }}" type="date" name="target_date">
+    <button class="btn btn-outline-primary" type="submit">Crear objetivo manual con estos pasos</button>
+  </form>
+  {% endif %}
+</section>
+{% endfor %}
+ </div>
+<section class="card">
+<h3>Limitaciones</h3><p>{{ result.limitations|linebreaksbr }}</p>
+<p>Evidencia declarada: {{ result.validation_evidence|default:"No aportada. No se afirma validación científica." }}</p>
+{% if session.report_scope != 'basic' %}<a class="btn btn-primary" href="?download=pdf">Descargar mi informe PDF</a>{% endif %}
+</section>
+<section class="card nexus-report-footer">
+<h3 class="mt-4">IA</h3>
+<p role="status">{{ ai_message }}</p>
+<button class="btn btn-secondary" disabled aria-describedby="ai-status">Interpretación / plan con IA no disponibles</button>
+<p id="ai-status">Energía necesaria: pendiente de configuración, no cero. Cálculo e informe estándar: sin consumo. No se ha generado texto IA.</p>
+<h3>Compartición</h3><p>Privado. Compartición autorizada para docentes o candidaturas todavía no integrada; no se generan enlaces públicos.</p>
+<a class="nexus-delete-link" href="{% url 'nexus:versioned_delete' session.pk %}">Borrar este intento y su informe</a>
+</section>
+{% endblock %}

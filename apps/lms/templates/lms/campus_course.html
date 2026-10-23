@@ -1,0 +1,53 @@
+{% extends 'lms/base.html' %}
+{% load i18n %}
+{% block title %}{{ campus_course.nombre }} | Campus{% endblock %}
+{% block content %}
+<section class="content-panel">
+  <a href="{% url 'lms:campus' %}">{% trans "Mis cursos" %}</a>
+  <h1>{{ campus_course.nombre }}</h1>
+  <p>{{ campus_course.resumen }}</p>
+  {% if membership %}
+    <p>{% trans "Matrícula" %}: {{ membership.get_status_display }}</p>
+    {% if membership.learning_contract %}<p>{% trans "Versión educativa" %}: {{ membership.learning_contract.version }}</p>{% endif %}
+  {% endif %}
+  {% if not allowed %}<p role="status">{{ access_reason }}</p>{% endif %}
+  {% if can_enroll %}
+    <form method="post">{% csrf_token %}<button name="action" value="enroll" class="button button-primary">{% trans "Inscribirme" %}</button></form>
+  {% endif %}
+  {% if status %}
+    <h2>{% trans "Mi aprendizaje" %}</h2>
+    <p>{{ status.completed }}/{{ status.total }} {% trans "requisitos cumplidos" %} · {{ status.percent }}%</p>
+    <progress value="{{ status.percent }}" max="100">{{ status.percent }}%</progress>
+    <p>{% trans "Contenido finalizado" %}: {{ membership.content_completed_at|yesno:"Sí,No" }} · {% trans "Curso superado" %}: {{ membership.passed_at|yesno:"Sí,No" }}</p>
+    <h3>{% trans "Requisitos de mi versión" %}</h3>
+    <ul>{% for item in status.requirements %}<li>{{ item.title }} · {{ item.complete|yesno:"Cumplido,Pendiente" }} · {% if item.source == 'declared' %}{% trans "Declarado por el alumno" %}{% else %}{% trans "Evidencia registrada por el sistema" %}{% endif %}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if allowed %}
+    {% if resume %}<a class="button button-primary" href="{{ resume.url }}">{% trans "Continuar" %}: {{ resume.title }}</a>{% endif %}
+    <h2>{% trans "Lecciones y actividades" %}</h2>
+    <ul>
+    {% for lesson in lessons %}
+      <li>
+        {{ lesson.module }} · {% if lesson.url %}<a href="{{ lesson.url }}">{{ lesson.title }}</a>{% else %}{{ lesson.title }}{% endif %}
+        · {{ lesson.criterion }} {% if lesson.complete %}· {% trans "Completado" %}{% endif %}
+        {% if lesson.required %}· {% trans "Obligatorio" %}{% endif %}
+        {% if lesson.reason %}<p role="status">{{ lesson.reason }}</p>{% endif %}
+        {% if lesson.manual and lesson.opened and not lesson.complete and lesson.url %}
+          <form method="post" action="{% url 'lms:module_content_complete' course_id=campus_course.pk content_id=lesson.id %}">
+            {% csrf_token %}<button class="button button-secondary">{% trans "Marcar como completado (declarado)" %}</button>
+          </form>
+        {% endif %}
+      </li>
+    {% empty %}<li>{% trans "No hay materiales disponibles para esta versión." %}</li>{% endfor %}
+    </ul>
+  {% endif %}
+  <h2>{% trans "Certificado propio" %}</h2>
+  {% if certificate %}
+    <a href="{% url 'certifications:list' %}">{% trans "Consultar certificado en Mis certificaciones" %}</a>
+    {% if certificate.is_valid %}<a href="{% url 'certifications:lms_download' pk=certificate.pk %}">{% trans "Descargar PDF privado" %}</a>{% endif %}
+  {% elif certificate_included and membership.passed_at %}
+    <form method="post">{% csrf_token %}<button name="action" value="certificate" class="button button-primary">{% trans "Obtener mi certificado" %}</button></form>
+  {% elif certificate_included %}<p>{% trans "Incluido: pendiente de superar los requisitos." %}</p>
+  {% else %}<p>{% trans "No consta un certificado incluido en esta matrícula." %}</p>{% endif %}
+</section>
+{% endblock %}

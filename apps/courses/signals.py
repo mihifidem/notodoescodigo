@@ -36,8 +36,7 @@ def on_progreso_guardado(sender, instance, created, **kwargs):
     )
 
     # Gamification checks
-    from apps.gamification.utils import verificar_insignias, verificar_insignia_tema, verificar_misiones
-    verificar_insignias(usuario)
+    from apps.gamification.utils import verificar_insignia_tema, verificar_misiones
     verificar_insignia_tema(usuario, tema)
     verificar_misiones(usuario, 'completar_temas')
 
@@ -98,6 +97,7 @@ def on_quiz_completado(sender, instance, created, **kwargs):
         puntos_ganados=instance.quiz.puntos_bonus,
     )
 
-    from apps.gamification.utils import verificar_misiones, verificar_insignias
+    from apps.gamification.badge_services import award_verified_quiz
+    from apps.gamification.utils import verificar_misiones
     verificar_misiones(usuario, 'quiz_aprobado')
-    verificar_insignias(usuario)
+    award_verified_quiz(usuario, instance)

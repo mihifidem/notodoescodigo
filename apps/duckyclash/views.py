@@ -16,6 +16,7 @@ from django.views.generic import TemplateView
 from django.templatetags.static import static
 
 from apps.ducky_arenas.battle_challenges import visible_challenges
+from apps.users.access import is_platform_admin
 
 from .models import Challenge, ChallengeAgreement, Duel, DuelResolution, EconomicOperation
 from .policies import can_view_challenge, require_participant, is_clash_staff
@@ -23,7 +24,7 @@ from .bank import BankUnavailable
 from .forms import (
     CounterOfferForm, OfferActionForm, OpenChallengeFilterForm, OpenChallengeForm,
     PlayerSearchForm, PrivateChallengeForm,
-    SubcategoryCreateForm, LandscapeCreateForm, ChallengeEditForm,
+    SubcategoryCreateForm, CategoryCreateForm, LandscapeCreateForm, ChallengeEditForm,
 )
 from .selectors import open_challenges, private_challenges, search_players
 from .services import accept_offer, counter_offer, create_challenge, decline_offer, edit_challenge, delete_challenge
@@ -371,9 +372,11 @@ class PrivateChallengeCreateView(DuckyClashAccessMixin, TemplateView):
         context.setdefault('form', self.form_class(
             actor=self.request.user, initial={'opponent': self.request.GET.get('opponent', '')},
         ))
-        context['can_add_subcategory'] = self.request.user.has_perm('duckyclash.add_challengesubcategory')
+        context['can_add_category'] = is_platform_admin(self.request.user)
+        context['can_add_subcategory'] = is_platform_admin(self.request.user) or self.request.user.has_perm('duckyclash.add_challengesubcategory')
         context['can_add_landscape'] = self.request.user.has_perm('duckyclash.add_landscape')
         context.setdefault('subcategory_form', SubcategoryCreateForm(prefix='new_subcategory'))
+        context.setdefault('category_form', CategoryCreateForm(prefix='new_category'))
         context.setdefault('landscape_form', LandscapeCreateForm(prefix='new_landscape'))
         return context
 
@@ -410,16 +413,19 @@ class PrivateChallengeCreateView(DuckyClashAccessMixin, TemplateView):
 
     def add_catalog_entry(self, request):
         action = request.POST['catalog_action']
-        if action not in {'subcategory', 'landscape'}:
+        if action not in {'category', 'subcategory', 'landscape'}:
             raise SuspiciousOperation('Acción de catálogo no válida.')
         permission = 'add_challengesubcategory' if action == 'subcategory' else 'add_landscape'
-        if not request.user.has_perm(f'duckyclash.{permission}'):
-            raise PermissionDenied
-        catalog_form = (
-            SubcategoryCreateForm(request.POST, prefix='new_subcategory')
-            if action == 'subcategory' else
-            LandscapeCreateForm(request.POST, request.FILES, prefix='new_landscape')
+        allowed = is_platform_admin(request.user) if action == 'category' else (
+            request.user.has_perm(f'duckyclash.{permission}')
+            or (action == 'subcategory' and is_platform_admin(request.user))
         )
+        if not allowed:
+            raise PermissionDenied
+        form_classes = {'category': CategoryCreateForm, 'subcategory': SubcategoryCreateForm,
+                        'landscape': LandscapeCreateForm}
+        form_class = form_classes[action]
+        catalog_form = form_class(request.POST, request.FILES, prefix=f'new_{action}')
         data = request.POST.copy()
         status = 400
         if catalog_form.is_valid():
@@ -439,12 +445,18 @@ class PrivateChallengeCreateView(DuckyClashAccessMixin, TemplateView):
                     **{f'{action}_form': catalog_form},
                 ), status=409)
             data[action] = str(entry.pk)
+            if action == 'category':
+                data['sector'] = str(entry.sector_id)
+                data['subcategory'] = ''
             if action == 'subcategory':
                 data['category'] = str(entry.category_id)
-            messages.success(request, 'Subcategoría añadida y seleccionada.' if action == 'subcategory'
-                             else 'Paisaje guardado y seleccionado.')
-            catalog_form = (SubcategoryCreateForm(prefix='new_subcategory') if action == 'subcategory'
-                            else LandscapeCreateForm(prefix='new_landscape'))
+                data['sector'] = str(entry.category.sector_id or '')
+            messages.success(request, {
+                'category': 'Categoría añadida y seleccionada.',
+                'subcategory': 'Subcategoría añadida y seleccionada.',
+                'landscape': 'Paisaje guardado y seleccionado.',
+            }[action])
+            catalog_form = form_class(prefix=f'new_{action}')
             status = 200
         context = self.get_context_data(
             form=self.form_class(data, actor=request.user),

@@ -1,6 +1,4 @@
-import re
 from pathlib import Path
-from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
@@ -8,6 +6,7 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView,
 )
 from django.urls import reverse_lazy, reverse
+from apps.users.access import can
 
 
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -609,15 +608,8 @@ def _dev_autofill_script():
 # ⚠️ DEV ONLY END ⚠️
 
 
-def _version_lock_script(role):
-    """Return a <script> block that locks version cards the user can't access.
-
-    alumno can access the premium variant, but the paid report still requires checkout.
-    basic and unknown roles keep premium locked.
-    premium → no script injected (caller skips this function).
-    """
-    if role in {'premium', 'alumno'}:
-        return ''
+def _version_lock_script():
+    """Lock the premium card when the account has no eligible plan."""
     return """
 <script>
 (function () {
@@ -632,7 +624,7 @@ def _version_lock_script(role):
       badge.id = 'prem-lock-badge';
       badge.style.cssText = 'position:absolute;top:12px;right:12px;font-size:10px;'
         + 'background:#F59E0B;color:#fff;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;';
-      badge.textContent = '\\uD83D\\uDD12 Solo Premium';
+      badge.textContent = '\\uD83D\\uDD12 Solo PLUS / PRO';
       prem.style.position = 'relative';
       prem.appendChild(badge);
     }
@@ -648,17 +640,12 @@ def _version_lock_script(role):
 </script>"""
 
 
-def _auto_select_test_version_script(test):
-    """No fuerza la variante del test; el usuario elige Essential/Advanced/Premium."""
-    return ""
-
-
 def _usuario_puede_acceder(user, test):
-    """True si user tiene nivel suficiente para realizar el test.
+    """True si user tiene nivel suficiente para realizar test.
 
     essential  → cualquiera (incluso anónimo vía demo)
     advanced   → cualquier usuario autenticado
-    premium    → cualquier usuario autenticado puede elegirlo; se paga 49 EUR al generar el informe
+    premium    → plan PLUS o PRO vigente
     """
     nivel = test.nivel_acceso
     if nivel == 'essential':
@@ -666,7 +653,7 @@ def _usuario_puede_acceder(user, test):
     if nivel == 'advanced':
         return user.is_authenticated
     if nivel == 'premium':
-        return user.is_authenticated
+        return can(user, 'view_plan_content', required_plan='plus').allowed
     return True
 
 from django.utils import timezone
@@ -758,61 +745,21 @@ def _build_dna_snapshot(resultados: dict) -> SimpleNamespace:
     )
 
 
-def _prompt_file_candidates(tipo: str = None):
-    """Devuelve la lista de archivos de prompt válidos para cada tipo de test."""
-    mapping = {
-        InformeTest.TIPO_BASE: ['nexus_essential.txt', 'nexus_esencial.txt', 'nexus_esssential.txt'],
-        InformeTest.TIPO_AI_PERSONAL: ['nexus_advanced.txt', 'nexus_avanced.txt'],
-        InformeTest.TIPO_AI_COMPLETO: ['nexus_premium.txt', 'nexus_premiium.txt'],
-        'essential': ['nexus_essential.txt', 'nexus_esencial.txt', 'nexus_esssential.txt'],
-        'advanced': ['nexus_advanced.txt', 'nexus_avanced.txt'],
-        'premium': ['nexus_premium.txt', 'nexus_premiium.txt'],
-    }
-    return mapping.get(tipo, [])
+def _load_prompt_variant_for_ai_coach():
+    """Carga la versión profesional técnica guardada en el archivo de prompts."""
+    prompt_path = Path(__file__).resolve().parents[2] / 'nexus_prompts_ia_coach.txt'
+    if not prompt_path.exists():
+        return 'PROMPT 2 - TÉCNICO / PROFESIONAL'
 
+    try:
+        content = prompt_path.read_text(encoding='utf-8')
+    except OSError:
+        return 'PROMPT 2 - TÉCNICO / PROFESIONAL'
 
-def _read_prompt_for_type(tipo: str = None):
-    """Lee el prompt del tipo de test y devuelve el contenido o None si está vacío o no existe.
-
-    La carpeta media/nexus/prompts tiene prioridad: si el archivo principal del tipo existe pero está vacío,
-    la generación del informe se bloquea en lugar de caer en una copia alternativa o legacy.
-    """
-    prompt_dirs = [
-        Path(settings.MEDIA_ROOT) / 'nexus' / 'prompts',
-        Path(settings.MEDIA_ROOT) / 'prompts',
-    ]
-    seen = set()
-    for prompt_dir in prompt_dirs:
-        for candidate in _prompt_file_candidates(tipo):
-            prompt_path = prompt_dir / candidate
-            key = str(prompt_path)
-            if key in seen:
-                continue
-            seen.add(key)
-            if not prompt_path.exists():
-                continue
-            try:
-                content = prompt_path.read_text(encoding='utf-8')
-            except OSError:
-                continue
-            cleaned = content.strip()
-            if cleaned:
-                return cleaned
-            if prompt_dir == Path(settings.MEDIA_ROOT) / 'nexus' / 'prompts':
-                return None
-    return None
-
-
-def _load_prompt_variant_for_ai_coach(tipo: str = None):
-    """Carga la variante del prompt según el tipo de informe solicitado."""
-    content = _read_prompt_for_type(tipo)
-    if not content:
-        return 'PROMPT NO DISPONIBLE'
-
-    lines = [line.strip() for line in content.splitlines() if line.strip()]
-    if not lines:
-        return 'PROMPT NO DISPONIBLE'
-    return lines[0]
+    marker = 'PROMPT 2 - TÉCNICO / PROFESIONAL'
+    if marker in content:
+        return marker
+    return 'PROMPT 2 - TÉCNICO / PROFESIONAL'
 
 
 def _rank_dimensiones(resultados: dict):
@@ -854,384 +801,146 @@ def _rank_dimensiones(resultados: dict):
     return []
 
 
-def _resolver_version_test(sesion: SesionTest) -> str:
-    """Devuelve la versión real del test, priorizando la sesión y luego el JSON guardado."""
-    for candidate in (
-        getattr(sesion, 'version_test', None),
-        (sesion.resultados_json or {}).get('version') if hasattr(sesion, 'resultados_json') else None,
-        getattr(sesion.test, 'nivel_acceso', None),
-    ):
-        if candidate:
-            return str(candidate).lower()
-    return str(getattr(sesion.test, 'nivel_acceso', TestPlantilla.NIVEL_ADVANCED) or TestPlantilla.NIVEL_ADVANCED).lower()
+def _generar_informe_ai_html(sesion: SesionTest, tipo: str = InformeTest.TIPO_AI_PERSONAL) -> str:
+    """Genera un informe HTML de análisis IA a partir de los resultados de la sesión.
 
-
-def _resolver_tipo_informe_por_sesion(sesion: SesionTest) -> str:
-    """Devuelve el tipo de informe según la variante real del test."""
-    nivel = _resolver_version_test(sesion)
-
-    tipo_por_nivel = {
-        TestPlantilla.NIVEL_ESSENTIAL: InformeTest.TIPO_BASE,
-        TestPlantilla.NIVEL_ADVANCED: InformeTest.TIPO_AI_PERSONAL,
-        TestPlantilla.NIVEL_PREMIUM: InformeTest.TIPO_AI_COMPLETO,
-    }
-    return tipo_por_nivel.get(nivel, InformeTest.TIPO_AI_PERSONAL)
-
-
-def _operational_error_html(message: str = 'No puedo crear informe por un error operativo') -> str:
-    """Devuelve un HTML estándar para los casos operativos en los que no se puede crear el informe."""
-    return f"""
-    <div style="max-width:720px; margin:24px auto; border:1px solid #FCA5A5; border-radius:16px; background:#FEF2F2; padding:24px; font-family: 'Inter', sans-serif; color:#7F1D1D;">
-      <h2 style="margin:0 0 12px; font-size:1.5rem;">{message}</h2>
-      <p style="margin:0; line-height:1.6;">No se pudo completar el informe porque el prompt del tipo de test solicitado está vacío, no existe o no se pudo leer.</p>
-    </div>
+    La complejidad del contenido varía según el tipo de informe seleccionado:
+    - Básico: resumen corto y claro.
+    - Advanced: nivel medio con más contexto.
+    - Premium: análisis profundo, estratégico y accionable.
     """
-
-
-def _score_to_level(score_value):
-    """Convierte una puntuación TechMind a nivel oficial."""
-    try:
-        score = float(score_value)
-    except (TypeError, ValueError):
-        return 'Muy Bajo'
-    if score >= 90:
-        return 'Excelente'
-    if score >= 75:
-        return 'Alto'
-    if score >= 60:
-        return 'Moderado'
-    if score >= 40:
-        return 'Bajo'
-    return 'Muy Bajo'
-
-
-def _has_real_prompt_structure(prompt_text: str) -> bool:
-    """Comprueba si el prompt es el documento completo del informe y no solo una línea de cabecera."""
-    if not prompt_text:
-        return False
-    upper = prompt_text.upper()
-    required_markers = [
-        'PORTADA EJECUTIVA',
-        'RESUMEN EJECUTIVO',
-        'ARQUETIPO PRINCIPAL',
-        'MAPA DE RESULTADOS',
-        'FORTALEZAS',
-        'ÁREAS DE DESARROLLO',
-        'RIESGOS Y FRENOS',
-        'ACCIONES PRIORITARIAS',
-        'PLAN DE DESARROLLO',
-        'CONCLUSIÓN FINAL',
-    ]
-    return any(marker in upper for marker in required_markers)
-
-
-def _render_prompt_template(prompt_text: str, values: dict) -> str:
-    """Rellena placeholders del prompt y devuelve una versión HTML con estructura de documento Premium."""
-    rendered = prompt_text
-    for key, value in values.items():
-        rendered = rendered.replace(f'{{{{{key}}}}}', str(value))
-
-    if not rendered.strip():
-        return '<p>Sin contenido disponible.</p>'
-
-    lines = rendered.splitlines()
-    html_parts = []
-    current_list = []
-    current_paragraph = []
-
-    def flush_paragraph():
-        nonlocal current_paragraph
-        if current_paragraph:
-            text = ' '.join(part.strip() for part in current_paragraph if part and part.strip())
-            if text:
-                html_parts.append(f'<p>{text}</p>')
-            current_paragraph = []
-
-    def flush_list():
-        nonlocal current_list
-        if current_list:
-            html_parts.append('<ul>' + ''.join(f'<li>{item}</li>' for item in current_list if item) + '</ul>')
-            current_list = []
-
-    for raw_line in lines:
-        line = raw_line.strip()
-        if not line:
-            flush_paragraph()
-            flush_list()
-            continue
-
-        if re.match(r'^\d+[\.)]', line):
-            flush_paragraph()
-            flush_list()
-            heading = re.sub(r'^\d+[\.)]\s*', '', line)
-            html_parts.append(f'<h3>{heading}</h3>')
-            continue
-
-        if re.match(r'^[-*]\s+', line):
-            flush_paragraph()
-            current_list.append(re.sub(r'^[-*]\s*', '', line))
-            continue
-
-        if re.match(r'^[A-ZÁÉÍÓÚÑ].*:$', line):
-            flush_paragraph()
-            flush_list()
-            html_parts.append(f'<h4>{line[:-1]}</h4>')
-            continue
-
-        current_paragraph.append(line)
-
-    flush_paragraph()
-    flush_list()
-
-    if not html_parts:
-        return f'<div>{rendered}</div>'
-    return '<div style="font-family: Arial, sans-serif; line-height:1.7; color:#1e293b;">' + ''.join(html_parts) + '</div>'
-
-
-def _build_structured_report_fallback(sesion: SesionTest, tipo: str, prompt_text: str, score: float, primary: str, secondary: str, leadership: float, technology: float, future: float) -> str:
-    """Genera un documento estructurado con las secciones clave del informe cuando el prompt no contiene el contenido real."""
-    score_value = int(float(score or 0))
-    leadership_value = int(float(leadership or 0))
-    technology_value = int(float(technology or 0))
-    future_value = int(float(future or 0))
-
-    summary = (
-        f'El score global de {score_value}/100 muestra un perfil con base funcional, potencial de desarrollo y margen claro de mejora. '
-        f'El arquetipo principal identificado es {primary} y el secundario {secondary}. '
-        f'La dimensión de liderazgo alcanza {leadership_value}/100 y la transformación digital {technology_value}/100, con una visión de futuro de {future_value}/100. '
-        'La clave está en convertir este potencial en ejecución disciplinada, foco estratégico y evidencia de progreso real.'
-    )
-
-    if tipo == InformeTest.TIPO_BASE:
-        title = 'Informe básico'
-    elif tipo == InformeTest.TIPO_AI_COMPLETO:
-        title = 'Informe premium'
-    else:
-        title = 'Informe advanced'
-
-    return f"""
-    <div style="font-family: Arial, sans-serif; line-height:1.7; color:#1e293b;">
-      <div style="background: linear-gradient(135deg, #0F172A 0%, #1D4ED8 45%, #0EA5E9 100%); color: white; border-radius: 18px; padding: 1.5rem; margin-bottom:1.2rem;">
-        <div style="font-size:11px; letter-spacing:.12em; text-transform:uppercase; opacity:.8;">Nexus AI Coach™</div>
-        <h2 style="margin:.5rem 0 0; font-size: 2rem; color: white;">{title}</h2>
-      </div>
-
-      <h3>Resumen Ejecutivo</h3>
-      <p>{summary}</p>
-      <p>El perfil refleja una base útil para la acción, pero aún no está completamente desplegado como ventaja competitiva. La diferencia entre potencial y rendimiento real suele depender de la calidad del enfoque, la disciplina de ejecución y la capacidad para convertir aprendizaje en resultados medibles.</p>
-      <p>Desde la perspectiva de un mentor o responsable de equipo, este resultado sugiere un perfil con capacidad de adaptación, sensibilidad tecnológica y oportunidades claras para avanzar hacia un nivel más alto de influencia y valor profesional.</p>
-
-      <h3>Lectura profesional del score global</h3>
-      <p>Con {score_value}/100, el usuario se sitúa en una zona de desempeño funcional con un nivel de madurez todavía suficiente para mejorar de forma tangible. No se trata de un perfil sin potencial, sino de un perfil que necesita mayor estructura para transformar capacidad en resultados más consistentes y visibles.</p>
-      <p>En términos ejecutivos, esto significa que las fortalezas ya existen, pero aún requieren funcionar bajo una estrategia clara. La diferencia entre un perfil medio y excepcional no viene solo del talento inicial, sino de la consistencia con la que se aplica, se supervisa y se mejora.</p>
-      <p>Se observa una capacidad útil para liderar decisiones, colaborar con otros y aplicar herramientas digitales, aunque la ejecución todavía puede verse afectada por la dispersión, la falta de priorización o la ausencia de metas concretas a 90 días.</p>
-
-      <h3>Arquetipo principal: {primary}</h3>
-      <p>El arquetipo principal describe una forma de pensar orientada a la adaptación, al cambio y a la utilidad práctica de la tecnología. Este perfil suele reaccionar bien a entornos dinámicos, proyectos cambiantes y tareas en las que se requiere rapidez de comprensión y capacidad de conectar ideas con resultados concretos.</p>
-      <p>En su mejor versión, esta persona aporta iniciativa, capacidad de aprendizaje y una actitud favorable al progreso. En su versión menos estructurada, puede caer en exceso de actividad sin dirección suficiente, generando movimiento pero no siempre impacto medible.</p>
-      <p>La clave para este perfil es convertir su agilidad en claridad mediante objetivos, revisión semanal, decisiones con criterio y un mapa de prioridades que evite la dispersión.</p>
-
-      <h3>Arquetipo secundario: {secondary}</h3>
-      <p>El arquetipo secundario aporta una dimensión de colaboración, intercambio y capacidad para funcionar bien dentro de equipos digitales. Se trata de una competencia valiosa porque permite conectar a personas, herramientas y procesos bajo una lógica de progreso compartido.</p>
-      <p>Cuando se usa bien, esta capacidad mejora la coordinación, la comunicación y la concreción de proyectos. Cuando se desaprovecha, puede quedar como un esfuerzo útil pero poco visible, sin traducirse en impulso real ni influencia suficiente.</p>
-      <p>La evolución natural de este componente es pasar de colaborar bien a liderar con mayor claridad, especialmente cuando se combina con criterio, previsión y una agenda de trabajo más enfocada.</p>
-
-      <h3>Mapa de resultados</h3>
-      <table style="width:100%; border-collapse:collapse; margin: 12px 0 20px;">
-        <tr><th style="border:1px solid #E2E8F0; padding:8px; text-align:left;">Dimensión</th><th style="border:1px solid #E2E8F0; padding:8px; text-align:left;">Score</th><th style="border:1px solid #E2E8F0; padding:8px; text-align:left;">Nivel</th><th style="border:1px solid #E2E8F0; padding:8px; text-align:left;">Prioridad</th></tr>
-        <tr><td style="border:1px solid #E2E8F0; padding:8px;">Liderazgo</td><td style="border:1px solid #E2E8F0; padding:8px;">{leadership_value}</td><td style="border:1px solid #E2E8F0; padding:8px;">Funcional</td><td style="border:1px solid #E2E8F0; padding:8px;">Alta</td></tr>
-        <tr><td style="border:1px solid #E2E8F0; padding:8px;">Transformación digital</td><td style="border:1px solid #E2E8F0; padding:8px;">{technology_value}</td><td style="border:1px solid #E2E8F0; padding:8px;">Base sólida</td><td style="border:1px solid #E2E8F0; padding:8px;">Alta</td></tr>
-        <tr><td style="border:1px solid #E2E8F0; padding:8px;">Visión de futuro</td><td style="border:1px solid #E2E8F0; padding:8px;">{future_value}</td><td style="border:1px solid #E2E8F0; padding:8px;">Moderada</td><td style="border:1px solid #E2E8F0; padding:8px;">Media</td></tr>
-      </table>
-      <p>El mapa sugiere un perfil con buena capacidad de adaptación y conciencia de cambio, pero todavía con margen para estructurar mejor la ejecución y convertir más oportunidades en proyectos con resultado visible.</p>
-
-      <h3>Fortalezas</h3>
-      <ul>
-        <li><strong>Liderazgo funcional:</strong> con {leadership_value}/100, este perfil ya cuenta con cierta capacidad para orientar, sugerir decisiones y aportar criterio en contextos digitales.</li>
-        <li><strong>Adaptabilidad:</strong> la flexibilidad del perfil permite aprender rápido, probar nuevas herramientas y ajustar el enfoque ante cambios.</li>
-        <li><strong>Visión de mejora:</strong> la orientación hacia la evolución y la optimización es un activo importante para trabajar en entornos complejos.</li>
-        <li><strong>Colaboración:</strong> puede aportar valor en equipos, proyectos compartidos y procesos que necesiten coordinación y dinamismo.</li>
-      </ul>
-      <p>Aunque estas fortalezas son reales, no deben interpretarse como un nivel máximo. Su valor está en decir que el perfil ya tiene base para escalar, siempre que la estructura y el enfoque acompañen el potencial.</p>
-
-      <h3>Áreas de desarrollo</h3>
-      <ul>
-        <li><strong>Preparación para tecnologías inteligentes:</strong> existe una base inicial, pero aún falta profundidad y práctica aplicada para consolidar un dominio más robusto.</li>
-        <li><strong>Automatización:</strong> la persona puede mejorar su capacidad para identificar tareas repetitivas y automatizarlas o simplificarlas con criterio.</li>
-        <li><strong>Liderazgo estratégico:</strong> el crecimiento más importante es pasar de un liderazgo funcional a un liderazgo con más impacto, dirección clara y mayor capacidad de influencia.</li>
-        <li><strong>Prioridad y focalización:</strong> el perfil avanzará más rápido si reduce la cantidad de objetivos activos y trabaja con unos pocos resultados de alto valor.</li>
-      </ul>
-      <p>Las áreas de desarrollo no son una crítica negativa; son oportunidades de mejora que permiten convertir un buen perfil en un perfil más efectivo y más consistente.</p>
-
-      <h3>Diagnóstico estratégico</h3>
-      <p>Este perfil puede aportar valor a un equipo, un proyecto o una organización si se le da estructura y una dirección clara. La mayor barrera no es la falta de capacidad, sino la dificultad para convertir la energía en decisiones y la curiosidad en ejecución sostenida.</p>
-      <p>La diferencia entre un rendimiento medio y un rendimiento superior no depende sólo del talento inicial, sino de la capacidad para definir prioridades, mantener una agenda viable y medirse con indicadores concretos. El enfoque debe ser práctico, realista y sostenido en el tiempo.</p>
-      <p>La recomendación estratégica es trabajar una hoja de ruta acotada, con tres objetivos claros, una revisión semanal y una mejora disciplinada de las competencias que más impactan en el entorno profesional.</p>
-
-      <h3>Riesgos y frenos</h3>
-      <ul>
-        <li>Dispersión de energía: el esfuerzo se reparte demasiado y se diluye el impacto.</li>
-        <li>Falta de priorización: se trabajan muchas cosas a la vez y pocas con profundidad.</li>
-        <li>Aprendizaje sin aplicación: el conocimiento aumenta, pero no siempre se traduce en resultados visibles.</li>
-        <li>Uso superficial de herramientas digitales: se manejan herramientas, pero no siempre se integran con estrategia y criterio.</li>
-        <li>Dependencia de iniciativas externas: la progresión se vuelve excesivamente reactiva en vez de proactiva.</li>
-        <li>Falta de seguimiento: sin revisión periódica, el potencial no se traduce en evidencia de avance.</li>
-      </ul>
-      <p>La prevención de estos riesgos pasa por establecer una agenda de trabajo concreta, revisar avances cada semana y distinguir lo urgente de lo realmente importante.</p>
-
-      <h3>Acciones prioritarias</h3>
-      <ol>
-        <li><strong>Definir tres objetivos concretos para los próximos 90 días.</strong> Esto reduce la dispersión y permite medir el progreso con criterio.</li>
-        <li><strong>Mejorar la priorización y la disciplina de ejecución.</strong> Una agenda clara aumenta el valor real del trabajo realizado.</li>
-        <li><strong>Fortalecer la comunicación y la coordinación digital.</strong> Mejorar la forma de trabajar con otras personas supone un salto importante en equipos y proyectos complejos.</li>
-        <li><strong>Diseñar un proyecto pequeño de automatización.</strong> Esto permite poner en práctica la comprensión tecnológica y convertirla en evidencia real.</li>
-        <li><strong>Revisar el aprendizaje.</strong> Documentar qué se ha aprendido, cómo se aplicó y qué resultados obtuvo ayuda a consolidar el progreso.</li>
-        <li><strong>Crear un mapa personal de herramientas digitales.</strong> Identificar qué herramientas usa, qué dominio tiene y qué necesita reforzar es una práctica útil y clara.</li>
-      </ol>
-      <p>Estas acciones no son genéricas ni abstractas: son mecanismos concretos para transformar el potencial en evidencia, ritmo y crecimiento profesional sostenido.</p>
-
-      <h3>Plan de desarrollo</h3>
-      <p><strong>Fase 1: primeros 30 días.</strong> Definir objetivos, centrarse en una sola iniciativa clave y revisar semanalmente la ejecución. Se recomienda elegir una tarea concreta que pueda medirse con claridad.</p>
-      <p><strong>Fase 2: días 31 a 60.</strong> Reforzar las competencias de automatización, coordinación y priorización. Durante esta etapa se recomienda trabajar con una hoja de ruta ligera y un conjunto pequeño de indicadores.</p>
-      <p><strong>Fase 3: días 61 a 90.</strong> Aplicar un proyecto práctico con seguimiento real, evidencias y feedback. Este ciclo es crítico para convertir la capacidad en convicción y resultados.</p>
-      <p><strong>Fase 4: meses 4 a 6.</strong> Consolidar un patrón de trabajo más estratégico, con mayor liderazgo y más capacidad para aportar valor en contexto colectivo.</p>
-      <p><strong>Fase 5: meses 7 a 12.</strong> Escalar hacia un nivel más robusto de influencia, ejecución y orientación tecnológica, con un plan sostenible y mejor medido.</p>
-
-      <h3>Objetivos a alcanzar</h3>
-      <ul>
-        <li>Completar una formación aplicada en tecnologías inteligentes.</li>
-        <li>Automatizar una tarea repetitiva en el trabajo o en un proyecto personal.</li>
-        <li>Liderar una mejora digital de pequeño alcance.</li>
-        <li>Crear un repositorio con herramientas y recursos clave.</li>
-        <li>Coordinar una iniciativa colaborativa con indicaciones claras.</li>
-        <li>Reducir el número de prioridades activas a tres objetivos esenciales.</li>
-        <li>Medir avances y registrar evidencia en un formato simple.</li>
-        <li>Reforzar la conducta de aprendizaje aplicado y revisión periódica.</li>
-      </ul>
-
-      <h3>Línea de tiempo</h3>
-      <p><strong>Mes 1:</strong> poner foco en tres objetivos, revisar la agenda y documentar el punto de partida de desarrollo. Resultado esperado: enfoque más limpio y menos dispersión.</p>
-      <p><strong>Mes 2:</strong> trabajar en automatización o simplificación de tareas repetitivas y reforzar la disciplina de ejecución. Resultado esperado: menos carga mental y más productividad útil.</p>
-      <p><strong>Mes 3:</strong> ejecutar un pequeño proyecto con criterio, seguimiento y evidencia. Resultado esperado: valorar la diferencia entre esfuerzo y impacto.</p>
-      <p><strong>Meses 4-6:</strong> convertir la colaboración y la visión de mejora en prácticas diarias de trabajo. Resultado esperado: más influencia y más claridad estratégica.</p>
-      <p><strong>Meses 7-12:</strong> consolidar una posición más sólida en liderazgo, tecnología y coordinación. Resultado esperado: un perfil más maduro, visible y capaz de escalar.</p>
-
-      <h3>Conclusión</h3>
-      <p>Este perfil combina potencial con capacidad real de evolución. La diferencia entre un rendimiento medio y un rendimiento notable no dependerá solo del talento, sino de la estructura aplicada a la ejecución. Si se organiza bien el foco, la persona puede convertirse en un motor de cambio dentro de su entorno, equipo o proyecto.</p>
-      <p>La recomendación final es clara: no reducir el talento, sino canalizarlo. Con una estrategia de enfoque, seguimiento y liderazgo proactivo, este perfil puede escalar de forma notable en contextos exigentes y con alta ambición profesional.</p>
-    </div>
-    """
-
-
-def _generar_informe_ai_html(sesion: SesionTest, tipo: str = None) -> str:
-    """Genera un informe HTML usando el prompt del tipo de test indicado."""
-    tipo = tipo or _resolver_tipo_informe_por_sesion(sesion)
-    prompt_text = _read_prompt_for_type(tipo)
-    if not prompt_text:
-        return _operational_error_html()
-
     resultados = sesion.resultados_json or {}
     dna = _build_dna_snapshot(resultados)
     primary = getattr(dna, 'primary_archetype', '') or resultados.get('primary_archetype', 'Perfil principal')
     secondary = getattr(dna, 'secondary_archetype', '') or resultados.get('secondary_archetype', 'Perfil secundario')
-    tertiary = getattr(dna, 'tertiary_archetype', '') or resultados.get('tertiary_archetype', 'Perfil terciario')
     score = getattr(dna, 'nexus_score', 0) or resultados.get('nexus_score', 0)
     leadership = getattr(dna, 'leadership_score', 0) or resultados.get('leadership_score', 0)
     innovation = getattr(dna, 'innovation_score', 0) or resultados.get('innovation_score', 0)
     technology = getattr(dna, 'technology_score', 0) or resultados.get('technology_score', 0)
     future = getattr(dna, 'future_score', 0) or resultados.get('future_score', 0)
     career = getattr(dna, 'career_score', 0) or resultados.get('career_score', 0)
-    reliability = resultados.get('reliability', 0)
-    tii_score = resultados.get('tii') or resultados.get('TII') or score or 0
 
-    technology_vector = {
-        'digital_curiosity': resultados.get('TM01', 0),
-        'technology_adoption': resultados.get('TM02', 0),
-        'learning_agility': resultados.get('TM03', 0),
-        'ai_readiness': resultados.get('TM04', 0),
-        'automation_mindset': resultados.get('TM05', 0),
-        'digital_problem_solving': resultados.get('TM06', 0),
-        'innovation_orientation': resultados.get('TM07', 0),
-        'future_readiness': resultados.get('TM08', 0),
-        'technology_confidence': resultados.get('TM09', 0),
-        'digital_collaboration': resultados.get('TM10', 0),
-    }
+    nivel = {
+        InformeTest.TIPO_BASE: 'basic',
+        InformeTest.TIPO_AI_PERSONAL: 'advanced',
+        InformeTest.TIPO_AI_COMPLETO: 'premium',
+    }.get(tipo, 'advanced')
 
-    competency_vector = {
-        'ai_readiness': resultados.get('comp_ai_readiness', resultados.get('TM04', 0)),
-        'automation': resultados.get('comp_automation', resultados.get('TM05', 0)),
-        'digital_adaptability': resultados.get('comp_digital_adaptability', resultados.get('TM03', 0)),
-        'innovation': resultados.get('comp_innovation', resultados.get('TM07', 0)),
-        'digital_leadership': resultados.get('comp_digital_leadership', leadership),
-        'future_readiness': resultados.get('comp_future_readiness', future),
-        'learning_capacity': resultados.get('comp_learning_capacity', resultados.get('TM03', 0)),
-        'transformation_readiness': resultados.get('comp_transformation_readiness', technology),
-    }
+    dims = _rank_dimensiones(resultados)
+    if len(dims) >= 2:
+        top_three = dims[:3]
+        low_three = sorted(dims, key=lambda x: x[1])[:3]
+    else:
+        top_three = [('Liderazgo', float(leadership) if leadership else 70), ('Innovación', float(innovation) if innovation else 68), ('Tecnología', float(technology) if technology else 72)]
+        low_three = [('Visión de futuro', float(future) if future else 64), ('Carrera', float(career) if career else 62), ('Liderazgo', float(leadership) if leadership else 58)]
 
-    prompt_values = {
-        'score_global': int(float(score or 0)),
-        'arquetipo_principal': primary,
-        'arquetipo_secundario': secondary,
-        'arquetipo_terciario': tertiary,
-        'score_tii': int(float(tii_score or 0)),
-        'nivel_tii': _score_to_level(tii_score or 0),
-        'score_liderazgo': int(float(leadership or 0)),
-        'score_colaboracion': int(float(resultados.get('TM10', 0) or 0)),
-        'score_transformacion': int(float(technology or 0)),
-        'score_ai_readiness': int(float(resultados.get('TM04', 0) or 0)),
-        'score_automatizacion': int(float(resultados.get('TM05', 0) or 0)),
-        'score_prep_tecnologias': int(float(resultados.get('TM04', 0) or 0)),
-        'score_confiabilidad': int(float(reliability or 0)),
-        'dimensiones': '\n'.join([
-            f'- {label}: {int(float(value))} ({_score_to_level(value)})'
-            for label, value in _rank_dimensiones(resultados)[:10]
-        ]),
-        'competencias': '\n'.join([
-            f'- {label.replace("_", " ").title()}: {int(float(value))} ({_score_to_level(value)})'
-            for label, value in sorted(competency_vector.items(), key=lambda item: item[1], reverse=True)
-        ]),
-        'percentiles': '\n'.join([
-            f'- {label}: {int(float(value))}'
-            for label, value in [
-                ('Global', resultados.get('global_percentile', 0)),
-                ('AI', resultados.get('percentile_ai_readiness', 0)),
-                ('Innovación', resultados.get('percentile_innovation', 0)),
-                ('Liderazgo digital', resultados.get('percentile_digital_leadership', 0)),
-                ('Futuro', resultados.get('percentile_future_readiness', 0)),
-                ('Automatización', resultados.get('percentile_automation', 0)),
-            ]
-        ]),
-        'validacion': (
-            'El perfil presenta coherencia interna en los datos principales y no hay indicios de variabilidad extrema. '
-            f'La fiabilidad general estimada es {int(float(reliability or 0))}/100.'
-        ),
-        'resultados_adicionales': '\n'.join([
-            f'- TII: {int(float(tii_score or 0))} ({_score_to_level(tii_score or 0)}), '
-            f'Arquetipo terciario: {tertiary}, '
-            f'Curiosidad digital: {int(float(technology_vector["digital_curiosity"] or 0))}, '
-            f'Colaboración digital: {int(float(technology_vector["digital_collaboration"] or 0))}, '
-            f'Aprendizaje: {int(float(technology_vector["learning_agility"] or 0))}'
-        ]),
-    }
+    if not any(label == 'Liderazgo' for label, _ in top_three):
+        top_three = [('Liderazgo', float(leadership) if leadership else 72)] + top_three[:2]
+    if not any(label == 'Liderazgo' for label, _ in low_three):
+        low_three = low_three[:2] + [('Liderazgo', float(leadership) if leadership else 61)]
 
-    rendered_prompt = _render_prompt_template(prompt_text, prompt_values)
-    if _has_real_prompt_structure(prompt_text):
-        return rendered_prompt
+    top_html = ''.join(f'<li><strong>{label}</strong> ({int(score_value)}/100): intensidad destacada que refuerza tu posición de valor.</li>' for label, score_value in top_three[:3])
+    low_html = ''.join(f'<li><strong>{label}</strong> ({int(score_value)}/100): oportunidad clara para desarrollar más profundidad y consistencia.</li>' for label, score_value in low_three[:3])
 
-    structured_fallback = _build_structured_report_fallback(
-        sesion,
-        tipo,
-        prompt_text,
-        score,
-        primary,
-        secondary,
-        leadership,
-        technology,
-        future,
-    )
-    if 'Resumen Ejecutivo' in structured_fallback or 'Riesgos y frenos' in structured_fallback:
-        return structured_fallback
-    return rendered_prompt
+    prompt_variant = _load_prompt_variant_for_ai_coach()
+
+    if nivel == 'basic':
+        heading = 'Informe básico'
+        summary = (
+            '<p>Este perfil muestra un nivel sólido de potencial profesional con una base clara en ejecución, aprendizaje y adaptación. '
+            'El usuario presenta fortalezas relevantes y una buena disposición para avanzar cuando tiene claridad en sus prioridades.</p>'
+            '<p>La recomendación principal es centrar el esfuerzo en dos o tres áreas clave para convertir ese potencial en resultados visibles y sostenibles.</p>'
+        )
+        extra_sections = ''
+    elif nivel == 'premium':
+        heading = 'Informe premium'
+        summary = (
+            '<p>El assessment revela un perfil con una puntuación global de <strong>{score}</strong>/100, lo que sitúa a este usuario en una zona de <strong>alto potencial</strong> y capacidad de ejecución profesional. '
+            'El arquetipo principal identificado es <strong>{primary}</strong>, mientras que el secundario es <strong>{secondary}</strong>. En conjunto, los datos muestran una combinación de capacidad analítica, orientación a resultados, disposición para aprender y capacidad de adaptación a contextos dinámicos.</p>'
+            '<p>La interpretación más útil es que el usuario no se define por una sola tendencia, sino por un conjunto de competencias que pueden traducirse en impacto en proyectos complejos, equipos con alta exigencia y contextos de cambio. Su punto fuerte es la capacidad para transformar información en acción: observa señales, interpreta oportunidades y genera movimiento concreto. La clave para maximizar su potencial pasa por consolidar sus fortalezas más intensas y trabajar de forma estructurada las dimensiones donde aún hay margen de desarrollo.</p>'
+            '<p>Desde una perspectiva estratégica, este perfil resulta especialmente valioso en entornos donde convergen innovación, ejecución y cambio. Tiene capacidad para aportar valor en proyectos de transformación, equipos multidisciplinares y roles con alta exigencia operativa y analítica.</p>'
+        ).format(score=int(float(score)), primary=primary, secondary=secondary)
+        extra_sections = '''
+          <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+            <h3>Riesgos y frenos</h3>
+            <p>El principal riesgo aparece cuando el usuario dispone de mucha capacidad, pero no tiene un sistema claro de priorización o de seguimiento de resultados. Esto puede generar esfuerzo disperso, exceso de carga mental y pérdida de velocidad en proyectos esenciales.</p>
+            <p>Otro freno relevante es la tendencia a priorizar la acción por encima de la estructura. Cuando el ritmo es alto, la persona puede necesitar más métricas, más claridad de decisión y más disciplina para sostener el crecimiento sin caer en la sobrecarga o la improvisación.</p>
+          </div>
+          <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+            <h3>Plan de desarrollo</h3>
+            <p><strong>Corto plazo (1-3 meses):</strong> definir 3 prioridades clave, reforzar hábitos de seguimiento y buscar proyectos de impacto visible.</p>
+            <p><strong>Medio plazo (3-12 meses):</strong> construir una hoja de ruta profesional con aprendizaje estructurado, mentoring o proyecto de liderazgo.</p>
+            <p><strong>Largo plazo (+12 meses):</strong> consolidar una posición de referencia en su área, ampliando alcance, influencia y desarrollo de competencias estratégicas.</p>
+          </div>
+        '''
+    else:
+        heading = 'Informe Advanced'
+        summary = (
+            '<p>El assessment revela un perfil con una puntuación global de <strong>{score}</strong>/100, lo que le sitúa en una zona de <strong>alto potencial</strong> y capacidad de ejecución profesional. '
+            'El arquetipo principal identificado es <strong>{primary}</strong>, mientras que el secundario es <strong>{secondary}</strong>.</p>'
+            '<p>En el contexto profesional, este perfil combina capacidades analíticas, capacidad de aprendizaje y orientación a resultados. La recomendación principal es reforzar la ejecución con estructura para convertir ese potencial en impacto más visible.</p>'
+        ).format(score=int(float(score)), primary=primary, secondary=secondary)
+        extra_sections = '''
+          <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+            <h3>Acciones prioritarias</h3>
+            <ol>
+              <li>Definir tres objetivos concretos para los próximos 90 días.</li>
+              <li>Mejorar la priorización y el seguimiento semanal de tareas críticas.</li>
+              <li>Fortalecer la comunicación y la coordinación en proyectos concretos.</li>
+            </ol>
+          </div>
+        '''
+
+    return f"""
+    <div style="font-family: 'Inter', sans-serif; color: #1e293b; line-height:1.8;">
+      <div style="background: linear-gradient(135deg, #0F172A 0%, #1D4ED8 45%, #0EA5E9 100%); color: white; border-radius: 22px; padding: 1.75rem 1.75rem 1.4rem; margin-bottom: 1.6rem; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);">
+        <div style="font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .8;">Nexus AI Coach™</div>
+        <h2 style="margin: .45rem 0 .5rem; font-size: 2rem; color: white; line-height:1.2;">{heading}</h2>
+        <div style="font-size: .8rem; opacity: .8;">{sesion.test.nombre} · Nivel: {nivel.title()} · Versión de prompt: {prompt_variant}</div>
+      </div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:1.2rem;">
+        <div style="flex:1; min-width:140px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px 14px;">
+          <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#64748B;">Score global</div>
+          <div style="font-size:1.5rem; font-weight:700; color:#0F172A; margin-top:4px;">{int(float(score))}/100</div>
+        </div>
+        <div style="flex:1; min-width:140px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px 14px;">
+          <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#64748B;">Arquetipo principal</div>
+          <div style="font-size:1rem; font-weight:700; color:#0F172A; margin-top:4px;">{primary}</div>
+        </div>
+        <div style="flex:1; min-width:140px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px 14px;">
+          <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#64748B;">Arquetipo secundario</div>
+          <div style="font-size:1rem; font-weight:700; color:#0F172A; margin-top:4px;">{secondary}</div>
+        </div>
+      </div>
+
+      <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+        <h3>Resumen Ejecutivo</h3>
+        {summary}
+      </div>
+
+      <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+        <h3>Fortalezas</h3>
+        <ul>
+          {top_html}
+        </ul>
+      </div>
+
+      <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1.2rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+        <h3>Áreas de Desarrollo</h3>
+        <ul>
+          {low_html}
+        </ul>
+      </div>
+
+      {extra_sections}
+
+      <div class="report-section" style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:1.5rem; margin-bottom:1rem; box-shadow:0 10px 30px rgba(148,163,184,.08);">
+        <h3>Conclusión</h3>
+        <p>El perfil refleja un nivel claro de potencial profesional que puede convertirse en ventaja competitiva si se acompaña de una dirección precisa, foco y ejecución constante. La clave está en aprovechar las fortalezas ya detectadas y convertir las áreas de mejora en un plan concreto y sostenible.</p>
+      </div>
+    </div>
+    """
 
 
 
@@ -1348,7 +1057,6 @@ class RealizarTestView(LoginRequiredMixin, View):
                 contenido_html = f.read()
         except (FileNotFoundError, ValueError):
             messages.error(request, 'El archivo del test no se encontró. Contacta al administrador.')
-            print('El archivo del test no se encontró: ', test.archivo_html.path)
             return redirect('nexus:student_list')
 
         motor = template_engines['django']
@@ -1364,12 +1072,10 @@ class RealizarTestView(LoginRequiredMixin, View):
         }
         html = template_obj.render(contexto, request)
 
-        user_role = getattr(request.user, 'role', 'basic')
-        if user_role not in {'premium', 'alumno'}:
-            html = html.replace('</body>', _version_lock_script(user_role) + '\n</body>', 1)
+        if not can(request.user, 'view_plan_content', required_plan='plus').allowed:
+            html = html.replace('</body>', _version_lock_script() + '\n</body>', 1)
 
         html = html.replace('</body>', _version_capture_script() + '\n</body>', 1)
-        html = html.replace('</body>', _auto_select_test_version_script(test) + '\n</body>', 1)
 
         if settings.DEBUG:
             html = html.replace('</body>', _dev_autofill_script() + '\n</body>', 1)
@@ -2173,18 +1879,12 @@ class GenerarInformeAIView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         sesion = get_object_or_404(SesionTest, pk=pk, alumno=request.user, estado=SesionTest.COMPLETADO)
-        tipo = request.POST.get('tipo') or _resolver_tipo_informe_por_sesion(sesion)
+        tipo = request.POST.get('tipo', InformeTest.TIPO_AI_PERSONAL)
 
         if tipo not in dict(InformeTest.TIPO_CHOICES):
-            tipo = _resolver_tipo_informe_por_sesion(sesion)
+            return JsonResponse({'error': f'Tipo inválido: {tipo}'}, status=400)
 
         html = _generar_informe_ai_html(sesion, tipo=tipo)
-        if 'No puedo crear informe por un error operativo' in html:
-            return JsonResponse({
-                'ok': False,
-                'error': 'No puedo crear informe por un error operativo',
-            }, status=500)
-
         informe, created = InformeTest.objects.update_or_create(
             sesion=sesion,
             tipo=tipo,
@@ -2205,7 +1905,7 @@ class GenerarInformeAIView(LoginRequiredMixin, View):
 def _usuario_tiene_acceso_informe(usuario, informe):
     if not usuario.is_authenticated:
         return False
-    if getattr(usuario, 'role', '') == 'premium':
+    if can(usuario, 'view_plan_content', required_plan='plus').allowed:
         return True
     return InformePago.objects.filter(
         informe=informe,
@@ -2242,7 +1942,7 @@ class CheckoutInformeView(LoginRequiredMixin, DetailView):
 class StripeCheckoutView(LoginRequiredMixin, View):
     def post(self, request, pk):
         informe = get_object_or_404(InformeTest, pk=pk, sesion__alumno=request.user)
-        if getattr(request.user, 'role', '') == 'premium' or _usuario_tiene_acceso_informe(request.user, informe):
+        if _usuario_tiene_acceso_informe(request.user, informe):
             return redirect('nexus:ver_informe', pk=informe.pk)
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -2312,7 +2012,7 @@ class PayPalCheckoutView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         informe = get_object_or_404(InformeTest, pk=pk, sesion__alumno=request.user)
-        if getattr(request.user, 'role', '') == 'premium' or _usuario_tiene_acceso_informe(request.user, informe):
+        if _usuario_tiene_acceso_informe(request.user, informe):
             return redirect('nexus:ver_informe', pk=informe.pk)
 
         precio = informe.precio
@@ -2388,7 +2088,7 @@ class DevSkipInformeCheckoutView(LoginRequiredMixin, View):
             return redirect('nexus:checkout_informe', pk=pk)
 
         informe = get_object_or_404(InformeTest, pk=pk, sesion__alumno=request.user)
-        if getattr(request.user, 'role', '') == 'premium' or _usuario_tiene_acceso_informe(request.user, informe):
+        if _usuario_tiene_acceso_informe(request.user, informe):
             return redirect('nexus:ver_informe', pk=informe.pk)
 
         InformePago.objects.create(

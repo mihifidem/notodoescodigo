@@ -1,0 +1,20 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_content %}
+<h1 class="h3">Revisar extracción: {{ source.title }}</h1>
+<p>{{ source.source_label }} · Método: {{ source.extraction_method }} · {{ source.created_at|date:"DATETIME_FORMAT" }}</p>
+<p class="small text-break">Huella de la fuente: {{ source.original_hash }}</p>
+{% for limit in source.limitations %}<p class="alert alert-warning">{{ limit }}</p>{% endfor %}
+{% if source.source_kind == "pdf" %}<a href="{% url 'curriculum:ats_original' pk=source.pk %}">Descargar original privado para comprobar la extracción</a>{% endif %}
+<p>Corrige o excluye datos en el texto de abajo. Esto no altera el archivo ni el perfil original. Una página ilegible no demuestra falta de experiencia.</p>
+<form method="post" class="ats-form card card-body" data-ats-editor data-unsaved="{{ form.is_bound|yesno:'true,false' }}">
+  {% csrf_token %}{% include "curriculum/letters/fields.html" %}
+  <p>Consumo de reglas deterministas: ninguno. El alcance disponible se comprueba en el servidor.</p>
+  <button type="submit" class="btn btn-primary">Confirmar y analizar con reglas</button>
+  <p data-submit-status role="status"></p>
+</form>
+<p class="alert alert-warning mt-3">{{ ai_message }}</p>
+<details><summary>Texto extraído originalmente (no editado)</summary><pre>{{ source.extracted_text }}</pre></details>
+<form method="post" action="{% url 'curriculum:ats_discard_source' pk=source.pk %}" class="mt-4">
+  {% csrf_token %}<button type="submit" class="btn btn-outline-danger">Descartar fuente sin analizar</button>
+</form>
+{% endblock %}

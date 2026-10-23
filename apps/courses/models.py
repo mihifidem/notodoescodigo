@@ -204,11 +204,22 @@ class Curso(models.Model):
         if not self.codigo:
             self.codigo = (self.slug or slugify(self.nombre)).upper()[:20]
         if not self.resumen and self.descripcion:
-            self.resumen = self.descripcion[:280]
+            self.resumen = self.descripcion_texto[:280]
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nombre
+
+    @property
+    def descripcion_html(self):
+        from apps.lms.models import sanitize_html_content
+        return sanitize_html_content(self.descripcion)
+
+    @property
+    def descripcion_texto(self):
+        from html import unescape
+        from django.utils.html import strip_tags
+        return unescape(strip_tags(self.descripcion_html))
 
     @property
     def total_temas(self):

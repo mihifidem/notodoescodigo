@@ -55,9 +55,15 @@ class TemaRecursoSerializer(serializers.ModelSerializer):
 
 
 class CursoSerializer(serializers.ModelSerializer):
-    temas = TemaSerializer(many=True, read_only=True)
+    temas = serializers.SerializerMethodField()
     total_temas = serializers.IntegerField(read_only=True)
     tipo_curso = TipoCursoSerializer(read_only=True)
+
+    def get_temas(self, obj):
+        from apps.lms.campus import campus_settings
+        if campus_settings(obj):
+            return []
+        return TemaSerializer(obj.temas.all(), many=True, context=self.context).data
 
     class Meta:
         model = Curso

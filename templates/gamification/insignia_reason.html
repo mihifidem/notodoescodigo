@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ action|title }} concesión — MihiTraining{% endblock %}
+{% block page_title %}{{ action|title }} concesión{% endblock %}
+{% block content %}
+<main class="container py-4">
+  <div class="row justify-content-center"><div class="col-12 col-lg-7">
+    <section class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
+      <a class="btn btn-sm btn-outline-secondary mb-3" href="{% url 'gamification:insignias' %}">Cancelar</a>
+      <h1 class="h3 fw-bold">{{ action|title }} «{{ badge.nombre }}»</h1>
+      <p class="text-muted">El motivo es obligatorio y quedará guardado en el historial de auditoría.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="text-danger small" role="alert">{{ error }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="btn {% if action == 'revocar' %}btn-danger{% else %}btn-primary{% endif %}" type="submit">Confirmar {{ action }}</button>
+      </form>
+    </div></section>
+  </div></div>
+</main>
+{% endblock %}

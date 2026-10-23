@@ -577,10 +577,7 @@
     const toolConfigs = JSON.parse(document.getElementById('tool-configs-data').textContent || '[]');
     const toolConfigMap = Object.fromEntries((toolConfigs || []).map((tool) => [tool.slug, tool]));
     const canVote = {{ request.user.is_authenticated|yesno:'true,false' }};
-    const isStaff = {{ request.user.is_staff|yesno:'true,false' }};
-    const isSuperuser = {{ request.user.is_superuser|yesno:'true,false' }};
-    const canManage = isStaff || isSuperuser;
-    const userRole = '{{ request.user.role|default:"anon" }}';
+    const canManage = {{ can_manage_tools|yesno:'true,false' }};
     let activeFilter = 'all';
 
     function getCookie(name) {
@@ -645,8 +642,7 @@
 
         const config = toolConfigMap[slug];
         const isActiveForUser = !!config && config.is_active;
-        const isPrivateForUser = !!config && config.is_private && !canManage && userRole !== 'premium' && userRole !== 'alumno';
-        const shouldShow = canManage || (isActiveForUser && !isPrivateForUser);
+        const shouldShow = canManage || isActiveForUser;
 
         if (!shouldShow) {
           card.hidden = true;

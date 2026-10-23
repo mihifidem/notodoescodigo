@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Cartas de presentación — Ducky Profile{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">{% endblock %}
+{% block content %}
+<div class="container py-4 billing-app personal-tech" style="max-width:1100px">
+  {% block letter_hero %}{% endblock %}
+  <nav aria-label="Cartas de presentación" class="billing-nav">
+    <a href="{% url 'curriculum:letter_list' %}">Mis cartas</a>
+    <a href="{% url 'curriculum:letter_new' %}">Nueva carta</a>
+    <a href="{% url 'curriculum:letter_demo' %}">Demostración ficticia</a>
+  </nav>
+  {% for message in messages %}<p role="status" class="alert alert-info">{{ message }}</p>{% endfor %}
+  {% block letter_content %}{% endblock %}
+</div>
+{% endblock %}

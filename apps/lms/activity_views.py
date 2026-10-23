@@ -34,6 +34,11 @@ class ActivityDetailView(CourseContextMixin, View):
         ).select_related('user').prefetch_related('attachments').order_by('user_id', '-version')
         if not teacher_view:
             submissions = submissions.filter(user=self.request.user)
+        else:
+            from .campus import scoped_students
+            submissions = submissions.filter(user_id__in=scoped_students(
+                self.request.user, activity.course,
+            ).values('user_id'))
         latest = {}
         rows = []
         for submission in submissions:
@@ -42,7 +47,8 @@ class ActivityDetailView(CourseContextMixin, View):
             rows.append({
                 'submission': submission,
                 'feedback_visible': teacher_view or feedback_visible(activity, submission),
-                'can_grade': teacher_view and is_latest and activity.is_evaluable,
+                'can_grade': teacher_view and is_latest and activity.is_evaluable
+                and submission.user_id != self.request.user.pk,
             })
         return render(self.request, 'lms/activity_detail.html', {
             **self.get_course_context(activity.course),
@@ -50,6 +56,7 @@ class ActivityDetailView(CourseContextMixin, View):
             'course': activity.course, 'activity': activity, 'teacher_view': teacher_view,
             'is_course_member': True,
             'form': form, 'submission_rows': rows,
+            'has_submitted': not teacher_view and bool(rows),
             'can_submit': not teacher_view and can_submit_activity(self.request.user, activity),
             'solution_visible': teacher_view or bool(activity.solution and activity.can_show_solution()),
             'activity_state_label': {
@@ -77,7 +84,7 @@ class ActivityDetailView(CourseContextMixin, View):
             except ValidationError as error:
                 form.add_error(None, error)
             else:
-                messages.success(request, _('Entrega guardada. Puedes reemplazarla hasta la fecha límite.'))
+                messages.success(request, _('Entrega guardada. No se permiten nuevas entregas de esta actividad.'))
                 return redirect('lms:course_activity_detail', course_id=activity.course_id, activity_id=activity.pk)
         return self.render_activity(activity, form)
 
@@ -94,6 +101,9 @@ class ActivityGradeView(CourseContextMixin, View):
             Submission.objects.select_related('user').prefetch_related('attachments'),
             assignment__learning_activity=activity, pk=self.kwargs['submission_id'],
         )
+        from .campus import can_review_submission
+        if not can_review_submission(self.request.user, submission):
+            raise PermissionDenied
         return activity, submission
 
     def render_form(self, activity, submission, form):
@@ -137,11 +147,15 @@ class ActivityAttachmentView(CourseContextMixin, View):
             submission__assignment__course=course,
         )
         activity = attachment.submission.assignment.learning_activity
+        from .campus import can_review_submission
         if not can_read_activity(request.user, activity) or not (
-            request.user.pk == attachment.submission.user_id or can_edit_course(request.user, course)
+            request.user.pk == attachment.submission.user_id or can_review_submission(request.user, attachment.submission)
         ):
             raise PermissionDenied
-        return FileResponse(
+        response = FileResponse(
             attachment.file.open('rb'), as_attachment=True, filename=attachment.file_name,
             content_type='application/octet-stream',
         )
+        response['Cache-Control'] = 'private, no-store'
+        response['X-Content-Type-Options'] = 'nosniff'
+        return response

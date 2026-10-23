@@ -1,0 +1,55 @@
+.lms-theme .lms-content .content-tech {
+  --lms-surface: var(--billing-surface);
+  --lms-bg: var(--billing-tint);
+  --lms-border: var(--billing-border);
+  --lms-text: var(--billing-text);
+  --lms-muted: var(--billing-muted);
+  --lms-blue: #2563eb;
+  color: var(--billing-text);
+}
+[data-bs-theme="dark"] .lms-theme .lms-content .content-tech { --lms-blue: #91c5ff; }
+.lms-theme .lms-content .content-tech .module-list-toolbar {
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border: 1px solid #3667ae;
+  border-radius: 1.2rem;
+  background: radial-gradient(ellipse at top right, #2379b899, transparent 65%), linear-gradient(120deg, #0d2043, #173e79);
+  box-shadow: 0 12px 32px #15396520;
+  flex-wrap: wrap;
+}
+.lms-theme .lms-content .content-tech .module-list-toolbar h1 { color: #f4f8ff; font-size: clamp(1.5rem, 3vw, 2rem); }
+.lms-theme .lms-content .content-tech .learning-module {
+  border: 1px solid var(--billing-border);
+  border-radius: 1rem;
+  background: var(--billing-surface);
+  box-shadow: 0 8px 24px #15396509;
+}
+.lms-theme .lms-content .content-tech .learning-module-heading {
+  padding: .65rem 1rem;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--billing-tint);
+  color: var(--billing-text);
+  border-bottom: 1px solid var(--billing-border);
+}
+.lms-theme .lms-content .content-tech .learning-module-heading h2 button { font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+.lms-theme .lms-content .content-tech .learning-module-body { border: 0; border-radius: 0 0 1rem 1rem; padding: .25rem; }
+.lms-theme .lms-content .content-tech .formative-unit { border-radius: .75rem; }
+.lms-theme .lms-content .content-tech .formative-unit-heading { border-radius: .75rem .75rem 0 0; }
+.lms-theme .lms-content .content-tech :is(h2, h3, label, .learning-content-title strong) { color: var(--billing-text); }
+.lms-theme .lms-content .content-tech a:not(.button) { color: var(--lms-blue); }
+.lms-theme .lms-content .content-tech :is(.module-empty, .module-schedule, .formative-unit-description, .module-lock-message, .breadcrumbs) { color: var(--billing-muted); }
+.lms-theme .lms-content .content-tech .learning-content-row { padding: .85rem; font-size: .875rem; }
+.lms-theme .lms-content .content-tech .button { min-height: 40px; border-radius: .65rem; }
+.lms-theme .lms-content .content-tech .button-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+.lms-theme .lms-content .content-tech :is(.button-secondary, .button-light, .content-complete-button) { background: var(--billing-tint); color: var(--billing-text); border: 1px solid var(--billing-border); border-radius: .65rem; }
+.lms-theme .lms-content .content-tech :is(.module-create-body, .module-action-menu > div) { border-radius: .75rem; background: var(--billing-surface); color: var(--billing-text); }
+.lms-theme .lms-content .content-tech :is(input:not([type="checkbox"]):not([type="hidden"]), textarea, select) { background: var(--billing-surface); color: var(--billing-text); border: 1px solid var(--billing-border); border-radius: .65rem; max-width: 100%; }
+.lms-theme .lms-content .content-tech .empty-state { background: var(--billing-tint); color: var(--billing-muted); border-color: var(--billing-border); }
+.content-tech :is(button, a, summary, input, select, textarea):focus-visible { outline: 2px solid #4387e8; outline-offset: 3px; }
+.content-tech .module-list-controls,
+.content-tech .learning-module-tools { flex-wrap: wrap; }
+.content-tech .module-content-drawer { overflow-y: auto; }
+.content-tech .module-create-body { overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .content-tech .learning-content-row { flex-wrap: wrap; }
+  .content-tech .learning-content-title { flex-basis: 65%; }
+}

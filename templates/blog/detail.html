@@ -111,7 +111,7 @@
 
         <div class="blog-contenido-publico">{{ post.contenido_publico|safe }}</div>
 
-        {% if post.contenido_privado and user.is_authenticated and user.is_staff or user.role == 'admin' or user.role == 'profesor' or user.role == 'premium' or user.role == 'freemium' or user.role == 'alumno' %}
+        {% if post.contenido_privado and puede_ver_privado %}
           <hr>
           <h2 class="h5 fw-semibold">Contenido premium</h2>
           <div class="blog-contenido-privado">{{ post.contenido_privado|safe }}</div>
@@ -121,7 +121,7 @@
           </div>
         {% elif post.contenido_privado %}
           <div class="alert alert-warning mt-4">
-            Este contenido es exclusivo para usuarios con roles admin, profesor, premium, freemium o alumno.
+            Este contenido requiere una membresía PLUS o PRO vigente.
           </div>
         {% endif %}
 

@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from .knowledge import question_initial, question_version_initial
-from .models import AuditEvent, Question, QuestionBank, Quiz, QuizQuestion, Section
+from .models import AuditEvent, Question, QuestionBank, Quiz, QuizAttempt, QuizQuestion, Section
 from .policies import can_edit_course
 
 
@@ -66,7 +66,7 @@ class QuizConfigurationForm(forms.ModelForm):
     bank = forms.ModelChoiceField(label=_('Banco de preguntas'), queryset=QuestionBank.objects.none())
     difficulty = forms.TypedChoiceField(
         label=_('Dificultad para selección aleatoria'), required=False, coerce=int, empty_value=None,
-        choices=[('', _('Todas')), (1, _('Básica')), (2, _('Media')), (3, _('Avanzada'))],
+        choices=[('', _('Todas')), *Question.DIFFICULTY_CHOICES],
     )
     question_count = forms.IntegerField(
         label=_('Número total de preguntas'), min_value=1, max_value=1000,
@@ -188,6 +188,59 @@ def record_action(quiz, actor, action):
         actor=actor, course=quiz.course, action=AuditEvent.Action.COURSE_UPDATED,
         metadata={'quiz_action': action, 'quiz_id': quiz.pk},
     )
+
+
+class QuizPassingScoreForm(forms.Form):
+    passing_score = forms.DecimalField(
+        label=_('Nota mínima para aprobar'), min_value=Decimal('0'),
+        max_digits=8, decimal_places=2,
+    )
+
+    def __init__(self, *args, quiz, **kwargs):
+        super().__init__(*args, **kwargs)
+        items = list(quiz.questions.all())
+        maximum = Decimal('10') if items and all(
+            item.metadata.get('grading_scale') == 10 for item in items
+        ) else sum((item.points for item in items), Decimal('0'))
+        self.fields['passing_score'].max_value = maximum
+        self.fields['passing_score'].validators.append(MaxValueValidator(maximum))
+        self.fields['passing_score'].help_text = _('Valor entre 0 y %(maximum)s.') % {'maximum': maximum}
+
+
+@transaction.atomic
+def update_quiz_passing_score(*, course, actor, quiz_id, passing_score):
+    if not can_edit_course(actor, course):
+        raise PermissionDenied
+    quiz = Quiz.objects.select_for_update().get(pk=quiz_id, course=course)
+    form = QuizPassingScoreForm({'passing_score': passing_score}, quiz=quiz)
+    if not form.is_valid():
+        raise ValidationError(form.errors['passing_score'])
+    threshold = form.cleaned_data['passing_score']
+    previous = quiz.passing_score
+    if previous == threshold:
+        return quiz
+    quiz.passing_score = threshold
+    quiz.save(update_fields=['passing_score', 'updated_at'])
+    count = 0
+    for attempt in quiz.attempts.select_for_update().all():
+        attempt.configuration_snapshot = {**attempt.configuration_snapshot, 'passing_score': str(threshold)}
+        fields = ['configuration_snapshot', 'updated_at']
+        if attempt.status == QuizAttempt.Status.GRADED:
+            attempt.is_passed = attempt.score >= threshold
+            fields.append('is_passed')
+            count += 1
+        attempt.save(update_fields=fields)
+    AuditEvent.objects.create(
+        actor=actor, course=course, action=AuditEvent.Action.COURSE_UPDATED,
+        metadata={
+            'quiz_action': 'passing_score_updated', 'quiz_id': quiz.pk,
+            'previous': str(previous), 'passing_score': str(threshold),
+            'updated_results': count,
+        },
+    )
+    from .consumers import broadcast_course_update
+    transaction.on_commit(lambda: broadcast_course_update(course, 'updated', item_type='lifecycle'))
+    return quiz
 
 
 @transaction.atomic

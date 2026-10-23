@@ -1,0 +1,30 @@
+{% extends "curriculum/ats/base.html" %}
+{% block ats_hero %}
+<header class="billing-hero">
+  <div>
+    <p class="billing-eyebrow">Revisa · Comprende · Mejora</p>
+    <h1>Verificar <span>CV</span></h1>
+    <p>Mis análisis privados. Revisa tus documentos y compara versiones con comprobaciones orientativas.</p>
+  </div>
+  <div class="billing-plan-badge"><i class="bi bi-file-earmark-check" aria-hidden="true"></i><span>Revisión<strong>Orientativa</strong></span></div>
+</header>
+{% endblock %}
+{% block ats_content %}
+<a href="{% url 'curriculum:ats_new' %}" class="btn btn-primary mb-3">Nuevo análisis</a>
+<form method="get" class="tech-search mb-3"><label class="form-label" for="ats-search">Buscar fuente</label> <input class="form-control" id="ats-search" name="q" value="{{ query }}" maxlength="200"><button type="submit" class="btn btn-outline-secondary">Buscar</button></form>
+<div class="row g-3">
+{% for report in page_obj %}
+<article class="col-12 col-md-6"><div class="card card-body h-100">
+  <h2 class="h5"><a href="{% url 'curriculum:ats_detail' pk=report.pk %}">{{ report.source.title }}</a></h2>
+  <p>{{ report.source.source_label }} · {{ report.scope }} · {% if report.status == "partial" %}Resultado parcial{% else %}Reglas completadas{% endif %}{% if report.archived %} · Archivado{% endif %}</p>
+  <p>Oferta: {% if report.offer_text %}texto aportado{% else %}sin oferta{% endif %} · {{ report.created_at|date:"DATETIME_FORMAT" }}</p>
+</div></article>
+{% empty %}<p>No tienes análisis guardados. Puedes empezar con un perfil, PDF o texto propio.</p>{% endfor %}
+</div>
+<nav aria-label="Páginas de análisis" class="mt-3">
+{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&amp;q={{ query|urlencode }}">Anterior</a>{% endif %}
+<span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&amp;q={{ query|urlencode }}">Siguiente</a>{% endif %}
+</nav>
+{% if sources %}<h2 class="h5 mt-4">Fuentes pendientes de revisión</h2><ul>{% for source in sources %}<li><a href="{% url 'curriculum:ats_review' pk=source.pk %}">{{ source.title }}</a> — {{ source.created_at|date:"DATETIME_FORMAT" }}</li>{% endfor %}</ul>{% endif %}
+{% endblock %}

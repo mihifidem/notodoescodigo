@@ -1,0 +1,42 @@
+{% extends "nexus/versioned/base.html" %}
+{% load static %}
+{% block nexus_content %}
+<header class="nexus-page-heading">
+<p class="nexus-eyebrow">Tu evaluación · v{{ session.frozen_definition.version }}</p>
+<h2>{{ session.frozen_definition.title }}</h2>
+<p>{{ session.frozen_definition.instructions|linebreaksbr }}</p>
+</header>
+<div class="nexus-progress-panel">
+<div class="nexus-section-heading"><h3>Tu progreso</h3><span class="nexus-tag">A tu ritmo</span></div>
+<p id="progress-text">Guardadas: {{ answered }} de {{ total }} respuestas ({{ progress }}%). «Sin responder» indica una pendiente. Revisa antes de entregar.</p>
+<progress aria-label="Respuestas guardadas" aria-describedby="progress-text" value="{{ answered }}" max="{{ total }}">{{ progress }}%</progress>
+<p id="save-state" role="status" aria-live="polite">Guardado automático al elegir una respuesta. También puedes guardar manualmente. No cierres si aparece un error de conexión.</p>
+</div>
+<form method="post" class="my-4" id="nexus-questionnaire">{% csrf_token %}
+  {{ form.non_field_errors }}
+  {{ form.revision }}{{ form.revision.errors }}
+  {% if form.timings %}{{ form.timings }}{{ form.timings.errors }}{% endif %}
+  {% for field in form.visible_fields %}
+  <fieldset class="nexus-question" data-question="{{ field.name }}">
+    <legend tabindex="-1">{{ forloop.counter }}. {{ field.label }}</legend>
+    {% if field.help_text %}<p class="nexus-question-context">{{ field.help_text|linebreaksbr }}</p>{% endif %}
+    {{ field.errors }}{{ field }}
+  </fieldset>
+  {% endfor %}
+  {% if session.frozen_definition.original_family %}
+  <div class="nexus-question-navigation" id="question-navigation" hidden>
+    <button class="btn btn-outline-secondary" type="button" id="question-previous">Anterior</button>
+    <span id="question-position" role="status" aria-live="polite"></span>
+    <button class="btn btn-outline-primary" type="button" id="question-next">Siguiente</button>
+    <button class="btn btn-outline-secondary" type="button" id="question-review">Revisar todas</button>
+  </div>
+  {% endif %}
+  <p class="nexus-submit-note">Guardar permite continuar. Entregar valida las obligatorias y los mínimos definidos por el responsable editorial, y cierra el intento de forma irreversible.</p>
+  <div class="nexus-actions">
+  <button class="btn btn-outline-primary" name="action" value="save" type="submit">Guardar y continuar después</button>
+  <button class="btn btn-primary" name="action" value="submit" type="submit">He revisado mis respuestas: entregar</button>
+  </div>
+</form>
+<p><a class="nexus-delete-link" href="{% url 'nexus:versioned_delete' session.pk %}">Borrar este intento</a></p>
+<script src="{% static 'nexus/versioned.js' %}" defer></script>
+{% endblock %}

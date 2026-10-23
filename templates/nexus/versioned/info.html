@@ -1,0 +1,37 @@
+{% extends "nexus/versioned/base.html" %}
+{% block nexus_content %}
+<a class="nexus-back" href="{% url 'nexus:catalog' %}"><span aria-hidden="true">←</span> Volver al catálogo</a>
+<header class="nexus-page-heading">
+  <div class="nexus-card-meta"><span class="nexus-tag">{{ version.get_mode_display }}</span><span>{{ version.family }} · versión {{ version.version }}</span></div>
+  <h2>{{ version.title }}</h2>
+  <p>{{ version.purpose }}</p>
+</header>
+<div class="nexus-info-layout">
+<div>
+<section class="card"><h3>Finalidad</h3><p>{{ version.purpose }}</p><h3>Dirigido a</h3><p>{{ version.audience }}</p></section>
+<section class="card"><h3>Qué no evalúa y limitaciones</h3><p>{{ version.limitations|linebreaksbr }}</p></section>
+<details class="nexus-details">
+<summary>Procedencia y fundamento editorial</summary>
+<p>Procedencia: {{ version.provenance }}.</p><p>Autoría: {{ version.authorship }}.</p><p>Autorización: {{ version.authorization }}.</p>
+<p>Fundamento declarado: {{ version.foundation }}.</p><p>Evidencia declarada: {{ version.validation_evidence|default:"No aportada; no se afirma validación científica." }}</p>
+</details>
+</div>
+<aside class="card nexus-start-panel" aria-labelledby="nexus-conditions">
+<p class="nexus-eyebrow">Antes de comenzar</p>
+<h3 id="nexus-conditions">Condiciones</h3>
+<p>{{ version.instructions|linebreaksbr }}</p>
+{% if version.duration_minutes %}<p>Duración estimada: {{ version.duration_minutes }} minutos.</p>{% endif %}
+<p>Escala por dimensiones, sin baremos poblacionales ni calificación profesional. Informe básico FREE, estándar PLUS, ampliado PRO; las compras determinan su alcance explícito.</p>
+<p>Sin consumo de energía para responder, guardar, calcular o consultar. IA pendiente de integración; no hay coste definido ni llamadas externas.</p>
+<p>No se comparten respuestas por ser docente, administrador o headhunter. Compartición contextual todavía no integrada.</p>
+{% if allowed %}
+<form method="post" action="{% url 'nexus:versioned_start' version.pk %}">{% csrf_token %}
+  <button class="btn btn-primary" type="submit">Comenzar o continuar</button>
+</form>
+{% else %}
+<p role="status">Sin acceso a nuevos intentos. Necesitas registro y el nivel o derecho de compra vigente.</p>
+<p>Puedes <a href="{% url 'nexus:versioned_history' %}">continuar un intento legítimo ya iniciado desde tu historial</a>, aunque tu plan haya cambiado.</p>
+{% endif %}
+</aside>
+</div>
+{% endblock %}

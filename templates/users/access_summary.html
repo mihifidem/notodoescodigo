@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi acceso y permisos{% endblock %}
+{% block page_title %}Mi acceso y permisos{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/access-summary.css' %}">{% endblock %}
+
+{% block content %}
+<section class="container-fluid py-3 billing-app access-app" aria-labelledby="access-heading">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+      <header class="billing-hero">
+        <div>
+          <p class="billing-eyebrow">Tu espacio · Tus posibilidades</p>
+          <h1 id="access-heading">Mi acceso y <span>permisos</span></h1>
+          <p>Consulta lo que tienes disponible. Tu nivel, tus roles y tus derechos se gestionan por separado.</p>
+        </div>
+        <div class="billing-plan-badge">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          <span>Nivel vigente<strong>{{ access.plan|upper }}</strong></span>
+        </div>
+      </header>
+      <nav class="billing-nav" aria-label="Secciones de acceso y permisos">
+        <a href="#access-level">Mi nivel</a>
+        <a href="#access-roles">Roles</a>
+        <a href="#access-capabilities">Prestaciones</a>
+        <a href="#access-entitlements">Derechos</a>
+      </nav>
+      <p class="access-notice"><i class="bi bi-lock" aria-hidden="true"></i> Información privada de tu cuenta. Un plan de pago no concede roles administrativos ni profesionales.</p>
+
+      <div class="access-overview">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="access-level"><i class="bi bi-layers" aria-hidden="true"></i> Nivel vigente</h2>
+          <p class="access-level mb-2"><strong>{{ access.plan|upper }}</strong></p>
+          {% if access.membership.ends_at %}
+            <p class="mb-0 text-muted">Vigencia hasta {{ access.membership.ends_at|date:"j F Y H:i" }}.</p>
+          {% elif access.plan == 'free' %}
+            <p class="mb-0 text-muted">Cuenta registrada en el nivel FREE.</p>
+          {% else %}
+            <p class="mb-0 text-muted">La membresía no tiene una fecha de finalización registrada.</p>
+          {% endif %}
+          <a class="btn btn-primary mt-3" href="{% url 'users:billing' %}#mejorar-plan">Gestionar mi plan <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+          {% if access.membership.status != 'active' %}
+            <p class="mt-2 mb-0 text-warning">La membresía no está activa; se mantienen los derechos comprados vigentes.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="access-roles"><i class="bi bi-person-badge" aria-hidden="true"></i> Roles asignados</h2>
+          {% if access.roles %}
+            <ul class="mb-0">
+              {% for assignment in access.roles %}
+                <li>{{ assignment.role|capfirst }}{% if assignment.organization %} — {{ assignment.organization }}{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No tienes roles profesionales asignados.</p>
+          {% endif %}
+          {% if access.organizations %}
+            <h3 class="h6 mt-3">Organizaciones</h3>
+            <ul class="mb-0">
+              {% for organization in access.organizations %}
+                <li>{{ organization }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5" id="access-capabilities"><i class="bi bi-grid" aria-hidden="true"></i> Prestaciones</h2>
+          <ul class="list-unstyled mb-0">
+            {% for key, capability in access.capabilities.items %}
+              <li class="access-capability d-flex justify-content-between gap-3 py-2 border-bottom">
+                <span>
+                  {% if key == 'registered_content' %}Contenido para cuentas registradas
+                  {% elif key == 'plus_content' %}Prestaciones PLUS
+                  {% elif key == 'pro_content' %}Prestaciones PRO
+                  {% else %}{{ key }}{% endif %}
+                </span>
+                {% if capability.allowed %}
+                  <span class="access-status access-status-available"><i class="bi bi-check-circle" aria-hidden="true"></i> Disponible</span>
+                {% else %}
+                  <span class="access-status text-muted">
+                    {% if capability.reason == 'registration_required' %}Requiere cuenta
+                    {% elif capability.reason == 'subscription_inactive' %}Membresía inactiva
+                    {% elif capability.reason == 'plan_required' %}Requiere otro nivel
+                    {% elif capability.reason == 'account_inactive' %}Cuenta inactiva
+                    {% else %}No disponible{% endif %}
+                  </span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h5" id="access-entitlements"><i class="bi bi-key" aria-hidden="true"></i> Derechos individuales</h2>
+          {% if access.entitlements %}
+            <ul class="mb-0">
+              {% for entitlement in access.entitlements %}
+                <li>{{ entitlement.code }} — vigente{% if entitlement.expires_at %} hasta {{ entitlement.expires_at|date:"j F Y H:i" }}{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No hay derechos individuales vigentes registrados.</p>
+          {% endif %}
+          <p class="small text-muted mt-3 mb-0">La compra en línea de prestaciones no está disponible desde esta pantalla.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1188,6 +1188,50 @@ class LmsNotificationAndCalendarTests(TestCase):
 
 
 class LmsQuestionBankTests(TestCase):
+    def test_groups_bank_levels_without_merging_distinct_names(self):
+        from types import SimpleNamespace
+        from .selectors import group_question_banks
+
+        banks = [SimpleNamespace(title=f'Python I {level}/5') for level in range(1, 6)]
+        banks += [SimpleNamespace(title='Python II 1/5'), SimpleNamespace(title='Banco sin nivel')]
+        groups = group_question_banks(banks)
+        self.assertEqual([group['title'] for group in groups], ['Python I', 'Python II', 'Banco sin nivel'])
+        self.assertEqual(groups[0]['banks'], banks[:5])
+
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_bank_area_tech_design_preserves_actions_and_permissions(self):
+        CourseMembership.objects.create(course=self.course, user=self.teacher, role='owner')
+        self.client.force_login(self.teacher)
+        url = reverse('lms:course_area', kwargs={'course_id': self.course.pk, 'area': 'item-bank'})
+        response = self.client.get(url)
+        self.assertContains(response, 'lms/knowledge-tech.css')
+        self.assertContains(response, 'billing-app knowledge-tech')
+        from bs4 import BeautifulSoup
+
+        accordion = BeautifulSoup(response.content, 'html.parser').select_one('details.knowledge-bank-accordion')
+        self.assertIsNotNone(accordion)
+        self.assertFalse(accordion.has_attr('open'))
+        self.assertIn(self.bank.title, accordion.summary.get_text())
+        self.assertIsNotNone(accordion.select_one('.knowledge-bank-body'))
+        group = accordion.find_parent('details', class_='knowledge-bank-group')
+        self.assertIsNotNone(group)
+        self.assertFalse(group.has_attr('open'))
+        self.assertContains(response, 'course-context-grid-full')
+        self.assertNotContains(response, '<aside class="upcoming-panel">')
+        self.assertNotContains(response, 'Próximas entregas')
+        self.assertContains(response, self.bank.title)
+        for route, kwargs in (
+            ('lms:knowledge_create', {'course_id': self.course.pk}),
+            ('lms:knowledge_bank', {'course_id': self.course.pk, 'bank_id': self.bank.pk}),
+            ('lms:knowledge_delete', {'course_id': self.course.pk, 'bank_id': self.bank.pk}),
+        ):
+            self.assertContains(response, reverse(route, kwargs=kwargs))
+        self.bank.delete()
+        self.assertContains(self.client.get(url), 'Crea un banco e importa tu CSV')
+        CourseMembership.objects.create(course=self.course, user=self.student, role='student')
+        self.client.force_login(self.student)
+        self.assertEqual(self.client.get(url).status_code, 403)
+
     def setUp(self):
         self.teacher = User.objects.create_user('bank_teacher', password='password')
         self.student = User.objects.create_user('bank_student', password='password')
@@ -2061,6 +2105,43 @@ class LearningActivityStructureTests(TestCase):
 
 
 class LmsFileAssetTests(TestCase):
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_m4a_upload_and_private_download(self):
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        from .forms import FileAssetForm
+        from .storage import PrivateMediaStorage
+
+        self.assertIn('.m4a', FileAssetForm().fields['file'].widget.attrs['accept'].split(','))
+        create_url = reverse('lms:course_file_create', kwargs={'course_id': self.course.pk})
+        content = b'\x00\x00\x00\x20ftypM4A \x00\x00\x00\x00M4A '
+        with TemporaryDirectory() as folder, patch.object(
+            FileAsset._meta.get_field('file'), 'storage', PrivateMediaStorage(location=folder),
+        ):
+            self.client.force_login(self.teacher)
+            for name in ('leccion.m4a', 'LECCION.M4A'):
+                with self.subTest(name=name):
+                    response = self.client.post(create_url, {
+                        'title': name, 'visibility': 'students', 'access_policy': 'course',
+                        'allow_download': 'on',
+                        'file': SimpleUploadedFile(name, content, content_type='audio/mp4'),
+                    })
+                    self.assertEqual(response.status_code, 302)
+                    asset = FileAsset.objects.get(title=name)
+                    self.assertEqual(asset.file_name, name)
+                    self.assertTrue(asset.mime_type.startswith('audio/'))
+                    download = reverse('lms:course_file_download', kwargs={
+                        'course_id': self.course.pk, 'file_id': asset.pk,
+                    })
+                    self.client.force_login(self.student)
+                    response = self.client.get(download)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(b''.join(response.streaming_content), content)
+                    response.close()
+                    self.client.force_login(self.outsider)
+                    self.assertEqual(self.client.get(download).status_code, 403)
+                    self.client.force_login(self.teacher)
+
     def test_file_directory_search_folders_sort_and_visibility(self):
         from tempfile import TemporaryDirectory
         from unittest.mock import patch
@@ -2391,6 +2472,144 @@ class CourseSectionAndPeopleManagementTests(TestCase):
 
 
 class LmsPageCmsTests(TestCase):
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_syllabus_displays_text_instead_of_html_source(self):
+        from bs4 import BeautifulSoup
+        from .models import CourseSyllabus
+
+        self.course.creado_por = self.teacher
+        self.course.save(update_fields=['creado_por'])
+        fields = ('overview', 'objectives', 'methodology', 'competencies',
+                  'evaluation_criteria', 'bibliography')
+        syllabus = CourseSyllabus.objects.create(
+            course=self.course,
+            **{field: f'<p>Texto {field}</p><style>.hidden{{color:red}}</style>'
+               for field in fields},
+        )
+        self.course.temas.create(
+            titulo='Unidad de prueba', orden=0,
+            contenido='<html><head><title>Interno</title><style>.unit{color:red}</style>'
+                      '</head><body><p>Introduccion de la unidad.</p></body></html>',
+        )
+        for user in (self.teacher, self.student):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(reverse('lms:course_area', kwargs={
+                    'course_id': self.course.pk, 'area': 'syllabus',
+                }))
+                self.assertEqual(response.status_code, 200)
+                area = BeautifulSoup(response.content, 'html.parser').select_one('.area-main')
+                for field in fields:
+                    self.assertIn(f'Texto {field}', area.text)
+                self.assertIn('Introduccion de la unidad.', area.text)
+                for code in ('<p>', '<style>', 'color:red', 'Interno'):
+                    self.assertNotIn(code, area.text)
+                self.assertIsNone(area.select_one('.prose p p'))
+        syllabus.refresh_from_db()
+        self.assertIn('<p>', syllabus.overview)
+
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_page_cards_are_collapsed_accordions_with_role_actions(self):
+        from bs4 import BeautifulSoup
+
+        published = Page.objects.create(
+            course=self.course, title='Pagina acordeon',
+            content=(
+                '<!doctype html><html><head><title>Titulo interno</title>'
+                '<style>body { background: red; }</style></head>'
+                '<body><p>Resumen <strong>visible</strong></p></body></html>'
+            ),
+            author=self.teacher, status=Page.Status.PUBLISHED, is_homepage=True,
+        )
+        draft = Page.objects.create(
+            course=self.course, title='Borrador acordeon', author=self.teacher,
+            status=Page.Status.DRAFT,
+        )
+        url = reverse('lms:course_pages', kwargs={'course_id': self.course.pk})
+        for user, expected_pages in [
+            (self.teacher, [published, draft]),
+            (self.student, [published]),
+        ]:
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                html = BeautifulSoup(response.content, 'html.parser')
+                cards = html.select('.pages-accordion > details.page-card')
+                self.assertEqual(len(cards), len(expected_pages))
+                for page in expected_pages:
+                    card = next(
+                        card for card in cards
+                        if card.select_one('summary .page-card-title').text == page.title
+                    )
+                    self.assertFalse(card.has_attr('open'))
+                    self.assertIn(page.get_status_display(), card.select_one('summary').text)
+                    self.assertIsNone(card.select_one('summary a, summary button, summary form'))
+                    body = card.select_one('.content-accordion-body')
+                    self.assertIsNotNone(body.select_one('.meta-row'))
+                    if page == published:
+                        self.assertEqual(body.select_one('p').text, 'Resumen visible')
+                    detail_url = reverse('lms:course_page_detail', kwargs={
+                        'course_id': self.course.pk, 'page_slug': page.slug,
+                    })
+                    self.assertIsNotNone(body.select_one(f'a[href="{detail_url}"]'))
+                    if user == self.teacher:
+                        edit_url = reverse('lms:course_page_edit', kwargs={
+                            'course_id': self.course.pk, 'page_slug': page.slug,
+                        })
+                        self.assertIsNotNone(body.select_one(f'a[href="{edit_url}"]'))
+                        self.assertEqual(len(body.select('form')), 2 if page == draft else 1)
+                    else:
+                        self.assertIsNone(body.select_one('form'))
+                        self.assertEqual(len(body.select('a')), 1)
+                if user == self.student:
+                    self.assertNotContains(response, draft.title)
+
+    def test_page_intro_extracts_text_without_document_code(self):
+        for content, expected in [
+            ('<p>Aprende <strong>Python</strong> &amp; practica.</p><p>Siguiente paso.</p>',
+             'Aprende Python & practica. Siguiente paso.'),
+            ('<html><head><title>Interno</title><style>body{color:red}</style></head>'
+             '<body><p>Introduccion al curso.</p><script>alert(1)</script>'
+             '<template><p>Oculto</p></template></body></html>', 'Introduccion al curso.'),
+            ('<style>body{color:red}</style>', ''),
+            ('', ''),
+        ]:
+            with self.subTest(content=content):
+                self.assertEqual(Page(content=content).content_intro, expected)
+
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_page_intro_is_truncated_escaped_and_handles_empty_content(self):
+        from bs4 import BeautifulSoup
+
+        Page.objects.create(
+            course=self.course, title='Texto largo', author=self.teacher,
+            content='<p>' + ' '.join(f'palabra{i}' for i in range(25)) + '</p>',
+        )
+        Page.objects.create(
+            course=self.course, title='Sin texto', author=self.teacher,
+            content='<style>body{color:red}</style>',
+        )
+        Page.objects.create(
+            course=self.course, title='Texto escapado', author=self.teacher,
+            content='<p>&lt;img src=x onerror=alert(1)&gt;</p>',
+        )
+        self.client.force_login(self.teacher)
+        response = self.client.get(reverse('lms:course_pages', kwargs={'course_id': self.course.pk}))
+        self.assertEqual(response.status_code, 200)
+        html = BeautifulSoup(response.content, 'html.parser')
+        intros = {
+            card.select_one('summary .page-card-title').text:
+            card.select_one('.content-accordion-body > p')
+            for card in html.select('.pages-accordion > details.page-card')
+        }
+        self.assertIn('palabra19', intros['Texto largo'].text)
+        self.assertNotIn('palabra20', intros['Texto largo'].text)
+        self.assertTrue(intros['Texto largo'].text.endswith('\u2026'))
+        self.assertEqual(intros['Sin texto'].text, 'Sin contenido todav\u00eda.')
+        self.assertEqual(intros['Texto escapado'].text, '<img src=x onerror=alert(1)>')
+        self.assertIsNone(intros['Texto escapado'].find('img'))
+
     @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
     def test_lms_screens_share_scoped_example_theme(self):
         self.client.force_login(self.teacher)
@@ -3139,6 +3358,25 @@ class LmsPageCmsTests(TestCase):
 
 
 class LmsAnnouncementTests(TestCase):
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+    def test_announcements_tech_design_keeps_authorless_cards_and_actions(self):
+        announcement = Announcement.objects.create(
+            course=self.course, author=None, title='Aviso del equipo',
+            content='Contenido del aviso', status='published',
+        )
+        self.client.force_login(self.teacher)
+        url = reverse('lms:course_area', kwargs={'course_id': self.course.pk, 'area': 'announcements'})
+        response = self.client.get(url)
+        self.assertContains(response, 'announcements-tech')
+        self.assertContains(response, 'lms/knowledge-tech.css')
+        self.assertContains(response, 'Equipo docente')
+        self.assertContains(response, f'id="announcement-{announcement.pk}"')
+        self.assertContains(response, reverse('lms:course_announcement_create', args=[self.course.pk]))
+        self.client.force_login(self.student)
+        response = self.client.get(url)
+        self.assertContains(response, 'Contenido del aviso')
+        self.assertNotContains(response, reverse('lms:course_announcement_create', args=[self.course.pk]))
+
     def test_opening_an_announcement_marks_only_its_own_notification_read(self):
         from .services import notify_announcement_published
 

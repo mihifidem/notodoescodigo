@@ -4,56 +4,35 @@ import re
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
-from .models import CriterioRubrica, PromptCorreccion
+from apps.prompts.internal import get_internal_prompt
+from apps.prompts.models import InternalPrompt
+from .models import CriterioRubrica
 
 
 def _resolve_system_prompt(tipo_prueba: str) -> tuple[str, str]:
     """
-    Returns (system_prompt_text, version) by looking up the active PromptCorreccion in DB.
-    Falls back to: scope-specific hardcoded → DEFAULT hardcoded.
-    Returns the text AND the version string for audit purposes.
+    Resolve scope, DEFAULT override, then the seeded database fallback.
+    Return the text and version for the correction audit.
     """
-    # 1. Try active DB prompt for the exact tipo_prueba scope
-    for scope in (tipo_prueba, PromptCorreccion.SCOPE_DEFAULT):
+    for scope in dict.fromkeys((tipo_prueba, 'DEFAULT')):
         try:
-            p = PromptCorreccion.objects.get(scope=scope, activo=True)
-            return p.system_prompt, p.version
-        except PromptCorreccion.DoesNotExist:
+            prompt = InternalPrompt.objects.get(key=f'evaluations.system.{scope}', active=True)
+            return prompt.content, prompt.version
+        except InternalPrompt.DoesNotExist:
             continue
 
-    # 2. Hard-coded fallback
-    if tipo_prueba == 'OBJ_TEST':
-        return SYSTEM_PROMPT_OBJ_TEST, PROMPT_VERSION
-    return SYSTEM_PROMPT, PROMPT_VERSION
+    suffix = 'OBJ_TEST' if tipo_prueba == 'OBJ_TEST' else 'default'
+    prompt = get_internal_prompt(f'evaluations.fallback.{suffix}')
+    return prompt.content, prompt.version
+
 
 PROMPT_VERSION = '1.0'
 GRADING_MODEL = 'gpt-4o-mini'
 MAX_SUBMISSION_CHARS = 12000
 
 logger = logging.getLogger(__name__)
-
-SYSTEM_PROMPT = (
-    'Eres un evaluador academico estricto y justo. '
-    'Debes corregir solo con base en el enunciado, la rubrica y el texto del alumno. '
-    'No inventes informacion. Devuelve exclusivamente JSON valido.'
-)
-
-# Instrucciones especificas de calculo para tests objetivos con penalizacion.
-SYSTEM_PROMPT_OBJ_TEST = (
-    'Eres un evaluador academico estricto y justo. '
-    'Debes corregir solo con base en el enunciado, la rubrica y el texto del alumno. '
-    'No inventes informacion. Devuelve exclusivamente JSON valido.\n\n'
-    'REGLA OBLIGATORIA DE CALCULO PARA TEST CON PENALIZACION:\n'
-    '  puntuacion_bruta = (aciertos × valor_acierto) - (errores × penalizacion_por_error)\n'
-    '  Las preguntas en blanco NO puntuan ni penalizan.\n'
-    '  NUNCA omitas la resta de la penalizacion. Si hay 0 errores la resta es 0.\n'
-    '  Ejemplo: 10 aciertos × 0.5 = 5.0 ; 10 errores × 0.17 = 1.7 ; '
-    'puntuacion_bruta = 5.0 - 1.7 = 3.3\n'
-    '  Incluye siempre en el JSON el campo "test_stats" con '
-    '{aciertos, errores, en_blanco, valor_acierto, penalizacion_por_error, puntuacion_bruta}.\n'
-    '  El campo overall_score debe coincidir exactamente con puntuacion_bruta calculada con la formula.'
-)
 
 
 def _get_client():
@@ -62,6 +41,21 @@ def _get_client():
         return OpenAI(api_key=settings.OPENAI_API_KEY)
     except ImportError:
         return None
+
+
+def _prompt_json(key, expected_type):
+    prompt = get_internal_prompt(key)
+    try:
+        value = json.loads(prompt.content)
+    except json.JSONDecodeError as exc:
+        logger.error('Invalid JSON in internal grading prompt: %s', key)
+        raise ImproperlyConfigured(f'JSON incorrecto en el prompt interno: {key}') from exc
+    if not isinstance(value, expected_type) or (
+        expected_type is list and any(not isinstance(item, str) for item in value)
+    ):
+        logger.error('Invalid JSON structure in internal grading prompt: %s', key)
+        raise ImproperlyConfigured(f'Estructura incorrecta en el prompt interno: {key}')
+    return value
 
 
 def _build_rubric_payload(evaluacion):
@@ -255,38 +249,14 @@ def grade_submission(entrega, texto_entrega):
             'used_chars': len(submission_text),
             'truncated': was_truncated,
         },
-        'response_schema': {
-            'overall_score': 'number',
-            'criteria': [
-                {
-                    'criterion_id': 'string',
-                    'score': 'number',
-                    'justification': 'string',
-                    'evidence': ['string'],
-                    'improvement': 'string',
-                }
-            ],
-            'global_feedback': 'string',
-            'study_plan': ['string'],
-            'confidence': 'number_between_0_and_1',
-            'insufficient_evidence': 'boolean',
-        },
-        'rules': [
-            'No inventes contenido no presente en la entrega.',
-            'Usa los criterios y pesos de la rubrica.',
-            'Cada criterio debe incluir evidencias literales breves.',
-            'Devuelve exclusivamente JSON valido.',
-        ],
+        'response_schema': _prompt_json('evaluations.response_schema', dict),
+        'rules': _prompt_json('evaluations.rules', list),
     }
 
     # Inject deterministic stats so the AI MUST use the precomputed score.
     if precomputed_stats is not None:
         user_prompt['precomputed_test_stats'] = precomputed_stats
-        user_prompt['rules'] += [
-            'OBLIGATORIO: El campo overall_score DEBE ser exactamente precomputed_test_stats.puntuacion_bruta. '
-            'NO recalcules la nota; solo genera el feedback narrativo y el plan de mejora.',
-            'El campo test_stats del JSON de respuesta debe copiar literalmente los valores de precomputed_test_stats.',
-        ]
+        user_prompt['rules'] += _prompt_json('evaluations.precomputed_rules', list)
 
     try:
         response = client.chat.completions.create(

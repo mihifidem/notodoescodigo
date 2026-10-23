@@ -1,12 +1,31 @@
 {% extends 'base.html' %}
+{% load static users_access %}
 {% block title %}{{ perfil.get_full_name|default:perfil.username }} — Perfil{% endblock %}
 {% block page_title %}Perfil de {{ perfil.username }}{% endblock %}
 
 {% block content %}
+<main class="billing-app personal-tech profile-tech container-fluid px-3 px-lg-4 py-4" aria-labelledby="profile-heading">
+<header class="billing-hero mb-4">
+  <div>
+    <p class="billing-eyebrow">Ducky Me · Identidad y aprendizaje</p>
+    <h1 id="profile-heading">Perfil de <span>{{ perfil.get_full_name|default:perfil.username }}</span></h1>
+    <p>Tu identidad, insignias y certificaciones en un solo espacio.</p>
+  </div>
+  <div class="billing-plan-badge">
+    <i class="bi bi-person-badge" aria-hidden="true"></i>
+    <span>Nivel de experiencia<strong>{{ perfil.nivel|upper }}</strong></span>
+  </div>
+</header>
+<nav class="billing-nav" aria-label="Secciones del perfil">
+  <a href="#profile-account"><i class="bi bi-person" aria-hidden="true"></i>Cuenta</a>
+  <a href="#profile-badges"><i class="bi bi-award" aria-hidden="true"></i>Insignias</a>
+  <a href="#profile-certificates"><i class="bi bi-patch-check" aria-hidden="true"></i>Certificados</a>
+  <a href="#profile-credentials"><i class="bi bi-file-earmark-check" aria-hidden="true"></i>Credenciales</a>
+</nav>
 <div class="row g-4">
   <!-- Profile card -->
   <div class="col-12 col-md-4">
-    <div class="card border-0 shadow-sm text-center p-4">
+    <section id="profile-account" class="card profile-identity border-0 shadow-sm text-center p-4" aria-labelledby="profile-account-title">
       {% if perfil.avatar %}
         <img src="{{ perfil.avatar.url }}" class="rounded-circle mx-auto mb-3 border" width="100" height="100" style="object-fit:cover;" alt="Avatar">
       {% else %}
@@ -14,11 +33,12 @@
           <span class="display-5 fw-bold text-white">{{ perfil.username|first|upper }}</span>
         </div>
       {% endif %}
-      <h4 class="fw-bold mb-0">{{ perfil.get_full_name|default:perfil.username }}</h4>
+      <h2 id="profile-account-title" class="h4 fw-bold mb-0">{{ perfil.get_full_name|default:perfil.username }}</h2>
       <p class="text-muted small">@{{ perfil.username }}</p>
+      {% current_access_plan perfil as profile_access_plan %}
       <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis border px-3 py-2">
-          Rol: {{ perfil.get_role_display }}
+        <span class="badge bg-secondary-subtle text-secondary-emphasis border px-3 py-2" aria-label="Plan del perfil {{ profile_access_plan|upper }}">
+          {{ profile_access_plan|upper }}
         </span>
         <span class="badge bg-primary text-uppercase fs-6 px-3 py-2">{{ perfil.nivel }}</span>
       </div>
@@ -36,7 +56,7 @@
           <div class="text-muted" style="font-size:.75rem;">Racha</div>
         </div>
         <div class="col">
-          <div class="fw-bold text-success">{{ certificados|length }}</div>
+          <div class="fw-bold text-success">{{ total_certificados }}</div>
           <div class="text-muted" style="font-size:.75rem;">Certs.</div>
         </div>
       </div>
@@ -45,7 +65,7 @@
         <a href="{% url 'users:editar_perfil' %}" class="btn btn-outline-primary btn-sm mt-3">
           <i class="bi bi-pencil me-1"></i>Editar perfil
         </a>
-        <button type="button" id="deleteAccountTrigger" class="btn btn-outline-danger btn-sm w-100 mt-3" aria-expanded="false">
+        <button type="button" id="deleteAccountTrigger" class="btn btn-outline-danger btn-sm w-100 mt-3" aria-expanded="false" aria-controls="deleteAccountConfirm">
           <i class="bi bi-trash me-1"></i>Eliminar cuenta
         </button>
         <div id="deleteAccountConfirm" class="delete-confirmation mt-3" hidden>
@@ -60,18 +80,19 @@
                 </button>
               </form>
             </div>
+
           </div>
         </div>
       {% endif %}
-    </div>
+    </section>
   </div>
 
   <!-- Badges & certs -->
   <div class="col-12 col-md-8">
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-white fw-semibold">
+    <section id="profile-badges" class="card border-0 shadow-sm mb-4" aria-labelledby="profile-badges-title">
+      <h2 id="profile-badges-title" class="card-header h6 mb-0 fw-semibold">
         <i class="bi bi-award me-2 text-primary"></i>Insignias ({{ total_insignias_activas }} / {{ total_insignias }})
-      </div>
+      </h2>
       <div class="card-body">
         {% if insignias_con_estado %}
           <div class="d-flex flex-wrap gap-3">
@@ -92,14 +113,14 @@
           <p class="text-muted small mb-0">Aún no tiene insignias.</p>
         {% endif %}
       </div>
-    </div>
+    </section>
 
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white fw-semibold">
-        <i class="bi bi-patch-check me-2 text-success"></i>Certificados ({{ certificados|length }})
-      </div>
+    <section id="profile-certificates" class="card border-0 shadow-sm" aria-labelledby="profile-certificates-title">
+      <h2 id="profile-certificates-title" class="card-header h6 mb-0 fw-semibold">
+        <i class="bi bi-patch-check me-2 text-success"></i>Certificados ({{ total_certificados }})
+      </h2>
       <div class="card-body p-0">
-        {% if certificados %}
+        {% if certificados or lms_certificados %}
           <ul class="list-group list-group-flush">
             {% for cert in certificados %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -117,27 +138,72 @@
               </div>
             </li>
             {% endfor %}
+            {% for cert in lms_certificados %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-patch-check-fill text-success me-2"></i>
+                {{ cert.course.nombre }}
+                <span class="small text-muted">· {{ cert.get_status_display }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">{{ cert.issued_at|date:"d M Y" }}</span>
+                <a href="{% url 'certifications:lms_validate' codigo=cert.certificate_code %}" class="btn btn-sm btn-outline-secondary" aria-label="Validar certificado de {{ cert.course.nombre }}">
+                  <i class="bi bi-check2-circle"></i>
+                </a>
+                {% if perfil == request.user and cert.pdf_file %}
+                  <a href="{% url 'certifications:lms_download' pk=cert.pk %}" class="btn btn-sm btn-outline-success" aria-label="Descargar certificado de {{ cert.course.nombre }}">
+                    <i class="bi bi-download"></i>
+                  </a>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
           </ul>
         {% else %}
           <div class="p-4 text-center text-muted small">Sin certificados aún.</div>
         {% endif %}
       </div>
-    </div>
+    </section>
+    <section id="profile-credentials" class="card border-0 shadow-sm mt-4" aria-labelledby="profile-credentials-title">
+      <h2 id="profile-credentials-title" class="card-header h6 mb-0 fw-semibold">
+        <i class="bi bi-patch-check me-2 text-primary"></i>Credenciales declaradas
+      </h2>
+      <div class="card-body p-0">
+        {% if credenciales_publicas %}
+          <ul class="list-group list-group-flush">
+            {% for credential in credenciales_publicas %}
+              <li class="list-group-item d-flex flex-column flex-md-row justify-content-between gap-2">
+                <div>
+                  <strong>{{ credential.name }}</strong>
+                  <div class="small text-muted">{{ credential.issuer_name }} · {{ credential.get_credential_type_display }}</div>
+                  <div class="small">
+                    {% if credential.is_verified_for_current_revision %}Verificada para v{{ credential.revision }}{% else %}Declarada · {{ credential.get_review_status_display }}{% endif %}
+                    {% if credential.validity_status == 'expired' %} · Caducada según fecha{% elif credential.validity_status == 'revoked' %} · Revocada{% elif credential.validity_status == 'no_expiry' %} · Sin caducidad informada{% endif %}
+                  </div>
+                </div>
+                {% if es_propietario_perfil %}
+                  <a class="btn btn-sm btn-outline-primary align-self-start" href="{% url 'certifications:credential_detail' credential.pk %}">Gestionar</a>
+                {% else %}
+                  <a class="btn btn-sm btn-outline-secondary align-self-start" href="{% url 'certifications:credential_public' credential.pk %}">Ver</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="p-4 text-center text-muted small">No hay credenciales compartidas.</div>
+        {% endif %}
+      </div>
+    </section>
   </div>
 </div>
+</main>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-  .grayscale{filter:grayscale(100%);}
-  .delete-confirmation {
-    animation: slideDown 0.2s ease-out;
-  }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+<link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-tech.css' %}">
 {% endblock %}
 
 {% block extra_js %}

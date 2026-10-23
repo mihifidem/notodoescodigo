@@ -146,7 +146,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalera',
             name='slug',
-            field=models.SlugField(blank=True, max_length=48, null=True),
+            # The final unique field creates its indexes after the data backfill.
+            field=models.SlugField(blank=True, db_index=False, max_length=48, null=True),
         ),
         migrations.AddField(
             model_name='historicalera',

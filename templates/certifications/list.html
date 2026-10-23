@@ -1,45 +1,116 @@
 {% extends 'base.html' %}
-{% block title %}Mis Certificados — MihiTraining{% endblock %}
-{% block page_title %}Mis Certificados{% endblock %}
-
+{% load static %}
+{% block title %}Mis certificaciones — Ducky Me{% endblock %}
+{% block page_title %}Mis certificaciones{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">{% endblock %}
 {% block content %}
-{% if certificados %}
-<div class="row row-cols-1 row-cols-md-2 g-4">
-  {% for cert in certificados %}
-  <div class="col">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-body d-flex align-items-center gap-4">
-        <div class="rounded-3 bg-success bg-opacity-10 p-3">
-          <i class="bi bi-patch-check-fill text-success display-5"></i>
-        </div>
-        <div class="flex-grow-1">
-          <h6 class="fw-bold mb-1">{{ cert.curso.nombre }}</h6>
-          <div class="text-muted small mb-2">
-            <i class="bi bi-calendar me-1"></i>{{ cert.fecha_emision|date:"d M Y" }}
-          </div>
-          <div class="d-flex gap-2">
-            <a href="{% url 'certifications:descargar' pk=cert.pk %}" class="btn btn-sm btn-success">
-              <i class="bi bi-download me-1"></i>Descargar PDF
-            </a>
-            <a href="{% url 'certifications:validar' codigo=cert.codigo_unico %}" class="btn btn-sm btn-outline-secondary" target="_blank">
-              <i class="bi bi-eye me-1"></i>Validar
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="card-footer bg-white border-0">
-        <small class="text-muted"><i class="bi bi-upc me-1"></i>Código: {{ cert.codigo_unico }}</small>
-      </div>
+<main class="container-fluid px-3 px-lg-4 py-4 billing-app personal-tech" aria-labelledby="certifications-heading">
+  <header class="billing-hero">
+    <div>
+      <p class="billing-eyebrow">Formación · Evidencias · Trayectoria</p>
+      <h1 id="certifications-heading">Mis <span>certificaciones</span></h1>
+      <p>Tus declaraciones, revisiones y certificados internos se distinguen por su procedencia.</p>
     </div>
-  </div>
-  {% endfor %}
-</div>
-{% else %}
-<div class="text-center py-5">
-  <i class="bi bi-patch-check display-1 text-muted opacity-25 d-block mb-3"></i>
-  <h5 class="text-muted">Aún no tienes certificados</h5>
-  <p class="text-muted small">Completa todos los temas de un curso para obtener tu certificado.</p>
-  <a href="{% url 'courses:list' %}" class="btn btn-primary mt-2">Explorar cursos</a>
-</div>
-{% endif %}
+    <div class="billing-plan-badge"><i class="bi bi-patch-check" aria-hidden="true"></i><span>Credenciales declaradas<strong>{{ summary.total }}</strong></span></div>
+  </header>
+  <nav class="tech-actions" aria-label="Acciones de certificaciones">
+    <a class="btn btn-primary" href="{% url 'certifications:credential_create' %}">Registrar credencial</a>
+    <a class="btn btn-outline-primary" href="#claims-title">Mis credenciales</a>
+    <a class="btn btn-outline-primary" href="#internal-title">Emisiones internas</a>
+  </nav>
+  {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>{% endfor %}{% endif %}
+
+  <section class="row row-cols-2 row-cols-lg-4 g-3 mb-4 tech-summary" aria-label="Resumen de credenciales">
+    <div class="col"><div class="card h-100"><div class="card-body"><div class="text-muted small">Declaradas</div><strong class="fs-4">{{ summary.total }}</strong></div></div></div>
+    <div class="col"><div class="card h-100"><div class="card-body"><div class="text-muted small">Verificadas</div><strong class="fs-4">{{ summary.verified }}</strong></div></div></div>
+    <div class="col"><div class="card h-100"><div class="card-body"><div class="text-muted small">Pendientes</div><strong class="fs-4">{{ summary.pending }}</strong></div></div></div>
+    <div class="col"><div class="card h-100"><div class="card-body"><div class="text-muted small">Emisiones internas</div><strong class="fs-4">{{ summary.issued_internal }}</strong></div></div></div>
+  </section>
+
+  {% if is_reviewer %}
+    <p><a class="btn btn-outline-secondary mb-3" href="{% url 'certifications:review_queue' %}">Cola de revisión</a></p>
+  {% endif %}
+
+  {% if upcoming_expiry %}
+    <section class="alert alert-warning" aria-labelledby="expiring-title">
+      <h2 id="expiring-title" class="h6">Próximas a caducar</h2>
+      <ul class="mb-0">{% for credential in upcoming_expiry %}<li><a href="{% url 'certifications:credential_detail' credential.pk %}">{{ credential.name }}</a> · {{ credential.expires_on|date:'d M Y' }}</li>{% endfor %}</ul>
+      <span class="small">Aviso configurado con antelación de {{ expiry_warning_days }} días; no implica una condición de renovación del emisor.</span>
+    </section>
+  {% endif %}
+
+  <section class="card border-0 shadow-sm rounded-4 mb-4" aria-labelledby="filter-title">
+    <div class="card-body">
+      <h2 id="filter-title" class="h5">Filtrar credenciales</h2>
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-sm-6 col-lg-2"><label class="form-label" for="type">Tipo</label><select class="form-select" id="type" name="type"><option value="">Todos</option>{% for value,label in credential_types %}<option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="col-12 col-sm-6 col-lg-2"><label class="form-label" for="issuer">Emisor</label><input class="form-control" id="issuer" name="issuer" value="{{ selected_issuer }}"></div>
+        <div class="col-12 col-sm-6 col-lg-2"><label class="form-label" for="review">Revisión</label><select class="form-select" id="review" name="review"><option value="">Todas</option>{% for value,label in review_states %}<option value="{{ value }}" {% if selected_review == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="col-12 col-sm-6 col-lg-2"><label class="form-label" for="validity">Vigencia</label><select class="form-select" id="validity" name="validity"><option value="">Todas</option><option value="current" {% if selected_validity == 'current' %}selected{% endif %}>Vigente según fecha</option><option value="expired" {% if selected_validity == 'expired' %}selected{% endif %}>Caducada según fecha</option><option value="no_expiry" {% if selected_validity == 'no_expiry' %}selected{% endif %}>Sin caducidad informada</option></select></div>
+        <div class="col-12 col-sm-6 col-lg-2"><label class="form-label" for="area">Área / tecnología</label><input class="form-control" id="area" name="area" value="{{ selected_area }}"></div>
+        <div class="col-12 col-lg-auto"><button class="btn btn-outline-primary" type="submit">Aplicar</button></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="claims-title">
+    <h2 id="claims-title" class="h4 mb-3">Credenciales declaradas</h2>
+    <div class="row row-cols-1 row-cols-lg-2 g-3">
+      {% for credential in credentials %}
+        <div class="col"><article class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between gap-2">
+              <h3 class="h5"><a href="{% url 'certifications:credential_detail' credential.pk %}">{{ credential.name }}</a></h3>
+              <span class="badge text-bg-secondary">{{ credential.get_review_status_display }}</span>
+            </div>
+            <p class="mb-1">{{ credential.issuer_name }}</p>
+            <p class="small text-muted mb-2">{{ credential.get_credential_type_display }}{% if credential.area %} · {{ credential.area }}{% endif %}</p>
+            <p class="small mb-2">
+              {% if credential.validity_status == 'revoked' %}Revocada según {{ credential.revocation_source }}.
+              {% elif credential.validity_status == 'expired' %}Caducada según fecha registrada ({{ credential.expires_on|date:'d M Y' }}).
+              {% elif credential.validity_status == 'current' %}Vigente según fecha registrada hasta {{ credential.expires_on|date:'d M Y' }}.
+              {% else %}Sin caducidad informada; no implica vigencia indefinida.{% endif %}
+            </p>
+            <p class="small text-muted">Visibilidad: {{ credential.get_visibility_display }} · {{ credential.get_origin_display }}</p>
+          </div>
+        </article></div>
+      {% empty %}
+        <div class="col-12"><div class="alert alert-light border">No hay credenciales declaradas con estos filtros.</div></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="internal-title">
+    <h2 id="internal-title" class="h4 mb-3">Certificados de cursos emitidos por Notodoescodigo</h2>
+    <p class="text-muted">Se leen de los registros originales de emisión; no son certificaciones profesionales externas.</p>
+    <div class="row row-cols-1 row-cols-lg-2 g-3">
+      {% for cert in certificados %}
+        <div class="col"><article class="card h-100"><div class="card-body">
+          <h3 class="h5">{{ cert.curso.nombre }}</h3>
+          <p class="mb-1">Certificado de finalización · Notodoescodigo</p>
+          <p class="small text-muted">Emisión interna comprobable · {{ cert.fecha_emision|date:'d M Y' }}</p>
+          <a href="{% url 'certifications:descargar' pk=cert.pk %}" class="btn btn-sm btn-outline-success">Descargar emisión original</a>
+          <a href="{% url 'certifications:validar' codigo=cert.codigo_unico %}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Validar código</a>
+        </div></article></div>
+      {% empty %}
+        {% if not lms_certificates %}<div class="col-12"><p class="text-muted">Todavía no hay emisiones internas para esta cuenta.</p></div>{% endif %}
+      {% endfor %}
+      {% for cert in lms_certificates %}
+        <div class="col"><article class="card h-100"><div class="card-body">
+          <h3 class="h5">{{ cert.metadata.course_title|default:cert.course.nombre }}</h3>
+          <p class="mb-1">{% if cert.metadata.campus %}Certificado propio de superación · {{ cert.metadata.issuer_name }}{% else %}Certificado de finalización · LMS{% endif %}</p>
+          <p class="small text-muted">Emitido · {{ cert.issued_at|date:'d M Y' }} · {{ cert.get_status_display }}</p>
+          <a href="{% url 'certifications:lms_validate' codigo=cert.certificate_code %}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Validar código</a>
+          {% if cert.is_valid %}{% if cert.pdf_file or cert.metadata.campus %}<a href="{% url 'certifications:lms_download' pk=cert.pk %}" class="btn btn-sm btn-outline-success">Descargar emisión original</a>{% endif %}{% endif %}
+        </div></article></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="badges-title">
+    <h2 id="badges-title" class="h4">Insignias de Mis logros</h2>
+    <p class="text-muted">Las insignias se consultan en su sistema original y no son certificaciones profesionales.</p>
+    {% for badge_award in badges %}<a class="badge text-bg-light border me-2 mb-2" href="{% url 'gamification:insignia_detalle' badge_award.insignia_id %}">{{ badge_award.insignia.nombre }}</a>{% empty %}<p class="small text-muted">No hay insignias vigentes visibles.</p>{% endfor %}
+  </section>
+</main>
 {% endblock %}
