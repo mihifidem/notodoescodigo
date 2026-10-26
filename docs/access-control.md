@@ -9,6 +9,23 @@ autoasignarse otro rol. Su edición en Django admin requiere superusuario o
 `users.assign_access_roles`, además del permiso para gestionar usuarios.
 ADMIN sigue siendo una asignación independiente, no una opción de este campo.
 
+## Activación de los accesos de autenticación
+
+Login y Register permanecen ocultos hasta pulsar **Ctrl+O**. El atajo envía
+un POST protegido por CSRF y guarda la activación en la sesión de Django.
+Sin esa activación, GET y POST a `/accounts/login/`, `/dashboard/register/`
+y `/dashboard/registro/` redirigen a la home.
+La activación se conserva al navegar dentro de la misma sesión y los enlaces
+se muestran de nuevo sin repetir el atajo. No hay un temporizador de activación:
+se mantiene hasta hacer logout (o hasta que termine la sesión de Django).
+El logout elimina explícitamente la activación, incluso si la visita todavía
+no había iniciado sesión. Para volver a acceder hay que pulsar Ctrl+O de nuevo.
+
+Esto es una barrera de presentación y navegación, no un secreto ni un permiso:
+un cliente puede reproducir la petición de activación. Tras activarla, los
+visitantes pueden crear una cuenta FREE de tipo Usuario, sin autoasignarse
+roles profesionales. Las cuentas ya autenticadas se redirigen al dashboard.
+
 Al guardar un cambio de rol se activa su asignación de acceso y se desactivan
 las del rol anterior, conservando el rol general USUARIO, ADMIN, los permisos
 Django y las membresías de cursos. Profesor y Alumno tienen asignación global;

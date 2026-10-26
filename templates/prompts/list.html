@@ -199,6 +199,13 @@
   <!-- =================== SIDEBAR =================== -->
   <div class="col-12 col-xl-3">
 
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body py-2 d-flex align-items-center justify-content-between">
+        <span class="fw-semibold small"><i class="bi bi-palette me-2 text-primary"></i>Estilos NotebookLM</span>
+        <a href="{% url 'prompts:estilos' %}" class="btn btn-sm btn-primary">Ver</a>
+      </div>
+    </div>
+
     <!-- My favorites shortcut -->
     {% if user.is_authenticated %}
     <div class="card border-0 shadow-sm mb-3">

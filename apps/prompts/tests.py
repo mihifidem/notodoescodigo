@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+﻿from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -169,3 +169,18 @@ class PromptVariableCompatibilityTests(TestCase):
             rendered,
             'Sitúalos en una playa tropical en Bali, con clima soleado y luz de atardecer.',
         )
+
+@override_settings(STORAGES={'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'}, 'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'}})
+class EstilosNotebookLMViewTests(TestCase):
+    def test_estilos_page_renders_styles_from_json(self):
+        response = self.client.get(reverse('prompts:estilos'))
+
+        self.assertEqual(response.status_code, 200)
+        estilos = response.context['estilos']
+        self.assertGreater(len(estilos), 0)
+        primero = estilos[0]
+        self.assertEqual(len(primero['previews']), 3)
+        self.assertTrue(primero['previews'][0].endswith('_1.webp'))
+        self.assertIn('prompts/preview/', primero['previews'][0])
+        self.assertTrue(primero['prompt'])
+        self.assertContains(response, 'id="nlm-data"')

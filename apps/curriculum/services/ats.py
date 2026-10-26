@@ -22,10 +22,17 @@ logger = logging.getLogger(__name__)
 SCOPE_ORDER = {'basic': 0, 'detail': 1, 'pro': 2}
 SCOPE_LABELS = {'basic': 'Básico', 'detail': 'Detallado', 'pro': 'Detallado con priorización y comparativas'}
 AI_MESSAGE = (
-    'Análisis semántico y reformulación no disponibles: falta Energía Ducky (00C) y '
-    'el contrato de reserva de servicios individuales. Coste desconocido, no cero. '
-    'No se ha llamado al proveedor ni reservado energía. Las reglas convencionales siguen disponibles.'
+    'Análisis semántico y reformulación no disponibles: sin proveedor IA ni coste energético aprobado en '
+    'Energía Ducky. Coste desconocido, no cero. No se ha llamado al proveedor ni reservado energía. '
+    'Las reglas convencionales siguen disponibles.'
 )
+ENERGY_TOOLS = {'semantic': 'ats-semantic', 'rephrase': 'ats-rephrase'}
+
+
+def ai_availability(actor, task='semantic'):
+    from apps.energy.services import module_gate
+
+    return module_gate(actor, ENERGY_TOOLS.get(task, 'ats-semantic'))
 
 
 class ATSConflict(Exception):
@@ -281,7 +288,10 @@ def request_ai(actor, report, key, task):
             raise ATSConflict('La clave pertenece a otra operación.')
         return previous
     _frequency(actor, configuration())
-    return ATSOperation.objects.create(user=actor, report=report, idempotency_key=key, task=task)
+    gate = ai_availability(actor, task)
+    return ATSOperation.objects.create(
+        user=actor, report=report, idempotency_key=key, task=task, error_code=gate['reason'][:50],
+    )
 
 
 @transaction.atomic

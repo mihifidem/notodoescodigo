@@ -89,6 +89,26 @@
 
   <!-- Badges & certs -->
   <div class="col-12 col-md-8">
+    {% if es_propietario_perfil %}
+    <section id="profile-energy" class="card border-0 shadow-sm mb-4" aria-labelledby="profile-energy-title">
+      <h2 id="profile-energy-title" class="card-header h6 mb-0 fw-semibold">
+        <i class="bi bi-lightning-charge-fill me-2 text-success" aria-hidden="true"></i>Energía Ducky
+      </h2>
+      <div class="card-body small">
+        {% if energy.ok and energy.configured %}
+          <p class="mb-1">Recuperable: <strong>{{ energy.recoverable.available|floatformat:"-1" }} / {{ energy.recoverable.capacity|floatformat:"-1" }}</strong>
+            {% if energy.recharging %}<span class="text-success ms-2"><i class="bi bi-arrow-up" aria-hidden="true"></i> Recargando</span>{% endif %}</p>
+          <p class="mb-1">Comprada: {{ energy.purchased.available|floatformat:"-1" }} · Reservada: {{ energy.reserved_total|floatformat:"-1" }}</p>
+          {% if energy.activity.limit is not None %}<p class="mb-1">Actividad hoy: {{ energy.activity.earned|floatformat:"-1" }} de {{ energy.activity.limit|floatformat:"-1" }}</p>{% endif %}
+        {% elif energy.ok %}
+          <p class="mb-1">La capacidad de energía de tu nivel aún no está configurada.{% if energy.purchased.available %} Energía comprada: {{ energy.purchased.available|floatformat:"-1" }}.{% endif %}</p>
+        {% else %}
+          <p class="mb-1">Energía no disponible temporalmente.</p>
+        {% endif %}
+        <a href="{% url 'energy:detail' %}">Ver consumo, recargas e historial</a>
+      </div>
+    </section>
+    {% endif %}
     <section id="profile-badges" class="card border-0 shadow-sm mb-4" aria-labelledby="profile-badges-title">
       <h2 id="profile-badges-title" class="card-header h6 mb-0 fw-semibold">
         <i class="bi bi-award me-2 text-primary"></i>Insignias ({{ total_insignias_activas }} / {{ total_insignias }})

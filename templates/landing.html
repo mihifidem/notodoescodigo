@@ -1,944 +1,462 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}MihiTraining - Aprende y progresa{% endblock %}
+{% block title %}NoTodoEsCódigo | Aprende, practica y crea{% endblock %}
 
 {% block extra_css %}
 <style>
-  .landing-tech {
-    background:
-      radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.18), transparent 35%),
-      radial-gradient(circle at 80% 10%, rgba(249, 115, 22, 0.18), transparent 40%),
-      linear-gradient(160deg, #f8fbff 0%, #edf5ff 48%, #fffaf5 100%);
-    font-size: 1.08rem;
+  .landing-home {
+    overflow: hidden;
+    background: #f5f8fc;
+    color: #10213b;
   }
 
-  .landing-tech h1, .landing-tech h2, .landing-tech h3, .landing-tech h4, .landing-tech h5, .landing-tech h6 {
-    line-height: 1.1;
-  }
-
-  .landing-tech p,
-  .landing-tech li,
-  .landing-tech .card-text,
-  .landing-tech .lead,
-  .landing-tech .small {
-    font-size: 1.05em;
-  }
-
-  .landing-hero-variant {
-    background:
-      radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.18), transparent 34%),
-      radial-gradient(circle at 85% 10%, rgba(249, 115, 22, 0.16), transparent 32%),
-      linear-gradient(180deg, #f8fbff 0%, #eef7ff 100%);
-  }
-
-  .hero-minimal-shell {
+  .landing-hero {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(148, 163, 184, 0.24);
-    border-radius: 2rem;
-    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.09);
-    backdrop-filter: blur(10px);
-    padding: 2.2rem;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at 76% 30%, rgba(37, 99, 235, .3), transparent 32%),
+      radial-gradient(circle at 18% 100%, rgba(20, 184, 166, .16), transparent 34%),
+      linear-gradient(135deg, #071326 0%, #10264a 58%, #123c69 100%);
+    color: #f8fafc;
   }
 
-  .hero-minimal-shell::before,
-  .hero-minimal-shell::after {
-    content: "";
+  .landing-hero::after {
     position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    filter: blur(12px);
+    z-index: -1;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, .12) .7px, transparent .7px);
+    background-size: 22px 22px;
+    content: "";
+    mask-image: linear-gradient(90deg, transparent, #000 75%);
+    opacity: .35;
   }
 
-  .hero-minimal-shell::before {
-    width: 260px;
-    height: 260px;
-    background: rgba(96, 165, 250, 0.18);
-    right: -50px;
-    top: -60px;
+  .landing-hero-inner,
+  .landing-section-inner {
+    width: min(1160px, calc(100% - 2rem));
+    margin-inline: auto;
   }
 
-  .hero-minimal-shell::after {
-    width: 220px;
-    height: 220px;
-    background: rgba(249, 115, 22, 0.14);
-    left: -30px;
-    bottom: -60px;
+  .landing-hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 5rem);
+    min-height: 570px;
+    padding-block: 4rem;
   }
 
-  .hero-copy-compact {
-    position: relative;
-    z-index: 1;
-    padding: 0.7rem 0;
-  }
-
-  .badge-soft {
+  .landing-kicker {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
+    gap: .55rem;
+    margin-bottom: 1.4rem;
+    padding: .55rem .85rem;
+    border: 1px solid rgba(125, 211, 252, .28);
     border-radius: 999px;
-    border: 1px solid rgba(37, 99, 235, 0.18);
-    background: rgba(59, 130, 246, 0.08);
-    color: #1d4ed8;
-    font-size: 0.72rem;
+    background: rgba(14, 165, 233, .12);
+    color: #bae6fd;
+    font-size: .76rem;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: .12em;
     text-transform: uppercase;
   }
 
-  .hero-copy-compact h1 {
-    margin-top: 1.2rem;
-    margin-bottom: 1rem;
-    font-size: clamp(2.7rem, 5vw, 5rem);
-    line-height: 0.95;
-    letter-spacing: -0.08em;
-    font-weight: 900;
-    color: #0f172a;
-  }
-
-  .hero-copy-compact p {
-    max-width: 38rem;
-    font-size: 1.12rem;
-    line-height: 1.7;
-    color: #475569;
+  .landing-hero h1 {
+    max-width: 680px;
     margin: 0;
+    color: #fff;
+    font-size: clamp(2.8rem, 5.6vw, 5.2rem);
+    font-weight: 850;
+    letter-spacing: -.065em;
+    line-height: .99;
   }
 
-  .hero-actions {
+  .landing-hero-copy {
+    max-width: 560px;
+    margin: 1.45rem 0 0;
+    color: #c7d5e8;
+    font-size: clamp(1rem, 1.4vw, 1.16rem);
+    line-height: 1.75;
+  }
+
+  .landing-area-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: 1.7rem;
+    gap: .5rem;
+    margin-top: 1.2rem;
   }
 
-  .hero-primary,
-  .hero-secondary {
+  .landing-area-tag {
+    padding: .4rem .65rem;
+    border: 1px solid rgba(191, 219, 254, .2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .07);
+    color: #dbeafe;
+    font-size: .78rem;
+    font-weight: 650;
+  }
+
+  .landing-hero-action {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    border-radius: 0.9rem;
-    padding: 0.9rem 1.4rem;
+    gap: .65rem;
+    margin-top: 1.8rem;
+    padding: .9rem 1.2rem;
+    border-radius: .9rem;
+    background: #7dd3fc;
+    color: #082341;
     font-weight: 800;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
   }
 
-  .hero-primary {
-    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-    color: #fff;
-    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.18);
+  .landing-hero-art {
+    position: relative;
+    min-width: 0;
   }
 
-  .hero-secondary {
-    background: #fff;
-    color: #0f172a;
-    border: 1px solid rgba(148, 163, 184, 0.35);
+  .landing-hero-image-frame {
+    overflow: hidden;
+    border: 1px solid rgba(191, 219, 254, .25);
+    border-radius: 2rem;
+    background: #10264a;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .32);
+    transform: rotate(1.2deg);
   }
 
-  .hero-primary:hover,
-  .hero-secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
-  }
-
-  .hero-inline-metrics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .mini-stat-pill {
-    min-width: 150px;
-    padding: 0.95rem 1.1rem;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
-  }
-
-  .mini-stat-pill small {
+  .landing-hero-image {
     display: block;
-    color: #64748b;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    width: 100%;
+    height: auto;
+  }
+
+  .landing-image-caption {
+    position: absolute;
+    right: -1rem;
+    bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .85rem 1rem;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 1rem;
+    background: rgba(8, 25, 48, .88);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, .24);
+    color: #e2f3ff;
+    font-size: .85rem;
     font-weight: 700;
   }
 
-  .mini-stat-pill strong {
-    display: block;
-    margin-top: 0.35rem;
-    color: #0f172a;
-    font-size: clamp(1.7rem, 2vw, 2.25rem);
-    letter-spacing: -0.07em;
-    line-height: 1;
+  .landing-image-caption i {
+    color: #5eead4;
+    font-size: 1.25rem;
   }
 
-  .hero-visual-card {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: center;
+  .landing-capabilities {
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+    background: #f5f8fc;
   }
 
-  .dashboard-preview {
-    width: min(100%, 420px);
-    background: linear-gradient(145deg, #0f172a 0%, #122a52 35%, #1d4ed8 100%);
-    border-radius: 1.7rem;
-    padding: 1.3rem;
-    box-shadow: 0 24px 50px rgba(30, 64, 175, 0.18);
-    position: relative;
+  .landing-section-heading {
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
   }
 
-  .dashboard-preview::before {
-    content: "";
-    position: absolute;
-    inset: 14% 16% auto auto;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    background: rgba(249, 115, 22, 0.2);
-    filter: blur(16px);
-  }
-
-  .dashboard-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .dashboard-badge {
-    padding: 0.35rem 0.7rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #e2e8f0;
-  }
-
-  .progress-panel {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 1.1rem;
-    padding: 1rem;
-    color: white;
-  }
-
-  .progress-panel .label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.76rem;
-    color: rgba(255, 255, 255, 0.78);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .progress-panel .value {
-    font-size: 2.4rem;
+  .landing-section-kicker {
+    margin-bottom: .65rem;
+    color: #2563eb;
+    font-size: .76rem;
     font-weight: 800;
-    letter-spacing: -0.08em;
-    margin-top: 0.5rem;
-  }
-
-  .progress-panel .progress {
-    height: 10px;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-top: 0.9rem;
-  }
-
-  .progress-panel .progress-bar {
-    background: linear-gradient(90deg, #fbbf24, #f97316);
-    border-radius: 999px;
-  }
-
-  .mini-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-    margin-top: 1rem;
-  }
-
-  .mini-box {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 1rem;
-    padding: 0.9rem;
-    color: white;
-  }
-
-  .mini-box small {
-    display: block;
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: .13em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
   }
 
-  .mini-box strong {
+  .landing-section-heading h2 {
+    margin: 0;
+    color: #10213b;
+    font-size: clamp(2rem, 3.8vw, 3.15rem);
+    font-weight: 850;
+    letter-spacing: -.05em;
+    line-height: 1.05;
+  }
+
+  .landing-section-heading p {
+    margin: .9rem 0 0;
+    color: #5b6b82;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .landing-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .landing-feature {
+    position: relative;
+    display: flex;
+    min-height: 225px;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+    overflow: hidden;
+    border: 1px solid #e2eaf3;
+    border-radius: 1.35rem;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(15, 37, 68, .045);
+    color: inherit;
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .landing-feature-icon {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1.1rem;
+    place-items: center;
+    border-radius: .95rem;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 1.35rem;
+  }
+
+  .landing-feature:nth-child(2) .landing-feature-icon,
+  .landing-feature:nth-child(5) .landing-feature-icon {
+    background: #ecfdf5;
+    color: #059669;
+  }
+
+  .landing-feature:nth-child(3) .landing-feature-icon,
+  .landing-feature:nth-child(6) .landing-feature-icon {
+    background: #fff7ed;
+    color: #ea580c;
+  }
+
+  .landing-feature h3 {
+    margin: 0 0 .5rem;
+    color: #10213b;
+    font-size: 1.16rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+  }
+
+  .landing-feature p {
+    margin: 0 0 1.2rem;
+    color: #64748b;
+    font-size: .94rem;
+    line-height: 1.65;
+  }
+
+  .landing-ducky-showcase {
+    padding-block: 1rem clamp(4rem, 8vw, 6rem);
+    background: #f5f8fc;
+  }
+
+  .landing-ducky-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+
+  .landing-ducky-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: #10264a;
+    box-shadow: 0 18px 42px rgba(15, 37, 68, .1);
+  }
+
+  .landing-ducky-card img {
     display: block;
-    margin-top: 0.25rem;
-    font-size: 1.3rem;
-    letter-spacing: -0.05em;
+    width: 100%;
+    height: auto;
   }
 
-  .hero-arrow {
-    color: #fff;
-    opacity: 0.85;
+  [data-bs-theme="dark"] .landing-home,
+  [data-bs-theme="dark"] .landing-capabilities,
+  [data-bs-theme="dark"] .landing-ducky-showcase {
+    background: #0b1220;
   }
 
-  .section-title {
-    color: #0f172a;
-    letter-spacing: -0.01em;
-    font-size: clamp(1.9rem, 2.2vw, 2.8rem);
-  }
-
-  .post-card-tech {
-    border-radius: 1rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-    transition: transform .2s ease, box-shadow .2s ease;
-  }
-
-  .post-card-tech:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.13);
-  }
-
-  .post-thumb-fallback {
-    height: 180px;
-    background: linear-gradient(145deg, rgba(14, 165, 233, .16), rgba(16, 185, 129, .12));
-  }
-
-  .tag-tech {
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: .8rem;
-  }
-
-  [data-bs-theme="dark"] .landing-tech {
-    background:
-      radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.16), transparent 34%),
-      radial-gradient(circle at 85% 12%, rgba(45, 212, 191, 0.12), transparent 40%),
-      linear-gradient(165deg, #020617 0%, #0b1220 52%, #0f172a 100%);
-  }
-
-  [data-bs-theme="dark"] .hero-panel {
-    background: rgba(15, 23, 42, 0.72);
-    border-color: rgba(148, 163, 184, 0.22);
-    box-shadow: 0 20px 36px rgba(2, 6, 23, 0.5);
-  }
-
-  [data-bs-theme="dark"] .brand-chip {
-    background: #e2e8f0;
-    color: #0f172a;
-  }
-
-  [data-bs-theme="dark"] .hero-title,
-  [data-bs-theme="dark"] .section-title {
+  [data-bs-theme="dark"] .landing-section-heading h2,
+  [data-bs-theme="dark"] .landing-feature h3 {
     color: #f8fafc;
   }
 
-  [data-bs-theme="dark"] .hero-subtitle {
-    color: #cbd5e1;
+  [data-bs-theme="dark"] .landing-section-heading p,
+  [data-bs-theme="dark"] .landing-feature p {
+    color: #a8b5c8;
   }
 
-  [data-bs-theme="dark"] .hero-logo-wrap {
-    background: rgba(15, 23, 42, 0.72);
-    border-color: rgba(148, 163, 184, 0.22);
-    box-shadow: 0 20px 36px rgba(2, 6, 23, 0.5);
+  [data-bs-theme="dark"] .landing-feature {
+    border-color: rgba(148, 163, 184, .18);
+    background: #111d30;
   }
 
-  [data-bs-theme="dark"] .post-card-tech:hover {
-    box-shadow: 0 16px 32px rgba(2, 6, 23, 0.6);
+  @media (max-width: 900px) {
+    .landing-hero-inner {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      min-height: auto;
+      padding-block: 4rem;
+    }
+
+    .landing-hero-copy-wrap {
+      max-width: 720px;
+    }
+
+    .landing-hero-art {
+      width: min(100%, 680px);
+      margin-inline: auto;
+    }
   }
 
-  [data-bs-theme="dark"] .post-thumb-fallback {
-    background: linear-gradient(145deg, rgba(14, 116, 144, .3), rgba(15, 118, 110, .24));
+  @media (max-width: 720px) {
+    .landing-feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
   }
 
-  [data-bs-theme="dark"] .post-card-tech h3 {
-    color: #f8fafc;
-  }
+  @media (max-width: 520px) {
+    .landing-hero-inner,
+    .landing-section-inner {
+      width: min(100% - 1.25rem, 1160px);
+    }
 
-  @keyframes riseIn {
-    from { opacity: 0; transform: translateY(14px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    .landing-hero-inner {
+      padding-block: 3rem;
+    }
 
-  @keyframes pulseGlow {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.08); opacity: 1; }
+    .landing-hero h1 {
+      font-size: clamp(2.55rem, 13vw, 3.8rem);
+    }
+
+    .landing-image-caption {
+      right: .5rem;
+      bottom: .5rem;
+      padding: .65rem .75rem;
+      font-size: .75rem;
+    }
+
+    .landing-feature-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .landing-feature {
+      min-height: 195px;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<section id="hero" class="py-5 landing-hero-variant border-bottom">
-  <div class="container">
-    <div id="landingHeroCarousel" class="carousel slide hero-minimal-shell" data-bs-ride="carousel" data-bs-interval="5000">
-      <div class="carousel-indicators">
-        <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+<div class="landing-home">
+  <section class="landing-hero" aria-labelledby="landing-title">
+    <div class="landing-hero-inner">
+      <div class="landing-hero-copy-wrap">
+        <span class="landing-kicker"><i class="bi bi-stars" aria-hidden="true"></i> Aprende · practica · crece</span>
+        <h1 id="landing-title">Avanza en el área profesional que elijas.</h1>
+        <p class="landing-hero-copy">
+          Formación y herramientas para informática, marketing y gestión administrativa, con recursos para aprender, practicar y crecer profesionalmente.
+        </p>
+        <div class="landing-area-tags" aria-label="Áreas profesionales">
+          <span class="landing-area-tag">Desarrollo de software</span>
+          <span class="landing-area-tag">Ciberseguridad</span>
+          <span class="landing-area-tag">Sistemas</span>
+          <span class="landing-area-tag">Data &amp; IA</span>
+          <span class="landing-area-tag">Marketing</span>
+          <span class="landing-area-tag">Gestión administrativa</span>
+        </div>
+        <span class="landing-hero-action">Próximamente...</span>
       </div>
-
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="row g-4 align-items-center">
-            <div class="col-12 col-lg-7">
-              <div class="hero-copy-compact">
-                <span class="badge-soft"><i class="bi bi-cpu"></i> NoNoTodoEsCódigo.com</span>
-                <h1>Aprende, practica y crea tu futuro tech.</h1>
-                <p>Transforma tu perfil profesional con cursos, IA, CV, comunidad y oportunidades reales para crecer con confianza.</p>
-                <div class="hero-actions">
-                  <a href="{% url 'account_login' %}" class="hero-primary">Entrar</a>
-                  <a href="{% url 'users:registro' %}" class="hero-secondary">Crear cuenta</a>
-                </div>
-                <div class="hero-inline-metrics">
-                  <div class="mini-stat-pill">
-                    <small>Alumnos</small>
-                    <strong>+12k</strong>
-                  </div>
-                  <div class="mini-stat-pill">
-                    <small>Certificados</small>
-                    <strong>1.4k</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <img src="{% static 'img/hero2b.png' %}" alt="Hero Image" class="col-12 col-lg-5">
-          </div>
+      <div class="landing-hero-art">
+        <div class="landing-hero-image-frame">
+          <img
+            src="{% static 'img/hero2b.png' %}"
+            class="landing-hero-image"
+            alt="Ducky acompaña el aprendizaje y el crecimiento profesional"
+            fetchpriority="high">
         </div>
-
-        <div class="carousel-item">
-          <div class="row g-4 align-items-center">
-            <div class="col-12 col-lg-7">
-              <div class="hero-copy-compact">
-                <span class="badge-soft"><i class="bi bi-lightning-charge"></i> Comunidad</span>
-                <h1>Acelera tu crecimiento con herramientas reales.</h1>
-                <p>Cursos, prompts, evaluación y mentoría para que cada paso te acerque a una oportunidad laboral concreta y más rápida.</p>
-                <div class="hero-actions">
-                  <a href="{% url 'courses:list' %}" class="hero-primary">Ver cursos</a>
-                  <a href="{% url 'prompts:list' %}" class="hero-secondary">Prompts</a>
-                </div>
-                <div class="hero-inline-metrics">
-                  <div class="mini-stat-pill">
-                    <small>Cursos</small>
-                    <strong>30+</strong>
-                  </div>
-                  <div class="mini-stat-pill">
-                    <small>Recursos</small>
-                    <strong>500+</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <img src="{% static 'img/hero3b.png' %}" alt="Hero Image" class="col-12 col-lg-5">
-
-          </div>
-        </div>
-
-        <div class="carousel-item">
-          <div class="row g-4 align-items-center">
-            <div class="col-12 col-lg-7">
-              <div class="hero-copy-compact">
-                <span class="badge-soft"><i class="bi bi-stars"></i> Impacto</span>
-                <h1>Tu próximo salto profesional empieza aquí.</h1>
-                <p>Diseña tu perfil, mejora tus habilidades y gana confianza para competir con tecnología, contenido y comunidad.</p>
-                <div class="hero-actions">
-                  <a href="{% url 'curriculum:dashboard' %}" class="hero-primary">Mi CV</a>
-                  <a href="{% url 'blog:list' %}" class="hero-secondary">Blog</a>
-                </div>
-                <div class="hero-inline-metrics">
-                  <div class="mini-stat-pill">
-                    <small>Insignias</small>
-                    <strong>12</strong>
-                  </div>
-                  <div class="mini-stat-pill">
-                    <small>Ranking</small>
-                    <strong>Top 10</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-lg-5">
-              <img src="{% static 'img/hero1b.png' %}" alt="Hero Image" style="width: 100%;">
-            </div>
-
-          </div>
+        <div class="landing-image-caption">
+          <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+          Un camino práctico para crecer
         </div>
       </div>
     </div>
-  </div>
-</section>
-{% if news_lite_posts %}
-<section class="py-5 bg-white border-bottom">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-      <div>
-        <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill mb-2">News Lite</span>
-        <h2 class="h3 fw-bold mb-0 section-title">Lo más reciente de la última semana</h2>
+  </section>
+
+  <section id="servicios" class="landing-capabilities" aria-labelledby="capabilities-title">
+    <div class="landing-section-inner">
+      <header class="landing-section-heading">
+        <div class="landing-section-kicker">Una plataforma, muchas posibilidades</div>
+        <h2 id="capabilities-title">Descubre todo lo que puedes hacer</h2>
+        <p>Explora herramientas que puedes aplicar en informática, marketing y gestión administrativa.</p>
+      </header>
+
+      <div class="landing-feature-grid">
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
+          <h3>Aprender con cursos</h3>
+          <p>Avanza con contenidos formativos, actividades y certificaciones.</p>
+        </article>
+
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+          <h3>Practicar jugando</h3>
+          <p>Entrena tus conocimientos con retos, juegos y experiencias interactivas.</p>
+        </article>
+
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-person-vcard-fill" aria-hidden="true"></i></span>
+          <h3>Crear tu perfil profesional</h3>
+          <p>Diseña versiones de tu CV y prepara tu perfil para nuevas oportunidades.</p>
+        </article>
+
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+          <h3>Trabajar con IA</h3>
+          <p>Encuentra prompts y recursos para aprender y crear con herramientas de IA.</p>
+        </article>
+
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></span>
+          <h3>Seguir tu progreso</h3>
+          <p>Consulta tus avances, logros y próximos pasos en tu recorrido.</p>
+        </article>
+
+        <article class="landing-feature">
+          <span class="landing-feature-icon"><i class="bi bi-journal-richtext" aria-hidden="true"></i></span>
+          <h3>Explorar ideas y recursos</h3>
+          <p>Lee contenidos prácticos y descubre recursos para mantenerte al día.</p>
+        </article>
       </div>
     </div>
+  </section>
 
-    <div id="newsLiteCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
-      <div class="carousel-inner">
-        {% for post in news_lite_posts %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-          <div class="card border-0 shadow-sm overflow-hidden" style="background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%); border: 1px solid rgba(148,163,184,.18);">
-            <div class="card-body p-4 p-lg-5">
-              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                <span class="text-muted small">{{ post.publicado_en|date:'d/m/Y' }}</span>
-              </div>
-              <h3 class="fw-bold mb-3" style="letter-spacing:-0.03em;">{{ post.titulo }}</h3>
-              <p class="text-muted mb-4" style="font-size:1.04rem; line-height:1.7;">{{ post.resumen|default:post.contenido_publico|truncatewords:55 }}</p>
-              <div class="d-flex flex-wrap gap-2 mb-4">
-                {% for tag in post.hashtags.all|slice:':4' %}
-                  <span class="badge bg-light text-dark border">#{{ tag.nombre }}</span>
-                {% endfor %}
-              </div>
-              <div class="d-flex flex-wrap gap-2"></div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#newsLiteCarousel" data-bs-slide="prev" style="width:3rem; left:-1rem;">
-        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#newsLiteCarousel" data-bs-slide="next" style="width:3rem; right:-1rem;">
-        <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
-      </button>
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if user.is_authenticated and cursos_disponibles %}
-<section class="py-5 bg-white border-bottom">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-      <div>
-        <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill mb-2">Cursos</span>
-        <h2 class="h3 fw-bold mb-0 section-title">Cursos disponibles</h2>
-      </div>
-      <a href="{% url 'courses:list' %}" class="btn btn-primary">Ver todos los cursos</a>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-      {% for curso in cursos_disponibles %}
-      <div class="col">
-        <div class="card border-0 shadow-sm h-100 overflow-hidden">
-          {% if curso.imagen %}
-          <img src="{{ curso.imagen.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ curso.nombre }}">
-          {% else %}
-          <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 180px;">
-            <i class="bi bi-mortarboard display-4 text-primary opacity-50"></i>
-          </div>
-          {% endif %}
-          <div class="card-body d-flex flex-column">
-            {% if curso.tipo_curso %}
-            <div class="mb-2">
-              <span class="badge bg-info-subtle text-info-emphasis border">{{ curso.tipo_curso.nombre }}</span>
-            </div>
-            {% endif %}
-            <h3 class="h5 fw-bold mb-2">{{ curso.nombre }}</h3>
-            <p class="text-muted mb-3 flex-grow-1">{{ curso.descripcion_texto|truncatewords:22 }}</p>
-            <div class="small text-muted mb-3">
-              <i class="bi bi-calendar-event me-1"></i>{{ curso.fecha_inicio|date:'d/m/Y' }}
-            </div>
-            <a href="{% url 'courses:list' %}" class="btn btn-outline-primary btn-sm mt-auto">Ver curso</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-<section id="servicios" class="py-5 bg-white border-bottom">
-  <div class="container">
-    <h2 class="h4 mb-4 section-title text-center">¿Qué puedes hacer en <strong><N>noNoTodoEsCódigo.com</strong>?</h2>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-            <!-- Tarjetas de funcionalidades, todas juntas -->
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-person-badge display-4 text-secondary mb-3"></i>
-                  <h5 class="card-title">Multi-perfil CV web</h5>
-                  <p class="card-text">Crea y comparte diferentes versiones de tu currículum online, adaptados a cada oportunidad.</p>
-                  <a href="{% url 'curriculum:dashboard' %}" class="btn btn-outline-secondary btn-sm">Ver CV</a>
-                </div>
-              </div>      
-
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-lightbulb display-4 text-warning mb-3"></i>
-                  <h5 class="card-title">Biblioteca de prompts</h5>
-                  <p class="card-text">Accede a una colección de prompts para IA, productividad y creatividad.</p>
-                  <a href="{% url 'prompts:list' %}" class="btn btn-outline-warning btn-sm">Ver CV</a>
-
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-controller display-4 text-danger mb-3"></i>
-                  <h5 class="card-title">Gaming y retos</h5>
-                  <p class="card-text">Participa en desafíos, gana insignias y sube en el ranking de la comunidad.</p>
-                  <a href="#" class="btn btn-outline-danger btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-people display-4 text-primary mb-3"></i>
-                  <h5 class="card-title">Comunidad</h5>
-                  <p class="card-text">Conecta con otros usuarios, comparte experiencias y colabora en proyectos.</p>
-                  <a href="#" class="btn btn-outline-primary btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-robot display-4 text-info mb-3"></i>
-                  <h5 class="card-title">IA Tutor</h5>
-                  <p class="card-text">Recibe orientación personalizada y feedback de un tutor inteligente.</p>
-                  <a href="#" class="btn btn-outline-info btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-journal-check display-4 text-primary mb-3"></i>
-                  <h5 class="card-title">Realizar tests de soft skills</h5>
-                  <p class="card-text">Evalúa tus habilidades blandas con tests clásicos e interactivos y consulta tus resultados históricos.</p>
-                  <a href="#" class="btn btn-outline-primary btn-sm disabled">Ver tests (no disponible)</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-bar-chart-steps display-4 text-success mb-3"></i>
-                  <h5 class="card-title">Seguimiento de progreso</h5>
-                  <p class="card-text">Consulta tu evolución, repite tests y visualiza tu avance en diferentes competencias.</p>
-                  <a href="#" class="btn btn-outline-success btn-sm disabled">Mis resultados (no disponible)</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-mortarboard display-4 text-warning mb-3"></i>
-                  <h5 class="card-title">Cursos y certificaciones</h5>
-                  <p class="card-text">Accede a cursos, obtén certificaciones y mejora tu perfil profesional.</p>
-                  <a href="{% url 'courses:list' %}" class="btn btn-outline-warning btn-sm">Ver cursos</a>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-journal-richtext display-4 text-info mb-3"></i>
-                  <h5 class="card-title">Blog y recursos</h5>
-                  <p class="card-text">Lee artículos, explora recursos y mantente actualizado con las últimas tendencias.</p>
-                  <a href="{% url 'blog:list' %}" class="btn btn-outline-info btn-sm">Ir al blog</a>
-                </div>
-              </div>
-            </div>
-            <!-- Ofertas de trabajo -->
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-briefcase display-4 text-success mb-3"></i>
-                  <h5 class="card-title">Ofertas de trabajo</h5>
-                  <p class="card-text">Explora oportunidades laborales y postúlate a empleos que se ajustan a tu perfil.</p>
-                  <a href="#" class="btn btn-outline-success btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-            <!-- Entrenamiento de entrevista -->
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-mic display-4 text-dark mb-3"></i>
-                  <h5 class="card-title">Entrenamiento de entrevista</h5>
-                  <p class="card-text">Prepárate para entrevistas laborales con simulaciones y feedback personalizado.</p>
-                  <a href="#" class="btn btn-outline-dark btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-            <!-- Consultoría profesional -->
-            <div class="col">
-              <div class="card h-100 shadow-sm text-center">
-                <div class="card-body">
-                  <i class="bi bi-person-lines-fill display-4 text-secondary mb-3"></i>
-                  <h5 class="card-title">Consultoría profesional</h5>
-                  <p class="card-text">Accede a gestores, abogados, coaches y psicólogos para potenciar tu carrera.</p>
-                  <a href="#" class="btn btn-outline-secondary btn-sm disabled">Próximamente</a>
-                </div>
-              </div>
-            </div>
-    </div>
-  </div>
-</section>
-
-<section id="membresias" class="py-5 bg-white border-bottom">
-  <div class="container">
-    <div class="text-center mb-4">
-      <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill mb-2">Membresías</span>
-      <h2 class="h3 fw-bold section-title">Elige tu plan según tu etapa</h2>
-    </div>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 rounded-4">
-          <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold text-muted mb-2">Gratis</div>
-            <h3 class="fw-bold mb-3">FREE</h3>
-            <div class="display-6 fw-bold mb-3">€0</div>
-            <ul class="list-unstyled small text-muted mb-0">
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Blog y recursos</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Acceso básico a prompts</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Test esencial</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      {% for plan in landing_pricing_plans %}
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 rounded-4">
-          <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold text-primary mb-2">Membresía</div>
-            <h3 class="fw-bold mb-3">{{ plan.name }}</h3>
-            {% include 'users/landing_plan_prices.html' %}
-            <a href="{% url 'users:billing' %}" class="btn btn-outline-primary mt-3">Ver plan {{ plan.name }}</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<section id="precios" class="py-5 landing-tech border-bottom">
-  <div class="container">
-    <div class="text-center mb-4">
-      <span class="badge text-bg-info-subtle text-info-emphasis px-3 py-2 rounded-pill mb-2">Precios</span>
-      <h2 class="h3 fw-bold section-title">Precio transparente y sin sorpresas</h2>
-    </div>
-    <div class="row g-4 align-items-center">
-      <div class="col-lg-6">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body p-4">
-            <h3 class="fw-bold mb-3">Qué incluye</h3>
-            <ul class="list-unstyled mb-0">
-              <li class="mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>Acceso a formación y recursos</li>
-              <li class="mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>Seguimiento de progreso</li>
-              <li class="mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>CV y perfil profesional</li>
-              <li class="mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>Herramientas de IA y productividad</li>
-              <li><i class="bi bi-check2-circle text-primary me-2"></i>Certificados y gamificación</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="card shadow-sm border-0 rounded-4 h-100" style="background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff;">
-          <div class="card-body p-4">
-            <div class="text-uppercase small fw-bold mb-2" style="letter-spacing:.12em; color:#93c5fd;">Tarifas vigentes</div>
-            <h3 class="fw-bold mb-3 text-white">Elige tu periodicidad</h3>
-            {% for plan in landing_pricing_plans %}
-              <h4 class="h5 text-white mt-3">{{ plan.name }}</h4>
-              {% include 'users/landing_plan_prices.html' %}
-            {% endfor %}
-            <p class="mt-3 text-white">Los importes corresponden al periodo completo indicado. Consulta las condiciones y el importe final antes de confirmar el pago.</p>
-            <a href="{% url 'users:billing' %}" class="btn btn-light fw-semibold">Ver membresías</a>
-          </div>
-        </div>
+  <section class="landing-ducky-showcase" aria-label="Descubre DuckyAcademy, DuckyArenas, DuckyProfile y DuckyJobs">
+    <div class="landing-section-inner">
+      <div class="landing-ducky-grid">
+        <article class="landing-ducky-card" aria-label="DuckyAcademy">
+          <img src="{% static 'home/dAcademy.png' %}" width="1774" height="887" loading="lazy" alt="DuckyAcademy: formación en informática, marketing y gestión administrativa; cursos, recursos y herramientas para avanzar.">
+        </article>
+        <article class="landing-ducky-card" aria-label="DuckyArenas">
+          <img src="{% static 'home/dArenas.png' %}" width="1942" height="809" loading="lazy" alt="DuckyArenas: aprender jugando con QuizArenas, DuckyClash, DuckyEscape y DuckyTraining.">
+        </article>
+        <article class="landing-ducky-card" aria-label="DuckyProfile">
+          <img src="{% static 'home/dProfile.png' %}" width="1672" height="941" loading="lazy" alt="DuckyProfile: crea tu CV web con plantillas, conecta tus perfiles y destaca tu potencial con Nexus DNA y TechDNA.">
+        </article>
+        <article class="landing-ducky-card" aria-label="DuckyJobs">
+          <img src="{% static 'home/dJobs.png' %}" width="1672" height="941" loading="lazy" alt="DuckyJobs: construye tu carrera con un plan profesional, preparación de entrevistas y oportunidades de empleo para tu perfil.">
+        </article>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="py-5 landing-tech border-bottom">
-  <div class="container">
-    <div class="hero-panel p-0">
-      <div id="landingHeroCarousel" class="carousel slide hero-slider" data-bs-ride="carousel" data-bs-interval="4200">
-        <div class="carousel-indicators" style="bottom: 1rem;">
-          <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-          <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-          <button type="button" data-bs-target="#landingHeroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-
-       
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-5 landing-tech">
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="h4 mb-0 section-title">Últimos posts publicados</h2>
-      <a href="{% url 'blog:list' %}" class="btn btn-sm btn-outline-secondary">Ver todos los posts</a>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-      {% for post in posts_destacados %}
-            <div class="col">
-        <div class="card border-0 shadow-sm h-100">
-          {% if post.imagen %}
-          <img src="{{ post.imagen.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ post.titulo }}">
-          {% else %}
-          <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 180px;">
-            <i class="bi bi-journal-richtext display-4 text-primary opacity-50"></i>
-          </div>
-          {% endif %}
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex flex-wrap gap-1 mb-2">
-              {% if post.categoria and post.categoria.nombre != 'News Lite' %}
-              <span class="badge bg-info-subtle text-info-emphasis border">{{ post.categoria.nombre }}</span>
-              {% endif %}
-              {% if post.subcategoria %}
-              <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ post.subcategoria.nombre }}</span>
-              {% endif %}
-              {% if post.visibilidad == 'publico' %}
-              <span class="badge text-bg-success">Público</span>
-              {% elif post.visibilidad == 'semipublico' %}
-              <span class="badge text-bg-warning">Semipúblico</span>
-              {% else %}
-              <span class="badge text-bg-dark">Premium</span>
-              {% endif %}
-            </div>
-            <h5 class="card-title fw-bold">{{ post.titulo }}</h5>
-
-            <div class="small text-muted d-flex justify-content-between mb-2">
-              <span><i class="bi bi-calendar-event me-1"></i>{{ post.publicado_en|date:'d/m/Y' }}</span>
-              <span>
-                {% if post.promedio_rating %}
-                  {{ post.promedio_rating|floatformat:1 }} / 5
-                {% else %}
-                  Sin valoraciones
-                {% endif %}
-              </span>
-            </div>
-
-            <div class="d-flex flex-wrap gap-1 mb-3">
-              {% for tag in post.hashtags.all|slice:':3' %}
-                <a href="?hashtag={{ tag.slug }}" class="badge bg-light text-dark text-decoration-none border">#{{ tag.nombre }}</a>
-              {% endfor %}
-            </div>
-
-            <a href="{% url 'blog:detail' slug=post.slug %}" class="btn btn-outline-primary btn-sm mt-auto">Leer post</a>
-          </div>
-        </div>
-      </div>
-            
-      {% empty %}
-      <div class="col-12">
-        <div class="alert alert-info mb-0">Todavia no hay posts publicos publicados.</div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-{% if prompts_recientes %}
-<section class="py-5 bg-light border-bottom">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-      <div>
-        <span class="badge text-bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill mb-2">Prompts</span>
-        <h2 class="h3 fw-bold mb-0 section-title">Últimos prompts publicados</h2>
-      </div>
-      <a href="{% url 'prompts:list' %}" class="btn btn-primary">Ver todos los prompts</a>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-      {% for prompt in prompts_recientes %}
-      <div class="col">
-        <div class="card border-0 shadow-sm h-100 overflow-hidden">
-          {% if prompt.imagen_prompt %}
-          <img src="{{ prompt.imagen_prompt.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ prompt.titulo }}">
-          {% elif prompt.imagen_muestra %}
-          <img src="{{ prompt.imagen_muestra.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ prompt.titulo }}">
-          {% else %}
-          <div class="card-img-top bg-warning bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 180px;">
-            <i class="bi bi-stars display-4 text-warning opacity-50"></i>
-          </div>
-          {% endif %}
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex flex-wrap gap-1 mb-2">
-              <span class="badge bg-info-subtle text-info-emphasis border">{{ prompt.categoria.nombre }}</span>
-              {% if prompt.subcategoria %}
-              <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ prompt.subcategoria.nombre }}</span>
-              {% endif %}
-            </div>
-            <h3 class="h5 fw-bold mb-2">{{ prompt.titulo }}</h3>
-            <p class="text-muted mb-3 flex-grow-1">{{ prompt.descripcion|default:prompt.contenido|striptags|truncatewords:20 }}</p>
-            <div class="small text-muted mb-3">
-              <i class="bi bi-calendar-event me-1"></i>{{ prompt.publicado_en|date:'d/m/Y' }}
-            </div>
-            <a href="{% url 'prompts:detail' slug=prompt.slug %}" class="btn btn-outline-primary btn-sm mt-auto">Ver prompt</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if ultimos_enlaces %}
-<section class="py-5 bg-white border-top">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-      <div>
-        <span class="badge text-bg-success-subtle text-success-emphasis px-3 py-2 rounded-pill mb-2">Enlaces</span>
-        <h2 class="h3 fw-bold mb-0 section-title">Últimos enlaces publicados</h2>
-      </div>
-      <a href="{% url 'enlaces:list' %}" class="btn btn-primary">Ver todos los enlaces</a>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-      {% for enlace in ultimos_enlaces %}
-      <div class="col">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-              <span class="badge bg-success-subtle text-success-emphasis border">{{ enlace.categoria }}</span>
-              <small class="text-muted">{{ enlace.creado_en|date:'d/m/Y' }}</small>
-            </div>
-            <h3 class="h5 fw-bold mb-3">{{ enlace.titulo }}</h3>
-            <p class="text-muted mb-4 flex-grow-1">{{ enlace.comentario|truncatechars:130 }}</p>
-            <a href="{{ enlace.url }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm mt-auto">Abrir enlace</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
+  </section>
+</div>
 {% endblock %}

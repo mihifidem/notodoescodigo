@@ -36,6 +36,13 @@ def _load_source(name, loader):
     }
 
 
+def _energy_data(user):
+    from apps.energy.services import get_status
+
+    status = get_status(user)
+    return status, bool(status.get('ok'))
+
+
 def _course_data(user):
     from apps.courses.models import InscripcionCurso, Progreso
     from apps.lms.campus import campus_settings, learning_status
@@ -491,6 +498,7 @@ def dashboard_context(user):
         for goal in PersonalGoal.objects.filter(user=user, status=PersonalGoal.Status.ACTIVE).order_by('target_date', '-updated_at')[:20]
     ]
 
+    energy = _load_source('energy', lambda: _energy_data(user))
     source_statuses = {
         'activity': activities['status'],
         'courses': courses['status'],
@@ -499,7 +507,7 @@ def dashboard_context(user):
         'nexus': nexus['status'],
         'certifications': certifications['status'],
         'employment': SOURCE_NOT_IMPLEMENTED,
-        'ai_quota': SOURCE_NOT_IMPLEMENTED,
+        'ai_quota': energy['status'],
         'ducky_bank': SOURCE_NOT_IMPLEMENTED,
         'teacher_courses': role_courses['status'],
         'academy_management': SOURCE_NOT_IMPLEMENTED if any(
@@ -549,6 +557,7 @@ def dashboard_context(user):
         'results_url': reverse('nexus:catalog'),
         'quick_actions': quick_actions,
         'source_statuses': source_statuses,
+        'energy_source': energy,
         'activity_source': activities,
         'courses_source': courses,
         'achievements_source': achievements,

@@ -96,6 +96,7 @@ from .services import (
     send_people_notification,
     update_course,
 )
+from .teacher_overview import teacher_overview
 from .ui import (
     AREA_KEYS,
     COURSE_AREAS,
@@ -367,6 +368,7 @@ class TeacherDashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
         pending_submissions = 0
         open_quizzes = 0
         progress_percent = 0
+        analytics_summary = {}
         alerts = []
         quick_actions = []
         recent_activity = []
@@ -438,13 +440,14 @@ class TeacherDashboardView(LoginRequiredMixin, LmsContextMixin, TemplateView):
                     'url': reverse('lms:course_detail', kwargs={'course_id': course.pk}),
                 })
             quick_actions = [
-                {'label': _('Crear anuncio'), 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'announcements'})},
-                {'label': _('Crear página'), 'url': reverse('lms:course_page_create', kwargs={'course_id': course.pk})},
-                {'label': _('Añadir módulo'), 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'content'})},
-                {'label': _('Crear actividad'), 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'activities'})},
-                {'label': _('Crear prueba'), 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'quizzes'})},
+                {'label': _('Crear anuncio'), 'icon': 'bi-megaphone', 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'announcements'})},
+                {'label': _('Crear página'), 'icon': 'bi-file-earmark-richtext', 'url': reverse('lms:course_page_create', kwargs={'course_id': course.pk})},
+                {'label': _('Añadir módulo'), 'icon': 'bi-collection', 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'content'})},
+                {'label': _('Crear actividad'), 'icon': 'bi-clipboard-check', 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'activities'})},
+                {'label': _('Crear prueba'), 'icon': 'bi-ui-checks', 'url': reverse('lms:course_area', kwargs={'course_id': course.pk, 'area': 'quizzes'})},
             ]
         context.update({
+            'overview': teacher_overview(self.request.user, memberships, self.request.GET, now=now),
             'teacher_memberships': memberships,
             'selected_membership': selected,
             'selected_course': course,

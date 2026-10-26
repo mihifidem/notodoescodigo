@@ -250,7 +250,7 @@ def suggest_resumen_ia(request):
     return JsonResponse({
         'ok': False,
         'warning': (
-            'La sugerencia con IA estará disponible cuando se integre con Energía Ducky. '
+            'La sugerencia con IA no está disponible: no tiene coste ni proveedor aprobados en Energía Ducky. '
             'No se ha enviado ningún dato del CV a un proveedor de IA.'
         ),
     }, status=503)

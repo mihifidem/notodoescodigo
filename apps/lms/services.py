@@ -434,7 +434,7 @@ class AIProvider(ABC):
             raise ValueError(_('Se requiere un curso válido para usar la IA del LMS.'))
         from .campus import campus_settings
         if campus_settings(course):
-            raise AIRequestRejected(_('Ayuda IA bloqueada: falta integrar reserva, confirmación y liberación de Energía Ducky.'))
+            raise AIRequestRejected(_('Ayuda IA bloqueada: esta herramienta aún no está conectada a Energía Ducky (sin coste ni proveedor aprobados).'))
 
         membership = CourseMembership.objects.filter(user=user, course=course).first()
         if membership is None or membership.status != CourseMembership.Status.ACTIVE:

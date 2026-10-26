@@ -135,6 +135,7 @@ class SidebarNavigationTests(TestCase):
             [
                 ('Blog Tips', reverse('blog:list')),
                 ('Biblioteca de prompts', reverse('prompts:list')),
+                ('NotebookLM', reverse('prompts:estilos')),
                 ('Links web', reverse('enlaces:list')),
                 ('MiniApps', reverse('devtools:hub')),
                 ('DuckyShop', reverse('updates:duckyshop')),

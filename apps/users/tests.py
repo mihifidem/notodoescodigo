@@ -9,7 +9,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -227,6 +227,111 @@ class RegistroFormTests(TestCase):
         self.assertIsNone(user.aula_id)
 
 
+@override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+class LoginActivationTests(TestCase):
+    def test_logout_blocks_routes_until_reactivation(self):
+        user = get_user_model().objects.create_user(username='logout_activation')
+        for authenticated in (False, True):
+            with self.subTest(authenticated=authenticated):
+                if authenticated:
+                    self.client.force_login(user)
+                self.client.post(reverse('users:activate_auth_navigation'))
+                self.assertTrue(self.client.session['auth_navigation_active'])
+                self.assertContains(self.client.get(reverse('landing')), 'data-active="true"')
+
+                response = self.client.post(reverse('account_logout'))
+                self.assertEqual(response.status_code, 302)
+                self.assertNotIn('auth_navigation_active', self.client.session)
+                self.assertNotIn('_auth_user_id', self.client.session)
+                self.assertContains(self.client.get(reverse('landing')), 'data-active="false"')
+                for route in ('account_login', 'users:register', 'users:registro'):
+                    for method in ('get', 'post'):
+                        response = getattr(self.client, method)(reverse(route))
+                        self.assertRedirects(
+                            response, reverse('landing'), fetch_redirect_response=False,
+                        )
+
+                self.client.post(reverse('users:activate_auth_navigation'))
+                self.assertEqual(self.client.get(reverse('account_login')).status_code, 200)
+                self.assertEqual(self.client.get(reverse('users:register')).status_code, 200)
+
+    def test_login_get_and_post_require_activation(self):
+        for method in ('get', 'post'):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(reverse('account_login'))
+                self.assertRedirects(response, reverse('landing'), fetch_redirect_response=False)
+
+    def test_activation_enables_login_for_same_session_only(self):
+        response = self.client.post(reverse('users:activate_auth_navigation'))
+        self.assertJSONEqual(response.content, {'ok': True})
+        self.assertTrue(self.client.session['auth_navigation_active'])
+        self.assertEqual(self.client.get(reverse('account_login')).status_code, 200)
+        self.assertEqual(self.client.post(reverse('account_login')).status_code, 200)
+        self.assertContains(self.client.get(reverse('landing')), 'data-active="true"')
+        self.assertRedirects(
+            Client().get(reverse('account_login')),
+            reverse('landing'),
+            fetch_redirect_response=False,
+        )
+
+    def test_activation_rejects_get_and_requires_csrf(self):
+        endpoint = reverse('users:activate_auth_navigation')
+        self.assertEqual(self.client.get(endpoint).status_code, 405)
+        client = Client(enforce_csrf_checks=True)
+        self.assertEqual(client.post(endpoint).status_code, 403)
+        client.get(reverse('landing'))
+        token = client.cookies['csrftoken'].value
+        self.assertEqual(client.post(endpoint, HTTP_X_CSRFTOKEN=token).status_code, 200)
+        self.assertEqual(client.get(reverse('account_login')).status_code, 200)
+
+
+@override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
+class RegistrationAccessTests(TestCase):
+    def test_registration_requires_activation_for_both_routes_and_methods(self):
+        for route in ('users:registro', 'users:register'):
+            for method in ('get', 'post'):
+                with self.subTest(route=route, method=method):
+                    response = getattr(self.client, method)(reverse(route))
+                    self.assertRedirects(response, reverse('landing'), fetch_redirect_response=False)
+
+    def test_activation_enables_registration_in_same_session_only(self):
+        self.client.post(reverse('users:activate_auth_navigation'))
+        for route in ('users:registro', 'users:register'):
+            with self.subTest(route=route):
+                self.assertContains(self.client.get(reverse(route)), 'Crear cuenta')
+                self.assertContains(self.client.post(reverse(route), {}), 'Crear cuenta')
+                self.assertRedirects(
+                    Client().get(reverse(route)),
+                    reverse('landing'),
+                    fetch_redirect_response=False,
+                )
+
+    def test_activated_visitor_can_register_without_professional_roles(self):
+        self.client.post(reverse('users:activate_auth_navigation'))
+        response = self.client.post(reverse('users:register'), {
+            'username': 'activated_visitor',
+            'first_name': 'Nuevo',
+            'last_name': 'Usuario',
+            'email': 'activated@example.com',
+            'password1': 'ClaveSegura123',
+            'password2': 'ClaveSegura123',
+        })
+        self.assertRedirects(response, reverse('users:dashboard'), fetch_redirect_response=False)
+        user = get_user_model().objects.get(username='activated_visitor')
+        self.assertEqual(user.role, 'usuario')
+        self.assertEqual(user.access_membership.plan, AccessMembership.Plan.FREE)
+
+    def test_authenticated_users_are_redirected_after_activation(self):
+        user = get_user_model().objects.create_user(username='already_registered')
+        self.client.force_login(user)
+        self.client.post(reverse('users:activate_auth_navigation'))
+        self.assertRedirects(
+            self.client.get(reverse('users:register')),
+            reverse('users:dashboard'),
+            fetch_redirect_response=False,
+        )
+
+
 class ProfessionalBranchTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -265,7 +370,9 @@ class ProfessionalBranchTests(TestCase):
         with self.assertRaisesMessage(ValidationError, 'no se puede cambiar'):
             self.branch.save()
 
+    @override_settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage')
     def test_registration_and_my_account_render_accessible_branch_selectors(self):
+        self.client.post(reverse('users:activate_auth_navigation'))
         registration = self.client.get(reverse('users:registro'))
         self.assertEqual(registration.status_code, 200)
         self.assertContains(

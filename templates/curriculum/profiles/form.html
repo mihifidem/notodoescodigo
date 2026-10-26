@@ -1,14 +1,38 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ action }} — CV{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/billing.css' %}"><link rel="stylesheet" href="{% static 'css/personal-tech.css' %}">
+<style>
+  .personal-tech .tech-form-section { margin-bottom: 1.25rem; border-top: 3px solid #4387e8 !important; }
+  .personal-tech .tech-form-section .card-body { padding: clamp(1rem, 2.5vw, 1.5rem); }
+  .personal-tech .tech-section-title { display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; color: var(--billing-text); font-size: 1rem; font-weight: 750; }
+  .personal-tech .tech-section-title i { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: .6rem; background: var(--billing-tint); color: #2563eb; }
+  .personal-tech .tech-slug-preview { padding: .15rem .5rem; border-radius: .4rem; background: var(--billing-tint); color: #2463c4; font-family: var(--bs-font-monospace); font-size: .85em; }
+  .personal-tech .tech-check-grid .form-check { height: 100%; margin: 0; padding: .65rem .75rem .65rem 2.25rem; border: 1px solid var(--billing-border); border-radius: .65rem; background: var(--billing-surface); }
+  .personal-tech .tech-check-grid .form-check:hover { border-color: #4989dd; }
+  .personal-tech .form-control-color { width: 4rem; padding: .3rem; }
+  .personal-tech .tech-form-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+  [data-bs-theme="dark"] .personal-tech .tech-slug-preview { color: #91c6ff; }
+  [data-bs-theme="dark"] .personal-tech .tech-section-title i { color: #91c6ff; }
+  @media (max-width: 575px) { .personal-tech .tech-form-actions .btn { flex: 1 1 auto; } }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width:700px;">
-  <div class="d-flex align-items-center gap-3 mb-4">
+<div class="container py-4 billing-app personal-tech" style="max-width:900px;" aria-labelledby="profile-form-heading">
+  <header class="billing-hero">
+    <div>
+      <p class="billing-eyebrow">Una trayectoria · Diferentes oportunidades</p>
+      <h1 id="profile-form-heading">{{ action }} <span>de CV</span></h1>
+      <p>Define cómo se presenta esta versión de tu CV: plantilla, datos de contacto, privacidad y secciones visibles.</p>
+    </div>
+    <div class="billing-plan-badge"><i class="bi bi-sliders" aria-hidden="true"></i><span>Límite de perfiles<strong>{{ profile_limit }}</strong></span></div>
+  </header>
+  <nav class="tech-actions" aria-label="Navegación de perfiles de CV">
     <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary btn-sm">
-      <i class="bi bi-arrow-left"></i>
+      <i class="bi bi-arrow-left" aria-hidden="true"></i> Mis perfiles de CV
     </a>
-    <h1 class="h4 mb-0 fw-bold"><i class="bi bi-sliders me-2 text-primary"></i>{{ action }}</h1>
-  </div>
+  </nav>
 
   {% if messages %}
   {% for msg in messages %}
@@ -18,11 +42,13 @@
   {% endfor %}
   {% endif %}
 
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-transparent border-bottom fw-semibold">Información del perfil</div>
-    <div class="card-body p-4">
-      <form method="post" novalidate>
-        {% csrf_token %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+    <section class="card tech-form-section" aria-labelledby="section-info">
+      <div class="card-body">
+        <h2 id="section-info" class="tech-section-title"><i class="bi bi-person-badge" aria-hidden="true"></i>Información del perfil</h2>
 
         <div class="mb-3">
           <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
@@ -33,27 +59,31 @@
 
         <div class="mb-3">
           <label class="form-label fw-semibold" for="{{ form.slug.id_for_label }}">
-            URL pública <span class="text-muted fw-normal">— opentowork.es/<strong id="slug_preview">{{ form.slug.value|default:'...' }}</strong></span>
+            URL pública <span class="text-muted fw-normal">— opentowork.es/<strong id="slug_preview" class="tech-slug-preview">{{ form.slug.value|default:'...' }}</strong></span>
           </label>
           {{ form.slug }}
           {% if form.slug.errors %}<div class="invalid-feedback d-block">{{ form.slug.errors }}</div>{% endif %}
           <div class="form-text">Solo letras, números, guiones y guiones bajos. Sin espacios.</div>
         </div>
 
-        {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
         <div class="mb-3">
           <label class="form-label fw-semibold" for="{{ form.profile_template.id_for_label }}">{{ form.profile_template.label }}</label>
           {{ form.profile_template }}
           {% if form.profile_template.errors %}<div class="invalid-feedback d-block">{{ form.profile_template.errors }}</div>{% endif %}
           <div class="form-text"><a href="{% url 'curriculum:template_catalog' %}" target="_blank" rel="noopener">Explorar las nueve plantillas y ver demostraciones</a>. El plan controla el acceso; la rama solo recomienda.</div>
         </div>
-        <div class="mb-3">
+        <div class="mb-0">
           <label class="form-label fw-semibold" for="{{ form.rama_principal.id_for_label }}">{{ form.rama_principal.label }}</label>
           {{ form.rama_principal }}
           {% if form.rama_principal.errors %}<div class="invalid-feedback d-block">{{ form.rama_principal.errors }}</div>{% endif %}
           <div class="form-text">{{ form.rama_principal.help_text }}</div>
         </div>
-        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Datos específicos de esta versión</h6>
+      </div>
+    </section>
+
+    <section class="card tech-form-section" aria-labelledby="section-version">
+      <div class="card-body">
+        <h2 id="section-version" class="tech-section-title"><i class="bi bi-pencil-square" aria-hidden="true"></i>Datos específicos de esta versión</h2>
         <p class="small text-muted">Si dejas un campo vacío se usará el dato correspondiente de tu CV principal. Estos cambios no modifican otras versiones publicadas.</p>
         {% for field in form %}
         {% if field.name == 'display_name' or field.name == 'professional_headline' or field.name == 'presentation' or field.name == 'profile_location' or field.name == 'contact_email' or field.name == 'contact_phone' %}
@@ -64,24 +94,32 @@
         </div>
         {% endif %}
         {% endfor %}
-        <div class="mb-3">
+        <div class="mb-0">
           <label class="form-label fw-semibold" for="{{ form.brand_color.id_for_label }}">Color de marca</label>
           {{ form.brand_color }}
           {% if form.brand_color.errors %}<div class="invalid-feedback d-block">{{ form.brand_color.errors }}</div>{% endif %}
         </div>
+      </div>
+    </section>
 
-        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Privacidad de datos personales</h6>
+    <section class="card tech-form-section" aria-labelledby="section-privacy">
+      <div class="card-body">
+        <h2 id="section-privacy" class="tech-section-title"><i class="bi bi-shield-lock" aria-hidden="true"></i>Privacidad de datos personales</h2>
         <p class="small text-muted">Los datos de contacto y la foto no se publican salvo que los selecciones.</p>
-        <div class="row g-2">
+        <div class="row g-2 tech-check-grid">
           {% for field in form %}
           {% if field.name == 'show_email' or field.name == 'show_phone' or field.name == 'show_location' or field.name == 'show_photo' %}
           <div class="col-sm-6"><div class="form-check">{{ field }}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label></div></div>
           {% endif %}
           {% endfor %}
         </div>
+      </div>
+    </section>
 
-        <h6 class="fw-semibold mt-4 mb-3 border-bottom pb-2">Secciones visibles</h6>
-        <div class="row g-2">
+    <section class="card tech-form-section" aria-labelledby="section-visible">
+      <div class="card-body">
+        <h2 id="section-visible" class="tech-section-title"><i class="bi bi-eye" aria-hidden="true"></i>Secciones visibles</h2>
+        <div class="row g-2 tech-check-grid">
           {% for field in form %}
           {% if 'mostrar' in field.name %}
           <div class="col-sm-6">
@@ -93,15 +131,14 @@
           {% endif %}
           {% endfor %}
         </div>
+      </div>
+    </section>
 
-        <div class="d-flex gap-2 mt-4">
-          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar y continuar</button>
-          <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary">Cancelar</a>
-        </div>
-      </form>
+    <div class="tech-form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar y continuar</button>
+      <a href="{% url 'curriculum:profile_list' %}" class="btn btn-outline-secondary">Cancelar</a>
     </div>
-  </div>
-
+  </form>
 </div>
 
 <script>

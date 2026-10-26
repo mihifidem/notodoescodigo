@@ -1,31 +1,222 @@
 {% extends 'lms/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{% trans "Espacio docente" %} | NoTodoEsCódigo Campus{% endblock %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/billing.css' %}">
+  <link rel="stylesheet" href="{% static 'lms/teacher-tech.css' %}">
+{% endblock %}
 {% block content %}
+<div class="billing-app teacher-tech">
   <nav class="breadcrumbs" aria-label="{% trans 'Ruta de navegación' %}"><a href="{% url 'lms:dashboard' %}">{% trans "Campus" %}</a><span aria-hidden="true">/</span><span aria-current="page">{% trans "Espacio docente" %}</span></nav>
-  <section class="page-heading">
+  <header class="billing-hero teacher-tech-hero">
     <div>
-      <p class="eyebrow">{% trans "BACK OFFICE DOCENTE" %}</p>
+      <p class="billing-eyebrow">{% trans "BACK OFFICE DOCENTE" %}</p>
       <h1>{% trans "Gestiona tus aulas" %}</h1>
-      <p class="lede">{% trans "Selecciona un curso para revisar su actividad, corregir entregas y mantener el ritmo de clase." %}</p>
+      <p class="teacher-tech-intro">{% trans "Selecciona un curso para revisar su actividad, corregir entregas y mantener el ritmo de clase." %}</p>
     </div>
-    {% if can_create_course %}
-      <a class="button button-primary" href="{% url 'lms:course_create' %}">{% trans "Crear aula" %}</a>
-    {% endif %}
-  </section>
+    <div class="teacher-tech-hero-side">
+      <div class="billing-plan-badge">
+        <i class="bi bi-easel2" aria-hidden="true"></i>
+        <span>{% trans "Aulas como docente" %}<strong>{{ teacher_memberships|length }}</strong></span>
+      </div>
+      {% if can_create_course %}
+        <a class="button button-primary" href="{% url 'lms:course_create' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i> {% trans "Crear aula" %}</a>
+      {% endif %}
+    </div>
+  </header>
 
   {% if teacher_memberships %}
-    <form method="get" class="course-selector">
+    {% with notices=overview.notices students=overview.students %}
+    <nav class="billing-nav teacher-tech-nav" aria-label="{% trans 'Secciones del espacio docente' %}">
+      <a href="#avisos"><i class="bi bi-bell" aria-hidden="true"></i>{% trans "Avisos pendientes" %}{% if overview.notices_total %} <span class="teacher-count">{{ overview.notices_total }}</span>{% endif %}</a>
+      <a href="#cursos"><i class="bi bi-journal-bookmark" aria-hidden="true"></i>{% trans "Mis cursos" %}</a>
+      <a href="#evaluaciones"><i class="bi bi-ui-checks" aria-hidden="true"></i>{% trans "Pruebas y actividades" %}</a>
+      <a href="#alumnos"><i class="bi bi-people" aria-hidden="true"></i>{% trans "Alumnos" %}</a>
+      <a href="#aula"><i class="bi bi-easel2" aria-hidden="true"></i>{% trans "Aula seleccionada" %}</a>
+    </nav>
+
+    <section id="avisos" class="content-panel teacher-block" aria-labelledby="avisos-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">{% trans "PENDIENTE DE REVISAR" %}</p><h2 id="avisos-heading">{% trans "Avisos pendientes" %}</h2></div>
+        <span class="teacher-pill">{{ overview.notices_total }}</span>
+      </div>
+      {% if overview.notices_total %}
+        <div class="teacher-two-cols">
+          <div>
+            <h3 class="teacher-subheading"><i class="bi bi-megaphone" aria-hidden="true"></i> {% trans "Anuncios sin publicar" %} <span class="teacher-muted">({{ notices.announcements_total }})</span></h3>
+            {% if notices.announcements %}
+              <ul class="teacher-list">
+                {% for item in notices.announcements %}
+                  <li>
+                    <div>
+                      <a href="{{ item.url }}">{{ item.title }}</a>
+                      <small>{{ item.course.nombre }}{% if item.publish_at %} · {% trans "Publicación" %} <time datetime="{{ item.publish_at|date:'c' }}">{{ item.publish_at|date:"j M, H:i" }}</time>{% endif %}</small>
+                    </div>
+                    <span class="teacher-badge teacher-badge-{{ item.state }}">{{ item.state_label }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="quiet-note">{% trans "No hay anuncios en borrador ni programados." %}</p>
+            {% endif %}
+          </div>
+          <div>
+            <h3 class="teacher-subheading"><i class="bi bi-bell" aria-hidden="true"></i> {% trans "Notificaciones sin leer" %} <span class="teacher-muted">({{ notices.notifications_total }})</span></h3>
+            {% if notices.notifications %}
+              <ul class="teacher-list">
+                {% for notification in notices.notifications %}
+                  <li>
+                    <div>
+                      {% if notification.course_id %}<a href="{% url 'lms:course_detail' course_id=notification.course_id %}">{{ notification.title }}</a>{% else %}<strong>{{ notification.title }}</strong>{% endif %}
+                      <small>{% if notification.course %}{{ notification.course.nombre }} · {% endif %}<time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|date:"j M, H:i" }}</time></small>
+                    </div>
+                    <span class="teacher-badge teacher-badge-unread">{% trans "Sin leer" %}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="quiet-note">{% trans "No tienes notificaciones sin leer." %}</p>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <p class="quiet-note"><i class="bi bi-check2-circle" aria-hidden="true"></i> {% trans "No tienes avisos pendientes." %}</p>
+      {% endif %}
+    </section>
+
+    <section id="cursos" class="teacher-block" aria-labelledby="cursos-heading">
+      <h2 id="cursos-heading" class="visually-hidden">{% trans "Mis cursos" %}</h2>
+      <div class="teacher-two-cols">
+        <div class="content-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">{% trans "EN MARCHA" %}</p><h3>{% trans "Cursos abiertos" %}</h3></div>
+            <span class="teacher-pill">{{ overview.open_courses|length }}</span>
+          </div>
+          {% include 'lms/_teacher_course_list.html' with courses=overview.open_courses empty_text=_("No tienes cursos abiertos.") %}
+        </div>
+        <div class="content-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">{% trans "HISTÓRICO" %}</p><h3>{% trans "Cursos cerrados" %}</h3></div>
+            <span class="teacher-pill">{{ overview.closed_courses|length }}</span>
+          </div>
+          {% include 'lms/_teacher_course_list.html' with courses=overview.closed_courses empty_text=_("No tienes cursos cerrados ni archivados.") %}
+        </div>
+      </div>
+    </section>
+
+    <section id="evaluaciones" class="content-panel teacher-block" aria-labelledby="evaluaciones-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">{% trans "DISPONIBLES PARA EL ALUMNADO" %}</p><h2 id="evaluaciones-heading">{% trans "Pruebas y actividades abiertas" %}</h2></div>
+        <span class="teacher-pill">{{ overview.open_evaluations|length }}</span>
+      </div>
+      {% if overview.open_evaluations %}
+        <div class="teacher-table-wrap">
+          <table class="teacher-table">
+            <thead><tr><th scope="col">{% trans "Tipo" %}</th><th scope="col">{% trans "Título" %}</th><th scope="col">{% trans "Curso" %}</th><th scope="col">{% trans "Cierre" %}</th></tr></thead>
+            <tbody>
+              {% for item in overview.open_evaluations %}
+                <tr>
+                  <td><span class="teacher-badge teacher-badge-{{ item.kind }}"><i class="bi {% if item.kind == 'quiz' %}bi-ui-checks{% else %}bi-clipboard-check{% endif %}" aria-hidden="true"></i> {{ item.kind_label }}</span></td>
+                  <td><a href="{{ item.url }}">{{ item.title }}</a></td>
+                  <td>{{ item.course.nombre }}</td>
+                  <td>{% if item.closes_at %}<time datetime="{{ item.closes_at|date:'c' }}">{{ item.closes_at|date:"j M Y, H:i" }}</time>{% else %}<span class="teacher-muted">{% trans "Sin fecha" %}</span>{% endif %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="quiet-note">{% trans "No hay pruebas ni actividades abiertas en tus cursos." %}</p>
+      {% endif %}
+    </section>
+
+    <section id="alumnos" class="content-panel teacher-block" aria-labelledby="alumnos-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">{% trans "TODAS TUS AULAS" %}</p><h2 id="alumnos-heading">{% trans "Alumnos inscritos" %}</h2></div>
+        <span class="teacher-pill">{% blocktrans with count=students.unique_students %}{{ count }} alumnos{% endblocktrans %}</span>
+      </div>
+      <form method="get" action="#alumnos" class="teacher-filters" role="search" aria-label="{% trans 'Buscar y filtrar alumnos' %}">
+        {% if selected_course %}<input type="hidden" name="course" value="{{ selected_course.pk }}">{% endif %}
+        <div class="teacher-field teacher-field-search">
+          <label for="student-q">{% trans "Buscar" %}</label>
+          <input id="student-q" type="search" name="q" value="{{ students.q }}" placeholder="{% trans 'Nombre, usuario o email' %}">
+        </div>
+        <div class="teacher-field">
+          <label for="student-course">{% trans "Curso" %}</label>
+          <select id="student-course" name="s_course">
+            <option value="">{% trans "Todos los cursos" %}</option>
+            {% for item in teacher_memberships %}<option value="{{ item.course.pk }}" {% if students.course == item.course.pk|stringformat:'s' %}selected{% endif %}>{{ item.course.nombre }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="teacher-field">
+          <label for="student-status">{% trans "Estado" %}</label>
+          <select id="student-status" name="s_status">
+            <option value="">{% trans "Todos" %}</option>
+            {% for value, label in students.status_choices %}<option value="{{ value }}" {% if students.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="teacher-field">
+          <label for="student-order">{% trans "Ordenar por" %}</label>
+          <select id="student-order" name="order">
+            {% for value, label in students.order_choices %}<option value="{{ value }}" {% if students.order == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="teacher-filter-actions">
+          <button class="button button-primary button-small" type="submit"><i class="bi bi-funnel" aria-hidden="true"></i> {% trans "Aplicar" %}</button>
+          {% if students.is_filtered %}<a class="button button-secondary button-small" href="?{% if selected_course %}course={{ selected_course.pk }}{% endif %}#alumnos">{% trans "Limpiar" %}</a>{% endif %}
+        </div>
+      </form>
+      <p class="teacher-results" role="status">{% blocktrans with shown=students.filtered total=students.total %}{{ shown }} de {{ total }} inscripciones{% endblocktrans %}</p>
+      {% if students.page.object_list %}
+        <div class="teacher-table-wrap">
+          <table class="teacher-table">
+            <thead><tr><th scope="col">{% trans "Alumno" %}</th><th scope="col">{% trans "Curso" %}</th><th scope="col">{% trans "Estado" %}</th><th scope="col">{% trans "Inscripción" %}</th></tr></thead>
+            <tbody>
+              {% for membership in students.page.object_list %}
+                <tr>
+                  <td>
+                    <div class="teacher-student">
+                      <span class="teacher-avatar" aria-hidden="true">{{ membership.user.get_full_name|default:membership.user.username|slice:":1"|upper }}</span>
+                      <div><strong>{{ membership.user.get_full_name|default:membership.user.username }}</strong><small>@{{ membership.user.username }}{% if membership.user.email %} · {{ membership.user.email }}{% endif %}</small></div>
+                    </div>
+                  </td>
+                  <td><a href="{% url 'lms:course_area' course_id=membership.course_id area='people' %}">{{ membership.course.nombre }}</a>{% if membership.section %}<small class="d-block teacher-muted">{{ membership.section }}</small>{% endif %}</td>
+                  <td><span class="teacher-badge teacher-badge-{{ membership.status }}">{{ membership.get_status_display }}</span></td>
+                  <td>{% with joined=membership.joined_at|default:membership.created_at %}<time datetime="{{ joined|date:'c' }}">{{ joined|date:"j M Y" }}</time>{% endwith %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if students.page.has_other_pages %}
+          <nav class="teacher-pagination" aria-label="{% trans 'Páginas de alumnos' %}">
+            {% if students.page.has_previous %}<a href="?{% if students.querystring %}{{ students.querystring }}&amp;{% endif %}page={{ students.page.previous_page_number }}#alumnos" rel="prev"><i class="bi bi-chevron-left" aria-hidden="true"></i> {% trans "Anterior" %}</a>{% endif %}
+            <span aria-current="page">{% blocktrans with number=students.page.number total=students.page.paginator.num_pages %}Página {{ number }} de {{ total }}{% endblocktrans %}</span>
+            {% if students.page.has_next %}<a href="?{% if students.querystring %}{{ students.querystring }}&amp;{% endif %}page={{ students.page.next_page_number }}#alumnos" rel="next">{% trans "Siguiente" %} <i class="bi bi-chevron-right" aria-hidden="true"></i></a>{% endif %}
+          </nav>
+        {% endif %}
+      {% else %}
+        <p class="quiet-note">{% if students.is_filtered %}{% trans "Ningún alumno coincide con los filtros." %}{% else %}{% trans "Todavía no hay alumnos inscritos en tus cursos." %}{% endif %}</p>
+      {% endif %}
+    </section>
+    {% endwith %}
+
+    <section id="aula" class="teacher-block" aria-labelledby="aula-heading">
+    <div class="content-panel teacher-aula-picker">
+    <h2 id="aula-heading" class="teacher-section-title"><i class="bi bi-easel2" aria-hidden="true"></i> {% trans "Aula seleccionada" %}</h2>
+    <form method="get" action="#aula" class="course-selector">
       <div>
-        <label for="teacher-course">{% trans "Curso seleccionado" %}</label>
+        <label for="teacher-course"><i class="bi bi-collection" aria-hidden="true"></i> {% trans "Curso seleccionado" %}</label>
         <select id="teacher-course" name="course">
           {% for item in teacher_memberships %}
             <option value="{{ item.course.pk }}" {% if selected_membership and selected_membership.pk == item.pk %}selected{% endif %}>{{ item.course.nombre }}</option>
           {% endfor %}
         </select>
       </div>
-      <button class="button button-secondary button-small" type="submit">{% trans "Abrir curso" %}</button>
+      <button class="button button-secondary button-small" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> {% trans "Abrir curso" %}</button>
     </form>
+    </div>
 
     {% if selected_course %}
       <div class="teacher-course-grid">
@@ -38,31 +229,36 @@
             </div>
             <p>{{ selected_course.descripcion_texto|truncatewords:32 }}</p>
             <div class="hero-actions">
-              <a class="button button-light" href="{% url 'lms:course_detail' course_id=selected_course.pk %}">{% trans "Ver aula" %}</a>
-              <a class="button button-light" href="{% url 'lms:course_edit' course_id=selected_course.pk %}">{% trans "Editar aula" %}</a>
+              <a class="button button-light" href="{% url 'lms:course_detail' course_id=selected_course.pk %}"><i class="bi bi-eye" aria-hidden="true"></i> {% trans "Ver aula" %}</a>
+              <a class="button button-light" href="{% url 'lms:course_edit' course_id=selected_course.pk %}"><i class="bi bi-pencil-square" aria-hidden="true"></i> {% trans "Editar aula" %}</a>
               {% if can_publish %}
-                <form method="post" action="{% url 'lms:course_publish' course_id=selected_course.pk %}">{% csrf_token %}<button class="button button-primary" type="submit">{% trans "Publicar" %}</button></form>
+                <form method="post" action="{% url 'lms:course_publish' course_id=selected_course.pk %}">{% csrf_token %}<button class="button button-primary" type="submit"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> {% trans "Publicar" %}</button></form>
               {% endif %}
             </div>
           </div>
         </section>
 
-        <div class="metrics-grid" style="grid-column: 1 / -1; margin-bottom: 18px;">
+        <div class="metrics-grid">
           <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
             <div class="metric-label">{% trans "Alumnos activos" %}</div>
             <strong>{{ kpis.students }}</strong>
           </article>
-          <article class="metric-card">
+          <article class="metric-card{% if kpis.pending_submissions %} metric-attention{% endif %}">
+            <span class="metric-icon" aria-hidden="true"><i class="bi bi-inbox"></i></span>
             <div class="metric-label">{% trans "Entregas sin evaluar" %}</div>
             <strong>{{ kpis.pending_submissions }}</strong>
           </article>
           <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true"><i class="bi bi-ui-checks"></i></span>
             <div class="metric-label">{% trans "Pruebas abiertas" %}</div>
             <strong>{{ kpis.open_quizzes }}</strong>
           </article>
           <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
             <div class="metric-label">{% trans "Progreso de clase" %}</div>
             <strong>{{ kpis.class_progress }}%</strong>
+            <progress max="100" value="{{ kpis.class_progress }}" aria-label="{% trans 'Progreso de clase' %}">{{ kpis.class_progress }}%</progress>
           </article>
         </div>
 
@@ -77,7 +273,7 @@
             <ul class="due-list">
               {% for alert in alerts %}
                 <li>
-                  <span class="due-icon" aria-hidden="true">⚑</span>
+                  <span class="due-icon" aria-hidden="true"><i class="bi bi-flag"></i></span>
                   <div>
                     <h3><a href="{{ alert.url }}">{{ alert.title }}</a></h3>
                     <p>{{ alert.body }}</p>
@@ -96,7 +292,7 @@
             <ul class="due-list">
               {% for evaluation in upcoming_evaluations %}
                 <li>
-                  <span class="due-icon" aria-hidden="true">◷</span>
+                  <span class="due-icon" aria-hidden="true"><i class="bi bi-clock"></i></span>
                   <div>
                     <h3>{% if evaluation.url %}<a href="{{ evaluation.url }}">{{ evaluation.title }}</a>{% else %}{{ evaluation.title }}{% endif %}</h3>
                     <p>{% if evaluation.is_deadline %}{% trans "Cierre" %} {% endif %}<time datetime="{{ evaluation.moment|date:'c' }}">{{ evaluation.moment|date:"j M, H:i" }}</time></p>
@@ -110,21 +306,21 @@
           {% endif %}
         </aside>
 
-        <section class="content-panel" style="grid-column: 1 / -1; margin-top: 18px;">
+        <section class="content-panel teacher-tech-wide">
           <div class="section-heading">
             <div>
               <p class="eyebrow">{% trans "ACCIONES RÁPIDAS" %}</p>
               <h2>{% trans "Crear y gestionar contenido" %}</h2>
             </div>
           </div>
-          <div class="hero-actions" style="margin-top: 0;">
+          <div class="teacher-quick-actions">
             {% for action in quick_actions %}
-              <a class="button button-secondary" href="{{ action.url }}">{{ action.label }}</a>
+              <a class="teacher-quick-action" href="{{ action.url }}"><i class="bi {{ action.icon }}" aria-hidden="true"></i><span>{{ action.label }}</span></a>
             {% endfor %}
           </div>
         </section>
 
-        <section class="content-panel" style="grid-column: 1 / -1;">
+        <section class="content-panel teacher-tech-wide">
           <div class="section-heading">
             <div><p class="eyebrow">{% trans "ACTIVIDAD RECIENTE" %}</p><h2>{% trans "Últimos cambios" %}</h2></div>
           </div>
@@ -132,7 +328,7 @@
             <ul class="due-list">
               {% for item in recent_activity %}
                 <li>
-                  <span class="due-icon" aria-hidden="true">◌</span>
+                  <span class="due-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
                   <div>
                     <h3>{{ item.get_action_display }}</h3>
                     <p>{% if item.actor %}{{ item.actor.get_full_name|default:item.actor.username }}{% else %}{% trans "Sistema" %}{% endif %} · {{ item.created_at|date:"j M H:i" }}</p>
@@ -145,7 +341,7 @@
           {% endif %}
         </section>
 
-        <section class="content-panel" style="grid-column: 1 / -1;">
+        <section class="content-panel teacher-tech-wide">
           <div class="section-heading">
             <div><p class="eyebrow">{% trans "CONTENIDO" %}</p><h2>{% trans "Temas del aula" %}</h2></div>
             <a class="text-link" href="{% url 'lms:course_area' course_id=selected_course.pk area='content' %}">{% trans "Abrir contenido" %} →</a>
@@ -168,9 +364,10 @@
         </section>
       </div>
     {% endif %}
+    </section>
   {% else %}
     <div class="empty-state">
-      <span class="empty-icon" aria-hidden="true">✦</span>
+      <span class="empty-icon" aria-hidden="true"><i class="bi bi-easel2"></i></span>
       <h2>{% trans "No tienes aulas asignadas como docente" %}</h2>
       <p>{% trans "Las capacidades docentes se asignan curso por curso. La administración global es independiente." %}</p>
       {% if can_create_course %}
@@ -180,4 +377,5 @@
       {% endif %}
     </div>
   {% endif %}
+</div>
 {% endblock %}

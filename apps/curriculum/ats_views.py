@@ -114,7 +114,7 @@ def ats_review(request, pk):
         else:
             return redirect('curriculum:ats_detail', pk=report.pk)
     return _private(render(request, 'curriculum/ats/review.html', {
-        'source': source, 'form': form, 'ai_message': ats.AI_MESSAGE,
+        'source': source, 'form': form, 'ai_message': ats.ai_availability(request.user)['message'],
     }, status=status))
 
 
@@ -128,7 +128,7 @@ def ats_detail(request, pk):
     if scope == 'pro':
         findings = sorted(findings, key=lambda item: item['severity'] != 'warning')
     return _private(render(request, 'curriculum/ats/detail.html', {
-        'report': report, 'scope': scope, 'findings': findings, 'ai_message': ats.AI_MESSAGE,
+        'report': report, 'scope': scope, 'findings': findings, 'ai_message': ats.ai_availability(request.user)['message'],
     }))
 
 
@@ -271,9 +271,11 @@ def ats_ai(request, pk):
         operation = ats.request_ai(request.user, report, key, request.POST.get('task', 'semantic'))
     except (ValidationError, ats.ATSConflict, ats.ATSRateLimited) as error:
         return _error(request, error, 429 if isinstance(error, ats.ATSRateLimited) else 409)
+    gate = ats.ai_availability(request.user, operation.task)
     return _private(JsonResponse({
         'ok': False, 'status': operation.status, 'operation_id': str(operation.pk),
-        'error': operation.error_code, 'energy_cost': None, 'message': ats.AI_MESSAGE,
+        'error': operation.error_code, 'message': gate['message'],
+        'energy_cost': None if gate['energy_cost'] is None else str(gate['energy_cost']),
     }, status=503))
 
 

@@ -15,7 +15,7 @@ from apps.users.access import can, effective_plan
 from .letter_forms import EditLetterForm, GenerateLetterForm, LetterActionForm, NewLetterForm, ReviewLetterForm
 from .models import CoverLetter, LetterVersion
 from .services.letters import (
-    LetterConflict, LetterRateLimited, UNAVAILABLE_MESSAGE, change_status, create_letter,
+    LetterConflict, LetterRateLimited, change_status, create_letter,
     current_configuration, delete_letter, duplicate_letter, generation_availability,
     prepare_review, request_generation, save_version,
 )
@@ -55,7 +55,7 @@ def letter_list(request):
         letters = letters.filter(title__icontains=query)
     page = Paginator(letters, 20).get_page(request.GET.get('page'))
     return _private(render(request, 'curriculum/letters/list.html', {
-        'page_obj': page, 'query': query, 'availability': generation_availability(current_configuration()),
+        'page_obj': page, 'query': query, 'availability': generation_availability(current_configuration(), request.user),
     }))
 
 
@@ -80,7 +80,7 @@ def letter_new(request):
             return _private(render(request, 'curriculum/letters/review.html', {
                 'payload': payload, 'sections': sections, 'warnings': warnings,
                 'form': ReviewLetterForm(initial={'token': token}),
-                'availability': generation_availability(configuration),
+                'availability': generation_availability(configuration, request.user),
             }))
     return _private(render(request, 'curriculum/letters/new.html', {
         'form': form, 'profiles': form.fields['profile'].queryset,
@@ -139,7 +139,7 @@ def letter_detail(request, pk):
             return redirect('curriculum:letter_detail', pk=letter.pk)
     return _private(render(request, 'curriculum/letters/detail.html', {
         'letter': letter, 'form': form, 'selected': selected, 'versions': letter.versions.all(),
-        'availability': generation_availability(configuration),
+        'availability': generation_availability(configuration, request.user),
         'generation_key': uuid.uuid4(),
     }, status=status))
 
@@ -192,9 +192,11 @@ def letter_generate(request, pk):
         return _private(JsonResponse(
             {'ok': False, 'error': str(error)}, status=429 if isinstance(error, LetterRateLimited) else 409,
         ))
+    availability = generation_availability(current_configuration(), request.user)
     return _private(JsonResponse({
         'ok': False, 'operation_id': str(operation.pk), 'status': operation.status,
-        'error': operation.error_code, 'message': UNAVAILABLE_MESSAGE, 'energy_cost': None,
+        'error': operation.error_code, 'message': availability['message'],
+        'energy_cost': None if availability['energy_cost'] is None else str(availability['energy_cost']),
     }, status=503))
 
 

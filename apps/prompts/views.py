@@ -9,7 +9,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 
 from apps.users.access import can
 
@@ -330,6 +332,53 @@ class MisFavoritosView(LoginRequiredMixin, ListView):
             )
             .order_by('-agregado_en')
         )
+
+
+# ---------------------------------------------------------------------------
+# Biblioteca de estilos NotebookLM (static/prompts/styles.json)
+# ---------------------------------------------------------------------------
+
+def _cargar_estilos_notebooklm():
+    path = finders.find('prompts/styles.json')
+    if not path:
+        return [], []
+    with open(path, encoding='utf-8') as fh:
+        data = json.load(fh)
+
+    categorias = []
+    estilos = []
+    orden = 0
+    for cat in data.get('categories', []):
+        categorias.append({'id': cat.get('id'), 'name': cat.get('name'), 'emoji': cat.get('emoji', '')})
+        for style in cat.get('styles', []):
+            orden += 1
+            colors = style.get('colors') or {}
+            estilos.append({
+                'id': style.get('id'),
+                'name': style.get('name') or style.get('id'),
+                'category': cat.get('id'),
+                'categoryName': cat.get('name'),
+                'emoji': cat.get('emoji', ''),
+                'theme': style.get('theme', ''),
+                'colors': [c for c in (colors.get('primary'), colors.get('background'), colors.get('text')) if c],
+                'keyElements': style.get('keyElements') or [],
+                'prompt': style.get('yamlContent', ''),
+                'previews': [static('prompts' + p) for p in style.get('previews', [])],
+                'order': orden,
+            })
+    return categorias, estilos
+
+
+class EstilosNotebookLMView(TemplateView):
+    template_name = 'prompts/estilos_notebooklm.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categorias, estilos = _cargar_estilos_notebooklm()
+        context['categorias'] = categorias
+        context['estilos'] = estilos
+        context['total_estilos'] = len(estilos)
+        return context
 
 
 # ---------------------------------------------------------------------------

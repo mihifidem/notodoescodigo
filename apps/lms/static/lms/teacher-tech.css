@@ -1,0 +1,157 @@
+﻿/* Espacio docente â€” estilo tech modern (sobre billing.css) */
+.teacher-tech { --teacher-accent: #2563eb; --teacher-accent-soft: #4387e8; }
+[data-bs-theme="dark"] .teacher-tech { --teacher-accent: #91c5ff; --teacher-accent-soft: #6aa8f0; }
+
+.lms-theme .lms-content .teacher-tech { color: var(--billing-text); font-size: 1.02rem; }
+.lms-theme .lms-content .teacher-tech :is(h2, h3) { color: var(--billing-text); margin-top: 0; }
+.lms-theme .lms-content .teacher-tech .billing-hero h1 { color: #f4f8ff; }
+.lms-theme .lms-content .teacher-tech .billing-eyebrow { color: #a7d8ff; }
+.lms-theme .lms-content .teacher-tech .billing-plan-badge span { color: #c7ddf4; }
+.lms-theme .lms-content .teacher-tech .teacher-tech-intro { max-width: 650px; margin: 0; color: #c7ddf4; line-height: 1.7; }
+.teacher-tech .teacher-tech-hero-side { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.teacher-tech .billing-hero > div { min-width: 0; }
+
+/* NavegaciÃ³n interna */
+.teacher-tech .teacher-tech-nav a { display: inline-flex; align-items: center; gap: .45rem; }
+.teacher-tech .teacher-tech-nav a i { color: var(--teacher-accent-soft); }
+.teacher-tech .teacher-count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; height: 1.4rem; padding: 0 .4rem; border-radius: 1rem; background: #dc2626; color: #fff; font-size: .72rem; font-weight: 700; }
+
+/* Bloques */
+.teacher-tech .teacher-block { margin-bottom: 1.5rem; scroll-margin-top: 5rem; }
+.lms-theme .lms-content .teacher-tech .content-panel {
+  border: 1px solid var(--billing-border);
+  border-top: 3px solid var(--teacher-accent-soft);
+  border-radius: 1.15rem;
+  background: var(--billing-surface);
+  box-shadow: 0 8px 24px #1539650c;
+  color: var(--billing-text);
+  overflow-wrap: anywhere;
+}
+.lms-theme .lms-content .teacher-tech .eyebrow { color: var(--teacher-accent); letter-spacing: .08em; }
+.teacher-tech .section-heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.teacher-tech .teacher-pill { padding: .35rem .85rem; border: 1px solid var(--billing-border); border-radius: 2rem; background: var(--billing-tint); color: var(--billing-text); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.teacher-tech .teacher-section-title { display: flex; align-items: center; gap: .55rem; margin: .5rem 0 1rem; font-size: 1.35rem; }
+.teacher-tech .teacher-section-title i,
+.teacher-tech .teacher-subheading i { color: var(--teacher-accent-soft); }
+.teacher-tech .teacher-subheading { margin: 0 0 .75rem; font-size: 1.02rem; }
+.teacher-tech .teacher-muted,
+.lms-theme .lms-content .teacher-tech .quiet-note { color: var(--billing-muted); }
+.teacher-tech .teacher-two-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; }
+.teacher-tech #cursos .teacher-two-cols > .content-panel { margin: 0; }
+
+/* Listas */
+.teacher-tech :is(.teacher-list, .teacher-course-list) { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.teacher-tech :is(.teacher-list, .teacher-course-list) > li {
+  display: flex; align-items: center; gap: .75rem; padding: .8rem 1rem;
+  border: 1px solid var(--billing-border); border-radius: .85rem; background: var(--billing-tint);
+}
+.teacher-tech .teacher-list > li > div,
+.teacher-tech .teacher-course-main { flex: 1; min-width: 0; }
+.teacher-tech :is(.teacher-list, .teacher-course-list) small { display: block; margin-top: .2rem; color: var(--billing-muted); font-size: .85rem; }
+.lms-theme .lms-content .teacher-tech :is(.teacher-list a, .teacher-course-name, .teacher-table a) { color: var(--billing-text); font-weight: 700; text-decoration: none; }
+.lms-theme .lms-content .teacher-tech :is(.teacher-list a, .teacher-course-name, .teacher-table a):hover { color: var(--teacher-accent); text-decoration: underline; }
+.teacher-tech .teacher-course-links { display: flex; gap: .35rem; }
+.lms-theme .lms-content .teacher-tech .teacher-course-links a {
+  display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem;
+  border: 1px solid var(--billing-border); border-radius: .6rem; background: var(--billing-surface); color: var(--teacher-accent);
+  transition: border-color .15s ease, background .15s ease;
+}
+.lms-theme .lms-content .teacher-tech .teacher-course-links a:hover { border-color: var(--teacher-accent-soft); background: var(--billing-tint); }
+
+/* Badges */
+.teacher-tech .teacher-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 2rem; font-size: .76rem; font-weight: 700; white-space: nowrap; background: #e2e8f0; color: #334155; }
+.teacher-tech :is(.teacher-badge-published, .teacher-badge-active) { background: #dcfce7; color: #166534; }
+.teacher-tech :is(.teacher-badge-draft, .teacher-badge-invited) { background: #fef3c7; color: #92400e; }
+.teacher-tech :is(.teacher-badge-scheduled, .teacher-badge-quiz, .teacher-badge-completed) { background: #dbeafe; color: #1e40af; }
+.teacher-tech .teacher-badge-activity { background: #ede9fe; color: #5b21b6; }
+.teacher-tech :is(.teacher-badge-archived, .teacher-badge-ended, .teacher-badge-dropped) { background: #e2e8f0; color: #475569; }
+.teacher-tech :is(.teacher-badge-suspended, .teacher-badge-unread) { background: #fee2e2; color: #991b1b; }
+[data-bs-theme="dark"] .teacher-tech .teacher-badge { background: #33415580; color: #e2e8f0; }
+[data-bs-theme="dark"] .teacher-tech :is(.teacher-badge-published, .teacher-badge-active) { background: #14532d99; color: #bbf7d0; }
+[data-bs-theme="dark"] .teacher-tech :is(.teacher-badge-draft, .teacher-badge-invited) { background: #78350f99; color: #fde68a; }
+[data-bs-theme="dark"] .teacher-tech :is(.teacher-badge-scheduled, .teacher-badge-quiz, .teacher-badge-completed) { background: #1e3a8a99; color: #bfdbfe; }
+[data-bs-theme="dark"] .teacher-tech .teacher-badge-activity { background: #4c1d9599; color: #ddd6fe; }
+[data-bs-theme="dark"] .teacher-tech :is(.teacher-badge-suspended, .teacher-badge-unread) { background: #7f1d1d99; color: #fecaca; }
+
+/* Tablas */
+.teacher-tech .teacher-table-wrap { overflow-x: auto; border: 1px solid var(--billing-border); border-radius: .9rem; }
+.lms-theme .lms-content .teacher-tech .teacher-table { width: 100%; border-collapse: collapse; min-width: 560px; background: transparent; color: var(--billing-text); }
+.lms-theme .lms-content .teacher-tech .teacher-table td { color: inherit; }
+.teacher-tech .teacher-table th { padding: .8rem .9rem; background: var(--billing-tint); color: var(--billing-muted); font-size: .74rem; letter-spacing: .04em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.teacher-tech .teacher-table td { padding: .85rem .9rem; border-top: 1px solid var(--billing-border); vertical-align: middle; }
+.teacher-tech .teacher-table tbody tr:hover { background: var(--billing-tint); }
+.teacher-tech .teacher-student { display: flex; align-items: center; gap: .7rem; }
+.teacher-tech .teacher-student small { display: block; color: var(--billing-muted); font-size: .82rem; }
+.teacher-tech .teacher-avatar { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 2.3rem; height: 2.3rem; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #22a9da); color: #fff; font-weight: 700; }
+
+/* Filtros alumnos */
+.teacher-tech .teacher-filters { display: grid; grid-template-columns: minmax(200px, 2fr) repeat(3, minmax(150px, 1fr)) auto; align-items: end; gap: .75rem; margin: 1rem 0; padding: 1rem; border: 1px solid var(--billing-border); border-radius: .9rem; background: var(--billing-tint); }
+.teacher-tech .teacher-field { display: grid; gap: .3rem; min-width: 0; }
+.teacher-tech .teacher-field label { color: var(--billing-muted); font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.lms-theme .lms-content .billing-app.teacher-tech .teacher-field :is(input, select),
+.lms-theme .lms-content .billing-app.teacher-tech .course-selector select { width: 100%; min-height: 2.6rem; padding: .5rem .75rem; border: 1px solid var(--billing-border) !important; border-radius: .6rem !important; background-color: var(--billing-surface) !important; color: var(--billing-text) !important; }
+.lms-theme .lms-content .billing-app.teacher-tech .teacher-field :is(input, select):focus { border-color: var(--teacher-accent-soft) !important; outline: 3px solid #58a8ff55; }
+.lms-theme .lms-content .teacher-tech .teacher-field input::placeholder { color: var(--billing-muted); }
+.teacher-tech .teacher-filter-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.lms-theme .lms-content .teacher-tech .teacher-results { margin: 0 0 .75rem; color: var(--billing-muted) !important; font-size: .9rem; }
+.teacher-tech .teacher-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
+.lms-theme .lms-content .teacher-tech .teacher-pagination a { padding: .45rem .9rem; border: 1px solid var(--billing-border); border-radius: .6rem; color: var(--teacher-accent); font-weight: 600; text-decoration: none; }
+.lms-theme .lms-content .teacher-tech .teacher-pagination a:hover { background: var(--billing-tint); }
+
+/* Aula seleccionada */
+.lms-theme .lms-content .teacher-tech .teacher-hero {
+  border: 0; border-radius: 1.25rem; color: #e8f1ff;
+  background: radial-gradient(ellipse at top right, #2379b899, transparent 65%), linear-gradient(120deg, #0d2043, #173e79);
+  box-shadow: 0 14px 34px #0d204333;
+}
+.lms-theme .lms-content .teacher-tech .teacher-hero h2 { color: #f4f8ff !important; }
+.lms-theme .lms-content .teacher-tech .teacher-hero .eyebrow { color: #a7d8ff !important; }
+.lms-theme .lms-content .teacher-tech .teacher-hero p:not(.eyebrow) { color: #c7ddf4 !important; }
+.lms-theme .lms-content .teacher-tech .course-selector { border: 1px solid var(--billing-border); border-radius: 1rem; background: var(--billing-tint); }
+.lms-theme .lms-content .teacher-tech .teacher-aula-picker { margin-bottom: 1.25rem; }
+.lms-theme .lms-content .teacher-tech .teacher-aula-picker .course-selector { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem; margin: 0; padding: 1rem; }
+.lms-theme .lms-content .teacher-tech .teacher-aula-picker .course-selector > div { flex: 1 1 260px; min-width: 0; }
+.lms-theme .lms-content .teacher-tech .teacher-aula-picker label { display: block; margin-bottom: .3rem; color: var(--billing-muted) !important; font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.lms-theme .lms-content .teacher-tech .upcoming-panel,
+.lms-theme .lms-content .teacher-tech :is(.due-list, .activity-timeline) > li { border-color: var(--billing-border); background: var(--billing-tint); color: var(--billing-text); }
+.lms-theme .lms-content .teacher-tech .upcoming-panel { background: var(--billing-surface); border-top: 3px solid var(--teacher-accent-soft); }
+.lms-theme .lms-content .teacher-tech :is(.due-list, .activity-timeline, .upcoming-panel) :is(h3, h3 a, strong) { color: var(--billing-text); }
+.lms-theme .lms-content .teacher-tech :is(.due-list, .activity-timeline, .upcoming-panel) p { color: var(--billing-muted); }
+.teacher-tech .metrics-grid,
+.teacher-tech .teacher-tech-wide { grid-column: 1 / -1; }
+.teacher-tech .metrics-grid { gap: 1rem; }
+.lms-theme .lms-content .teacher-tech .metric-card { border: 1px solid var(--billing-border); border-radius: 1rem; background: var(--billing-surface); box-shadow: 0 6px 18px #1539650a; color: var(--billing-text); }
+.lms-theme .lms-content .teacher-tech .metric-card strong { color: var(--billing-text) !important; font-size: 1.9rem; }
+.lms-theme .lms-content .teacher-tech .metric-card .metric-label { color: var(--billing-muted) !important; }
+.teacher-tech .metric-card .metric-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; margin-bottom: .5rem; border-radius: .75rem; background: var(--billing-tint); color: var(--teacher-accent); font-size: 1.2rem; }
+.lms-theme .lms-content .teacher-tech .metric-card.metric-attention { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
+.teacher-tech .metric-attention .metric-icon { background: #fef3c7; color: #b45309; }
+.teacher-tech progress { display: block; width: 100%; height: .6rem; margin-top: .5rem; border: 0; border-radius: 1rem; overflow: hidden; background: var(--billing-tint); accent-color: #2875cf; }
+.teacher-tech progress::-webkit-progress-bar { background: var(--billing-tint); }
+.teacher-tech progress::-webkit-progress-value { background: linear-gradient(90deg, #2563eb, #22a9da); border-radius: 1rem; }
+.teacher-tech progress::-moz-progress-bar { background: linear-gradient(90deg, #2563eb, #22a9da); border-radius: 1rem; }
+.teacher-tech .teacher-quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .65rem; }
+.lms-theme .lms-content .teacher-tech .teacher-quick-action {
+  display: flex; align-items: center; gap: .55rem; padding: .8rem 1rem;
+  border: 1px solid var(--billing-border); border-radius: .8rem; background: var(--billing-tint);
+  color: var(--billing-text); font-weight: 650; text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.lms-theme .lms-content .teacher-tech .teacher-quick-action i { color: var(--teacher-accent); font-size: 1.15rem; }
+.lms-theme .lms-content .teacher-tech .teacher-quick-action:hover { border-color: var(--teacher-accent-soft); transform: translateY(-2px); }
+
+.teacher-tech :is(a, button, select, input):focus-visible { outline: 3px solid #58a8ff; outline-offset: 2px; }
+
+@media (max-width: 991.98px) {
+  .teacher-tech .teacher-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .teacher-tech .teacher-field-search { grid-column: 1 / -1; }
+}
+@media (max-width: 575.98px) {
+  .teacher-tech .teacher-filters { grid-template-columns: 1fr; }
+  .teacher-tech :is(.teacher-list, .teacher-course-list) > li { flex-wrap: wrap; }
+  .teacher-tech .teacher-course-main { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teacher-tech * { transition: none !important; }
+  .lms-theme .lms-content .teacher-tech .teacher-quick-action:hover { transform: none; }
+}

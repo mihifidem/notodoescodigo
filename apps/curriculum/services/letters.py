@@ -19,10 +19,11 @@ from .profiles import snapshot_profile
 
 
 REVIEW_SALT = 'curriculum.letter-review.v1'
+ENERGY_TOOL = 'letters-generate'
 UNAVAILABLE_MESSAGE = (
-    'Generación no disponible: falta integrar Energía Ducky (00C), la reserva de servicios '
-    'individuales (00B) y el proveedor IA con coste aprobado. No se ha enviado ningún dato, '
-    'realizado ningún cargo ni reservado energía. Puedes editar y descargar tu carta manualmente.'
+    'Generación no disponible: la herramienta no tiene proveedor IA ni coste energético aprobado en '
+    'Energía Ducky. No se ha enviado ningún dato, realizado ningún cargo ni reservado energía. '
+    'Puedes editar y descargar tu carta manualmente.'
 )
 
 
@@ -46,13 +47,15 @@ def require_owner(actor, resource):
         raise PermissionDenied('La carta o el perfil no pertenece a tu cuenta activa.')
 
 
-def generation_availability(configuration):
-    # No provider calls are possible until the shared consumption contract is implemented.
+def generation_availability(configuration, user=None):
+    from apps.energy.services import module_gate
+
+    gate = module_gate(user, ENERGY_TOOL)
     return {
         'available': False,
-        'reason': 'energy_integration_pending',
-        'message': UNAVAILABLE_MESSAGE,
-        'energy_cost': None,
+        'reason': gate['reason'],
+        'message': gate['message'],
+        'energy_cost': gate['energy_cost'],
         'configured': configuration.generation_enabled,
     }
 
@@ -242,7 +245,7 @@ def request_generation(letter, actor, *, key, expected_revision):
         raise LetterConflict('La carta ha cambiado o está archivada. Revisa antes de generar.')
     configuration = current_configuration()
     _check_frequency(actor, configuration)
-    availability = generation_availability(configuration)
+    availability = generation_availability(configuration, actor)
     return LetterGeneration.objects.create(
         user=actor, letter=source, idempotency_key=key, request_fingerprint=fingerprint,
         error_code=availability['reason'], configuration_version=source.configuration.version,

@@ -203,7 +203,7 @@ def report(request, pk):
         ]
         return _private(build_text_pdf('\n\n'.join(lines), f'nexus-{session.pk}-v{snapshot["version"]}.pdf'))
     return _private(render(request, 'nexus/versioned/report.html', {
-        'session': session, 'result': session.calculated_report, 'ai_message': service.AI_MESSAGE,
+        'session': session, 'result': session.calculated_report, 'ai_message': service.ai_availability(request.user)['message'],
         'is_pro': effective_plan(request.user) == 'pro',
     }))
 
@@ -280,9 +280,11 @@ def ai(request, pk):
         operation = service.request_ai(request.user, session, key, request.POST.get('task', 'interpretation'))
     except (ValidationError, service.NexusConflict) as error:
         return _error(request, error, 409)
+    gate = service.ai_availability(request.user, operation.task)
     return _private(JsonResponse({
         'ok': False, 'status': operation.status, 'operation_id': str(operation.pk),
-        'error': operation.error, 'message': service.AI_MESSAGE, 'energy_cost': None,
+        'error': operation.error, 'message': gate['message'],
+        'energy_cost': None if gate['energy_cost'] is None else str(gate['energy_cost']),
     }, status=503))
 
 
@@ -325,8 +327,10 @@ def legacy_take_unavailable(request, pk):
 def legacy_ai_unavailable(request, pk):
     from .models import SesionTest
     get_object_or_404(SesionTest, pk=pk, alumno=request.user, estado=SesionTest.COMPLETADO)
+    gate = service.ai_availability(request.user, 'interpretation')
     return _private(JsonResponse({
-        'ok': False, 'error': 'energy_integration_pending', 'message': service.AI_MESSAGE, 'energy_cost': None,
+        'ok': False, 'error': gate['reason'], 'message': gate['message'],
+        'energy_cost': None if gate['energy_cost'] is None else str(gate['energy_cost']),
     }, status=503))
 
 

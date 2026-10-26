@@ -3804,6 +3804,44 @@ class LmsHttpTests(TestCase):
         self.assertContains(response, 'Crear actividad')
         self.assertContains(response, 'Crear prueba')
 
+    def test_teacher_dashboard_global_overview_lists_courses_students_and_notices(self):
+        open_course = self.make_owned_course('Aula abierta global')
+        closed_course = self.make_owned_course('Aula archivada global')
+        CourseSettingsLMS.objects.update_or_create(course=closed_course, defaults={'archived': True})
+        other_student = get_user_model().objects.create_user(
+            username='zeta_alumna', email='zeta@example.com', password='x', first_name='Zeta',
+        )
+        for course, user in ((open_course, self.student), (closed_course, other_student)):
+            CourseMembership.objects.create(
+                course=course, user=user,
+                role=CourseMembership.Role.STUDENT, status=CourseMembership.Status.ACTIVE,
+            )
+        Announcement.objects.create(
+            course=open_course, author=self.teacher, title='Aviso sin publicar global',
+            content='Contenido', status=Announcement.Status.DRAFT,
+        )
+        self.client.force_login(self.teacher)
+        url = reverse('lms:teacher_dashboard')
+
+        response = self.client.get(url)
+        overview = response.context['overview']
+        self.assertEqual([item['course'] for item in overview['open_courses']], [open_course])
+        self.assertEqual([item['course'] for item in overview['closed_courses']], [closed_course])
+        self.assertEqual(overview['students']['total'], 2)
+        self.assertContains(response, 'Avisos pendientes')
+        self.assertContains(response, 'Aviso sin publicar global')
+        self.assertContains(response, 'Cursos cerrados')
+        self.assertContains(response, 'Alumnos inscritos')
+
+        searched = self.client.get(url, {'q': 'zeta'}).context['overview']['students']
+        self.assertEqual([m.user for m in searched['page']], [other_student])
+        filtered = self.client.get(url, {'s_course': open_course.pk}).context['overview']['students']
+        self.assertEqual([m.user for m in filtered['page']], [self.student])
+        ordered = self.client.get(url, {'order': '-course'}).context['overview']['students']
+        self.assertEqual([m.course for m in ordered['page']], [closed_course, open_course])
+        invalid = self.client.get(url, {'order': 'hack', 's_course': '999999'}).context['overview']['students']
+        self.assertEqual((invalid['order'], invalid['course'], invalid['filtered']), ('name', '', 2))
+
     def test_teacher_can_create_module_from_page_form(self):
         course = self.make_owned_course('Curso con módulo desde modal')
         self.client.force_login(self.teacher)

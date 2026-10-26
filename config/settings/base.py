@@ -86,6 +86,7 @@ LOCAL_APPS = [
     'apps.devtools',
     'apps.updates',
     'apps.lms',
+    'apps.energy',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -289,7 +290,16 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'apps.lms.tasks.advance_lms_lifecycle',
         'schedule': 5.0,
     },
+    'energy-reconciliation': {
+        'task': 'apps.energy.tasks.reconcile_energy',
+        'schedule': 300.0,
+    },
 }
+
+# Energía Ducky: zona del día para límites por actividad y ejecutores IA reales por herramienta
+# (ruta a una función). Sin ejecutor configurado la herramienta no se ejecuta ni reserva energía.
+ENERGY_DAY_TIMEZONE = 'Europe/Madrid'
+ENERGY_TOOL_EXECUTORS = {}
 
 DUCKYCLASH_PAYMENT_GATEWAY = env('DUCKYCLASH_PAYMENT_GATEWAY', default='')
 DUCKYCLASH_KNOWLEDGE_GATEWAY = env(

@@ -324,7 +324,22 @@
             <h2 id="integrations-title" class="h4 fw-bold">Otras prestaciones</h2>
             <div class="row g-3">
               <div class="col-12 col-md-4"><strong>Procesos de empleo</strong><div class="small text-muted">Integración pendiente; no se muestran candidaturas simuladas.</div></div>
-              <div class="col-12 col-md-4"><strong>Cuota de IA</strong><div class="small text-muted">Contador compartido no conectado; no se muestra saldo estimado.</div></div>
+              <div class="col-12 col-md-4" id="dashboard-energy">
+                <strong>Energía Ducky</strong>
+                {% if energy_source.data.ok %}
+                  {% with e=energy_source.data %}
+                  {% if e.configured %}
+                  <div class="small">Recuperable: {{ e.recoverable.available|floatformat:"-1" }} / {{ e.recoverable.capacity|floatformat:"-1" }}{% if e.purchased.available %} · Comprada: +{{ e.purchased.available|floatformat:"-1" }}{% endif %}{% if e.recharging %} · <span class="text-success"><i class="bi bi-arrow-up" aria-hidden="true"></i> Recargando</span>{% endif %}</div>
+                  {% if e.activity.limit is not None %}<div class="small text-muted">Actividad hoy: {{ e.activity.earned|floatformat:"-1" }} de {{ e.activity.limit|floatformat:"-1" }}</div>{% endif %}
+                  {% else %}
+                  <div class="small text-muted">Capacidad de tu nivel pendiente de configurar; las herramientas IA siguen no disponibles.</div>
+                  {% endif %}
+                  {% endwith %}
+                {% else %}
+                  <div class="small text-muted">Energía no disponible temporalmente.</div>
+                {% endif %}
+                <a class="small" href="{% url 'energy:detail' %}">Ver detalle e historial</a>
+              </div>
               <div class="col-12 col-md-4"><strong>Ducky Bank</strong><div class="small text-muted">Ledger no conectado; no se muestra un saldo ficticio.</div></div>
             </div>
           </div>

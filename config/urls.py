@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.users.views import LandingView
+from apps.users.views import ActivatedLoginView, DeactivatingLogoutView, LandingView
 from apps.curriculum.views import public_cv, cv_pdf
 from apps.api.views import ai_generate
 
@@ -36,6 +36,7 @@ urlpatterns = [
     path('data-admin/', include('apps.data_admin.urls', namespace='data_admin')),
     path('devtools/', include('apps.devtools.urls', namespace='devtools')),
     path('lms/', include('apps.lms.urls', namespace='lms')),
+    path('energia/', include('apps.energy.urls', namespace='energy')),
     path('actualizaciones/', include('apps.updates.urls', namespace='updates')),
 
     # Public CV URLs (opentowork.es/slug style)
@@ -48,6 +49,8 @@ urlpatterns = [
     path('api/posts/', include('apps.blog.urls', namespace='blog_posts')),
 
     # django-allauth (login, register, social auth)
+    path('accounts/login/', ActivatedLoginView.as_view(), name='account_login'),
+    path('accounts/logout/', DeactivatingLogoutView.as_view(), name='account_logout'),
     path('accounts/', include('allauth.urls')),
 ]
 

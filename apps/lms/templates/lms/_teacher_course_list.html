@@ -1,0 +1,24 @@
+{% load i18n %}
+{% if courses %}
+  <ul class="teacher-course-list">
+    {% for item in courses %}
+      <li class="teacher-course-item">
+        <div class="teacher-course-main">
+          <a class="teacher-course-name" href="{{ item.url }}">{{ item.course.nombre }}</a>
+          <small>
+            <i class="bi bi-person-badge" aria-hidden="true"></i> {{ item.role }}
+            · <i class="bi bi-people" aria-hidden="true"></i> {% blocktrans count counter=item.students %}{{ counter }} alumno{% plural %}{{ counter }} alumnos{% endblocktrans %}
+            {% if item.starts_at or item.ends_at %}· <i class="bi bi-calendar-range" aria-hidden="true"></i> {% if item.starts_at %}{{ item.starts_at|date:"j M Y" }}{% else %}…{% endif %} – {% if item.ends_at %}{{ item.ends_at|date:"j M Y" }}{% else %}…{% endif %}{% endif %}
+          </small>
+        </div>
+        <span class="teacher-badge teacher-badge-{{ item.state }}">{{ item.state_label }}</span>
+        <div class="teacher-course-links">
+          <a href="{{ item.url }}" title="{% trans 'Ver aula' %}"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i><span class="visually-hidden">{% trans "Ver aula" %} {{ item.course.nombre }}</span></a>
+          <a href="{{ item.dashboard_url }}#aula" title="{% trans 'Gestionar' %}"><i class="bi bi-sliders" aria-hidden="true"></i><span class="visually-hidden">{% trans "Gestionar" %} {{ item.course.nombre }}</span></a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="quiet-note">{{ empty_text }}</p>
+{% endif %}

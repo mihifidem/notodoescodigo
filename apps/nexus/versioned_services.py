@@ -13,10 +13,17 @@ from .models import (
 
 
 AI_MESSAGE = (
-    'Interpretación y planes IA no disponibles hasta integrar Energía Ducky y reserva '
-    'de servicios individuales. Coste desconocido, no cero. No se ha enviado contenido '
-    'al proveedor ni reservado energía. El resultado calculado sigue accesible.'
+    'Interpretación y planes IA no disponibles: sin proveedor IA ni coste energético aprobado en '
+    'Energía Ducky. Coste desconocido, no cero. No se ha enviado contenido al proveedor ni reservado '
+    'energía. El resultado calculado sigue accesible.'
 )
+ENERGY_TOOLS = {'interpretation': 'nexus-interpretation', 'plan': 'nexus-plan'}
+
+
+def ai_availability(actor, task='interpretation'):
+    from apps.energy.services import module_gate
+
+    return module_gate(actor, ENERGY_TOOLS.get(task, 'nexus-interpretation'))
 
 
 class NexusConflict(Exception):
@@ -373,4 +380,5 @@ def request_ai(actor, session, key, task):
         if previous.session_id != session.pk or previous.task != task:
             raise NexusConflict('La clave ya pertenece a otra operación.')
         return previous
-    return NexusAIOperation.objects.create(user=actor, session=session, key=key, task=task)
+    gate = ai_availability(actor, task)
+    return NexusAIOperation.objects.create(user=actor, session=session, key=key, task=task, error=gate['reason'][:60])

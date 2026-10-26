@@ -10,6 +10,7 @@ from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 
+from allauth.account.views import LoginView, LogoutView
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -18,8 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.base import ContentFile, File
-from django.db import OperationalError
-from django.db.models import Avg, Count, Q
+from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -252,91 +252,27 @@ def confirmar_avatar_ducky(request):
 
 
 class LandingView(TemplateView):
-    """Public landing page with blog highlights."""
+    """Public landing page showcasing platform capabilities."""
     template_name = 'landing.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        from .billing_models import BillingConfiguration
-        from .billing_services import PLAN_PRICE_FIELDS
-        configuration = BillingConfiguration.current()
-        context['landing_pricing_plans'] = [
-            {
-                'name': plan.upper(),
-                'prices': [
-                    {
-                        'period': period,
-                        'label': label,
-                        'amount': getattr(configuration, PLAN_PRICE_FIELDS[(plan, period)]) if configuration else None,
-                    }
-                    for period, label in (
-                        ('monthly', 'mes'), ('semiannual', 'semestre'), ('annual', 'año'),
-                    )
-                ],
-            }
-            for plan in ('plus', 'pro')
-        ]
-        context['landing_pricing_currency'] = configuration.currency if configuration else None
-        from apps.blog.models import PostBlog
 
-        context['posts_destacados'] = (
-            PostBlog.objects.filter(
-                publicado=True,
-                visibilidad=PostBlog.VISIBILIDAD_PUBLICA,
-            )
-            .exclude(categoria__nombre='News Lite')
-            .select_related('categoria', 'subcategoria')
-            .prefetch_related('hashtags')
-            .annotate(promedio_rating=Avg('valoraciones__valor'), total_valoraciones=Count('valoraciones'))
-            .order_by('-destacado', '-publicado_en')[:3]
-        )
+@require_POST
+def activate_auth_navigation(request):
+    request.session['auth_navigation_active'] = True
+    return JsonResponse({'ok': True})
 
-        news_lite_qs = (
-            PostBlog.objects.filter(
-                publicado=True,
-                publicado_en__gte=timezone.now() - timedelta(days=7),
-                visibilidad=PostBlog.VISIBILIDAD_PUBLICA,
-                categoria__nombre='News Lite',
-            )
-            .select_related('categoria', 'subcategoria')
-            .prefetch_related('hashtags')
-            .annotate(promedio_rating=Avg('valoraciones__valor'), total_valoraciones=Count('valoraciones'))
-            .order_by('-destacado', '-publicado_en')
-        )
-        context['news_lite_posts'] = list(news_lite_qs[:12])
-        context['news_lite_categoria_slug'] = 'news-lite'
 
-        from apps.prompts.models import Prompt
-        context['prompts_recientes'] = list(
-            Prompt.objects.filter(
-                publicado=True,
-                visibilidad=Prompt.VISIBILIDAD_PUBLICA,
-            )
-            .select_related('categoria', 'subcategoria')
-            .prefetch_related('hashtags')
-            .order_by('-publicado_en')[:3]
-        )
+class ActivatedLoginView(LoginView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('auth_navigation_active'):
+            return redirect('landing')
+        return super().dispatch(request, *args, **kwargs)
 
-        from apps.courses.models import Curso
-        if self.request.user.is_authenticated:
-            try:
-                context['cursos_disponibles'] = (
-                    self.request.user.get_cursos_disponibles()
-                    .select_related('tipo_curso')
-                    .order_by('-destacado', '-creado_en')[:3]
-                )
-            except OperationalError:
-                context['cursos_disponibles'] = []
-        else:
-            context['cursos_disponibles'] = []
 
-        from apps.enlaces.models import EnlaceImportante
-        context['ultimos_enlaces'] = (
-            EnlaceImportante.objects.filter(activo=True)
-            .select_related('creado_por')
-            .order_by('-creado_en')[:3]
-        )
-        return context
+class DeactivatingLogoutView(LogoutView):
+    def post(self, *args, **kwargs):
+        self.request.session.pop('auth_navigation_active', None)
+        return super().post(*args, **kwargs)
 
 
 # ---------------------------------------------------------------------------
@@ -349,17 +285,18 @@ class RegistroView(CreateView):
     template_name = 'users/register.html'
     success_url = reverse_lazy('users:dashboard')
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('auth_navigation_active'):
+            return redirect('landing')
+        if request.user.is_authenticated:
+            return redirect('users:dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         user = form.save()
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(self.request, f'¡Bienvenido/a {user.first_name}! Tu cuenta ha sido creada.')
         return redirect(self.success_url)
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('users:dashboard')
-        return super().dispatch(request, *args, **kwargs)
-
 
 class AccessSummaryView(LoginRequiredMixin, TemplateView):
     template_name = 'users/access_summary.html'
@@ -428,6 +365,7 @@ class BillingDashboardView(LoginRequiredMixin, TemplateView):
                         service_price(product, plan) == 0
                         and product.fulfillment == ServiceProduct.Fulfillment.AUTOMATIC
                         and bool(product.entitlement_code)
+                        and not hasattr(product, 'energy_recharge')
                     ),
                     'idempotency_key': uuid.uuid4(),
                 }
@@ -811,6 +749,10 @@ class PerfilView(LoginRequiredMixin, DetailView):
         else:
             context['credenciales_publicas'] = claims
         context['es_propietario_perfil'] = perfil == self.request.user
+        if context['es_propietario_perfil']:
+            from apps.energy.services import get_status
+
+            context['energy'] = get_status(perfil)
         return context
 
 

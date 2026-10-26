@@ -2,7 +2,7 @@
 {% block letter_content %}
 <h1 class="h3">Nueva carta</h1>
 <p>Nivel efectivo: {{ plan|upper }}. Ninguna acción de este formulario consume energía.</p>
-<p class="alert alert-info">Primero revisa los datos. Por ahora puedes guardar y redactar manualmente; la generación IA está pendiente de Energía Ducky.</p>
+<p class="alert alert-info">Primero revisa los datos. Por ahora puedes guardar y redactar manualmente; la generación IA se mostrará con su consumo de Energía Ducky cuando tenga proveedor y coste aprobados.</p>
 {% if not profiles %}
   <p>No tienes perfiles activos. <a href="{% url 'curriculum:profile_create' %}">Crea un perfil profesional</a> para elegirlo explícitamente.</p>
 {% else %}

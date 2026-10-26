@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% block title %}Estilos NotebookLM{% endblock %}
+{% block page_title %}Biblioteca de estilos NotebookLM{% endblock %}
+
+{% block extra_css %}
+<style>
+  .nlm-chip { border-radius: 999px; font-size: .8rem; }
+  .nlm-chip.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+  .nlm-card { cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; overflow: hidden; }
+  .nlm-card:hover, .nlm-card:focus-visible { transform: translateY(-4px); box-shadow: 0 .75rem 1.5rem rgba(15, 23, 42, .15) !important; outline: none; }
+  .nlm-cover { position: relative; aspect-ratio: 16 / 9; background: #e2e8f0; overflow: hidden; }
+  .nlm-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease; }
+  .nlm-cover img.is-visible { opacity: 1; }
+  .nlm-dots { position: absolute; bottom: 8px; right: 10px; display: flex; gap: 4px; z-index: 2; }
+  .nlm-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 2px rgba(0,0,0,.4); }
+  .nlm-dots span.on { background: #fff; }
+  .nlm-badge { position: absolute; top: 8px; left: 8px; z-index: 2; background: rgba(15,23,42,.75); color: #fff; font-size: .7rem; }
+  .nlm-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); display: inline-block; }
+  .nlm-theme { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .82rem; }
+  .nlm-prompt { max-height: 45vh; overflow: auto; background: #0f172a; color: #e2e8f0; border-radius: .5rem; padding: 1rem; font-size: .8rem; white-space: pre-wrap; word-break: break-word; }
+  .nlm-gallery img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: .5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-6">
+        <label for="nlmSearch" class="form-label small fw-semibold mb-1">Buscar</label>
+        <input id="nlmSearch" type="search" class="form-control form-control-sm"
+               placeholder="Nombre, tema, elementos o contenido del prompt" autocomplete="off">
+      </div>
+      <div class="col-6 col-md-3">
+        <label for="nlmTone" class="form-label small fw-semibold mb-1">Fondo</label>
+        <select id="nlmTone" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label for="nlmSort" class="form-label small fw-semibold mb-1">Ordenar por</label>
+        <select id="nlmSort" class="form-select form-select-sm">
+          <option value="order">Orden original</option>
+          <option value="name-asc">Nombre (A-Z)</option>
+          <option value="name-desc">Nombre (Z-A)</option>
+          <option value="category">Categoría</option>
+        </select>
+      </div>
+    </div>
+    <div id="nlmCategories" class="d-flex flex-wrap gap-2 mt-3">
+      <button type="button" class="btn btn-sm btn-outline-secondary nlm-chip active" data-category="">Todas</button>
+      {% for cat in categorias %}
+        <button type="button" class="btn btn-sm btn-outline-secondary nlm-chip" data-category="{{ cat.id }}">{{ cat.emoji }} {{ cat.name }}</button>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="small text-muted"><span id="nlmCount">{{ total_estilos }}</span> de {{ total_estilos }} estilos</span>
+  <a href="{% url 'prompts:list' %}" class="small"><i class="bi bi-arrow-left me-1"></i>Biblioteca de prompts</a>
+</div>
+
+<div id="nlmGrid" class="row g-4"></div>
+<div id="nlmEmpty" class="text-center text-muted py-5 d-none">
+  <i class="bi bi-search fs-2 d-block mb-2"></i>No hay estilos que coincidan con los filtros.
+</div>
+
+<div class="modal fade" id="nlmModal" tabindex="-1" aria-labelledby="nlmModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title mb-0" id="nlmModalTitle"></h5>
+          <span class="small text-muted" id="nlmModalCategory"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="nlmModalGallery" class="row g-2 mb-3 nlm-gallery"></div>
+        <p id="nlmModalTheme" class="small text-muted"></p>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="fw-semibold small">Prompt</span>
+          <button type="button" id="nlmCopy" class="btn btn-sm btn-primary">
+            <i class="bi bi-clipboard me-1"></i><span>Copiar prompt</span>
+          </button>
+        </div>
+        <pre id="nlmModalPrompt" class="nlm-prompt mb-0"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ estilos|json_script:"nlm-data" }}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(function () {
+  const STYLES = JSON.parse(document.getElementById('nlm-data').textContent);
+  const HOVER_DELAY_MS = 4000;
+  const grid = document.getElementById('nlmGrid');
+  const empty = document.getElementById('nlmEmpty');
+  const count = document.getElementById('nlmCount');
+  const searchInput = document.getElementById('nlmSearch');
+  const toneSelect = document.getElementById('nlmTone');
+  const sortSelect = document.getElementById('nlmSort');
+  const chips = document.querySelectorAll('#nlmCategories .nlm-chip');
+  const state = { q: '', category: '', tone: '', sort: 'order' };
+
+  const normalize = (s) => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const extractHex = (s) => { const m = (s || '').match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/i); return m ? m[0] : null; };
+  const luminance = (hex) => {
+    let h = hex.slice(1);
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.substr(i, 2), 16));
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  };
+
+  STYLES.forEach((s) => {
+    s.swatches = s.colors.map(extractHex).filter(Boolean);
+    const bg = extractHex(s.colors[1]);
+    s.tone = bg ? (luminance(bg) < 0.5 ? 'dark' : 'light') : '';
+    s.haystack = normalize([s.name, s.categoryName, s.theme, s.keyElements.join(' '), s.prompt].join(' '));
+  });
+
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function showImage(cover, idx) {
+    cover.querySelectorAll('img').forEach((img, i) => img.classList.toggle('is-visible', i === idx));
+    cover.querySelectorAll('.nlm-dots span').forEach((d, i) => d.classList.toggle('on', i === idx));
+  }
+
+  function buildCard(s) {
+    const col = el('div', 'col-12 col-sm-6 col-lg-4 col-xxl-3');
+    const card = el('div', 'card h-100 border-0 shadow-sm nlm-card');
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', 'Ver prompt ' + s.name);
+
+    const cover = el('div', 'nlm-cover');
+    s.previews.forEach((src, i) => {
+      const img = el('img');
+      img.src = src;
+      img.alt = s.name + ' - vista ' + (i + 1);
+      img.loading = 'lazy';
+      if (i === 0) img.classList.add('is-visible');
+      cover.appendChild(img);
+    });
+    cover.appendChild(el('span', 'badge nlm-badge', s.emoji + ' ' + s.categoryName));
+    const dots = el('div', 'nlm-dots');
+    s.previews.forEach((_, i) => { const d = el('span'); if (i === 0) d.className = 'on'; dots.appendChild(d); });
+    cover.appendChild(dots);
+
+    let timer = null;
+    card.addEventListener('mouseenter', () => {
+      if (s.previews.length > 1) showImage(cover, 1);
+      clearTimeout(timer);
+      if (s.previews.length > 2) timer = setTimeout(() => showImage(cover, 2), HOVER_DELAY_MS);
+    });
+    card.addEventListener('mouseleave', () => { clearTimeout(timer); showImage(cover, 0); });
+
+    const body = el('div', 'card-body');
+    body.appendChild(el('h6', 'card-title fw-semibold mb-1', s.name));
+    body.appendChild(el('p', 'nlm-theme text-muted mb-2', s.theme));
+    const sw = el('div', 'd-flex gap-1');
+    s.swatches.forEach((hex) => { const dot = el('span', 'nlm-swatch'); dot.style.background = hex; dot.title = hex; sw.appendChild(dot); });
+    body.appendChild(sw);
+
+    card.appendChild(cover);
+    card.appendChild(body);
+    card.addEventListener('click', () => openModal(s));
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(s); } });
+    col.appendChild(card);
+    return col;
+  }
+
+  const cards = new Map(STYLES.map((s) => [s.id, buildCard(s)]));
+
+  function render() {
+    const q = normalize(state.q.trim());
+    const terms = q ? q.split(/\s+/) : [];
+    let list = STYLES.filter((s) =>
+      (!state.category || s.category === state.category) &&
+      (!state.tone || s.tone === state.tone) &&
+      terms.every((t) => s.haystack.includes(t))
+    );
+    const byName = (a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+    if (state.sort === 'name-asc') list.sort(byName);
+    else if (state.sort === 'name-desc') list.sort((a, b) => byName(b, a));
+    else if (state.sort === 'category') list.sort((a, b) => a.categoryName.localeCompare(b.categoryName, 'es') || byName(a, b));
+    else list.sort((a, b) => a.order - b.order);
+
+    const frag = document.createDocumentFragment();
+    list.forEach((s) => frag.appendChild(cards.get(s.id)));
+    grid.replaceChildren(frag);
+    count.textContent = list.length;
+    empty.classList.toggle('d-none', list.length > 0);
+  }
+
+  let debounce;
+  searchInput.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(() => { state.q = searchInput.value; render(); }, 150); });
+  toneSelect.addEventListener('change', () => { state.tone = toneSelect.value; render(); });
+  sortSelect.addEventListener('change', () => { state.sort = sortSelect.value; render(); });
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    chips.forEach((c) => c.classList.remove('active'));
+    chip.classList.add('active');
+    state.category = chip.dataset.category;
+    render();
+  }));
+
+  // Modal
+  const modalEl = document.getElementById('nlmModal');
+  const modal = window.bootstrap ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
+  const copyBtn = document.getElementById('nlmCopy');
+  const copyLabel = copyBtn.querySelector('span');
+  const copyIcon = copyBtn.querySelector('i');
+  let current = null;
+
+  function openModal(s) {
+    current = s;
+    document.getElementById('nlmModalTitle').textContent = s.name;
+    document.getElementById('nlmModalCategory').textContent = s.emoji + ' ' + s.categoryName;
+    document.getElementById('nlmModalTheme').textContent = s.theme;
+    document.getElementById('nlmModalPrompt').textContent = s.prompt;
+    const gallery = document.getElementById('nlmModalGallery');
+    gallery.replaceChildren(...s.previews.map((src, i) => {
+      const c = el('div', 'col-12 col-md-4');
+      const img = el('img');
+      img.src = src;
+      img.alt = s.name + ' - vista ' + (i + 1);
+      c.appendChild(img);
+      return c;
+    }));
+    resetCopy();
+    if (modal) modal.show(); else modalEl.style.display = 'block';
+  }
+
+  function resetCopy() {
+    copyBtn.classList.replace('btn-success', 'btn-primary');
+    copyIcon.className = 'bi bi-clipboard me-1';
+    copyLabel.textContent = 'Copiar prompt';
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    modalEl.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok ? Promise.resolve() : Promise.reject();
+  }
+
+  copyBtn.addEventListener('click', () => {
+    if (!current) return;
+    const p = navigator.clipboard && window.isSecureContext
+      ? navigator.clipboard.writeText(current.prompt)
+      : fallbackCopy(current.prompt);
+    p.then(() => {
+      copyBtn.classList.replace('btn-primary', 'btn-success');
+      copyIcon.className = 'bi bi-check2 me-1';
+      copyLabel.textContent = '¡Copiado!';
+      setTimeout(resetCopy, 2000);
+    }).catch(() => { copyLabel.textContent = 'No se pudo copiar'; });
+  });
+
+  render();
+})();
+</script>
+{% endblock %}

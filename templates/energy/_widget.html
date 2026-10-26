@@ -1,0 +1,113 @@
+<a href="{% url 'energy:detail' %}" class="energy-widget" id="energyWidget" data-status-url="{% url 'energy:status' %}"
+   aria-live="polite" title="Energía Ducky: ver detalle">
+  <i class="bi bi-lightning-charge-fill energy-widget__icon" aria-hidden="true"></i>
+  <span class="energy-widget__body">
+    <span class="energy-widget__label">Energía Ducky</span>
+    <span class="energy-widget__track" role="progressbar" aria-label="Energía Ducky recuperable"
+          aria-valuemin="0" aria-valuemax="100" aria-valuetext="Cargando energía">
+      <span class="energy-widget__bar" style="width:0%"></span>
+    </span>
+  </span>
+  <span class="energy-widget__text" data-energy-text>Cargando…</span>
+  <span class="energy-widget__extra" data-energy-purchased hidden></span>
+  <span class="energy-widget__recharge" data-energy-recharging hidden>
+    <i class="bi bi-arrow-up" aria-hidden="true"></i><span>Recargando</span>
+  </span>
+</a>
+<style>
+  .energy-widget{display:inline-flex;align-items:center;gap:.45rem;padding:.3rem .6rem;border:1px solid #e2e8f0;border-radius:.6rem;background:#f8fafc;color:#0f172a;text-decoration:none;font-size:.78rem;line-height:1.1;max-width:100%}
+  .energy-widget:hover,.energy-widget:focus-visible{border-color:#16a34a;color:#0f172a}
+  .energy-widget:focus-visible{outline:2px solid #16a34a;outline-offset:2px}
+  .energy-widget__icon{color:#16a34a;font-size:1rem}
+  .energy-widget__body{display:flex;flex-direction:column;gap:.2rem;min-width:70px}
+  .energy-widget__label{font-weight:600;font-size:.68rem;color:#475569}
+  .energy-widget__track{display:block;height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+  .energy-widget__bar{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:inherit;transition:width .4s ease}
+  .energy-widget[data-level="low"] .energy-widget__bar{background:linear-gradient(90deg,#15803d,#16a34a)}
+  .energy-widget__text{font-weight:600;white-space:nowrap}
+  .energy-widget__extra{font-weight:700;color:#0f766e;white-space:nowrap}
+  .energy-widget__recharge{display:inline-flex;align-items:center;gap:.15rem;color:#16a34a;font-weight:600;white-space:nowrap}
+  .energy-widget__recharge .bi{animation:energy-up 1.4s ease-in-out infinite}
+  .energy-widget[data-state="error"] .energy-widget__icon,.energy-widget[data-state="unconfigured"] .energy-widget__icon{color:#94a3b8}
+  @keyframes energy-up{0%,100%{transform:translateY(1px)}50%{transform:translateY(-2px)}}
+  @media (prefers-reduced-motion:reduce){.energy-widget__bar{transition:none}.energy-widget__recharge .bi{animation:none}}
+  @media (max-width:575.98px){.energy-widget__label,.energy-widget__recharge span{display:none}.energy-widget__body{min-width:48px}}
+  [data-theme="dark"] .energy-widget{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  [data-theme="dark"] .energy-widget__label{color:#94a3b8}
+  [data-theme="dark"] .energy-widget__track{background:#334155}
+</style>
+<script>
+(function () {
+  var widget = document.getElementById('energyWidget');
+  if (!widget) return;
+  var track = widget.querySelector('[role="progressbar"]');
+  var bar = widget.querySelector('.energy-widget__bar');
+  var text = widget.querySelector('[data-energy-text]');
+  var extra = widget.querySelector('[data-energy-purchased]');
+  var recharge = widget.querySelector('[data-energy-recharging]');
+  var LEVELS = {high: 'alta', medium: 'media', low: 'baja'};
+  var lastFetch = 0;
+  var MIN_INTERVAL = 30000;
+
+  function fmt(value) {
+    var number = Number(value);
+    if (!isFinite(number)) return '';
+    return number.toLocaleString('es-ES', {maximumFractionDigits: 1});
+  }
+
+  function render(data) {
+    widget.title = data.message || 'Energía Ducky';
+    extra.hidden = true;
+    recharge.hidden = true;
+    if (!data.configured) {
+      widget.dataset.state = 'unconfigured';
+      widget.dataset.level = '';
+      bar.style.width = '0%';
+      track.removeAttribute('aria-valuenow');
+      track.setAttribute('aria-valuetext', 'Energía pendiente de configuración');
+      text.textContent = 'Sin configurar';
+      return;
+    }
+    var percent = Math.max(0, Math.min(100, Number(data.recoverable.percent) || 0));
+    widget.dataset.state = 'ok';
+    widget.dataset.level = data.level;
+    bar.style.width = percent + '%';
+    track.setAttribute('aria-valuenow', String(Math.round(percent)));
+    var levelText = data.full ? 'Energía completa' : 'Energía ' + (LEVELS[data.level] || '');
+    track.setAttribute('aria-valuetext', levelText + ': ' + fmt(data.recoverable.available) + ' de ' + fmt(data.recoverable.capacity));
+    text.textContent = data.full ? 'Completa' : fmt(data.recoverable.available) + '/' + fmt(data.recoverable.capacity) + ' · ' + (LEVELS[data.level] || '');
+    if (Number(data.purchased.available) > 0) {
+      extra.textContent = '+' + fmt(data.purchased.available);
+      extra.title = 'Energía comprada disponible (separada de la recuperable)';
+      extra.hidden = false;
+    }
+    recharge.hidden = !data.recharging;
+  }
+
+  function fail() {
+    widget.dataset.state = 'error';
+    widget.dataset.level = '';
+    bar.style.width = '0%';
+    track.removeAttribute('aria-valuenow');
+    track.setAttribute('aria-valuetext', 'Energía no disponible');
+    text.textContent = 'Energía no disponible';
+    extra.hidden = true;
+    recharge.hidden = true;
+  }
+
+  function load(force) {
+    var now = Date.now();
+    if (!force && now - lastFetch < MIN_INTERVAL) return;
+    lastFetch = now;
+    fetch(widget.dataset.statusUrl, {credentials: 'same-origin', headers: {'Accept': 'application/json'}})
+      .then(function (response) { if (!response.ok) throw new Error(); return response.json(); })
+      .then(function (data) { if (data && data.ok) render(data); else fail(); })
+      .catch(fail);
+  }
+
+  load(true);
+  document.addEventListener('energy:refresh', function () { load(true); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) load(false); });
+  setInterval(function () { if (!document.hidden) load(false); }, 180000);
+})();
+</script>

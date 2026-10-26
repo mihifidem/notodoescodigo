@@ -293,6 +293,8 @@ def create_zero_cost_service_order(*, user, service_code, idempotency_key, accep
     service = ServiceProduct.objects.select_for_update().filter(code=service_code, is_active=True).first()
     if service is None:
         raise BillingUnavailable('El servicio no está disponible.')
+    if hasattr(service, 'energy_recharge'):
+        raise BillingUnavailable('Las recargas de Energía Ducky solo se acreditan con un pago verificado.')
     price = service_price(service, effective_plan(user))
     if price is None:
         raise BillingUnavailable('El servicio no tiene una tarifa vigente.')
@@ -374,7 +376,15 @@ def create_zero_cost_service_order(*, user, service_code, idempotency_key, accep
 
 
 def _grant_order_entitlements(order):
-    for line in order.lines.exclude(entitlement_code=''):
+    from apps.energy.services import credit_purchase, recharge_for_code
+
+    for line in order.lines.all():
+        if recharge_for_code(line.product_code) is not None:
+            # Energy recharges become purchased lots, only after a verified payment.
+            credit_purchase(order, line)
+            continue
+        if not line.entitlement_code:
+            continue
         from datetime import timedelta
 
         expires_at = None

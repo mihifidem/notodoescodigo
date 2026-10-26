@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Energía Ducky · NoTodoEsCódigo{% endblock %}
+{% block page_title %}Energía Ducky{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+<style>
+  .energy-meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+  .energy-meter>span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e)}
+  .energy-kpi{font-size:1.6rem;font-weight:700;line-height:1.1}
+  .energy-up{color:#16a34a;font-weight:600}
+  .energy-table td,.energy-table th{font-size:.85rem;vertical-align:middle}
+</style>
+{% endblock %}
+{% block content %}
+<main class="billing-app container py-4" id="energy-detail">
+  <header class="billing-hero mb-4">
+    <div>
+      <p class="billing-eyebrow">Sistema común de uso IA</p>
+      <h1>Energía Ducky</h1>
+      <p>La Energía Ducky mide el uso de las herramientas con IA de la plataforma. Los cursos, el campus y las herramientas
+        sin IA no consumen energía. Cada herramienta muestra su consumo antes de ejecutarse y solo se descuenta cuando
+        entrega un resultado utilizable.</p>
+    </div>
+  </header>
+
+  {% if not user.is_authenticated %}
+  <section class="card shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5">Cómo funciona</h2>
+      <ul class="mb-3">
+        <li>Cada nivel (Free, Plus, Pro) tiene una capacidad de energía recuperable.</li>
+        <li>La energía se recupera con el tiempo y completando actividades formativas verificadas, con un límite diario.</li>
+        <li>La energía comprada se guarda aparte y se usa después de la recuperable.</li>
+        <li>Nunca se cobra por intentos fallidos ni por conversaciones generales.</li>
+      </ul>
+      <a class="btn btn-primary" href="{% url 'account_signup' %}">Regístrate para obtener tu energía</a>
+    </div>
+  </section>
+  {% else %}
+  {% if energy.ok %}
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-balance-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-balance-title">Tu saldo · nivel {{ energy.plan|upper }}</h2>
+      {% if energy.configured %}
+      <div class="row g-4 align-items-center">
+        <div class="col-md-6">
+          <p class="mb-1 text-muted small">Energía recuperable</p>
+          <p class="energy-kpi mb-2">{{ energy.recoverable.available|floatformat:"-1" }} / {{ energy.recoverable.capacity|floatformat:"-1" }}</p>
+          <div class="energy-meter" role="progressbar" aria-label="Energía recuperable" aria-valuemin="0" aria-valuemax="100"
+               aria-valuenow="{{ energy.recoverable.percent|floatformat:0 }}">
+            <span style="width:{{ energy.recoverable.percent|floatformat:0 }}%"></span>
+          </div>
+          <p class="mt-2 mb-0">
+            {% if energy.full %}Energía completa{% elif energy.level == 'high' %}Nivel alto{% elif energy.level == 'medium' %}Nivel medio{% else %}Nivel bajo{% endif %}
+            {% if energy.recharging %}<span class="energy-up ms-2"><i class="bi bi-arrow-up" aria-hidden="true"></i> Recargando{% if energy.recharging_source == 'activity' %} por actividad{% endif %}</span>{% endif %}
+          </p>
+        </div>
+        <div class="col-md-6">
+          <dl class="row mb-0 small">
+            <dt class="col-7">Comprada disponible</dt><dd class="col-5">{{ energy.purchased.available|floatformat:"-1" }}</dd>
+            <dt class="col-7">Reservada en tareas en curso</dt><dd class="col-5">{{ energy.reserved_total|floatformat:"-1" }}</dd>
+            <dt class="col-7">Total disponible</dt><dd class="col-5">{{ energy.total_available|floatformat:"-1" }}</dd>
+            {% if energy.recovery.amount %}
+            <dt class="col-7">Recuperación periódica</dt>
+            <dd class="col-5">{{ energy.recovery.amount|floatformat:"-1" }} cada {{ energy.recovery.interval_minutes }} min</dd>
+            {% endif %}
+            {% if energy.next_recovery_at %}
+            <dt class="col-7">Próxima recuperación</dt>
+            <dd class="col-5"><time datetime="{{ energy.next_recovery_at|date:'c' }}">{{ energy.next_recovery_at|date:'d/m H:i' }}</time></dd>
+            {% endif %}
+          </dl>
+        </div>
+      </div>
+      {% else %}
+      <p class="mb-0">La energía recuperable de tu nivel aún no está configurada. Las herramientas con IA permanecen
+        no disponibles hasta que administración publique capacidad, recuperación y costes; el resto de la plataforma
+        funciona con normalidad.</p>
+      {% if energy.purchased.available %}<p class="mt-2 mb-0">Energía comprada disponible: <strong>{{ energy.purchased.available|floatformat:"-1" }}</strong></p>{% endif %}
+      {% endif %}
+      <p class="mt-3 mb-0 text-muted">{{ energy.message }}</p>
+    </div>
+  </section>
+
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-activity-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-activity-title">Recuperación por actividad hoy</h2>
+      {% if energy.activity.limit is not None %}
+      <p class="mb-1">Recuperado hoy: <strong>{{ energy.activity.earned|floatformat:"-1" }}</strong> de un máximo de
+        <strong>{{ energy.activity.limit|floatformat:"-1" }}</strong> (límite diario de tu nivel).</p>
+      {% if energy.activity.limit_reached %}<p class="mb-0">Has recuperado toda la energía disponible por actividad de hoy.</p>{% endif %}
+      {% else %}
+      <p class="mb-0">El límite diario depende de la capacidad de tu nivel, que aún no está configurada.</p>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+  {% endif %}
+
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-rules-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-rules-title">Reglas de recuperación</h2>
+      <div class="table-responsive">
+        <table class="table energy-table mb-3">
+          <thead><tr><th>Nivel</th><th>Capacidad</th><th>Recuperación periódica</th><th>Máximo diario por actividad</th></tr></thead>
+          <tbody>
+          {% for policy in policies %}
+            <tr>
+              <td>{{ policy.get_plan_display }}</td>
+              <td>{% if policy.is_configured %}{{ policy.capacity|floatformat:"-1" }}{% else %}Pendiente de configurar{% endif %}</td>
+              <td>{% if policy.recovery_configured %}{{ policy.recovery_amount|floatformat:"-1" }} cada {{ policy.recovery_interval_minutes }} min{% else %}Pendiente de configurar{% endif %}</td>
+              <td>{{ policy.activity_daily_percent|floatformat:"-1" }} % de la capacidad</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <h3 class="h6">Actividades que recuperan energía</h3>
+      {% if rules %}
+      <ul>{% for rule in rules %}<li>{{ rule.name }}: {{ rule.amount|floatformat:"-1" }} (una vez por elemento)</li>{% endfor %}</ul>
+      {% else %}
+      <p class="mb-0">Todavía no hay actividades con recompensa activa.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-tools-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-tools-title">Herramientas con IA</h2>
+      <div class="table-responsive">
+        <table class="table energy-table mb-0">
+          <thead><tr><th>Herramienta</th><th>Módulo</th><th>Consumo</th><th>Estado</th></tr></thead>
+          <tbody>
+          {% for tool in tools %}
+            <tr>
+              <td>{{ tool.name }}</td><td>{{ tool.module }}</td>
+              <td>{% if tool.cost %}{{ tool.cost|floatformat:"-1" }}{% else %}Sin coste configurado{% endif %}</td>
+              <td>{% if tool.enabled and not tool.paused %}Habilitada{% elif tool.paused %}En pausa{% else %}No disponible{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-recharge-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-recharge-title">Recargas</h2>
+      {% if recharges %}
+      <ul>
+        {% for offer in recharges %}
+        <li>{{ offer.recharge.service.name }}: {{ offer.recharge.energy_units|floatformat:"-1" }} de energía por {{ offer.price }} €</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>No hay recargas publicadas.</p>
+      {% endif %}
+      <p class="small text-muted mb-0">La energía comprada se acredita solo tras un pago confirmado y se usa después de la
+        recuperable. El pago único de recargas todavía no está disponible en la plataforma.</p>
+    </div>
+  </section>
+
+  {% if user.is_authenticated and energy.ok %}
+  {% if operations %}
+  <section class="card shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5">Tareas en curso</h2>
+      <ul class="mb-0">{% for op in operations %}<li>{{ op.tool.name }} · {{ op.amount|floatformat:"-1" }} reservada</li>{% endfor %}</ul>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if lots %}
+  <section class="card shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5">Energía comprada</h2>
+      <div class="table-responsive">
+        <table class="table energy-table mb-0">
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Disponible</th><th>Consumida</th><th>Caduca</th><th>Estado</th></tr></thead>
+          <tbody>
+          {% for lot in lots %}
+            <tr>
+              <td>{{ lot.created_at|date:'d/m/Y' }}</td><td>{{ lot.product_code }}</td>
+              <td>{{ lot.quantity|floatformat:"-1" }}</td><td>{{ lot.available|floatformat:"-1" }}</td>
+              <td>{{ lot.consumed|floatformat:"-1" }}</td>
+              <td>{% if lot.expires_at %}{{ lot.expires_at|date:'d/m/Y' }}{% else %}Sin caducidad{% endif %}</td>
+              <td>{{ lot.get_status_display }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card shadow-sm rounded-4 mb-4" aria-labelledby="energy-ledger-title">
+    <div class="card-body p-4">
+      <h2 class="h5" id="energy-ledger-title">Historial de movimientos</h2>
+      {% if page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table energy-table mb-2">
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Componente</th><th>Disponible</th><th>Reservada</th><th>Detalle</th></tr></thead>
+          <tbody>
+          {% for entry in page_obj %}
+            <tr>
+              <td>{{ entry.created_at|date:'d/m/Y H:i' }}</td>
+              <td>{{ entry.get_kind_display }}</td>
+              <td>{{ entry.get_component_display }}</td>
+              <td>{{ entry.available_delta|floatformat:"-3" }}</td>
+              <td>{{ entry.reserved_delta|floatformat:"-3" }}</td>
+              <td>{{ entry.reason }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+      <nav aria-label="Paginación del historial" class="d-flex gap-2">
+        {% if page_obj.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+        <span class="small align-self-center">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+      </nav>
+      {% endif %}
+      {% else %}
+      <p class="mb-0">Aún no hay movimientos de energía.</p>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
